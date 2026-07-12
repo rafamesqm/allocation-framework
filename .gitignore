@@ -1,0 +1,97 @@
+# =========================================================
+#  Direcionamento local — não versionar
+#  CLAUDE.md fica só como orientação local para o Claude, fora do remoto.
+# =========================================================
+CLAUDE.md
+
+# =========================================================
+#  DADOS SENSÍVEIS — nunca versionar
+#  Margens, avaliações individuais e histórico de alocação
+#  da Peers não podem entrar no repositório sob hipótese alguma.
+# =========================================================
+data/raw/
+data/interim/
+data/processed/
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.rds
+*.RData
+# EXCEÇÃO: dados sintéticos (esquema idêntico, pessoas fictícias) PODEM ser
+# versionados para tornar a pipeline auditável. Eles vivem em data/synthetic/.
+!data/synthetic/
+!data/synthetic/**
+
+# Se algum agregado real já anonimizado precisar ser versionado, remova o
+# padrão correspondente acima de forma consciente e use `git add -f`.
+
+# =========================================================
+#  Saídas que podem conter dados identificáveis
+# =========================================================
+outputs/figures/*_raw*
+outputs/tables/*_raw*
+# Figuras/tabelas anonimizadas destinadas à monografia PODEM ser versionadas.
+
+# =========================================================
+#  R
+# =========================================================
+.Rproj.user/
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+*_cache/
+/cache/
+*.utf8.md
+*.knit.md
+.Rproj.user
+
+# renv: versionar renv.lock, activate.R e settings.json; ignorar a biblioteca.
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/sandbox/
+renv/staging/
+
+# targets: ignorar o store de cache da pipeline.
+_targets/
+
+# Quarto / R Markdown: artefatos de render (mantenha os .qmd/.Rmd fonte).
+/.quarto/
+*_files/
+*.html
+*.pdf
+# EXCEÇÃO: PDFs/HTML finais destinados à entrega podem ser forçados com add -f.
+
+# =========================================================
+#  Segredos e credenciais
+# =========================================================
+.env
+.env.*
+.Renviron
+secrets.*
+*credentials*
+*.key
+config.local.*
+.databrickscfg
+databricks*.cfg
+databricks.yml
+.databricks/
+*.token
+*.pat
+
+# =========================================================
+#  Sistema operacional / editores
+# =========================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+.databricks
