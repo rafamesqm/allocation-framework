@@ -1,6 +1,6 @@
 # Pipeline de análise (targets). Roda por padrão sobre data/synthetic/.
 # tar_make() deve reconstruir tudo do dado sintético ao resultado.
-# Ver CLAUDE.md (reprodutibilidade) e docs/dicionario_de_dados.md (esquema).
+# Ver docs/dicionario_de_dados.md para o esquema dos dados.
 
 library(targets)
 
