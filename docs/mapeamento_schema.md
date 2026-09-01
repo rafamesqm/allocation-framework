@@ -1,0 +1,536 @@
+# Mapeamento de schema: dicionário → fonte real
+
+## Função deste documento
+
+Crosswalk entre os campos de `dicionario_de_dados.md` e as tabelas/views reais
+no Unity Catalog. Para cada campo, registra o que o modelo espera (tipo e papel
+definidos no dicionário), qual é a situação real depois da reconciliação ao
+vivo, o formato real do dado na fonte, e a origem exata (catálogo.schema.tabela.
+coluna). Alimenta a futura camada de acesso (`R/data/`, fonte = "databricks") e
+o gerador de dados sintéticos. Levantado ao vivo, só metadados (nomes de
+tabela e coluna, tipos, datas de atualização) e a definição SQL das views,
+nunca linha de dado real. Nenhuma coluna de PII ou característica protegida
+aparece aqui (ver exclusão ética em `dicionario_de_dados.md`).
+
+## Escopo consultado
+
+Catálogo principal: `databricks_comercial` (schemas `gold`, `silver`,
+`integracoes`, `integracoes_sb`, `default`), confirmado pelo usuário como o
+núcleo real dos dados de alocação. `databricks_alocacao` é protótipo segundo o
+usuário e foi consultado só como fonte secundária, quando não havia
+equivalente em `comercial`. Além do Databricks, o espaço de skills tem uma
+fonte externa: planilhas de formulário respondidas pelos colaboradores, que
+não podem ser carregadas no Databricks e por isso vivem em `data/raw/skills/`,
+fora do rastreamento do git (guarda de diretório inteiro, não só de extensão).
+Ver seção própria abaixo.
+
+## Fonte externa: plataforma de avaliação de desempenho (schema, sem acesso a banco)
+
+O time não liberou acesso à base nem ao schema de avaliação de desempenho,
+segundo o usuário é o dado mais sensível da empresa. Não há como consultar via
+Databricks nem via arquivo. O que existe é uma reconstrução da estrutura a
+partir da própria tela da plataforma (visualização de tela pelo usuário, com
+`Ferramenta de Captura`/print e HTML renderizado da página, nunca consulta a
+banco). Nenhum dado de terceiro foi lido; a única pessoa identificável no
+material consultado foi o próprio usuário avaliando a si mesmo, e mesmo assim
+só a estrutura foi registrada aqui, não o conteúdo das notas/comentários.
+
+**Estrutura confirmada:**
+
+* Metadados por avaliação: consultor avaliado, projeto vinculado (código +
+  período, ex.: semestral), etapa da avaliação, tipo de avaliação.
+* **Três etapas sobre o mesmo conjunto de campos, por ciclo:** Individual
+  (autoavaliação) → Avaliação às cegas (gestor avalia sem ver a autoavaliação)
+  → Avaliação do gestor / calibração (gestor vê individual × às cegas lado a
+  lado e define a nota final). `avaliador_id` é esse eixo de papel (individual
+  / gestor às cegas / gestor final), não um identificador solto.
+* Duas famílias de item avaliado, mesma mecânica nas duas: 9 subcompetências
+  em 5 categorias (Cultura, Desenvolvimento, Gestão de Projeto, Entrega do
+  Projeto, Geração de Valor) e itens de "Performance" (Coletivo: resultado do
+  projeto; Individual: qualidade da entrega, relacionamento com cliente,
+  comercial, valor para empresa). Achado inicial (antes da correção do
+  usuário) tratava Performance como bloco read-only; não é: é avaliado com a
+  mesma mecânica.
+* Cada item, em cada etapa: nota ordinal de 3 níveis (valor interno `ABAIXO` /
+  `DENTRO` / `ACIMA`, rótulo visual "Abaixo/Esperado/Acima do esperado"), com
+  **rubrica descritiva própria por nível de carreira** (o texto da régua muda
+  conforme N3, N4 etc.: não é escala fixa igual pra todo mundo), mais um
+  comentário de texto livre justificando a nota.
+* Comprimento do comentário observado varia muito: de poucas palavras (notas
+  factuais curtas) a parágrafos longos (100-260 palavras, tom narrativo e
+  específico). Não modelar como campo de tamanho fixo.
+* Único exemplo visto (n=1, a autoavaliação do usuário): 8 de 9 subcompetências
+  marcadas "Acima do esperado", 1 "Dentro do esperado". Não dá pra calibrar
+  proporção populacional com n=1, mas é evidência de que a distribuição pode
+  ser bem assimétrica pra cima: não assumir centrada em "Esperado".
+
+**Implicação para a EDA:** a divergência entre autoavaliação e avaliação às
+cegas do gestor é um sinal direto de viés de avaliador (rule de "normalizar
+entre raters" do dicionário), não só um problema a corrigir: vale caracterizar
+essa divergência como achado, se algum dia houver acesso a mais de um registro.
+
+**Sem mudança no acesso:** `avaliacao_desempenho` continua sem nenhuma consulta
+possível à base real. O gerador sintético para esse campo parte inteiramente
+da estrutura acima (3 etapas × N itens × escala + comentário, rubrica por
+nível), nunca de distribuição real observada.
+
+## Fonte externa: formulários de skills (`data/raw/skills/`)
+
+Três planilhas de formulário, populações majoritariamente distintas de
+respondentes (verificado por e-mail, sem expor identidade aqui):
+
+| Arquivo | Respondentes | Foco | Sobreposição com os outros |
+|---|---|---|---|
+| `CLTV_BD_Digital_Skills.xlsx` | 102 (101 e-mails únicos, 1 duplicata) | Skills técnicas/digitais (~144 ferramentas: frontend, backend, mobile, dados, devops, testes, RPA, agilidade) | 19 em comum com o Formulário 2.1; 20 em comum com o de Tecnologia |
+| `Formulário de Skills 2.1(1-137).xlsx` | 137 (137 e-mails únicos) | Todas as práticas de consultoria (E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking): ferramentas, soft skills de consultoria, experiência setorial, certificações, preferência/restrição de alocação | 19 em comum com o Digital Skills; 0 em comum com o de Tecnologia |
+| `ACTAR Peers Group _ Levantamento Background Tecnologia(1-29).xlsx` | 29 (29 e-mails únicos) | Especialização em segurança/infra (cloud, rede, identidade, OT/IoT, privacidade, resiliência cibernética) | 20 em comum com o Digital Skills; 0 em comum com o Formulário 2.1 |
+
+União das três: **228 e-mails distintos**. Ainda não cruzado contra o total de
+consultores ativos (`vw_apdata_bi_entidades_globais`) para saber a cobertura
+percentual real.
+
+**Achados de qualidade, relevantes para o gerador sintético e para o ETL:**
+
+* **Escalas de proficiência inconsistentes entre arquivos.** O Digital Skills
+  usa Júnior/Pleno/Sênior/Especialista/N/A (escala de senioridade reaproveitada);
+  o Formulário 2.1 usa Iniciante/Básico/Médio/Avançado. Precisam de um de-para
+  de escala antes de virarem uma coluna só de `C`.
+* **"N/A" é resposta válida, não é o mesmo que célula vazia.** No Digital
+  Skills, "N/A" é o item mais comum em várias colunas de skill (ex.: 37 de 102
+  em HTML5) e significa "não se aplica a mim", distinto de não ter respondido.
+  Tratar como zero/ausência de skill, não como missing a imputar.
+* **Uma duplicata de respondente** no Digital Skills (102 linhas, 101
+  e-mails). Precisa dedup (ex.: manter resposta mais recente por
+  `Hora de conclusão`) antes de qualquer análise.
+* **Duas abas quase idênticas dentro de `CLTV_BD_Digital_Skills.xlsx`**
+  (`Sheet1` e `BD_DIG_Modificada`): 149 das 150 colunas são idênticas linha a
+  linha; a diferença é uma coluna renomeada e o conteúdo de texto livre de
+  certificações levemente editado. Não está claro qual é a canônica: confirmar
+  com quem preparou antes de escolher uma para o ETL.
+* **Taxonomia de skills existe**, aba `De-para` do Digital Skills: 144 skills
+  mapeadas em 14 categorias (BackEnd, FrontEnd, Mobile, Banco de dados, Devops,
+  Testes, Agilidade, RPA, Tecnologia de dados, Plataformas/Sistemas
+  Corporativos...). Boa candidata a `taxonomia_skill`, mas 4 das 14 categorias
+  (Certificações obtidas, Certificados, Experiência em consultoria, Segmentos
+  de atuação) são campos administrativos misturados na tabela, não categorias
+  de skill de fato: precisa de limpeza antes de usar.
+* **Formatação de cabeçalho de coluna inconsistente**: espaçamento duplo/triplo
+  no meio de nomes de coluna nos três arquivos (ex.: `"PHP   (Laravel..."`,
+  `"AWS   (EC2..."`), mistura de idioma nos metadados (`Email`/`Name` em inglês,
+  resto em pt-BR), e no arquivo de Tecnologia uma coluna tem quebra de linha
+  literal dentro do próprio nome. `janitor::clean_names()` resolve no ETL, mas
+  o nome bruto não é limpo.
+* **Chave de ligação é e-mail/nome (PII direta), não `consultor_id`.** Vai
+  precisar de uma tabela de-para nome/e-mail → `consultor_id` (via
+  `vw_apdata_bi_entidades_globais`) para juntar com o resto do modelo. Esse
+  cruzamento por PII merece cuidado de acesso equivalente ao dado real do
+  Databricks, mesmo sendo arquivo local.
+* **Achado que não estava no dicionário**: o Formulário 2.1 tem duas colunas de
+  texto livre, "possui alguma preferência em relação à alocação" e "possui
+  alguma restrição em relação à alocação": candidatas diretas a
+  `preferencias_dominio` (Camada 3).
+
+## Legenda de situação
+
+* **Confirmado**: coluna real encontrada, tipo e origem verificados.
+* **Confirmado, aproximado**: achado real existe, mas granularidade ou
+  semântica ainda precisa validação antes de virar target de ETL.
+* **Suposto**: o negócio dá como certo que existe, mas esta reconciliação não
+  achou a tabela de origem. Diferente de aspiracional: aqui a suposição é de
+  que falta procurar direito, não que o dado nunca foi coletado.
+* **Parcial**: parte do campo tem fonte, parte não.
+* **Sem fonte**: nenhuma pista encontrada nesta rodada. Mantém o rótulo
+  aspiracional do dicionário.
+* **Confirmado ausente**: o usuário confirmou que o dado não existe como
+  processo de negócio na Peers, não é lacuna de busca. Mais forte que "Sem
+  fonte": aqui não é "não achamos ainda", é "não tem o que achar".
+
+## Tabelas legado ou fora de uso, não usar
+
+Nomes com sufixo `_teste` encontrados em `databricks_comercial`, todos sem
+atualização recente (a mais nova é de dezembro de 2025, a mais antiga de junho
+de 2025, contra tabelas vigentes atualizadas no dia do levantamento):
+
+| Tabela | Última atualização |
+|--------|---------------------|
+| `gold.apdata_entidades_globais_teste` | 2025-12-02 |
+| `gold.entidades_globais_teste` | 2025-12-05 |
+| `gold.vw_bi_entidades_globais_teste` | 2025-12-15 |
+| `gold.cadastro_faturas_onfly_teste` | 2025-06-04 |
+| `silver.vw_bi_teste_comecial_digital` | 2026-03-13 |
+
+A versão vigente do cadastro de pessoas é `gold.vw_apdata_bi_entidades_globais`
+(view atualizada no dia do levantamento, aponta para
+`gold.apdata_bi_entidades_globais`, não para a tabela `_teste`).
+
+**Achado à parte, não sobre legado:** a view `gold.vw_apdata_peers_experience`
+tem a definição quebrada: o `SELECT` retorna literais de texto fixos (nomes
+de coluna como string), não as colunas reais da tabela de origem. Aparece como
+"atualizada hoje" nos metadados, mas isso reflete só o redeploy da definição,
+não dado confiável por trás. Não usar até confirmar com quem mantém o dado.
+Boa parte das views vigentes carrega um comentário no SQL do tipo "ATENÇÃO:
+coloque o nome da tabela de origem aqui", sinal de que essa camada de views
+está em manutenção ativa e pode mudar. Vale reconfirmar antes de travar
+qualquer mapeamento na camada de acesso.
+
+**Correção sobre `ft_peers_mind` (databricks_alocacao.silver):** cotada
+inicialmente nesta reconciliação como candidata a `skills_hard[]`/`soft_skills[]`
+pelo formato (entidade-atributo-valor, `des_atributo`/`des_valor`/`num_peso`).
+O usuário corrigiu: não é avaliação de skills nem de desempenho, é registro de
+saúde mental dos colaboradores durante a execução de projetos. Dado sensível.
+Removida como candidata a qualquer campo do dicionário. Pode ser dado
+relevante para alguma análise futura, mas não decidido: não faz parte do
+espaço de skills nem de nenhum objeto algébrico deste documento por ora, e
+qualquer uso exigiria consideração ética própria antes de virar insumo.
+
+## Camada 1 · Atributos
+
+### Consultor → linhas de `C`
+
+| Campo | O que o modelo espera | Situação | Formato real | Origem real |
+|---|---|---|---|---|
+| `nivel_senioridade` | categórico ordinal, custo · restrição de mix | Confirmado | STRING (`Cargo`, `Sigla`, `Nivel`, `Vertical`, `Modelo`) | `databricks_comercial.gold.vw_apdata_cargos`, `silver.vw_bi_cargos` |
+| `tempo_casa` · `tempo_nivel` | numérico, objetivo de desenvolvimento | Confirmado, aproximado | DATE por nível (`Data de admissão`, `Intern`, `Trainee`, `Analyst` … `Director`) | `databricks_comercial.gold.vw_apdata_bi_entidades_globais` |
+| `tipo_contrato` | categórico, disponibilidade · custo | Suposto | STRING (`Modelo`) | `vw_apdata_cargos` / `vw_apdata_bi_entidades_globais`, campo `Modelo`; semântica não confirmada |
+| `localizacao` | categórico, restrição geográfica | Confirmado | STRING (`Cidade`, `Estado`, `Base`) | `vw_apdata_bi_entidades_globais` |
+| `fuso` | categórico, restrição geográfica | Suposto | sem campo próprio | derivável de `Estado`, não fonte direta |
+| `disposicao_viagem` | booleano / escala, restrição dura | Confirmado, aproximado | STRING (resposta de formulário livre, não booleano estruturado) | `vw_apdata_bi_entidades_globais` (`Possui interesse em projetos com viagens nacionais?`, `...internacionais?`, `Possui visto ativo?`) |
+| `skills_hard[]` | vetor skill → proficiência, fit técnico · cold start | Confirmado, aproximado | STRING (escalas de proficiência diferentes por arquivo, ver ressalvas) | `data/raw/skills/CLTV_BD_Digital_Skills.xlsx`, `ACTAR ... Background Tecnologia.xlsx` (fonte externa, fora do Databricks) |
+| `certificacoes[]` | lista categórica, restrição dura | Confirmado | STRING (texto livre de certificação) | `data/raw/skills/` (todos os três arquivos têm pergunta de certificação) |
+| `idiomas[]` | lista categórica, restrição dura | Confirmado, aproximado | STRING (resposta de formulário: inglês, espanhol, outras línguas) | `vw_apdata_bi_entidades_globais` |
+| `experiencia_setorial[]` | vetor setor → intensidade, fit de domínio | Confirmado | STRING (texto livre, "em quais segmentos já executou projeto", por prática) | `data/raw/skills/Formulário de Skills 2.1.xlsx` |
+| `expertise_funcional` | categórico / vetor, fit complementar | Confirmado | STRING (formulário organizado por prática: E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking) | `data/raw/skills/Formulário de Skills 2.1.xlsx`; complementa `vw_apdata_bi_entidades_globais` (Vertical, Frente) |
+| `soft_skills[]` | vetor das avaliações, fit qualitativo | Confirmado | STRING (bloco de habilidades de consultoria: estruturação de problema, storylining, design thinking, gestão da mudança...) | `data/raw/skills/Formulário de Skills 2.1.xlsx` |
+| `recencia_skill[]` | vetor skill → data, decaimento | Parcial | POSIXct (`Hora de conclusão` do formulário) | derivável da data de resposta de cada planilha, não é recência por skill individual |
+
+### Projeto / Demanda → linhas de `P`
+
+| Campo | O que o modelo espera | Situação | Formato real | Origem real |
+|---|---|---|---|---|
+| `setor` · `tipo_projeto` | categórico, espaço de busca de domínio | Confirmado, join validado | STRING (`Segmento`, `Offering`, `Linha de Serviço` de `vw_crm_oportunidades_latest`; `situacao`/`etapa_modalidade` de `vw_bi_tbl_projetos`; `Indústria` de `vw_gtac_com_clientes` descartada, 99,9% nula) | join `vw_bi_tbl_projetos.id_crm` = `vw_crm_oportunidades_latest.\`Negócio Código\`` testado e validado (~98% de cobertura) |
+| `data_inicio` · `data_fim` · `duracao` | data / numérico, janela de capacidade | Confirmado | DATE | `silver.vw_gtac_cltv_alocacao` (`Data de início`, `Data de fim`) |
+| `local` · `on_site` | categórico, restrição geográfica | Suposto | - | nenhum candidato identificado nesta rodada |
+| `modelo_precificacao` | categórico, formação da margem | Suposto | - | nenhum candidato identificado nesta rodada |
+| `skills_requeridas[]` | vetor skill → mínimo/peso, alvo do fit técnico | Confirmado ausente | - | usuário confirmou: não existe processo de negócio que capture requisito de skill por demanda, não é lacuna de coleta |
+| `mix_papeis` | estrutura nível → qtd., restrição de composição | Suposto | - | nenhum candidato identificado nesta rodada |
+| `valor_contrato` · `custo_orcado` | numérico (R$), margem (objetivo) | Confirmado | DOUBLE / STRING (`vlr_valor_reais`) | `silver.vw_bi_tbl_projetos`, tabelas `gold.actarnet_*` |
+| `esforco_estimado` | numérico (FTE/horas), necessidade de capacidade | Confirmado | DOUBLE (`Horas Semana`, `horas_mes`), INT (`Duração`) | pré-venda: `silver.vw_crm_pipelines_latest`; pós-venda: `silver.vw_bi_tbl_pps_alocacao_pessoas` |
+| `complexidade` · `importancia_estrategica` | escala ordinal, peso do objetivo | Confirmado ausente | - | usuário confirmou: não existe |
+
+### Espaço de Skills → `S`
+
+| Campo | O que o modelo espera | Situação | Formato real | Origem real |
+|---|---|---|---|---|
+| `taxonomia_skill` | ontologia hierárquica | Confirmado, aproximado | STRING (144 skills em 14 categorias) | aba `De-para` de `CLTV_BD_Digital_Skills.xlsx`; precisa limpar 4 categorias que são metadado, não skill |
+| `skill_adjacencia` | matriz skill × skill | Confirmado ausente | - | usuário confirmou: não existe |
+
+## Camada 2 · Interações → células de `R`
+
+| Campo | O que o modelo espera | Situação | Formato real | Origem real |
+|---|---|---|---|---|
+| `(consultor_id, projeto_id)` | chave de relação, célula da matriz `R` | Confirmado | STRING | `silver.vw_gtac_cltv_alocacao` (`Cód. Colaborador`, `Código`), `silver.vw_bi_tbl_pps_alocacao_pessoas` (`id_pp`, `id_alocacao`) |
+| `papel` · `pct_alocacao` · `horas` | categórico + numérico, peso da interação | Confirmado | DOUBLE (`Percentual de alocação do N1`, `horas_mes`), STRING (`nivel`, `sigla_cargo`) | `vw_gtac_cltv_alocacao`, `vw_bi_tbl_pps_alocacao_pessoas` |
+| `avaliacao_desempenho` | numérico, rótulo explícito | Confirmado (schema), sem acesso a banco | ordinal 3 níveis por competência × etapa, ver seção "Fonte externa: plataforma de avaliação" | plataforma de avaliação (schema reconstruído via UI, `ft_peers_mind` descartado como candidato) |
+| `avaliador_id` | chave estrangeira, debiasing de rater | Confirmado (schema), sem acesso a banco | categórico: individual / gestor às cegas / gestor final | mesma fonte acima; é eixo estrutural de papel, não FK solta |
+| `margem_atribuida` | numérico (R$/%), ponderação econômica | Confirmado, granularidade diferente da esperada | DOUBLE (`peers_total_vlr`, `actar_receita_vlr` etc.) | `silver.vw_bi_custo_frente_mensal`; usuário confirmou que frente/mês é a única granularidade que existe, não há margem por alocação individual em lugar nenhum |
+| `flag_restaffing` · `solicitacao_nominal` | booleano, feedback implícito | Confirmado ausente | - | usuário confirmou: não é documentado |
+
+## Camada 3 · Operação
+
+| Campo | O que o modelo espera | Situação | Formato real | Origem real |
+|---|---|---|---|---|
+| `custo_carregado` | numérico (R$/h), margem + restrição orçamentária | Confirmado | DOUBLE (`Taxa`) | `silver.vw_gtac_fin_taxa_hora` (por `Sigla cargo`) |
+| `calendario_alocacao` · `pct_ocupacao` | série temporal, restrição de capacidade | Confirmado | DOUBLE / DATE (`data_mes`, `horas_mes`) | `vw_gtac_cltv_alocacao`, `vw_bi_tbl_pps_alocacao_pessoas` |
+| `ferias` · `ausencias` · `capacidade_periodo` | data / numérico, limite de alocação | Confirmado | DATE, INT, STRING | `gold.vw_apdata_ferias_resumo`, `vw_apdata_gestao_ferias`, `vw_apdata_relacao_ferias_programadas`, `vw_apdata_afastamento`, `vw_apdata_relacao_colaboradores_em_ferias` |
+| `conflito_interesse` | matriz pessoa × cliente, restrição dura | Confirmado ausente | - | usuário confirmou: não existe |
+| `preferencias_dominio` | vetor / ranking, objetivo de satisfação | Confirmado, aproximado | STRING (texto livre, não estruturado) | `data/raw/skills/Formulário de Skills 2.1.xlsx` ("possui alguma preferência/restrição em relação à alocação") |
+| `objetivos_desenvolvimento` | texto / categórico, objetivo de crescimento | Confirmado ausente | - | usuário confirmou: não existe |
+| `pipeline_demandas` | lista temporal, otimização dinâmica | Confirmado | STRING / DOUBLE / DATE (variados) | `silver.vw_crm_oportunidades_latest`, `silver.vw_crm_pipelines_latest` |
+
+## Camada 4 · Relacional / Time
+
+| Campo | O que o modelo espera | Situação | Formato real | Origem real |
+|---|---|---|---|---|
+| `grafo_coalocacao` | grafo pessoa × pessoa, química de time | Suposto | - | derivável da Camada 2, nenhuma fonte direta |
+| `cobertura_skills_time` | numérico derivado, complementaridade | Suposto | - | deriva de `skills_hard[]`, mesma limitação de fonte |
+| `balanco_senioridade` | distribuição, restrição de pirâmide | Suposto | - | deriva de `nivel_senioridade`, mesma fonte |
+
+## Leitura consolidada
+
+* **Melhor do que o dicionário registrava:** `disposicao_viagem`, `idiomas[]`,
+  `esforco_estimado`, `custo_carregado`, `pipeline_demandas`, `tempo_casa` ·
+  `tempo_nivel` (data por nível de carreira, não só admissão), e agora todo o
+  espaço de skills (`skills_hard[]`, `soft_skills[]`, `taxonomia_skill`,
+  `certificacoes[]`, `experiencia_setorial[]`, `expertise_funcional`) e
+  `preferencias_dominio`, via as planilhas de `data/raw/skills/`.
+* **Suposto, não confirmado:** `tipo_contrato`, `local`/`on_site`,
+  `modelo_precificacao`, `mix_papeis`.
+* **Confirmado ausente pelo usuário (não é lacuna de busca, é ausência real
+  de processo ou registro na Peers):** `skills_requeridas[]`,
+  `complexidade` · `importancia_estrategica`, `conflito_interesse`,
+  `objetivos_desenvolvimento`, `skill_adjacencia`,
+  `flag_restaffing`/`solicitacao_nominal`.
+* **`skills_requeridas[]` ausente: decisão tomada (2026-07-31).**
+  `skills_requeridas[]` não é lacuna de coleta, é ausência de processo: a
+  Peers não formaliza o requisito técnico de uma demanda no momento da venda
+  ou alocação. Isso desafiava a arquitetura conceitual do `predefinicoes.md`,
+  que assume `P` (projeto × requisito, no mesmo espaço de skills de `C`) como
+  insumo do content-based. Decisão: `P` será estimado a partir de
+  `setor`/`tipo_projeto`/Offering/Linha de Serviço/Indústria do projeto (proxy,
+  campos que existem), nunca tratado como requisito real capturado. A ausência
+  vira achado de pesquisa na monografia, registrada explicitamente, não
+  maquiada. Mecanismo exato de estimação fica para a EDA/wave 2. Ver decisão
+  completa em `predefinicoes.md`.
+* **`margem_atribuida`: granularidade confirmada, não é limitação de busca
+  (2026-08-01).** Usuário confirmou que frente/mês é a única granularidade de
+  margem que existe na Peers, não há valor por alocação individual em lugar
+  nenhum. Atribuir margem a uma pessoa dentro de um time exigiria rateio
+  estimado (ex.: por `pct_alocacao`/`horas`), não captura real, no mesmo
+  espírito da decisão de `skills_requeridas[]`. Isso pesa a favor do candidato
+  (c) da "Construção do rótulo" no dicionário: tratar margem como sinal
+  separado por frente/mês em `f`, não forçar rateio individual dentro de `R`.
+  Não decidido ainda, só registrado como evidência para a EDA.
+* **Skills deixou de ser o maior gargalo**, mas tem trabalho de limpeza pela
+  frente antes de virar `C`: três planilhas com populações de respondentes
+  majoritariamente diferentes (228 e-mails únicos ao todo), duas escalas de
+  proficiência distintas que precisam de de-para, uma duplicata de
+  respondente, cabeçalhos de coluna com formatação inconsistente, e a
+  chave de ligação sendo e-mail/nome (PII), não `consultor_id`.
+* **`avaliacao_desempenho` e `avaliador_id` mudaram de "sem fonte" para
+  "schema conhecido, sem acesso a banco"**: a estrutura real (3 etapas ×
+  9 competências + itens de Performance × escala 3 níveis + comentário,
+  rubrica por nível de carreira) foi reconstruída via a própria plataforma,
+  sem nenhuma consulta a base. O gargalo não é mais "não sabemos a forma", é
+  "não temos acesso ao dado real": o gerador sintético parte só da forma.
+
+## Calibração agregada (levantada em 2026-09-01, antes do fim do acesso em 09/09)
+
+Números agregados puxados ao vivo via SQL warehouse, exclusivamente `COUNT`/
+`GROUP BY`/`MIN`/`AVG`/`MAX`, nunca linha de dado. Servem para parametrizar o
+gerador sintético com distribuições realistas.
+
+**Headcount (`vw_apdata_bi_entidades_globais`):** 389 registros no total,
+por status: EM ATIVIDADE NORMAL 285, DEMITIDO EM MESES ANTERIORES 75,
+GOZANDO FERIAS 15, DEMITIDO NO MES 4, AFASTADO SEM REMUNERACAO 4, GOZANDO
+RECESSO 2, AUXILIO-DOENCA 2, LICENCA-MATERNIDADE 2.
+
+**Pirâmide de senioridade, só ativos (n=285):** `Nível` é decrescente com a
+hierarquia, `N0` é o topo (mais sênior) e `N4` a base (mais júnior),
+confirmado pelo usuário. Contagens: N3 107, N2 71, N1 55, N4 42, N0 8, ADM 1,
+NENHUMA 1. Da base ao topo (N4→N3→N2→N1→N0): 42, 107, 71, 55, 8. Não é
+pirâmide estrita, o nível logo acima da base (N3) é o mais numeroso, maior
+até que a própria base (N4). Não simular como decrescente monotônico da base
+ao topo.
+
+**Projetos por situação (`vw_bi_tbl_projetos`):** Recusada/Cancelada 2799,
+Projeto (executando) 952, Proposta 209, Lead 127, Reunião Inicial 123,
+Ideia 92. Funil de vendas com atrição grande, relevante para `pipeline_demandas`.
+
+**Alocações (`vw_gtac_cltv_alocacao`):** 4999 linhas, 511 colaboradores
+distintos (histórico completo, inclui desligados, por isso maior que os 285
+ativos), 1833 códigos de alocação distintos.
+
+**Custo carregado por cargo (`vw_gtac_fin_taxa_hora`, R$/h):** varia de
+~85 (estagiário, sigla `SO_INT`) a ~2066 (diretoria sênior, `MD5`), escalando
+de forma monotônica e suave por nível. Tabela completa por sigla salva no
+histórico da sessão, não reproduzida aqui campo a campo; usar a faixa
+mín/média/máx por nível para amostrar `custo_carregado` no sintético.
+
+**Valor de contrato (`actarnet_alocacao_pessoas`, R$, n=3339):** mínimo 0,
+média ~431.862, máximo ~38.816.467. Distribuição muito assimétrica à direita,
+não normal, não amostrar como normal no sintético.
+
+**Cold start e densidade (join de checagem, não validado a fundo):** 48 dos
+285 consultores ativos não aparecem em nenhuma linha de `vw_gtac_cltv_alocacao`
+(~17%, primeira estimativa de cold start do lado consultor). 4598 pares
+distintos (colaborador, código de alocação) sobre 511 colaboradores × 1833
+códigos possíveis, densidade bruta ~0,5%, consistente com a esparsidade
+esperada de `R`. Tratar como estimativa de primeira passada: o join assume
+que `ID` (entidades) e `Cód. Colaborador` (alocação) são a mesma chave, o que
+não foi confirmado com o time de dados.
+
+### Segunda rodada de calibração (2026-09-01): dispersão, correlação, grau
+
+**Correção de direção de escala (confirmada pelo usuário): `Nível` é
+decrescente com a hierarquia.** `N0` é o topo (mais sênior), `N4` é a base
+(mais júnior), o oposto do que a codificação inicial (N0→0 ... N4→4) assumia.
+Com a direção corrigida, as duas correlações abaixo passam a fazer sentido e
+são confiáveis, só o sinal precisa ser invertido em relação ao que saiu da
+consulta bruta:
+
+* `Nível` × taxa de cargo: consulta bruta deu -0,90; com escala ascendente de
+  senioridade (N4=0 ... N0=4), a correlação correta é **+0,90**: quanto mais
+  sênior, maior o custo, exatamente como a progressão por `Sigla Cargo` já
+  mostrava.
+* `Nível` × tempo de casa: consulta bruta deu -0,34; com a mesma correção, a
+  correlação correta é **+0,34**: quanto mais sênior, mais tempo de casa,
+  relação moderada e plausível.
+
+Implicação para o gerador: `nivel_senioridade` deve ser codificado como
+escala ascendente de senioridade (ex.: N4 < N3 < N2 < N1 < N0), não pela
+leitura literal do número no rótulo. A pirâmide de contagem (abaixo) também
+precisa ser lida nessa direção.
+
+**Dispersão e assimetria confirmadas (SQL agregado, nunca linha de dado):**
+
+| Variável | Fonte | Desvio-padrão | P25 | P50 | P75 | Assimetria |
+|---|---|---|---|---|---|---|
+| Taxa/hora (`custo_carregado`) | `vw_gtac_fin_taxa_hora` | 453,50 | 286,58 | 485,70 | 944,62 | 0,93 (moderada, positiva) |
+| Valor de contrato, só positivos | `actarnet_alocacao_pessoas` | 1.771.644 | 34.814 | 108.300 | 375.054 | 12,68 (extrema, cauda muito pesada) |
+| Horas/mês (`esforco_estimado`) | `vw_bi_tbl_pps_alocacao_pessoas` | 66,90 | 32 | 120 | 160 | -0,05 (quase simétrica) |
+
+**Massa em zero no valor de contrato:** de 3339 registros, 490 (14,7%) são
+zero ou negativos. Não é um detalhe menor: uma log-normal comum não acomoda
+zero exato, é preciso um modelo com massa pontual em zero mais uma
+distribuição contínua para a parte positiva (modelo *hurdle*), não uma
+log-normal ingênua sobre todo o campo.
+
+**Distribuição de grau em `R` (para não gerar Bernoulli i.i.d. uniforme):**
+
+| Grau | Média | Desvio-padrão | Máximo |
+|---|---|---|---|
+| Alocações distintas por colaborador | 9,00 | 6,68 | 35 |
+| Colaboradores distintos por código de alocação | 2,51 | 2,94 | 47 |
+
+Nos dois casos a variância é bem maior que a média (sobredispersão clara:
+44,6 vs. 9,0 no primeiro; 8,65 vs. 2,51 no segundo), o que descarta Poisson
+como modelo de grau e aponta para Binomial Negativa.
+
+### Terceira rodada (2026-09-01): tudo reverificado do zero, mais validação de join
+
+Reexecutei toda a bateria de consultas das rodadas anteriores sem assumir
+nada. **Todos os números de headcount, pirâmide, projetos por situação,
+alocações, taxa por cargo, valor de contrato, dispersão, assimetria e grau
+saíram idênticos aos já registrados acima.** Schema das 6 tabelas usadas
+(colunas, tipos) também confere. Os dados não mudaram desde a rodada
+anterior; o que muda nesta rodada é a validação dos dois joins pendentes.
+
+**Join `ID` (entidades) = `Cód. Colaborador` (alocação): fraco, usar com
+ressalva.** Cobertura real: dos 511 colaboradores distintos que aparecem em
+`vw_gtac_cltv_alocacao`, só 327 (64%) têm `ID` correspondente na tabela de
+entidades atual. Testei duas chaves alternativas (`cod_contratado_apdata`,
+`cod_id_datalake`, ambas também presentes em entidades): as duas deram 0% de
+match, claramente são espaços de chave diferentes, não é isso. `ID` continua
+sendo a melhor chave disponível, mas com 36% dos colaboradores históricos de
+alocação sem correspondência (provavelmente gente desligada há mais tempo,
+removida da tabela de entidades, ou terceirizados/"Billado" que nunca tiveram
+registro de entidades). **Consequência prática: a estimativa de cold start
+(~17%) e a densidade calculada anteriormente usam essa chave e podem estar
+enviesadas** (alguém pode parecer "sem alocação" só porque o `ID` dele não
+bate, não porque nunca foi alocado). Tratar como estimativa aproximada, não
+como número final para a EDA.
+
+**Join `id_crm` (`vw_bi_tbl_projetos`) = `Negócio Código`
+(`vw_crm_oportunidades_latest`): forte, pode usar.** Cobertura de `id_crm`
+nos 952 projetos em execução: 100% (952 de 952 preenchidos). Join contra o
+CRM: ~98% de correspondência (939 de 960; o denominador de 960 em vez de 952
+sugere que `Negócio Código` não é estritamente único no CRM, algum
+fan-out no join, não investigado a fundo, mas a taxa de acerto é alta o
+suficiente para confiar). **`Offering` e `Linha de Serviço` podem ser usados
+como proxy de `P` para a maioria dos projetos executados**, como já estava
+decidido.
+
+**Achado novo, não esperado: `Indústria` em `vw_gtac_com_clientes` está
+praticamente vazia.** De 1999 registros, 1997 são `NULL`, só 2 preenchidos.
+Esse campo, que eu tinha citado como parte do proxy de `P`, não serve como
+está. **Substituto encontrado: `Segmento` em `vw_crm_oportunidades_latest`**,
+96,8% preenchido (4086 de 4220), 10 categorias reais:
+
+| Segmento | n |
+|---|---|
+| Varejo | 1097 |
+| Serviços | 773 |
+| Indústria | 510 |
+| Banking | 384 |
+| Educação | 348 |
+| Health | 315 |
+| Insurance | 240 |
+| Agronegócio | 182 |
+| Alimentos e Bebidas | 165 |
+| Private Equity | 72 |
+
+E a distribuição de `Offering` (mesma tabela), 12 categorias reais, as duas
+maiores Experience & Efficiency (991) e Strategy and M&A (642), seguidas por
+Data Analytics & AI (530), Supply Chain (524), Tech Consulting (427), Finance
+(424), e mais 6 categorias menores. **Atualizar a decisão de proxy de `P`:
+usar `Segmento` (não `Indústria` de `vw_gtac_com_clientes`) e `Offering`.**
+
+**Duração de projeto: estimativa de baixa confiança, não usar sem
+ressalva.** `AVG(DATEDIFF(dt_alteracao, dt_criacao))` para projetos em
+execução deu 177,6 dias (sd 189,2). `dt_alteracao` é um campo de auditoria
+("data da última alteração do registro"), não necessariamente a data de fim
+do projeto. Esse número pode servir de teto grosseiro de duração, não como
+duração real calibrada. Não achamos um campo de "data de fim" claro em
+`vw_bi_tbl_projetos` nesta rodada.
+
+### Quarta rodada (2026-09-01): item opcional da Fase 0, correlações extras e investigação do join
+
+**Correlações extras para a cópula:**
+
+* `pct_alocacao` (`Percentual de alocação do N1`) × `nivel_senioridade`:
+  **+0,52** (moderada-forte), calculada sobre os 3957 pares onde o join
+  `ID`=`Cód. Colaborador` bate (ver ressalva de cobertura acima).
+* `horas_mes` × `nivel_senioridade` (usando a coluna `nivel` própria de
+  `vw_bi_tbl_pps_alocacao_pessoas`, sem depender do join fraco): **-0,55**,
+  moderada-forte e **negativa**: quanto mais sênior, menos horas de execução
+  por mês. Faz sentido de negócio (cargos mais seniores dedicam mais tempo a
+  venda/gestão, menos a entrega faturável).
+* **`horas_mes` por `sigla_cargo` (estratificado, sem precisar de
+  correlação):** confirma o mesmo padrão de forma muito mais nítida.
+  Estagiários (`INT`) em torno de 112h/mês, cargos de execução
+  (`AN`/`CT`/`SCT`/`TL`) na faixa de 141-146h/mês (pico da curva), caindo
+  para `EMG`/`MG` (~90-137h), despencando em `SMG`/`PRI`/`DIR`/`MD1-MD5`
+  (12-60h/mês). **Implicação para o gerador:** `horas_mes` em `R`/Camada 3
+  deve ser amostrado condicional ao cargo (ou por cópula com
+  `nivel_senioridade`), não com uma distribuição única para todo mundo.
+
+**Investigação da lacuna de 36% no join `ID`=`Cód. Colaborador`: não
+totalmente resolvida, mas descartei duas hipóteses.**
+
+* **`Billado` não explica a lacuna.** Praticamente 100% dos colaboradores,
+  com ou sem match, têm ao menos uma linha `Billado = Sim`. Não é uma
+  distinção entre "terceirizado faturável" e "não faturável".
+  Não é isso.
+* **Formato da chave não explica.** Prefixo (`ID` + dígitos) é idêntico nos
+  dois grupos, comprimento igual (7 caracteres). Não é problema de formato.
+  Não é isso.
+* **Hipótese que ganhou algum suporte, não conclusiva: turnover.** Entre os
+  sem match, a proporção de alocações com `Status da alocação = Finalizado`
+  é levemente maior (84% vs. 71% no grupo com match), consistente com gente
+  que já saiu da empresa há mais tempo que a tabela de entidades atual não
+  cobre mais. Não é conclusivo, só uma tendência na direção esperada.
+  Não persegui mais fundo por não ser bloqueante: a ressalva sobre a
+  estimativa de cold start já está registrada acima e é suficiente para
+  seguir com o gerador.
+
+**`localizacao` e `disposicao_viagem`: calibração real puxada agora (não
+eram suposição, só faltava a consulta).** `Estado` (ativos, n=285): São Paulo
+182 (64%), Minas Gerais 70 (25%), Rio de Janeiro 13, e mais 8 estados com 1-6
+cada (cauda longa). Viagem nacional: 175 sim (61%), 110 não. Viagem
+internacional: 185 sim (65%), 100 não. As duas perguntas de viagem são
+respostas de formulário (STRING "SIM"/"NAO"), tratar como binária ao
+codificar.
+
+## Próximos passos (não feitos nesta rodada)
+
+* Confirmar com o time de dados a definição quebrada de `vw_apdata_peers_experience`
+  e o real significado do campo "Modelo" em cargos/entidades.
+* Contagens agregadas (linhas, taxa de nulos, cardinalidade de chave) por
+  tabela candidata, para confirmar granularidade e completude de fato. Não
+  feito nesta rodada, só existência e tipo de coluna.
+* `avaliacao_desempenho`/`avaliador_id`: schema reconstruído (ver seção
+  própria), mas acesso à base segue negado (dado mais sensível da empresa).
+  Gerador sintético parte 100% da estrutura, sem calibração por distribuição
+  real. Se o acesso mudar no futuro, revisar esta seção.
+* Skills chegou via `data/raw/skills/` (fora do git). Falta: (1) montar o de-para
+  de escala de proficiência entre os arquivos, (2) limpar a taxonomia (De-para)
+  das 4 categorias que são metadado, (3) dedup do respondente duplicado no
+  Digital Skills, (4) decidir qual aba usar em `CLTV_BD_Digital_Skills.xlsx`
+  (`Sheet1` vs `BD_DIG_Modificada`), (5) construir o crosswalk e-mail/nome →
+  `consultor_id` contra `vw_apdata_bi_entidades_globais`, (6) cruzar contra o
+  total de consultores ativos para saber a cobertura real.
+* Testar se `Offering`/`Linha de Serviço` (vistos em `vw_crm_oportunidades_latest`/
+  `pipelines`) realmente juntam contra `vw_bi_tbl_projetos` (candidato de chave:
+  `id_crm`). Enquanto não testado, tratar como visto em oportunidade de venda,
+  não confirmado por projeto executado. Isso importa porque `P` (proxy de
+  `skills_requeridas[]`) pretende usar esses campos.
