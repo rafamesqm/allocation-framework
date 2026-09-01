@@ -1,11 +1,15 @@
 # =========================================================
-#  Direcionamento local — não versionar
-#  CLAUDE.md fica só como orientação local para o Claude, fora do remoto.
+#  Direcionamento local: não versionar
+#  CLAUDE.md e os documentos direcionadores que ele importa ficam só como
+#  orientação local para o Claude, fora do remoto.
 # =========================================================
 CLAUDE.md
+docs/persona.md
+docs/predefinicoes.md
+docs/roadmap.md
 
 # =========================================================
-#  DADOS SENSÍVEIS — nunca versionar
+#  DADOS SENSÍVEIS: nunca versionar
 #  Margens, avaliações individuais e histórico de alocação
 #  da Peers não podem entrar no repositório sob hipótese alguma.
 # =========================================================
@@ -93,5 +97,3 @@ Thumbs.db
 .vscode/
 *.swp
 *~
-
-.databricks
