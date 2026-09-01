@@ -4,7 +4,7 @@
 Este documento é (1) o contrato de esquema, que o ETL e o gerador sintético seguem, e
 (2) a especificação micro de como cada dado vira insumo de modelo. Ele para na fronteira
 da EDA: descreve o que cada componente exige e as formulações candidatas, sem cravar o
-algoritmo. Regras duras em `CLAUDE.md`.
+algoritmo.
 
 ## Convenções
 * Chaves: `consultor_id`, `projeto_id`, `skill_id`, `cliente_id`, `avaliador_id`.
@@ -82,8 +82,8 @@ match viver num espaço comum. `skills_requeridas` traz o mínimo (restrição) 
 
 **Achado de processo, não de coleta:** a Peers não formaliza `skills_requeridas[]`
 no momento da venda ou alocação (confirmado com o usuário, não é lacuna de busca).
-`P` não pode ser construído a partir de captura real. Decisão registrada em
-`predefinicoes.md`: `P` será estimado a partir de `setor`/`tipo_projeto`/
+`P` não pode ser construído a partir de captura real. Decisão de projeto:
+`P` será estimado a partir de `setor`/`tipo_projeto`/
 Offering/Linha de Serviço/Segmento do projeto, como proxy, nunca como requisito
 real capturado (`Indústria` de `vw_gtac_com_clientes`, cotada inicialmente,
 foi descartada por estar quase inteiramente nula; `Segmento`, de
@@ -209,10 +209,10 @@ Alimenta o otimizador multiobjetivo.
 | `pipeline_demandas` | lista temporal | projeto futuro | n/a | otimização dinâmica | disponível |
 
 ### Score de afinidade `ŝ` e entrada em `f`
-O recomendador (content-based mais colaborativo, combinados conforme o cardápio em
-`predefinicoes.md`) produz `ŝ[i,j]` em [0,1]. `ŝ` entra em `f` como o coeficiente de
-aderência da alocação (i, j), ao lado da margem. A forma da combinação (switching,
-weighted, feature augmentation) é calibrada pela EDA.
+O recomendador (content-based mais colaborativo) produz `ŝ[i,j]` em [0,1]. `ŝ`
+entra em `f` como o coeficiente de aderência da alocação (i, j), ao lado da
+margem. A forma da combinação (switching, weighted, feature augmentation) é
+calibrada pela EDA.
 
 ---
 
@@ -242,11 +242,10 @@ Parametrize o gerador (`n_consultores`, `n_projetos`, `densidade`, `fracao_cold_
 
 Pedido do orientador (2026-09-01): o gerador precisa reproduzir dispersão,
 assimetria e correlação entre variáveis, não só a média de cada campo
-isoladamente. Metodologia completa, com citações, em `predefinicoes.md`
-("Metodologia do gerador de dados sintéticos"): casamento de momentos por
-variável, cópula gaussiana para correlação, amostragem estratificada onde já
-há distribuição condicional completa (ex.: custo por cargo), grau de `R` via
-Binomial Negativa em vez de Bernoulli i.i.d. uniforme.
+isoladamente. Metodologia do gerador de dados sintéticos: casamento de
+momentos por variável, cópula gaussiana para correlação, amostragem
+estratificada onde já há distribuição condicional completa (ex.: custo por
+cargo), grau de `R` via Binomial Negativa em vez de Bernoulli i.i.d. uniforme.
 
 ## Nota sobre viés de seleção
 Quase tudo marcado como disponível foi gerado pelo processo de alocação subjetivo que este

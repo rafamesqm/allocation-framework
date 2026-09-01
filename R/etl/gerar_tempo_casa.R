@@ -4,10 +4,10 @@
 #' calibrado por casamento de momentos para reproduzir a correlação real
 #' entre `nivel_senioridade` e tempo de casa (+0,34, ver
 #' docs/mapeamento_schema.md). Não é cópula formal: para um único par de
-#' variáveis, o pacote `copula` seria abstração prematura (ver
-#' docs/persona.md, "não crie abstração antes de haver dois ou três usos
-#' concretos"). Cópula entra quando houver 3+ variáveis a correlacionar de
-#' uma vez (Alocações, Camada 3).
+#' variáveis, o pacote `copula` seria abstração prematura, e a regra do
+#' projeto é não criar abstração antes de haver dois ou três usos concretos.
+#' Cópula entra quando houver 3+ variáveis a correlacionar de uma vez
+#' (Alocações, Camada 3).
 #'
 #' `media_anos`, `incremento_por_nivel` e `piso_anos` são suposições
 #' documentadas: só a correlação com o nível foi calibrada contra dado real,

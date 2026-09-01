@@ -1,7 +1,7 @@
 # =========================================================
 #  Direcionamento local: não versionar
-#  CLAUDE.md e os documentos direcionadores que ele importa ficam só como
-#  orientação local para o Claude, fora do remoto.
+#  Notas de desenvolvimento e planejamento interno do projeto, sem valor
+#  como material de pesquisa, ficam fora do repositório remoto.
 # =========================================================
 CLAUDE.md
 docs/persona.md

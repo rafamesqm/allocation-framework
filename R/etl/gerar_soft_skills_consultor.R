@@ -2,12 +2,12 @@
 #' de competências da avaliação de desempenho
 #'
 #' `soft_skills[]` é descrito no dicionário como "derivável das avaliações".
-#' Como a avaliação de desempenho ainda não foi gerada (peça 5 do roadmap),
-#' usa-se diretamente a estrutura real de competências reconstruída da
-#' plataforma (9 subcompetências em 5 categorias, ver
-#' docs/dicionario_de_dados.md) e a mesma escala de 3 níveis, para manter
-#' coerência com o que a peça 5 vai produzir depois. Todo consultor tem as 9
-#' competências avaliadas (não é esparso como `skills_hard[]`).
+#' Como o gerador de avaliação de desempenho ainda não existe, usa-se
+#' diretamente a estrutura real de competências reconstruída da plataforma
+#' (9 subcompetências em 5 categorias, ver docs/dicionario_de_dados.md) e a
+#' mesma escala de 3 níveis, para manter coerência com o que a avaliação de
+#' desempenho vai produzir depois. Todo consultor tem as 9 competências
+#' avaliadas (não é esparso como `skills_hard[]`).
 #'
 #' @param consultores tibble de `gerar_consultores()`.
 #' @param pesos_nivel Pesos para ABAIXO/DENTRO/ACIMA. Suposição documentada:

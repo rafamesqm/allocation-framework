@@ -273,14 +273,13 @@ qualquer uso exigiria consideração ética própria antes de virar insumo.
 * **`skills_requeridas[]` ausente: decisão tomada (2026-07-31).**
   `skills_requeridas[]` não é lacuna de coleta, é ausência de processo: a
   Peers não formaliza o requisito técnico de uma demanda no momento da venda
-  ou alocação. Isso desafiava a arquitetura conceitual do `predefinicoes.md`,
-  que assume `P` (projeto × requisito, no mesmo espaço de skills de `C`) como
-  insumo do content-based. Decisão: `P` será estimado a partir de
+  ou alocação. Isso desafiava a arquitetura conceitual que assume `P`
+  (projeto × requisito, no mesmo espaço de skills de `C`) como insumo do
+  content-based. Decisão: `P` será estimado a partir de
   `setor`/`tipo_projeto`/Offering/Linha de Serviço/Indústria do projeto (proxy,
   campos que existem), nunca tratado como requisito real capturado. A ausência
   vira achado de pesquisa na monografia, registrada explicitamente, não
-  maquiada. Mecanismo exato de estimação fica para a EDA/wave 2. Ver decisão
-  completa em `predefinicoes.md`.
+  maquiada. Mecanismo exato de estimação fica para a EDA/wave 2.
 * **`margem_atribuida`: granularidade confirmada, não é limitação de busca
   (2026-08-01).** Usuário confirmou que frente/mês é a única granularidade de
   margem que existe na Peers, não há valor por alocação individual em lugar
@@ -463,7 +462,7 @@ do projeto. Esse número pode servir de teto grosseiro de duração, não como
 duração real calibrada. Não achamos um campo de "data de fim" claro em
 `vw_bi_tbl_projetos` nesta rodada.
 
-### Quarta rodada (2026-09-01): item opcional da Fase 0, correlações extras e investigação do join
+### Quarta rodada (2026-09-01): correlações extras e investigação do join
 
 **Correlações extras para a cópula:**
 
