@@ -510,6 +510,81 @@ internacional: 185 sim (65%), 100 não. As duas perguntas de viagem são
 respostas de formulário (STRING "SIM"/"NAO"), tratar como binária ao
 codificar.
 
+### Quinta rodada (2026-09-02): tabela de taxa por cargo e custo/margem por frente-mês
+
+**Achado: `vw_gtac_fin_taxa_hora` é uma tabela de taxa (rate card), não uma
+amostra de custo por pessoa.** O "desvio-padrão" de `Taxa` por `Sigla cargo`
+registrado na Segunda rodada media dispersão *histórica* (reajustes de
+tarifa ao longo do tempo, coluna `Início vigência`, a maioria das siglas com
+3 a 5 revisões), não variação real entre pessoas do mesmo cargo num mesmo
+momento. Filtrando para a vigência mais recente por sigla, cada uma das 44
+siglas tem uma taxa vigente única, sem dispersão dentro do cargo:
+
+| Sigla cargo | Taxa vigente (R$/h) | Sigla cargo | Taxa vigente (R$/h) |
+|---|---|---|---|
+| SO_INT | 91,45 | SO_EMG / IT_EMG | 499,06 |
+| INT / IT_INT | 112,84 | TL | 518,90 |
+| SO_TR / IT_TR | 196,69 | EMG | 567,11 |
+| TR | 237,70 | SO_MG / IT_MG | 674,69 |
+| SO_AN / IT_AN | 268,22 | MG | 751,33 |
+| SO_SAN / IT_SAN | 294,52 | SO_SMG / IT_SMG | 834,51 |
+| AN | 311,74 | SMG | 940,38 |
+| SAN | 330,26 | IT_PRI / IT_DIR | 944,62 |
+| SO_CT / IT_CT | 331,35 | PRI / DIR | 1.095,98 |
+| CT | 380,88 | IT_MD1 | 1.196,38 |
+| SO_SCT / IT_SCT | 386,66 | IT_MD | 1.267,02 |
+| SCT | 444,09 | IT_MD2 / MD1 | 1.337,65 |
+| SO_TL / IT_TL | 452,23 | IT_MD3 | 1.471,25 |
+| | | MD2 | 1.503,15 |
+| | | MD3 | 1.627,98 |
+| | | MD | 1.722,61 |
+| | | MD4 | 1.859,73 |
+| | | MD5 | 2.066,00 |
+
+**Implicação para o gerador:** `custo_carregado` deve ser um *lookup*
+praticamente determinístico por cargo, não uma amostragem com ruído. A
+dispersão real de `custo_carregado` na população inteira (SD 453,50,
+assimetria 0,93, já registrada na Segunda rodada) vem inteiramente da
+mistura de cargos na pirâmide, não de ruído dentro de um mesmo cargo. Como
+o gerador sintético só tem `nivel_senioridade` (N4-N0), não a sigla de
+cargo granular, mapear nível para uma sigla/taxa representativa é uma
+decisão de projeto (não uma leitura direta do dado), a documentar na
+função geradora.
+
+**Custo e receita por frente-mês (`vw_bi_custo_frente_mensal`, n=5000),
+para o candidato (c) de margem:**
+
+| Campo | Fração zero | Média geral | Desvio-padrão geral | Assimetria | P25 dos positivos | P50 dos positivos | P75 dos positivos |
+|---|---|---|---|---|---|---|---|
+| `peers_total_vlr` (receita) | 15,9% (795/5000) | 192.076,84 | 202.058,84 | 1,85 | 46.105,50 | 136.901,46 | 268.683,84 |
+| `peers_custointerns_vlr` (custo interno) | 44,7% (2235/5000) | 14.315,61 | 17.980,01 | 1,75 (skew) | 16.000,00 | 21.000,00 | 26.250,00 |
+| `actar_receita_vlr` | 95,8% (4788/5000) | 716,35 | 4.919,21 | 7,67 | - | - | - |
+
+`actar_receita_vlr` é quase sempre zero/nulo (só 4,2% dos registros têm
+valor), não é uma boa variável primária para compor margem: descartada como
+candidata a insumo direto do gerador, sem prejuízo de retomar se a EDA
+achar relevância nos poucos casos não nulos. `peers_total_vlr` e
+`peers_custointerns_vlr` têm formato *hurdle* semelhante ao de
+`valor_contrato` (massa em zero mais cauda assimétrica), calibráveis pelo
+mesmo mecanismo já implementado (`gerar_variavel_hurdle_lognormal()`, casamento de
+quantis).
+
+**Achado sobre `pipeline_demandas`: as contagens por situação não formam um
+funil de coorte, são um censo transversal.** A ordem Ideia (92) → Reunião
+Inicial (123) → Lead (127) → Proposta (209) → Projeto executando (952) NÃO
+é decrescente, o oposto do que um funil de sobrevivência precisaria ser
+para dar taxa de avanço/perda por estágio de forma direta. Isso é esperado
+sob fila (a população num estágio num dado momento reflete taxa de entrada
+vezes tempo médio de permanência, não quantas oportunidades já passaram por
+ali), não um sinal de erro na contagem. Sem timestamp de mudança de
+estágio por oportunidade (não levantado nesta rodada, não achado nesta
+reconciliação), não dá para calibrar probabilidade de avanço estágio a
+estágio de forma estatisticamente válida. Implicação: `pipeline_demandas`
+no gerador deve ser um sorteio multinomial do estágio atual por
+oportunidade, usando o censo como peso, não uma simulação sequencial de
+avanço/perda, o que é uma simplificação documentada frente ao que o
+roadmap presumia possível.
+
 ## Próximos passos (não feitos nesta rodada)
 
 * Confirmar com o time de dados a definição quebrada de `vw_apdata_peers_experience`
