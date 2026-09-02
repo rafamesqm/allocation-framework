@@ -60,7 +60,11 @@ gerar_projetos <- function(n_projetos = 952,
     projeto_id = sprintf("projeto_%04d", seq_len(n_projetos)),
     setor = sample(segmentos, n_projetos, replace = TRUE, prob = pesos_segmento),
     tipo_projeto = sample(offerings, n_projetos, replace = TRUE, prob = pesos_offering),
-    valor_contrato = gerar_valor_contrato(n_projetos),
+    valor_contrato = gerar_variavel_hurdle_lognormal(
+      n_projetos,
+      prob_zero = 0.147, mediana_positivos = 108300,
+      p25_positivos = 34814, p75_positivos = 375054
+    ),
     esforco_estimado = gerar_esforco_estimado(n_projetos),
     data_inicio = data_inicio,
     duracao_dias = duracao_dias,
