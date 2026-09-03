@@ -1,0 +1,2566 @@
+consultor_id,competencia,nivel
+consultor_0001,Vivência e Disseminação,ACIMA
+consultor_0001,Autodesenvolvimento,DENTRO
+consultor_0001,Liderança,DENTRO
+consultor_0001,"Visão, Planejamento e Organização",DENTRO
+consultor_0001,Gestão da Entrega,DENTRO
+consultor_0001,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0001,Execução com Qualidade,DENTRO
+consultor_0001,Inovação,DENTRO
+consultor_0001,Geração de Receita,ABAIXO
+consultor_0002,Vivência e Disseminação,ACIMA
+consultor_0002,Autodesenvolvimento,DENTRO
+consultor_0002,Liderança,DENTRO
+consultor_0002,"Visão, Planejamento e Organização",DENTRO
+consultor_0002,Gestão da Entrega,DENTRO
+consultor_0002,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0002,Execução com Qualidade,ACIMA
+consultor_0002,Inovação,DENTRO
+consultor_0002,Geração de Receita,DENTRO
+consultor_0003,Vivência e Disseminação,DENTRO
+consultor_0003,Autodesenvolvimento,DENTRO
+consultor_0003,Liderança,DENTRO
+consultor_0003,"Visão, Planejamento e Organização",ACIMA
+consultor_0003,Gestão da Entrega,DENTRO
+consultor_0003,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0003,Execução com Qualidade,DENTRO
+consultor_0003,Inovação,DENTRO
+consultor_0003,Geração de Receita,DENTRO
+consultor_0004,Vivência e Disseminação,DENTRO
+consultor_0004,Autodesenvolvimento,DENTRO
+consultor_0004,Liderança,ACIMA
+consultor_0004,"Visão, Planejamento e Organização",DENTRO
+consultor_0004,Gestão da Entrega,DENTRO
+consultor_0004,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0004,Execução com Qualidade,ACIMA
+consultor_0004,Inovação,ABAIXO
+consultor_0004,Geração de Receita,ACIMA
+consultor_0005,Vivência e Disseminação,DENTRO
+consultor_0005,Autodesenvolvimento,DENTRO
+consultor_0005,Liderança,DENTRO
+consultor_0005,"Visão, Planejamento e Organização",ACIMA
+consultor_0005,Gestão da Entrega,DENTRO
+consultor_0005,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0005,Execução com Qualidade,ACIMA
+consultor_0005,Inovação,DENTRO
+consultor_0005,Geração de Receita,DENTRO
+consultor_0006,Vivência e Disseminação,ACIMA
+consultor_0006,Autodesenvolvimento,ACIMA
+consultor_0006,Liderança,DENTRO
+consultor_0006,"Visão, Planejamento e Organização",DENTRO
+consultor_0006,Gestão da Entrega,ABAIXO
+consultor_0006,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0006,Execução com Qualidade,DENTRO
+consultor_0006,Inovação,DENTRO
+consultor_0006,Geração de Receita,DENTRO
+consultor_0007,Vivência e Disseminação,DENTRO
+consultor_0007,Autodesenvolvimento,ACIMA
+consultor_0007,Liderança,DENTRO
+consultor_0007,"Visão, Planejamento e Organização",ABAIXO
+consultor_0007,Gestão da Entrega,DENTRO
+consultor_0007,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0007,Execução com Qualidade,DENTRO
+consultor_0007,Inovação,ACIMA
+consultor_0007,Geração de Receita,DENTRO
+consultor_0008,Vivência e Disseminação,DENTRO
+consultor_0008,Autodesenvolvimento,ABAIXO
+consultor_0008,Liderança,ABAIXO
+consultor_0008,"Visão, Planejamento e Organização",DENTRO
+consultor_0008,Gestão da Entrega,ACIMA
+consultor_0008,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0008,Execução com Qualidade,DENTRO
+consultor_0008,Inovação,ACIMA
+consultor_0008,Geração de Receita,DENTRO
+consultor_0009,Vivência e Disseminação,ACIMA
+consultor_0009,Autodesenvolvimento,ACIMA
+consultor_0009,Liderança,DENTRO
+consultor_0009,"Visão, Planejamento e Organização",ABAIXO
+consultor_0009,Gestão da Entrega,DENTRO
+consultor_0009,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0009,Execução com Qualidade,DENTRO
+consultor_0009,Inovação,DENTRO
+consultor_0009,Geração de Receita,ABAIXO
+consultor_0010,Vivência e Disseminação,DENTRO
+consultor_0010,Autodesenvolvimento,ACIMA
+consultor_0010,Liderança,DENTRO
+consultor_0010,"Visão, Planejamento e Organização",ACIMA
+consultor_0010,Gestão da Entrega,DENTRO
+consultor_0010,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0010,Execução com Qualidade,DENTRO
+consultor_0010,Inovação,DENTRO
+consultor_0010,Geração de Receita,DENTRO
+consultor_0011,Vivência e Disseminação,DENTRO
+consultor_0011,Autodesenvolvimento,DENTRO
+consultor_0011,Liderança,ACIMA
+consultor_0011,"Visão, Planejamento e Organização",DENTRO
+consultor_0011,Gestão da Entrega,DENTRO
+consultor_0011,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0011,Execução com Qualidade,ABAIXO
+consultor_0011,Inovação,ACIMA
+consultor_0011,Geração de Receita,DENTRO
+consultor_0012,Vivência e Disseminação,DENTRO
+consultor_0012,Autodesenvolvimento,DENTRO
+consultor_0012,Liderança,DENTRO
+consultor_0012,"Visão, Planejamento e Organização",ACIMA
+consultor_0012,Gestão da Entrega,DENTRO
+consultor_0012,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0012,Execução com Qualidade,ACIMA
+consultor_0012,Inovação,ACIMA
+consultor_0012,Geração de Receita,DENTRO
+consultor_0013,Vivência e Disseminação,DENTRO
+consultor_0013,Autodesenvolvimento,DENTRO
+consultor_0013,Liderança,DENTRO
+consultor_0013,"Visão, Planejamento e Organização",ACIMA
+consultor_0013,Gestão da Entrega,DENTRO
+consultor_0013,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0013,Execução com Qualidade,DENTRO
+consultor_0013,Inovação,DENTRO
+consultor_0013,Geração de Receita,DENTRO
+consultor_0014,Vivência e Disseminação,ABAIXO
+consultor_0014,Autodesenvolvimento,DENTRO
+consultor_0014,Liderança,ACIMA
+consultor_0014,"Visão, Planejamento e Organização",ACIMA
+consultor_0014,Gestão da Entrega,DENTRO
+consultor_0014,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0014,Execução com Qualidade,ACIMA
+consultor_0014,Inovação,DENTRO
+consultor_0014,Geração de Receita,ACIMA
+consultor_0015,Vivência e Disseminação,ABAIXO
+consultor_0015,Autodesenvolvimento,DENTRO
+consultor_0015,Liderança,ACIMA
+consultor_0015,"Visão, Planejamento e Organização",DENTRO
+consultor_0015,Gestão da Entrega,DENTRO
+consultor_0015,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0015,Execução com Qualidade,ACIMA
+consultor_0015,Inovação,DENTRO
+consultor_0015,Geração de Receita,DENTRO
+consultor_0016,Vivência e Disseminação,DENTRO
+consultor_0016,Autodesenvolvimento,DENTRO
+consultor_0016,Liderança,DENTRO
+consultor_0016,"Visão, Planejamento e Organização",ABAIXO
+consultor_0016,Gestão da Entrega,ACIMA
+consultor_0016,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0016,Execução com Qualidade,DENTRO
+consultor_0016,Inovação,DENTRO
+consultor_0016,Geração de Receita,ACIMA
+consultor_0017,Vivência e Disseminação,DENTRO
+consultor_0017,Autodesenvolvimento,DENTRO
+consultor_0017,Liderança,ACIMA
+consultor_0017,"Visão, Planejamento e Organização",DENTRO
+consultor_0017,Gestão da Entrega,ACIMA
+consultor_0017,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0017,Execução com Qualidade,DENTRO
+consultor_0017,Inovação,DENTRO
+consultor_0017,Geração de Receita,DENTRO
+consultor_0018,Vivência e Disseminação,DENTRO
+consultor_0018,Autodesenvolvimento,DENTRO
+consultor_0018,Liderança,ACIMA
+consultor_0018,"Visão, Planejamento e Organização",ABAIXO
+consultor_0018,Gestão da Entrega,ABAIXO
+consultor_0018,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0018,Execução com Qualidade,ACIMA
+consultor_0018,Inovação,ABAIXO
+consultor_0018,Geração de Receita,ACIMA
+consultor_0019,Vivência e Disseminação,DENTRO
+consultor_0019,Autodesenvolvimento,DENTRO
+consultor_0019,Liderança,DENTRO
+consultor_0019,"Visão, Planejamento e Organização",ACIMA
+consultor_0019,Gestão da Entrega,ABAIXO
+consultor_0019,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0019,Execução com Qualidade,ACIMA
+consultor_0019,Inovação,ABAIXO
+consultor_0019,Geração de Receita,ACIMA
+consultor_0020,Vivência e Disseminação,ACIMA
+consultor_0020,Autodesenvolvimento,ABAIXO
+consultor_0020,Liderança,ACIMA
+consultor_0020,"Visão, Planejamento e Organização",ABAIXO
+consultor_0020,Gestão da Entrega,DENTRO
+consultor_0020,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0020,Execução com Qualidade,DENTRO
+consultor_0020,Inovação,DENTRO
+consultor_0020,Geração de Receita,DENTRO
+consultor_0021,Vivência e Disseminação,DENTRO
+consultor_0021,Autodesenvolvimento,DENTRO
+consultor_0021,Liderança,DENTRO
+consultor_0021,"Visão, Planejamento e Organização",ABAIXO
+consultor_0021,Gestão da Entrega,DENTRO
+consultor_0021,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0021,Execução com Qualidade,ACIMA
+consultor_0021,Inovação,DENTRO
+consultor_0021,Geração de Receita,DENTRO
+consultor_0022,Vivência e Disseminação,ABAIXO
+consultor_0022,Autodesenvolvimento,ACIMA
+consultor_0022,Liderança,ACIMA
+consultor_0022,"Visão, Planejamento e Organização",ABAIXO
+consultor_0022,Gestão da Entrega,DENTRO
+consultor_0022,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0022,Execução com Qualidade,DENTRO
+consultor_0022,Inovação,ACIMA
+consultor_0022,Geração de Receita,DENTRO
+consultor_0023,Vivência e Disseminação,DENTRO
+consultor_0023,Autodesenvolvimento,DENTRO
+consultor_0023,Liderança,DENTRO
+consultor_0023,"Visão, Planejamento e Organização",ABAIXO
+consultor_0023,Gestão da Entrega,DENTRO
+consultor_0023,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0023,Execução com Qualidade,DENTRO
+consultor_0023,Inovação,DENTRO
+consultor_0023,Geração de Receita,ACIMA
+consultor_0024,Vivência e Disseminação,ACIMA
+consultor_0024,Autodesenvolvimento,DENTRO
+consultor_0024,Liderança,DENTRO
+consultor_0024,"Visão, Planejamento e Organização",ACIMA
+consultor_0024,Gestão da Entrega,DENTRO
+consultor_0024,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0024,Execução com Qualidade,DENTRO
+consultor_0024,Inovação,ACIMA
+consultor_0024,Geração de Receita,ACIMA
+consultor_0025,Vivência e Disseminação,ABAIXO
+consultor_0025,Autodesenvolvimento,DENTRO
+consultor_0025,Liderança,DENTRO
+consultor_0025,"Visão, Planejamento e Organização",DENTRO
+consultor_0025,Gestão da Entrega,DENTRO
+consultor_0025,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0025,Execução com Qualidade,ABAIXO
+consultor_0025,Inovação,DENTRO
+consultor_0025,Geração de Receita,ACIMA
+consultor_0026,Vivência e Disseminação,DENTRO
+consultor_0026,Autodesenvolvimento,DENTRO
+consultor_0026,Liderança,DENTRO
+consultor_0026,"Visão, Planejamento e Organização",DENTRO
+consultor_0026,Gestão da Entrega,ABAIXO
+consultor_0026,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0026,Execução com Qualidade,ACIMA
+consultor_0026,Inovação,ACIMA
+consultor_0026,Geração de Receita,ACIMA
+consultor_0027,Vivência e Disseminação,ABAIXO
+consultor_0027,Autodesenvolvimento,DENTRO
+consultor_0027,Liderança,DENTRO
+consultor_0027,"Visão, Planejamento e Organização",DENTRO
+consultor_0027,Gestão da Entrega,DENTRO
+consultor_0027,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0027,Execução com Qualidade,DENTRO
+consultor_0027,Inovação,DENTRO
+consultor_0027,Geração de Receita,DENTRO
+consultor_0028,Vivência e Disseminação,DENTRO
+consultor_0028,Autodesenvolvimento,ABAIXO
+consultor_0028,Liderança,DENTRO
+consultor_0028,"Visão, Planejamento e Organização",ACIMA
+consultor_0028,Gestão da Entrega,ABAIXO
+consultor_0028,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0028,Execução com Qualidade,DENTRO
+consultor_0028,Inovação,ACIMA
+consultor_0028,Geração de Receita,DENTRO
+consultor_0029,Vivência e Disseminação,DENTRO
+consultor_0029,Autodesenvolvimento,ABAIXO
+consultor_0029,Liderança,DENTRO
+consultor_0029,"Visão, Planejamento e Organização",DENTRO
+consultor_0029,Gestão da Entrega,DENTRO
+consultor_0029,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0029,Execução com Qualidade,DENTRO
+consultor_0029,Inovação,ABAIXO
+consultor_0029,Geração de Receita,DENTRO
+consultor_0030,Vivência e Disseminação,ABAIXO
+consultor_0030,Autodesenvolvimento,ABAIXO
+consultor_0030,Liderança,DENTRO
+consultor_0030,"Visão, Planejamento e Organização",DENTRO
+consultor_0030,Gestão da Entrega,ABAIXO
+consultor_0030,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0030,Execução com Qualidade,ACIMA
+consultor_0030,Inovação,DENTRO
+consultor_0030,Geração de Receita,DENTRO
+consultor_0031,Vivência e Disseminação,DENTRO
+consultor_0031,Autodesenvolvimento,DENTRO
+consultor_0031,Liderança,ACIMA
+consultor_0031,"Visão, Planejamento e Organização",DENTRO
+consultor_0031,Gestão da Entrega,ACIMA
+consultor_0031,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0031,Execução com Qualidade,DENTRO
+consultor_0031,Inovação,DENTRO
+consultor_0031,Geração de Receita,DENTRO
+consultor_0032,Vivência e Disseminação,DENTRO
+consultor_0032,Autodesenvolvimento,DENTRO
+consultor_0032,Liderança,DENTRO
+consultor_0032,"Visão, Planejamento e Organização",ACIMA
+consultor_0032,Gestão da Entrega,ACIMA
+consultor_0032,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0032,Execução com Qualidade,DENTRO
+consultor_0032,Inovação,DENTRO
+consultor_0032,Geração de Receita,DENTRO
+consultor_0033,Vivência e Disseminação,DENTRO
+consultor_0033,Autodesenvolvimento,DENTRO
+consultor_0033,Liderança,ACIMA
+consultor_0033,"Visão, Planejamento e Organização",DENTRO
+consultor_0033,Gestão da Entrega,ABAIXO
+consultor_0033,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0033,Execução com Qualidade,DENTRO
+consultor_0033,Inovação,ABAIXO
+consultor_0033,Geração de Receita,DENTRO
+consultor_0034,Vivência e Disseminação,DENTRO
+consultor_0034,Autodesenvolvimento,ACIMA
+consultor_0034,Liderança,DENTRO
+consultor_0034,"Visão, Planejamento e Organização",DENTRO
+consultor_0034,Gestão da Entrega,DENTRO
+consultor_0034,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0034,Execução com Qualidade,DENTRO
+consultor_0034,Inovação,DENTRO
+consultor_0034,Geração de Receita,DENTRO
+consultor_0035,Vivência e Disseminação,DENTRO
+consultor_0035,Autodesenvolvimento,ACIMA
+consultor_0035,Liderança,ACIMA
+consultor_0035,"Visão, Planejamento e Organização",DENTRO
+consultor_0035,Gestão da Entrega,ACIMA
+consultor_0035,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0035,Execução com Qualidade,ACIMA
+consultor_0035,Inovação,DENTRO
+consultor_0035,Geração de Receita,ACIMA
+consultor_0036,Vivência e Disseminação,DENTRO
+consultor_0036,Autodesenvolvimento,ABAIXO
+consultor_0036,Liderança,DENTRO
+consultor_0036,"Visão, Planejamento e Organização",ACIMA
+consultor_0036,Gestão da Entrega,DENTRO
+consultor_0036,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0036,Execução com Qualidade,DENTRO
+consultor_0036,Inovação,ACIMA
+consultor_0036,Geração de Receita,DENTRO
+consultor_0037,Vivência e Disseminação,DENTRO
+consultor_0037,Autodesenvolvimento,DENTRO
+consultor_0037,Liderança,ABAIXO
+consultor_0037,"Visão, Planejamento e Organização",DENTRO
+consultor_0037,Gestão da Entrega,DENTRO
+consultor_0037,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0037,Execução com Qualidade,DENTRO
+consultor_0037,Inovação,DENTRO
+consultor_0037,Geração de Receita,DENTRO
+consultor_0038,Vivência e Disseminação,ACIMA
+consultor_0038,Autodesenvolvimento,ABAIXO
+consultor_0038,Liderança,DENTRO
+consultor_0038,"Visão, Planejamento e Organização",ACIMA
+consultor_0038,Gestão da Entrega,DENTRO
+consultor_0038,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0038,Execução com Qualidade,DENTRO
+consultor_0038,Inovação,DENTRO
+consultor_0038,Geração de Receita,ACIMA
+consultor_0039,Vivência e Disseminação,DENTRO
+consultor_0039,Autodesenvolvimento,DENTRO
+consultor_0039,Liderança,DENTRO
+consultor_0039,"Visão, Planejamento e Organização",DENTRO
+consultor_0039,Gestão da Entrega,DENTRO
+consultor_0039,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0039,Execução com Qualidade,DENTRO
+consultor_0039,Inovação,ABAIXO
+consultor_0039,Geração de Receita,DENTRO
+consultor_0040,Vivência e Disseminação,ACIMA
+consultor_0040,Autodesenvolvimento,ABAIXO
+consultor_0040,Liderança,ACIMA
+consultor_0040,"Visão, Planejamento e Organização",DENTRO
+consultor_0040,Gestão da Entrega,ABAIXO
+consultor_0040,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0040,Execução com Qualidade,ACIMA
+consultor_0040,Inovação,DENTRO
+consultor_0040,Geração de Receita,ABAIXO
+consultor_0041,Vivência e Disseminação,ACIMA
+consultor_0041,Autodesenvolvimento,DENTRO
+consultor_0041,Liderança,ACIMA
+consultor_0041,"Visão, Planejamento e Organização",DENTRO
+consultor_0041,Gestão da Entrega,DENTRO
+consultor_0041,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0041,Execução com Qualidade,ACIMA
+consultor_0041,Inovação,DENTRO
+consultor_0041,Geração de Receita,ACIMA
+consultor_0042,Vivência e Disseminação,DENTRO
+consultor_0042,Autodesenvolvimento,DENTRO
+consultor_0042,Liderança,ACIMA
+consultor_0042,"Visão, Planejamento e Organização",DENTRO
+consultor_0042,Gestão da Entrega,DENTRO
+consultor_0042,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0042,Execução com Qualidade,DENTRO
+consultor_0042,Inovação,ABAIXO
+consultor_0042,Geração de Receita,DENTRO
+consultor_0043,Vivência e Disseminação,ABAIXO
+consultor_0043,Autodesenvolvimento,ABAIXO
+consultor_0043,Liderança,ACIMA
+consultor_0043,"Visão, Planejamento e Organização",DENTRO
+consultor_0043,Gestão da Entrega,DENTRO
+consultor_0043,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0043,Execução com Qualidade,DENTRO
+consultor_0043,Inovação,ACIMA
+consultor_0043,Geração de Receita,ABAIXO
+consultor_0044,Vivência e Disseminação,DENTRO
+consultor_0044,Autodesenvolvimento,ACIMA
+consultor_0044,Liderança,DENTRO
+consultor_0044,"Visão, Planejamento e Organização",ACIMA
+consultor_0044,Gestão da Entrega,DENTRO
+consultor_0044,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0044,Execução com Qualidade,DENTRO
+consultor_0044,Inovação,DENTRO
+consultor_0044,Geração de Receita,DENTRO
+consultor_0045,Vivência e Disseminação,ACIMA
+consultor_0045,Autodesenvolvimento,ABAIXO
+consultor_0045,Liderança,ABAIXO
+consultor_0045,"Visão, Planejamento e Organização",DENTRO
+consultor_0045,Gestão da Entrega,DENTRO
+consultor_0045,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0045,Execução com Qualidade,ABAIXO
+consultor_0045,Inovação,ACIMA
+consultor_0045,Geração de Receita,ACIMA
+consultor_0046,Vivência e Disseminação,ACIMA
+consultor_0046,Autodesenvolvimento,DENTRO
+consultor_0046,Liderança,DENTRO
+consultor_0046,"Visão, Planejamento e Organização",DENTRO
+consultor_0046,Gestão da Entrega,DENTRO
+consultor_0046,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0046,Execução com Qualidade,DENTRO
+consultor_0046,Inovação,DENTRO
+consultor_0046,Geração de Receita,ABAIXO
+consultor_0047,Vivência e Disseminação,ABAIXO
+consultor_0047,Autodesenvolvimento,DENTRO
+consultor_0047,Liderança,DENTRO
+consultor_0047,"Visão, Planejamento e Organização",ACIMA
+consultor_0047,Gestão da Entrega,DENTRO
+consultor_0047,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0047,Execução com Qualidade,ACIMA
+consultor_0047,Inovação,ACIMA
+consultor_0047,Geração de Receita,DENTRO
+consultor_0048,Vivência e Disseminação,ACIMA
+consultor_0048,Autodesenvolvimento,DENTRO
+consultor_0048,Liderança,DENTRO
+consultor_0048,"Visão, Planejamento e Organização",DENTRO
+consultor_0048,Gestão da Entrega,DENTRO
+consultor_0048,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0048,Execução com Qualidade,ABAIXO
+consultor_0048,Inovação,DENTRO
+consultor_0048,Geração de Receita,ACIMA
+consultor_0049,Vivência e Disseminação,DENTRO
+consultor_0049,Autodesenvolvimento,DENTRO
+consultor_0049,Liderança,DENTRO
+consultor_0049,"Visão, Planejamento e Organização",DENTRO
+consultor_0049,Gestão da Entrega,DENTRO
+consultor_0049,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0049,Execução com Qualidade,DENTRO
+consultor_0049,Inovação,ACIMA
+consultor_0049,Geração de Receita,DENTRO
+consultor_0050,Vivência e Disseminação,ACIMA
+consultor_0050,Autodesenvolvimento,DENTRO
+consultor_0050,Liderança,DENTRO
+consultor_0050,"Visão, Planejamento e Organização",DENTRO
+consultor_0050,Gestão da Entrega,DENTRO
+consultor_0050,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0050,Execução com Qualidade,DENTRO
+consultor_0050,Inovação,ACIMA
+consultor_0050,Geração de Receita,DENTRO
+consultor_0051,Vivência e Disseminação,DENTRO
+consultor_0051,Autodesenvolvimento,DENTRO
+consultor_0051,Liderança,DENTRO
+consultor_0051,"Visão, Planejamento e Organização",ACIMA
+consultor_0051,Gestão da Entrega,DENTRO
+consultor_0051,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0051,Execução com Qualidade,DENTRO
+consultor_0051,Inovação,DENTRO
+consultor_0051,Geração de Receita,DENTRO
+consultor_0052,Vivência e Disseminação,ACIMA
+consultor_0052,Autodesenvolvimento,DENTRO
+consultor_0052,Liderança,ABAIXO
+consultor_0052,"Visão, Planejamento e Organização",ACIMA
+consultor_0052,Gestão da Entrega,ABAIXO
+consultor_0052,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0052,Execução com Qualidade,ABAIXO
+consultor_0052,Inovação,ACIMA
+consultor_0052,Geração de Receita,DENTRO
+consultor_0053,Vivência e Disseminação,DENTRO
+consultor_0053,Autodesenvolvimento,DENTRO
+consultor_0053,Liderança,DENTRO
+consultor_0053,"Visão, Planejamento e Organização",DENTRO
+consultor_0053,Gestão da Entrega,ABAIXO
+consultor_0053,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0053,Execução com Qualidade,DENTRO
+consultor_0053,Inovação,DENTRO
+consultor_0053,Geração de Receita,DENTRO
+consultor_0054,Vivência e Disseminação,ABAIXO
+consultor_0054,Autodesenvolvimento,ACIMA
+consultor_0054,Liderança,ACIMA
+consultor_0054,"Visão, Planejamento e Organização",ACIMA
+consultor_0054,Gestão da Entrega,DENTRO
+consultor_0054,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0054,Execução com Qualidade,DENTRO
+consultor_0054,Inovação,ACIMA
+consultor_0054,Geração de Receita,DENTRO
+consultor_0055,Vivência e Disseminação,DENTRO
+consultor_0055,Autodesenvolvimento,DENTRO
+consultor_0055,Liderança,ABAIXO
+consultor_0055,"Visão, Planejamento e Organização",DENTRO
+consultor_0055,Gestão da Entrega,DENTRO
+consultor_0055,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0055,Execução com Qualidade,ABAIXO
+consultor_0055,Inovação,DENTRO
+consultor_0055,Geração de Receita,DENTRO
+consultor_0056,Vivência e Disseminação,DENTRO
+consultor_0056,Autodesenvolvimento,ACIMA
+consultor_0056,Liderança,ABAIXO
+consultor_0056,"Visão, Planejamento e Organização",ACIMA
+consultor_0056,Gestão da Entrega,DENTRO
+consultor_0056,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0056,Execução com Qualidade,DENTRO
+consultor_0056,Inovação,DENTRO
+consultor_0056,Geração de Receita,ACIMA
+consultor_0057,Vivência e Disseminação,DENTRO
+consultor_0057,Autodesenvolvimento,DENTRO
+consultor_0057,Liderança,ACIMA
+consultor_0057,"Visão, Planejamento e Organização",DENTRO
+consultor_0057,Gestão da Entrega,DENTRO
+consultor_0057,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0057,Execução com Qualidade,ACIMA
+consultor_0057,Inovação,DENTRO
+consultor_0057,Geração de Receita,ACIMA
+consultor_0058,Vivência e Disseminação,DENTRO
+consultor_0058,Autodesenvolvimento,DENTRO
+consultor_0058,Liderança,DENTRO
+consultor_0058,"Visão, Planejamento e Organização",ACIMA
+consultor_0058,Gestão da Entrega,DENTRO
+consultor_0058,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0058,Execução com Qualidade,DENTRO
+consultor_0058,Inovação,ACIMA
+consultor_0058,Geração de Receita,DENTRO
+consultor_0059,Vivência e Disseminação,DENTRO
+consultor_0059,Autodesenvolvimento,ABAIXO
+consultor_0059,Liderança,DENTRO
+consultor_0059,"Visão, Planejamento e Organização",DENTRO
+consultor_0059,Gestão da Entrega,DENTRO
+consultor_0059,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0059,Execução com Qualidade,ABAIXO
+consultor_0059,Inovação,DENTRO
+consultor_0059,Geração de Receita,DENTRO
+consultor_0060,Vivência e Disseminação,DENTRO
+consultor_0060,Autodesenvolvimento,ACIMA
+consultor_0060,Liderança,ABAIXO
+consultor_0060,"Visão, Planejamento e Organização",DENTRO
+consultor_0060,Gestão da Entrega,DENTRO
+consultor_0060,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0060,Execução com Qualidade,DENTRO
+consultor_0060,Inovação,ABAIXO
+consultor_0060,Geração de Receita,DENTRO
+consultor_0061,Vivência e Disseminação,DENTRO
+consultor_0061,Autodesenvolvimento,DENTRO
+consultor_0061,Liderança,ACIMA
+consultor_0061,"Visão, Planejamento e Organização",DENTRO
+consultor_0061,Gestão da Entrega,DENTRO
+consultor_0061,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0061,Execução com Qualidade,ACIMA
+consultor_0061,Inovação,DENTRO
+consultor_0061,Geração de Receita,ACIMA
+consultor_0062,Vivência e Disseminação,DENTRO
+consultor_0062,Autodesenvolvimento,ACIMA
+consultor_0062,Liderança,ABAIXO
+consultor_0062,"Visão, Planejamento e Organização",ACIMA
+consultor_0062,Gestão da Entrega,DENTRO
+consultor_0062,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0062,Execução com Qualidade,DENTRO
+consultor_0062,Inovação,ABAIXO
+consultor_0062,Geração de Receita,DENTRO
+consultor_0063,Vivência e Disseminação,DENTRO
+consultor_0063,Autodesenvolvimento,DENTRO
+consultor_0063,Liderança,DENTRO
+consultor_0063,"Visão, Planejamento e Organização",DENTRO
+consultor_0063,Gestão da Entrega,DENTRO
+consultor_0063,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0063,Execução com Qualidade,DENTRO
+consultor_0063,Inovação,DENTRO
+consultor_0063,Geração de Receita,ACIMA
+consultor_0064,Vivência e Disseminação,ACIMA
+consultor_0064,Autodesenvolvimento,ABAIXO
+consultor_0064,Liderança,DENTRO
+consultor_0064,"Visão, Planejamento e Organização",DENTRO
+consultor_0064,Gestão da Entrega,ACIMA
+consultor_0064,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0064,Execução com Qualidade,ABAIXO
+consultor_0064,Inovação,DENTRO
+consultor_0064,Geração de Receita,ABAIXO
+consultor_0065,Vivência e Disseminação,DENTRO
+consultor_0065,Autodesenvolvimento,DENTRO
+consultor_0065,Liderança,DENTRO
+consultor_0065,"Visão, Planejamento e Organização",DENTRO
+consultor_0065,Gestão da Entrega,DENTRO
+consultor_0065,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0065,Execução com Qualidade,ACIMA
+consultor_0065,Inovação,DENTRO
+consultor_0065,Geração de Receita,ABAIXO
+consultor_0066,Vivência e Disseminação,DENTRO
+consultor_0066,Autodesenvolvimento,DENTRO
+consultor_0066,Liderança,DENTRO
+consultor_0066,"Visão, Planejamento e Organização",DENTRO
+consultor_0066,Gestão da Entrega,ACIMA
+consultor_0066,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0066,Execução com Qualidade,ACIMA
+consultor_0066,Inovação,ACIMA
+consultor_0066,Geração de Receita,DENTRO
+consultor_0067,Vivência e Disseminação,ACIMA
+consultor_0067,Autodesenvolvimento,ACIMA
+consultor_0067,Liderança,ABAIXO
+consultor_0067,"Visão, Planejamento e Organização",ABAIXO
+consultor_0067,Gestão da Entrega,ACIMA
+consultor_0067,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0067,Execução com Qualidade,DENTRO
+consultor_0067,Inovação,DENTRO
+consultor_0067,Geração de Receita,DENTRO
+consultor_0068,Vivência e Disseminação,ACIMA
+consultor_0068,Autodesenvolvimento,ABAIXO
+consultor_0068,Liderança,DENTRO
+consultor_0068,"Visão, Planejamento e Organização",ACIMA
+consultor_0068,Gestão da Entrega,DENTRO
+consultor_0068,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0068,Execução com Qualidade,ACIMA
+consultor_0068,Inovação,ABAIXO
+consultor_0068,Geração de Receita,ABAIXO
+consultor_0069,Vivência e Disseminação,ABAIXO
+consultor_0069,Autodesenvolvimento,DENTRO
+consultor_0069,Liderança,ACIMA
+consultor_0069,"Visão, Planejamento e Organização",ABAIXO
+consultor_0069,Gestão da Entrega,ACIMA
+consultor_0069,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0069,Execução com Qualidade,DENTRO
+consultor_0069,Inovação,ACIMA
+consultor_0069,Geração de Receita,DENTRO
+consultor_0070,Vivência e Disseminação,DENTRO
+consultor_0070,Autodesenvolvimento,DENTRO
+consultor_0070,Liderança,DENTRO
+consultor_0070,"Visão, Planejamento e Organização",ABAIXO
+consultor_0070,Gestão da Entrega,ACIMA
+consultor_0070,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0070,Execução com Qualidade,DENTRO
+consultor_0070,Inovação,DENTRO
+consultor_0070,Geração de Receita,ABAIXO
+consultor_0071,Vivência e Disseminação,DENTRO
+consultor_0071,Autodesenvolvimento,DENTRO
+consultor_0071,Liderança,DENTRO
+consultor_0071,"Visão, Planejamento e Organização",DENTRO
+consultor_0071,Gestão da Entrega,DENTRO
+consultor_0071,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0071,Execução com Qualidade,DENTRO
+consultor_0071,Inovação,DENTRO
+consultor_0071,Geração de Receita,ABAIXO
+consultor_0072,Vivência e Disseminação,DENTRO
+consultor_0072,Autodesenvolvimento,ACIMA
+consultor_0072,Liderança,ABAIXO
+consultor_0072,"Visão, Planejamento e Organização",DENTRO
+consultor_0072,Gestão da Entrega,ABAIXO
+consultor_0072,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0072,Execução com Qualidade,DENTRO
+consultor_0072,Inovação,DENTRO
+consultor_0072,Geração de Receita,DENTRO
+consultor_0073,Vivência e Disseminação,DENTRO
+consultor_0073,Autodesenvolvimento,DENTRO
+consultor_0073,Liderança,ACIMA
+consultor_0073,"Visão, Planejamento e Organização",ABAIXO
+consultor_0073,Gestão da Entrega,DENTRO
+consultor_0073,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0073,Execução com Qualidade,DENTRO
+consultor_0073,Inovação,DENTRO
+consultor_0073,Geração de Receita,DENTRO
+consultor_0074,Vivência e Disseminação,DENTRO
+consultor_0074,Autodesenvolvimento,DENTRO
+consultor_0074,Liderança,DENTRO
+consultor_0074,"Visão, Planejamento e Organização",DENTRO
+consultor_0074,Gestão da Entrega,ACIMA
+consultor_0074,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0074,Execução com Qualidade,ACIMA
+consultor_0074,Inovação,ACIMA
+consultor_0074,Geração de Receita,DENTRO
+consultor_0075,Vivência e Disseminação,ACIMA
+consultor_0075,Autodesenvolvimento,DENTRO
+consultor_0075,Liderança,DENTRO
+consultor_0075,"Visão, Planejamento e Organização",DENTRO
+consultor_0075,Gestão da Entrega,DENTRO
+consultor_0075,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0075,Execução com Qualidade,DENTRO
+consultor_0075,Inovação,ABAIXO
+consultor_0075,Geração de Receita,ACIMA
+consultor_0076,Vivência e Disseminação,DENTRO
+consultor_0076,Autodesenvolvimento,ACIMA
+consultor_0076,Liderança,DENTRO
+consultor_0076,"Visão, Planejamento e Organização",ABAIXO
+consultor_0076,Gestão da Entrega,ACIMA
+consultor_0076,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0076,Execução com Qualidade,ABAIXO
+consultor_0076,Inovação,ACIMA
+consultor_0076,Geração de Receita,DENTRO
+consultor_0077,Vivência e Disseminação,DENTRO
+consultor_0077,Autodesenvolvimento,ACIMA
+consultor_0077,Liderança,DENTRO
+consultor_0077,"Visão, Planejamento e Organização",DENTRO
+consultor_0077,Gestão da Entrega,ACIMA
+consultor_0077,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0077,Execução com Qualidade,ACIMA
+consultor_0077,Inovação,DENTRO
+consultor_0077,Geração de Receita,DENTRO
+consultor_0078,Vivência e Disseminação,DENTRO
+consultor_0078,Autodesenvolvimento,DENTRO
+consultor_0078,Liderança,ACIMA
+consultor_0078,"Visão, Planejamento e Organização",DENTRO
+consultor_0078,Gestão da Entrega,ACIMA
+consultor_0078,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0078,Execução com Qualidade,ACIMA
+consultor_0078,Inovação,ACIMA
+consultor_0078,Geração de Receita,ABAIXO
+consultor_0079,Vivência e Disseminação,ACIMA
+consultor_0079,Autodesenvolvimento,DENTRO
+consultor_0079,Liderança,DENTRO
+consultor_0079,"Visão, Planejamento e Organização",DENTRO
+consultor_0079,Gestão da Entrega,ABAIXO
+consultor_0079,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0079,Execução com Qualidade,ABAIXO
+consultor_0079,Inovação,DENTRO
+consultor_0079,Geração de Receita,DENTRO
+consultor_0080,Vivência e Disseminação,DENTRO
+consultor_0080,Autodesenvolvimento,DENTRO
+consultor_0080,Liderança,ACIMA
+consultor_0080,"Visão, Planejamento e Organização",ABAIXO
+consultor_0080,Gestão da Entrega,DENTRO
+consultor_0080,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0080,Execução com Qualidade,DENTRO
+consultor_0080,Inovação,ACIMA
+consultor_0080,Geração de Receita,ACIMA
+consultor_0081,Vivência e Disseminação,DENTRO
+consultor_0081,Autodesenvolvimento,DENTRO
+consultor_0081,Liderança,ABAIXO
+consultor_0081,"Visão, Planejamento e Organização",DENTRO
+consultor_0081,Gestão da Entrega,ACIMA
+consultor_0081,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0081,Execução com Qualidade,DENTRO
+consultor_0081,Inovação,ABAIXO
+consultor_0081,Geração de Receita,DENTRO
+consultor_0082,Vivência e Disseminação,DENTRO
+consultor_0082,Autodesenvolvimento,DENTRO
+consultor_0082,Liderança,DENTRO
+consultor_0082,"Visão, Planejamento e Organização",DENTRO
+consultor_0082,Gestão da Entrega,DENTRO
+consultor_0082,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0082,Execução com Qualidade,DENTRO
+consultor_0082,Inovação,DENTRO
+consultor_0082,Geração de Receita,ACIMA
+consultor_0083,Vivência e Disseminação,ABAIXO
+consultor_0083,Autodesenvolvimento,DENTRO
+consultor_0083,Liderança,DENTRO
+consultor_0083,"Visão, Planejamento e Organização",DENTRO
+consultor_0083,Gestão da Entrega,DENTRO
+consultor_0083,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0083,Execução com Qualidade,DENTRO
+consultor_0083,Inovação,DENTRO
+consultor_0083,Geração de Receita,DENTRO
+consultor_0084,Vivência e Disseminação,DENTRO
+consultor_0084,Autodesenvolvimento,DENTRO
+consultor_0084,Liderança,ABAIXO
+consultor_0084,"Visão, Planejamento e Organização",DENTRO
+consultor_0084,Gestão da Entrega,ACIMA
+consultor_0084,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0084,Execução com Qualidade,ACIMA
+consultor_0084,Inovação,ACIMA
+consultor_0084,Geração de Receita,DENTRO
+consultor_0085,Vivência e Disseminação,DENTRO
+consultor_0085,Autodesenvolvimento,ACIMA
+consultor_0085,Liderança,DENTRO
+consultor_0085,"Visão, Planejamento e Organização",ACIMA
+consultor_0085,Gestão da Entrega,ABAIXO
+consultor_0085,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0085,Execução com Qualidade,ABAIXO
+consultor_0085,Inovação,DENTRO
+consultor_0085,Geração de Receita,ABAIXO
+consultor_0086,Vivência e Disseminação,DENTRO
+consultor_0086,Autodesenvolvimento,ACIMA
+consultor_0086,Liderança,DENTRO
+consultor_0086,"Visão, Planejamento e Organização",DENTRO
+consultor_0086,Gestão da Entrega,ABAIXO
+consultor_0086,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0086,Execução com Qualidade,DENTRO
+consultor_0086,Inovação,DENTRO
+consultor_0086,Geração de Receita,DENTRO
+consultor_0087,Vivência e Disseminação,DENTRO
+consultor_0087,Autodesenvolvimento,ACIMA
+consultor_0087,Liderança,ACIMA
+consultor_0087,"Visão, Planejamento e Organização",DENTRO
+consultor_0087,Gestão da Entrega,ACIMA
+consultor_0087,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0087,Execução com Qualidade,ABAIXO
+consultor_0087,Inovação,DENTRO
+consultor_0087,Geração de Receita,DENTRO
+consultor_0088,Vivência e Disseminação,ACIMA
+consultor_0088,Autodesenvolvimento,DENTRO
+consultor_0088,Liderança,ACIMA
+consultor_0088,"Visão, Planejamento e Organização",DENTRO
+consultor_0088,Gestão da Entrega,DENTRO
+consultor_0088,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0088,Execução com Qualidade,DENTRO
+consultor_0088,Inovação,DENTRO
+consultor_0088,Geração de Receita,DENTRO
+consultor_0089,Vivência e Disseminação,ABAIXO
+consultor_0089,Autodesenvolvimento,ACIMA
+consultor_0089,Liderança,ACIMA
+consultor_0089,"Visão, Planejamento e Organização",DENTRO
+consultor_0089,Gestão da Entrega,DENTRO
+consultor_0089,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0089,Execução com Qualidade,ACIMA
+consultor_0089,Inovação,ACIMA
+consultor_0089,Geração de Receita,DENTRO
+consultor_0090,Vivência e Disseminação,DENTRO
+consultor_0090,Autodesenvolvimento,ACIMA
+consultor_0090,Liderança,ACIMA
+consultor_0090,"Visão, Planejamento e Organização",DENTRO
+consultor_0090,Gestão da Entrega,ABAIXO
+consultor_0090,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0090,Execução com Qualidade,DENTRO
+consultor_0090,Inovação,DENTRO
+consultor_0090,Geração de Receita,ABAIXO
+consultor_0091,Vivência e Disseminação,DENTRO
+consultor_0091,Autodesenvolvimento,ABAIXO
+consultor_0091,Liderança,ABAIXO
+consultor_0091,"Visão, Planejamento e Organização",ACIMA
+consultor_0091,Gestão da Entrega,ACIMA
+consultor_0091,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0091,Execução com Qualidade,ABAIXO
+consultor_0091,Inovação,DENTRO
+consultor_0091,Geração de Receita,DENTRO
+consultor_0092,Vivência e Disseminação,ACIMA
+consultor_0092,Autodesenvolvimento,DENTRO
+consultor_0092,Liderança,ABAIXO
+consultor_0092,"Visão, Planejamento e Organização",ACIMA
+consultor_0092,Gestão da Entrega,ABAIXO
+consultor_0092,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0092,Execução com Qualidade,DENTRO
+consultor_0092,Inovação,DENTRO
+consultor_0092,Geração de Receita,DENTRO
+consultor_0093,Vivência e Disseminação,DENTRO
+consultor_0093,Autodesenvolvimento,DENTRO
+consultor_0093,Liderança,ABAIXO
+consultor_0093,"Visão, Planejamento e Organização",DENTRO
+consultor_0093,Gestão da Entrega,DENTRO
+consultor_0093,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0093,Execução com Qualidade,DENTRO
+consultor_0093,Inovação,DENTRO
+consultor_0093,Geração de Receita,DENTRO
+consultor_0094,Vivência e Disseminação,DENTRO
+consultor_0094,Autodesenvolvimento,DENTRO
+consultor_0094,Liderança,DENTRO
+consultor_0094,"Visão, Planejamento e Organização",DENTRO
+consultor_0094,Gestão da Entrega,DENTRO
+consultor_0094,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0094,Execução com Qualidade,DENTRO
+consultor_0094,Inovação,DENTRO
+consultor_0094,Geração de Receita,ABAIXO
+consultor_0095,Vivência e Disseminação,DENTRO
+consultor_0095,Autodesenvolvimento,ACIMA
+consultor_0095,Liderança,DENTRO
+consultor_0095,"Visão, Planejamento e Organização",ACIMA
+consultor_0095,Gestão da Entrega,DENTRO
+consultor_0095,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0095,Execução com Qualidade,ACIMA
+consultor_0095,Inovação,DENTRO
+consultor_0095,Geração de Receita,ACIMA
+consultor_0096,Vivência e Disseminação,DENTRO
+consultor_0096,Autodesenvolvimento,ABAIXO
+consultor_0096,Liderança,ABAIXO
+consultor_0096,"Visão, Planejamento e Organização",DENTRO
+consultor_0096,Gestão da Entrega,ACIMA
+consultor_0096,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0096,Execução com Qualidade,ABAIXO
+consultor_0096,Inovação,ACIMA
+consultor_0096,Geração de Receita,DENTRO
+consultor_0097,Vivência e Disseminação,DENTRO
+consultor_0097,Autodesenvolvimento,DENTRO
+consultor_0097,Liderança,ACIMA
+consultor_0097,"Visão, Planejamento e Organização",ACIMA
+consultor_0097,Gestão da Entrega,ABAIXO
+consultor_0097,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0097,Execução com Qualidade,ACIMA
+consultor_0097,Inovação,DENTRO
+consultor_0097,Geração de Receita,DENTRO
+consultor_0098,Vivência e Disseminação,DENTRO
+consultor_0098,Autodesenvolvimento,ACIMA
+consultor_0098,Liderança,DENTRO
+consultor_0098,"Visão, Planejamento e Organização",ABAIXO
+consultor_0098,Gestão da Entrega,DENTRO
+consultor_0098,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0098,Execução com Qualidade,ABAIXO
+consultor_0098,Inovação,DENTRO
+consultor_0098,Geração de Receita,DENTRO
+consultor_0099,Vivência e Disseminação,DENTRO
+consultor_0099,Autodesenvolvimento,DENTRO
+consultor_0099,Liderança,ACIMA
+consultor_0099,"Visão, Planejamento e Organização",ACIMA
+consultor_0099,Gestão da Entrega,ABAIXO
+consultor_0099,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0099,Execução com Qualidade,DENTRO
+consultor_0099,Inovação,DENTRO
+consultor_0099,Geração de Receita,DENTRO
+consultor_0100,Vivência e Disseminação,DENTRO
+consultor_0100,Autodesenvolvimento,DENTRO
+consultor_0100,Liderança,DENTRO
+consultor_0100,"Visão, Planejamento e Organização",ACIMA
+consultor_0100,Gestão da Entrega,ABAIXO
+consultor_0100,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0100,Execução com Qualidade,DENTRO
+consultor_0100,Inovação,ABAIXO
+consultor_0100,Geração de Receita,DENTRO
+consultor_0101,Vivência e Disseminação,DENTRO
+consultor_0101,Autodesenvolvimento,ACIMA
+consultor_0101,Liderança,ACIMA
+consultor_0101,"Visão, Planejamento e Organização",DENTRO
+consultor_0101,Gestão da Entrega,DENTRO
+consultor_0101,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0101,Execução com Qualidade,DENTRO
+consultor_0101,Inovação,ABAIXO
+consultor_0101,Geração de Receita,DENTRO
+consultor_0102,Vivência e Disseminação,ABAIXO
+consultor_0102,Autodesenvolvimento,DENTRO
+consultor_0102,Liderança,DENTRO
+consultor_0102,"Visão, Planejamento e Organização",DENTRO
+consultor_0102,Gestão da Entrega,ACIMA
+consultor_0102,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0102,Execução com Qualidade,ABAIXO
+consultor_0102,Inovação,ACIMA
+consultor_0102,Geração de Receita,DENTRO
+consultor_0103,Vivência e Disseminação,DENTRO
+consultor_0103,Autodesenvolvimento,DENTRO
+consultor_0103,Liderança,DENTRO
+consultor_0103,"Visão, Planejamento e Organização",DENTRO
+consultor_0103,Gestão da Entrega,ACIMA
+consultor_0103,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0103,Execução com Qualidade,ACIMA
+consultor_0103,Inovação,DENTRO
+consultor_0103,Geração de Receita,DENTRO
+consultor_0104,Vivência e Disseminação,DENTRO
+consultor_0104,Autodesenvolvimento,DENTRO
+consultor_0104,Liderança,ACIMA
+consultor_0104,"Visão, Planejamento e Organização",DENTRO
+consultor_0104,Gestão da Entrega,DENTRO
+consultor_0104,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0104,Execução com Qualidade,ACIMA
+consultor_0104,Inovação,DENTRO
+consultor_0104,Geração de Receita,DENTRO
+consultor_0105,Vivência e Disseminação,DENTRO
+consultor_0105,Autodesenvolvimento,ABAIXO
+consultor_0105,Liderança,DENTRO
+consultor_0105,"Visão, Planejamento e Organização",ACIMA
+consultor_0105,Gestão da Entrega,ACIMA
+consultor_0105,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0105,Execução com Qualidade,ACIMA
+consultor_0105,Inovação,ABAIXO
+consultor_0105,Geração de Receita,ABAIXO
+consultor_0106,Vivência e Disseminação,DENTRO
+consultor_0106,Autodesenvolvimento,DENTRO
+consultor_0106,Liderança,DENTRO
+consultor_0106,"Visão, Planejamento e Organização",ACIMA
+consultor_0106,Gestão da Entrega,DENTRO
+consultor_0106,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0106,Execução com Qualidade,DENTRO
+consultor_0106,Inovação,DENTRO
+consultor_0106,Geração de Receita,ABAIXO
+consultor_0107,Vivência e Disseminação,DENTRO
+consultor_0107,Autodesenvolvimento,DENTRO
+consultor_0107,Liderança,ABAIXO
+consultor_0107,"Visão, Planejamento e Organização",DENTRO
+consultor_0107,Gestão da Entrega,ACIMA
+consultor_0107,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0107,Execução com Qualidade,DENTRO
+consultor_0107,Inovação,DENTRO
+consultor_0107,Geração de Receita,DENTRO
+consultor_0108,Vivência e Disseminação,DENTRO
+consultor_0108,Autodesenvolvimento,ACIMA
+consultor_0108,Liderança,DENTRO
+consultor_0108,"Visão, Planejamento e Organização",DENTRO
+consultor_0108,Gestão da Entrega,DENTRO
+consultor_0108,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0108,Execução com Qualidade,ACIMA
+consultor_0108,Inovação,ACIMA
+consultor_0108,Geração de Receita,DENTRO
+consultor_0109,Vivência e Disseminação,ACIMA
+consultor_0109,Autodesenvolvimento,ACIMA
+consultor_0109,Liderança,ABAIXO
+consultor_0109,"Visão, Planejamento e Organização",ACIMA
+consultor_0109,Gestão da Entrega,DENTRO
+consultor_0109,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0109,Execução com Qualidade,DENTRO
+consultor_0109,Inovação,ABAIXO
+consultor_0109,Geração de Receita,DENTRO
+consultor_0110,Vivência e Disseminação,DENTRO
+consultor_0110,Autodesenvolvimento,ACIMA
+consultor_0110,Liderança,ACIMA
+consultor_0110,"Visão, Planejamento e Organização",ACIMA
+consultor_0110,Gestão da Entrega,ACIMA
+consultor_0110,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0110,Execução com Qualidade,ABAIXO
+consultor_0110,Inovação,DENTRO
+consultor_0110,Geração de Receita,DENTRO
+consultor_0111,Vivência e Disseminação,ABAIXO
+consultor_0111,Autodesenvolvimento,DENTRO
+consultor_0111,Liderança,ABAIXO
+consultor_0111,"Visão, Planejamento e Organização",DENTRO
+consultor_0111,Gestão da Entrega,DENTRO
+consultor_0111,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0111,Execução com Qualidade,ACIMA
+consultor_0111,Inovação,DENTRO
+consultor_0111,Geração de Receita,DENTRO
+consultor_0112,Vivência e Disseminação,DENTRO
+consultor_0112,Autodesenvolvimento,ACIMA
+consultor_0112,Liderança,ACIMA
+consultor_0112,"Visão, Planejamento e Organização",ACIMA
+consultor_0112,Gestão da Entrega,DENTRO
+consultor_0112,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0112,Execução com Qualidade,ACIMA
+consultor_0112,Inovação,DENTRO
+consultor_0112,Geração de Receita,ABAIXO
+consultor_0113,Vivência e Disseminação,DENTRO
+consultor_0113,Autodesenvolvimento,ACIMA
+consultor_0113,Liderança,ABAIXO
+consultor_0113,"Visão, Planejamento e Organização",DENTRO
+consultor_0113,Gestão da Entrega,ACIMA
+consultor_0113,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0113,Execução com Qualidade,ACIMA
+consultor_0113,Inovação,DENTRO
+consultor_0113,Geração de Receita,DENTRO
+consultor_0114,Vivência e Disseminação,ABAIXO
+consultor_0114,Autodesenvolvimento,DENTRO
+consultor_0114,Liderança,ACIMA
+consultor_0114,"Visão, Planejamento e Organização",ABAIXO
+consultor_0114,Gestão da Entrega,DENTRO
+consultor_0114,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0114,Execução com Qualidade,DENTRO
+consultor_0114,Inovação,ABAIXO
+consultor_0114,Geração de Receita,DENTRO
+consultor_0115,Vivência e Disseminação,DENTRO
+consultor_0115,Autodesenvolvimento,DENTRO
+consultor_0115,Liderança,DENTRO
+consultor_0115,"Visão, Planejamento e Organização",ABAIXO
+consultor_0115,Gestão da Entrega,ABAIXO
+consultor_0115,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0115,Execução com Qualidade,DENTRO
+consultor_0115,Inovação,DENTRO
+consultor_0115,Geração de Receita,DENTRO
+consultor_0116,Vivência e Disseminação,DENTRO
+consultor_0116,Autodesenvolvimento,DENTRO
+consultor_0116,Liderança,ACIMA
+consultor_0116,"Visão, Planejamento e Organização",DENTRO
+consultor_0116,Gestão da Entrega,DENTRO
+consultor_0116,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0116,Execução com Qualidade,ABAIXO
+consultor_0116,Inovação,DENTRO
+consultor_0116,Geração de Receita,DENTRO
+consultor_0117,Vivência e Disseminação,ACIMA
+consultor_0117,Autodesenvolvimento,ABAIXO
+consultor_0117,Liderança,ABAIXO
+consultor_0117,"Visão, Planejamento e Organização",ABAIXO
+consultor_0117,Gestão da Entrega,DENTRO
+consultor_0117,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0117,Execução com Qualidade,ACIMA
+consultor_0117,Inovação,DENTRO
+consultor_0117,Geração de Receita,DENTRO
+consultor_0118,Vivência e Disseminação,DENTRO
+consultor_0118,Autodesenvolvimento,ACIMA
+consultor_0118,Liderança,DENTRO
+consultor_0118,"Visão, Planejamento e Organização",DENTRO
+consultor_0118,Gestão da Entrega,DENTRO
+consultor_0118,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0118,Execução com Qualidade,ACIMA
+consultor_0118,Inovação,DENTRO
+consultor_0118,Geração de Receita,ACIMA
+consultor_0119,Vivência e Disseminação,DENTRO
+consultor_0119,Autodesenvolvimento,DENTRO
+consultor_0119,Liderança,DENTRO
+consultor_0119,"Visão, Planejamento e Organização",DENTRO
+consultor_0119,Gestão da Entrega,ACIMA
+consultor_0119,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0119,Execução com Qualidade,DENTRO
+consultor_0119,Inovação,ACIMA
+consultor_0119,Geração de Receita,ABAIXO
+consultor_0120,Vivência e Disseminação,ABAIXO
+consultor_0120,Autodesenvolvimento,DENTRO
+consultor_0120,Liderança,DENTRO
+consultor_0120,"Visão, Planejamento e Organização",DENTRO
+consultor_0120,Gestão da Entrega,ACIMA
+consultor_0120,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0120,Execução com Qualidade,DENTRO
+consultor_0120,Inovação,ACIMA
+consultor_0120,Geração de Receita,DENTRO
+consultor_0121,Vivência e Disseminação,DENTRO
+consultor_0121,Autodesenvolvimento,DENTRO
+consultor_0121,Liderança,DENTRO
+consultor_0121,"Visão, Planejamento e Organização",ACIMA
+consultor_0121,Gestão da Entrega,DENTRO
+consultor_0121,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0121,Execução com Qualidade,DENTRO
+consultor_0121,Inovação,DENTRO
+consultor_0121,Geração de Receita,ABAIXO
+consultor_0122,Vivência e Disseminação,ACIMA
+consultor_0122,Autodesenvolvimento,ACIMA
+consultor_0122,Liderança,ABAIXO
+consultor_0122,"Visão, Planejamento e Organização",ABAIXO
+consultor_0122,Gestão da Entrega,DENTRO
+consultor_0122,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0122,Execução com Qualidade,DENTRO
+consultor_0122,Inovação,DENTRO
+consultor_0122,Geração de Receita,DENTRO
+consultor_0123,Vivência e Disseminação,ABAIXO
+consultor_0123,Autodesenvolvimento,DENTRO
+consultor_0123,Liderança,DENTRO
+consultor_0123,"Visão, Planejamento e Organização",ABAIXO
+consultor_0123,Gestão da Entrega,DENTRO
+consultor_0123,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0123,Execução com Qualidade,DENTRO
+consultor_0123,Inovação,DENTRO
+consultor_0123,Geração de Receita,DENTRO
+consultor_0124,Vivência e Disseminação,ACIMA
+consultor_0124,Autodesenvolvimento,DENTRO
+consultor_0124,Liderança,ABAIXO
+consultor_0124,"Visão, Planejamento e Organização",ACIMA
+consultor_0124,Gestão da Entrega,DENTRO
+consultor_0124,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0124,Execução com Qualidade,DENTRO
+consultor_0124,Inovação,DENTRO
+consultor_0124,Geração de Receita,DENTRO
+consultor_0125,Vivência e Disseminação,ABAIXO
+consultor_0125,Autodesenvolvimento,DENTRO
+consultor_0125,Liderança,ACIMA
+consultor_0125,"Visão, Planejamento e Organização",DENTRO
+consultor_0125,Gestão da Entrega,ACIMA
+consultor_0125,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0125,Execução com Qualidade,ACIMA
+consultor_0125,Inovação,ACIMA
+consultor_0125,Geração de Receita,ABAIXO
+consultor_0126,Vivência e Disseminação,ABAIXO
+consultor_0126,Autodesenvolvimento,DENTRO
+consultor_0126,Liderança,ACIMA
+consultor_0126,"Visão, Planejamento e Organização",ACIMA
+consultor_0126,Gestão da Entrega,DENTRO
+consultor_0126,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0126,Execução com Qualidade,ACIMA
+consultor_0126,Inovação,ABAIXO
+consultor_0126,Geração de Receita,ACIMA
+consultor_0127,Vivência e Disseminação,DENTRO
+consultor_0127,Autodesenvolvimento,DENTRO
+consultor_0127,Liderança,DENTRO
+consultor_0127,"Visão, Planejamento e Organização",ACIMA
+consultor_0127,Gestão da Entrega,DENTRO
+consultor_0127,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0127,Execução com Qualidade,ACIMA
+consultor_0127,Inovação,DENTRO
+consultor_0127,Geração de Receita,DENTRO
+consultor_0128,Vivência e Disseminação,DENTRO
+consultor_0128,Autodesenvolvimento,ABAIXO
+consultor_0128,Liderança,DENTRO
+consultor_0128,"Visão, Planejamento e Organização",DENTRO
+consultor_0128,Gestão da Entrega,ABAIXO
+consultor_0128,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0128,Execução com Qualidade,DENTRO
+consultor_0128,Inovação,DENTRO
+consultor_0128,Geração de Receita,DENTRO
+consultor_0129,Vivência e Disseminação,ACIMA
+consultor_0129,Autodesenvolvimento,ABAIXO
+consultor_0129,Liderança,DENTRO
+consultor_0129,"Visão, Planejamento e Organização",ACIMA
+consultor_0129,Gestão da Entrega,DENTRO
+consultor_0129,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0129,Execução com Qualidade,DENTRO
+consultor_0129,Inovação,ABAIXO
+consultor_0129,Geração de Receita,DENTRO
+consultor_0130,Vivência e Disseminação,DENTRO
+consultor_0130,Autodesenvolvimento,DENTRO
+consultor_0130,Liderança,DENTRO
+consultor_0130,"Visão, Planejamento e Organização",DENTRO
+consultor_0130,Gestão da Entrega,DENTRO
+consultor_0130,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0130,Execução com Qualidade,DENTRO
+consultor_0130,Inovação,ABAIXO
+consultor_0130,Geração de Receita,ACIMA
+consultor_0131,Vivência e Disseminação,DENTRO
+consultor_0131,Autodesenvolvimento,ACIMA
+consultor_0131,Liderança,ACIMA
+consultor_0131,"Visão, Planejamento e Organização",ABAIXO
+consultor_0131,Gestão da Entrega,ACIMA
+consultor_0131,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0131,Execução com Qualidade,ACIMA
+consultor_0131,Inovação,DENTRO
+consultor_0131,Geração de Receita,ACIMA
+consultor_0132,Vivência e Disseminação,DENTRO
+consultor_0132,Autodesenvolvimento,ABAIXO
+consultor_0132,Liderança,DENTRO
+consultor_0132,"Visão, Planejamento e Organização",DENTRO
+consultor_0132,Gestão da Entrega,DENTRO
+consultor_0132,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0132,Execução com Qualidade,ACIMA
+consultor_0132,Inovação,ACIMA
+consultor_0132,Geração de Receita,ABAIXO
+consultor_0133,Vivência e Disseminação,ACIMA
+consultor_0133,Autodesenvolvimento,ACIMA
+consultor_0133,Liderança,DENTRO
+consultor_0133,"Visão, Planejamento e Organização",DENTRO
+consultor_0133,Gestão da Entrega,DENTRO
+consultor_0133,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0133,Execução com Qualidade,ACIMA
+consultor_0133,Inovação,DENTRO
+consultor_0133,Geração de Receita,DENTRO
+consultor_0134,Vivência e Disseminação,DENTRO
+consultor_0134,Autodesenvolvimento,ACIMA
+consultor_0134,Liderança,DENTRO
+consultor_0134,"Visão, Planejamento e Organização",ACIMA
+consultor_0134,Gestão da Entrega,DENTRO
+consultor_0134,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0134,Execução com Qualidade,DENTRO
+consultor_0134,Inovação,ACIMA
+consultor_0134,Geração de Receita,ACIMA
+consultor_0135,Vivência e Disseminação,ACIMA
+consultor_0135,Autodesenvolvimento,DENTRO
+consultor_0135,Liderança,DENTRO
+consultor_0135,"Visão, Planejamento e Organização",ACIMA
+consultor_0135,Gestão da Entrega,DENTRO
+consultor_0135,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0135,Execução com Qualidade,DENTRO
+consultor_0135,Inovação,DENTRO
+consultor_0135,Geração de Receita,DENTRO
+consultor_0136,Vivência e Disseminação,DENTRO
+consultor_0136,Autodesenvolvimento,ACIMA
+consultor_0136,Liderança,ABAIXO
+consultor_0136,"Visão, Planejamento e Organização",DENTRO
+consultor_0136,Gestão da Entrega,ABAIXO
+consultor_0136,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0136,Execução com Qualidade,ACIMA
+consultor_0136,Inovação,DENTRO
+consultor_0136,Geração de Receita,DENTRO
+consultor_0137,Vivência e Disseminação,ACIMA
+consultor_0137,Autodesenvolvimento,DENTRO
+consultor_0137,Liderança,DENTRO
+consultor_0137,"Visão, Planejamento e Organização",DENTRO
+consultor_0137,Gestão da Entrega,DENTRO
+consultor_0137,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0137,Execução com Qualidade,DENTRO
+consultor_0137,Inovação,DENTRO
+consultor_0137,Geração de Receita,ACIMA
+consultor_0138,Vivência e Disseminação,ABAIXO
+consultor_0138,Autodesenvolvimento,ACIMA
+consultor_0138,Liderança,DENTRO
+consultor_0138,"Visão, Planejamento e Organização",DENTRO
+consultor_0138,Gestão da Entrega,ABAIXO
+consultor_0138,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0138,Execução com Qualidade,DENTRO
+consultor_0138,Inovação,ABAIXO
+consultor_0138,Geração de Receita,DENTRO
+consultor_0139,Vivência e Disseminação,DENTRO
+consultor_0139,Autodesenvolvimento,DENTRO
+consultor_0139,Liderança,ACIMA
+consultor_0139,"Visão, Planejamento e Organização",DENTRO
+consultor_0139,Gestão da Entrega,ACIMA
+consultor_0139,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0139,Execução com Qualidade,ACIMA
+consultor_0139,Inovação,DENTRO
+consultor_0139,Geração de Receita,DENTRO
+consultor_0140,Vivência e Disseminação,DENTRO
+consultor_0140,Autodesenvolvimento,DENTRO
+consultor_0140,Liderança,ABAIXO
+consultor_0140,"Visão, Planejamento e Organização",ACIMA
+consultor_0140,Gestão da Entrega,DENTRO
+consultor_0140,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0140,Execução com Qualidade,ACIMA
+consultor_0140,Inovação,DENTRO
+consultor_0140,Geração de Receita,DENTRO
+consultor_0141,Vivência e Disseminação,DENTRO
+consultor_0141,Autodesenvolvimento,DENTRO
+consultor_0141,Liderança,DENTRO
+consultor_0141,"Visão, Planejamento e Organização",ABAIXO
+consultor_0141,Gestão da Entrega,DENTRO
+consultor_0141,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0141,Execução com Qualidade,ACIMA
+consultor_0141,Inovação,DENTRO
+consultor_0141,Geração de Receita,ACIMA
+consultor_0142,Vivência e Disseminação,ACIMA
+consultor_0142,Autodesenvolvimento,DENTRO
+consultor_0142,Liderança,DENTRO
+consultor_0142,"Visão, Planejamento e Organização",DENTRO
+consultor_0142,Gestão da Entrega,DENTRO
+consultor_0142,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0142,Execução com Qualidade,DENTRO
+consultor_0142,Inovação,DENTRO
+consultor_0142,Geração de Receita,DENTRO
+consultor_0143,Vivência e Disseminação,DENTRO
+consultor_0143,Autodesenvolvimento,ABAIXO
+consultor_0143,Liderança,DENTRO
+consultor_0143,"Visão, Planejamento e Organização",DENTRO
+consultor_0143,Gestão da Entrega,ACIMA
+consultor_0143,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0143,Execução com Qualidade,DENTRO
+consultor_0143,Inovação,ACIMA
+consultor_0143,Geração de Receita,ACIMA
+consultor_0144,Vivência e Disseminação,DENTRO
+consultor_0144,Autodesenvolvimento,DENTRO
+consultor_0144,Liderança,DENTRO
+consultor_0144,"Visão, Planejamento e Organização",DENTRO
+consultor_0144,Gestão da Entrega,ACIMA
+consultor_0144,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0144,Execução com Qualidade,ACIMA
+consultor_0144,Inovação,ABAIXO
+consultor_0144,Geração de Receita,ACIMA
+consultor_0145,Vivência e Disseminação,ACIMA
+consultor_0145,Autodesenvolvimento,ABAIXO
+consultor_0145,Liderança,DENTRO
+consultor_0145,"Visão, Planejamento e Organização",DENTRO
+consultor_0145,Gestão da Entrega,ABAIXO
+consultor_0145,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0145,Execução com Qualidade,ACIMA
+consultor_0145,Inovação,DENTRO
+consultor_0145,Geração de Receita,DENTRO
+consultor_0146,Vivência e Disseminação,ACIMA
+consultor_0146,Autodesenvolvimento,DENTRO
+consultor_0146,Liderança,ABAIXO
+consultor_0146,"Visão, Planejamento e Organização",ACIMA
+consultor_0146,Gestão da Entrega,DENTRO
+consultor_0146,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0146,Execução com Qualidade,ACIMA
+consultor_0146,Inovação,DENTRO
+consultor_0146,Geração de Receita,DENTRO
+consultor_0147,Vivência e Disseminação,DENTRO
+consultor_0147,Autodesenvolvimento,DENTRO
+consultor_0147,Liderança,ABAIXO
+consultor_0147,"Visão, Planejamento e Organização",DENTRO
+consultor_0147,Gestão da Entrega,ACIMA
+consultor_0147,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0147,Execução com Qualidade,DENTRO
+consultor_0147,Inovação,DENTRO
+consultor_0147,Geração de Receita,ACIMA
+consultor_0148,Vivência e Disseminação,DENTRO
+consultor_0148,Autodesenvolvimento,DENTRO
+consultor_0148,Liderança,DENTRO
+consultor_0148,"Visão, Planejamento e Organização",ACIMA
+consultor_0148,Gestão da Entrega,ACIMA
+consultor_0148,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0148,Execução com Qualidade,ACIMA
+consultor_0148,Inovação,ABAIXO
+consultor_0148,Geração de Receita,ACIMA
+consultor_0149,Vivência e Disseminação,DENTRO
+consultor_0149,Autodesenvolvimento,ACIMA
+consultor_0149,Liderança,ACIMA
+consultor_0149,"Visão, Planejamento e Organização",DENTRO
+consultor_0149,Gestão da Entrega,ABAIXO
+consultor_0149,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0149,Execução com Qualidade,ACIMA
+consultor_0149,Inovação,DENTRO
+consultor_0149,Geração de Receita,DENTRO
+consultor_0150,Vivência e Disseminação,ABAIXO
+consultor_0150,Autodesenvolvimento,DENTRO
+consultor_0150,Liderança,ABAIXO
+consultor_0150,"Visão, Planejamento e Organização",DENTRO
+consultor_0150,Gestão da Entrega,ABAIXO
+consultor_0150,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0150,Execução com Qualidade,DENTRO
+consultor_0150,Inovação,DENTRO
+consultor_0150,Geração de Receita,ACIMA
+consultor_0151,Vivência e Disseminação,DENTRO
+consultor_0151,Autodesenvolvimento,DENTRO
+consultor_0151,Liderança,DENTRO
+consultor_0151,"Visão, Planejamento e Organização",DENTRO
+consultor_0151,Gestão da Entrega,ABAIXO
+consultor_0151,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0151,Execução com Qualidade,DENTRO
+consultor_0151,Inovação,DENTRO
+consultor_0151,Geração de Receita,DENTRO
+consultor_0152,Vivência e Disseminação,DENTRO
+consultor_0152,Autodesenvolvimento,ABAIXO
+consultor_0152,Liderança,DENTRO
+consultor_0152,"Visão, Planejamento e Organização",ABAIXO
+consultor_0152,Gestão da Entrega,ACIMA
+consultor_0152,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0152,Execução com Qualidade,ABAIXO
+consultor_0152,Inovação,DENTRO
+consultor_0152,Geração de Receita,DENTRO
+consultor_0153,Vivência e Disseminação,ACIMA
+consultor_0153,Autodesenvolvimento,ACIMA
+consultor_0153,Liderança,ABAIXO
+consultor_0153,"Visão, Planejamento e Organização",ABAIXO
+consultor_0153,Gestão da Entrega,DENTRO
+consultor_0153,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0153,Execução com Qualidade,ABAIXO
+consultor_0153,Inovação,DENTRO
+consultor_0153,Geração de Receita,ACIMA
+consultor_0154,Vivência e Disseminação,ABAIXO
+consultor_0154,Autodesenvolvimento,ACIMA
+consultor_0154,Liderança,ABAIXO
+consultor_0154,"Visão, Planejamento e Organização",ACIMA
+consultor_0154,Gestão da Entrega,DENTRO
+consultor_0154,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0154,Execução com Qualidade,DENTRO
+consultor_0154,Inovação,DENTRO
+consultor_0154,Geração de Receita,ACIMA
+consultor_0155,Vivência e Disseminação,DENTRO
+consultor_0155,Autodesenvolvimento,DENTRO
+consultor_0155,Liderança,ACIMA
+consultor_0155,"Visão, Planejamento e Organização",ACIMA
+consultor_0155,Gestão da Entrega,DENTRO
+consultor_0155,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0155,Execução com Qualidade,DENTRO
+consultor_0155,Inovação,DENTRO
+consultor_0155,Geração de Receita,DENTRO
+consultor_0156,Vivência e Disseminação,DENTRO
+consultor_0156,Autodesenvolvimento,ACIMA
+consultor_0156,Liderança,DENTRO
+consultor_0156,"Visão, Planejamento e Organização",DENTRO
+consultor_0156,Gestão da Entrega,DENTRO
+consultor_0156,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0156,Execução com Qualidade,DENTRO
+consultor_0156,Inovação,ACIMA
+consultor_0156,Geração de Receita,DENTRO
+consultor_0157,Vivência e Disseminação,ABAIXO
+consultor_0157,Autodesenvolvimento,DENTRO
+consultor_0157,Liderança,DENTRO
+consultor_0157,"Visão, Planejamento e Organização",ACIMA
+consultor_0157,Gestão da Entrega,DENTRO
+consultor_0157,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0157,Execução com Qualidade,DENTRO
+consultor_0157,Inovação,ABAIXO
+consultor_0157,Geração de Receita,DENTRO
+consultor_0158,Vivência e Disseminação,DENTRO
+consultor_0158,Autodesenvolvimento,DENTRO
+consultor_0158,Liderança,DENTRO
+consultor_0158,"Visão, Planejamento e Organização",DENTRO
+consultor_0158,Gestão da Entrega,ABAIXO
+consultor_0158,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0158,Execução com Qualidade,ACIMA
+consultor_0158,Inovação,DENTRO
+consultor_0158,Geração de Receita,ACIMA
+consultor_0159,Vivência e Disseminação,ACIMA
+consultor_0159,Autodesenvolvimento,ACIMA
+consultor_0159,Liderança,ACIMA
+consultor_0159,"Visão, Planejamento e Organização",DENTRO
+consultor_0159,Gestão da Entrega,DENTRO
+consultor_0159,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0159,Execução com Qualidade,DENTRO
+consultor_0159,Inovação,DENTRO
+consultor_0159,Geração de Receita,ACIMA
+consultor_0160,Vivência e Disseminação,DENTRO
+consultor_0160,Autodesenvolvimento,ACIMA
+consultor_0160,Liderança,DENTRO
+consultor_0160,"Visão, Planejamento e Organização",DENTRO
+consultor_0160,Gestão da Entrega,DENTRO
+consultor_0160,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0160,Execução com Qualidade,DENTRO
+consultor_0160,Inovação,ACIMA
+consultor_0160,Geração de Receita,DENTRO
+consultor_0161,Vivência e Disseminação,DENTRO
+consultor_0161,Autodesenvolvimento,DENTRO
+consultor_0161,Liderança,ABAIXO
+consultor_0161,"Visão, Planejamento e Organização",DENTRO
+consultor_0161,Gestão da Entrega,ABAIXO
+consultor_0161,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0161,Execução com Qualidade,DENTRO
+consultor_0161,Inovação,DENTRO
+consultor_0161,Geração de Receita,DENTRO
+consultor_0162,Vivência e Disseminação,ACIMA
+consultor_0162,Autodesenvolvimento,DENTRO
+consultor_0162,Liderança,DENTRO
+consultor_0162,"Visão, Planejamento e Organização",ABAIXO
+consultor_0162,Gestão da Entrega,DENTRO
+consultor_0162,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0162,Execução com Qualidade,ACIMA
+consultor_0162,Inovação,DENTRO
+consultor_0162,Geração de Receita,DENTRO
+consultor_0163,Vivência e Disseminação,ABAIXO
+consultor_0163,Autodesenvolvimento,DENTRO
+consultor_0163,Liderança,ABAIXO
+consultor_0163,"Visão, Planejamento e Organização",ACIMA
+consultor_0163,Gestão da Entrega,ACIMA
+consultor_0163,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0163,Execução com Qualidade,ABAIXO
+consultor_0163,Inovação,DENTRO
+consultor_0163,Geração de Receita,DENTRO
+consultor_0164,Vivência e Disseminação,ACIMA
+consultor_0164,Autodesenvolvimento,DENTRO
+consultor_0164,Liderança,DENTRO
+consultor_0164,"Visão, Planejamento e Organização",ACIMA
+consultor_0164,Gestão da Entrega,DENTRO
+consultor_0164,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0164,Execução com Qualidade,DENTRO
+consultor_0164,Inovação,DENTRO
+consultor_0164,Geração de Receita,ABAIXO
+consultor_0165,Vivência e Disseminação,DENTRO
+consultor_0165,Autodesenvolvimento,DENTRO
+consultor_0165,Liderança,ACIMA
+consultor_0165,"Visão, Planejamento e Organização",ACIMA
+consultor_0165,Gestão da Entrega,DENTRO
+consultor_0165,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0165,Execução com Qualidade,DENTRO
+consultor_0165,Inovação,ACIMA
+consultor_0165,Geração de Receita,DENTRO
+consultor_0166,Vivência e Disseminação,DENTRO
+consultor_0166,Autodesenvolvimento,DENTRO
+consultor_0166,Liderança,DENTRO
+consultor_0166,"Visão, Planejamento e Organização",DENTRO
+consultor_0166,Gestão da Entrega,DENTRO
+consultor_0166,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0166,Execução com Qualidade,ABAIXO
+consultor_0166,Inovação,ACIMA
+consultor_0166,Geração de Receita,ABAIXO
+consultor_0167,Vivência e Disseminação,DENTRO
+consultor_0167,Autodesenvolvimento,DENTRO
+consultor_0167,Liderança,ACIMA
+consultor_0167,"Visão, Planejamento e Organização",ABAIXO
+consultor_0167,Gestão da Entrega,ACIMA
+consultor_0167,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0167,Execução com Qualidade,DENTRO
+consultor_0167,Inovação,ACIMA
+consultor_0167,Geração de Receita,DENTRO
+consultor_0168,Vivência e Disseminação,DENTRO
+consultor_0168,Autodesenvolvimento,DENTRO
+consultor_0168,Liderança,DENTRO
+consultor_0168,"Visão, Planejamento e Organização",ACIMA
+consultor_0168,Gestão da Entrega,ABAIXO
+consultor_0168,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0168,Execução com Qualidade,DENTRO
+consultor_0168,Inovação,DENTRO
+consultor_0168,Geração de Receita,ABAIXO
+consultor_0169,Vivência e Disseminação,ABAIXO
+consultor_0169,Autodesenvolvimento,ACIMA
+consultor_0169,Liderança,ACIMA
+consultor_0169,"Visão, Planejamento e Organização",ABAIXO
+consultor_0169,Gestão da Entrega,ACIMA
+consultor_0169,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0169,Execução com Qualidade,ACIMA
+consultor_0169,Inovação,ABAIXO
+consultor_0169,Geração de Receita,DENTRO
+consultor_0170,Vivência e Disseminação,ABAIXO
+consultor_0170,Autodesenvolvimento,DENTRO
+consultor_0170,Liderança,ACIMA
+consultor_0170,"Visão, Planejamento e Organização",ABAIXO
+consultor_0170,Gestão da Entrega,DENTRO
+consultor_0170,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0170,Execução com Qualidade,ACIMA
+consultor_0170,Inovação,DENTRO
+consultor_0170,Geração de Receita,DENTRO
+consultor_0171,Vivência e Disseminação,ABAIXO
+consultor_0171,Autodesenvolvimento,DENTRO
+consultor_0171,Liderança,ABAIXO
+consultor_0171,"Visão, Planejamento e Organização",ABAIXO
+consultor_0171,Gestão da Entrega,DENTRO
+consultor_0171,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0171,Execução com Qualidade,DENTRO
+consultor_0171,Inovação,ACIMA
+consultor_0171,Geração de Receita,ACIMA
+consultor_0172,Vivência e Disseminação,ACIMA
+consultor_0172,Autodesenvolvimento,DENTRO
+consultor_0172,Liderança,DENTRO
+consultor_0172,"Visão, Planejamento e Organização",ACIMA
+consultor_0172,Gestão da Entrega,DENTRO
+consultor_0172,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0172,Execução com Qualidade,DENTRO
+consultor_0172,Inovação,ACIMA
+consultor_0172,Geração de Receita,DENTRO
+consultor_0173,Vivência e Disseminação,ABAIXO
+consultor_0173,Autodesenvolvimento,DENTRO
+consultor_0173,Liderança,DENTRO
+consultor_0173,"Visão, Planejamento e Organização",ACIMA
+consultor_0173,Gestão da Entrega,DENTRO
+consultor_0173,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0173,Execução com Qualidade,DENTRO
+consultor_0173,Inovação,ABAIXO
+consultor_0173,Geração de Receita,DENTRO
+consultor_0174,Vivência e Disseminação,DENTRO
+consultor_0174,Autodesenvolvimento,ABAIXO
+consultor_0174,Liderança,ACIMA
+consultor_0174,"Visão, Planejamento e Organização",ACIMA
+consultor_0174,Gestão da Entrega,DENTRO
+consultor_0174,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0174,Execução com Qualidade,ABAIXO
+consultor_0174,Inovação,ACIMA
+consultor_0174,Geração de Receita,DENTRO
+consultor_0175,Vivência e Disseminação,DENTRO
+consultor_0175,Autodesenvolvimento,DENTRO
+consultor_0175,Liderança,ACIMA
+consultor_0175,"Visão, Planejamento e Organização",ACIMA
+consultor_0175,Gestão da Entrega,ABAIXO
+consultor_0175,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0175,Execução com Qualidade,ACIMA
+consultor_0175,Inovação,DENTRO
+consultor_0175,Geração de Receita,DENTRO
+consultor_0176,Vivência e Disseminação,DENTRO
+consultor_0176,Autodesenvolvimento,DENTRO
+consultor_0176,Liderança,DENTRO
+consultor_0176,"Visão, Planejamento e Organização",ACIMA
+consultor_0176,Gestão da Entrega,DENTRO
+consultor_0176,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0176,Execução com Qualidade,DENTRO
+consultor_0176,Inovação,DENTRO
+consultor_0176,Geração de Receita,ACIMA
+consultor_0177,Vivência e Disseminação,DENTRO
+consultor_0177,Autodesenvolvimento,DENTRO
+consultor_0177,Liderança,ACIMA
+consultor_0177,"Visão, Planejamento e Organização",DENTRO
+consultor_0177,Gestão da Entrega,ACIMA
+consultor_0177,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0177,Execução com Qualidade,ACIMA
+consultor_0177,Inovação,DENTRO
+consultor_0177,Geração de Receita,DENTRO
+consultor_0178,Vivência e Disseminação,DENTRO
+consultor_0178,Autodesenvolvimento,DENTRO
+consultor_0178,Liderança,ACIMA
+consultor_0178,"Visão, Planejamento e Organização",DENTRO
+consultor_0178,Gestão da Entrega,ABAIXO
+consultor_0178,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0178,Execução com Qualidade,DENTRO
+consultor_0178,Inovação,DENTRO
+consultor_0178,Geração de Receita,ACIMA
+consultor_0179,Vivência e Disseminação,DENTRO
+consultor_0179,Autodesenvolvimento,ABAIXO
+consultor_0179,Liderança,DENTRO
+consultor_0179,"Visão, Planejamento e Organização",ABAIXO
+consultor_0179,Gestão da Entrega,ACIMA
+consultor_0179,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0179,Execução com Qualidade,DENTRO
+consultor_0179,Inovação,DENTRO
+consultor_0179,Geração de Receita,DENTRO
+consultor_0180,Vivência e Disseminação,ABAIXO
+consultor_0180,Autodesenvolvimento,DENTRO
+consultor_0180,Liderança,DENTRO
+consultor_0180,"Visão, Planejamento e Organização",DENTRO
+consultor_0180,Gestão da Entrega,DENTRO
+consultor_0180,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0180,Execução com Qualidade,ACIMA
+consultor_0180,Inovação,DENTRO
+consultor_0180,Geração de Receita,DENTRO
+consultor_0181,Vivência e Disseminação,ACIMA
+consultor_0181,Autodesenvolvimento,DENTRO
+consultor_0181,Liderança,ACIMA
+consultor_0181,"Visão, Planejamento e Organização",DENTRO
+consultor_0181,Gestão da Entrega,ABAIXO
+consultor_0181,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0181,Execução com Qualidade,DENTRO
+consultor_0181,Inovação,DENTRO
+consultor_0181,Geração de Receita,ABAIXO
+consultor_0182,Vivência e Disseminação,DENTRO
+consultor_0182,Autodesenvolvimento,DENTRO
+consultor_0182,Liderança,DENTRO
+consultor_0182,"Visão, Planejamento e Organização",DENTRO
+consultor_0182,Gestão da Entrega,DENTRO
+consultor_0182,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0182,Execução com Qualidade,ACIMA
+consultor_0182,Inovação,DENTRO
+consultor_0182,Geração de Receita,ACIMA
+consultor_0183,Vivência e Disseminação,ABAIXO
+consultor_0183,Autodesenvolvimento,DENTRO
+consultor_0183,Liderança,DENTRO
+consultor_0183,"Visão, Planejamento e Organização",DENTRO
+consultor_0183,Gestão da Entrega,ACIMA
+consultor_0183,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0183,Execução com Qualidade,ACIMA
+consultor_0183,Inovação,ACIMA
+consultor_0183,Geração de Receita,ABAIXO
+consultor_0184,Vivência e Disseminação,DENTRO
+consultor_0184,Autodesenvolvimento,DENTRO
+consultor_0184,Liderança,DENTRO
+consultor_0184,"Visão, Planejamento e Organização",DENTRO
+consultor_0184,Gestão da Entrega,ACIMA
+consultor_0184,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0184,Execução com Qualidade,ACIMA
+consultor_0184,Inovação,DENTRO
+consultor_0184,Geração de Receita,DENTRO
+consultor_0185,Vivência e Disseminação,DENTRO
+consultor_0185,Autodesenvolvimento,ABAIXO
+consultor_0185,Liderança,DENTRO
+consultor_0185,"Visão, Planejamento e Organização",ACIMA
+consultor_0185,Gestão da Entrega,ACIMA
+consultor_0185,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0185,Execução com Qualidade,DENTRO
+consultor_0185,Inovação,ACIMA
+consultor_0185,Geração de Receita,DENTRO
+consultor_0186,Vivência e Disseminação,DENTRO
+consultor_0186,Autodesenvolvimento,DENTRO
+consultor_0186,Liderança,DENTRO
+consultor_0186,"Visão, Planejamento e Organização",DENTRO
+consultor_0186,Gestão da Entrega,DENTRO
+consultor_0186,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0186,Execução com Qualidade,DENTRO
+consultor_0186,Inovação,DENTRO
+consultor_0186,Geração de Receita,DENTRO
+consultor_0187,Vivência e Disseminação,DENTRO
+consultor_0187,Autodesenvolvimento,DENTRO
+consultor_0187,Liderança,DENTRO
+consultor_0187,"Visão, Planejamento e Organização",DENTRO
+consultor_0187,Gestão da Entrega,ACIMA
+consultor_0187,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0187,Execução com Qualidade,DENTRO
+consultor_0187,Inovação,ABAIXO
+consultor_0187,Geração de Receita,ACIMA
+consultor_0188,Vivência e Disseminação,DENTRO
+consultor_0188,Autodesenvolvimento,DENTRO
+consultor_0188,Liderança,ACIMA
+consultor_0188,"Visão, Planejamento e Organização",DENTRO
+consultor_0188,Gestão da Entrega,DENTRO
+consultor_0188,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0188,Execução com Qualidade,DENTRO
+consultor_0188,Inovação,DENTRO
+consultor_0188,Geração de Receita,DENTRO
+consultor_0189,Vivência e Disseminação,DENTRO
+consultor_0189,Autodesenvolvimento,DENTRO
+consultor_0189,Liderança,DENTRO
+consultor_0189,"Visão, Planejamento e Organização",ACIMA
+consultor_0189,Gestão da Entrega,DENTRO
+consultor_0189,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0189,Execução com Qualidade,DENTRO
+consultor_0189,Inovação,DENTRO
+consultor_0189,Geração de Receita,DENTRO
+consultor_0190,Vivência e Disseminação,DENTRO
+consultor_0190,Autodesenvolvimento,ACIMA
+consultor_0190,Liderança,ACIMA
+consultor_0190,"Visão, Planejamento e Organização",DENTRO
+consultor_0190,Gestão da Entrega,ACIMA
+consultor_0190,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0190,Execução com Qualidade,ABAIXO
+consultor_0190,Inovação,DENTRO
+consultor_0190,Geração de Receita,ACIMA
+consultor_0191,Vivência e Disseminação,ACIMA
+consultor_0191,Autodesenvolvimento,ABAIXO
+consultor_0191,Liderança,ACIMA
+consultor_0191,"Visão, Planejamento e Organização",ACIMA
+consultor_0191,Gestão da Entrega,DENTRO
+consultor_0191,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0191,Execução com Qualidade,ABAIXO
+consultor_0191,Inovação,DENTRO
+consultor_0191,Geração de Receita,DENTRO
+consultor_0192,Vivência e Disseminação,DENTRO
+consultor_0192,Autodesenvolvimento,DENTRO
+consultor_0192,Liderança,DENTRO
+consultor_0192,"Visão, Planejamento e Organização",DENTRO
+consultor_0192,Gestão da Entrega,ABAIXO
+consultor_0192,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0192,Execução com Qualidade,DENTRO
+consultor_0192,Inovação,DENTRO
+consultor_0192,Geração de Receita,ACIMA
+consultor_0193,Vivência e Disseminação,ACIMA
+consultor_0193,Autodesenvolvimento,DENTRO
+consultor_0193,Liderança,ACIMA
+consultor_0193,"Visão, Planejamento e Organização",ABAIXO
+consultor_0193,Gestão da Entrega,ACIMA
+consultor_0193,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0193,Execução com Qualidade,DENTRO
+consultor_0193,Inovação,DENTRO
+consultor_0193,Geração de Receita,DENTRO
+consultor_0194,Vivência e Disseminação,DENTRO
+consultor_0194,Autodesenvolvimento,DENTRO
+consultor_0194,Liderança,ACIMA
+consultor_0194,"Visão, Planejamento e Organização",DENTRO
+consultor_0194,Gestão da Entrega,DENTRO
+consultor_0194,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0194,Execução com Qualidade,DENTRO
+consultor_0194,Inovação,DENTRO
+consultor_0194,Geração de Receita,DENTRO
+consultor_0195,Vivência e Disseminação,ABAIXO
+consultor_0195,Autodesenvolvimento,ACIMA
+consultor_0195,Liderança,DENTRO
+consultor_0195,"Visão, Planejamento e Organização",ACIMA
+consultor_0195,Gestão da Entrega,DENTRO
+consultor_0195,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0195,Execução com Qualidade,DENTRO
+consultor_0195,Inovação,DENTRO
+consultor_0195,Geração de Receita,DENTRO
+consultor_0196,Vivência e Disseminação,DENTRO
+consultor_0196,Autodesenvolvimento,DENTRO
+consultor_0196,Liderança,DENTRO
+consultor_0196,"Visão, Planejamento e Organização",DENTRO
+consultor_0196,Gestão da Entrega,DENTRO
+consultor_0196,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0196,Execução com Qualidade,DENTRO
+consultor_0196,Inovação,DENTRO
+consultor_0196,Geração de Receita,DENTRO
+consultor_0197,Vivência e Disseminação,DENTRO
+consultor_0197,Autodesenvolvimento,ACIMA
+consultor_0197,Liderança,ABAIXO
+consultor_0197,"Visão, Planejamento e Organização",ACIMA
+consultor_0197,Gestão da Entrega,ABAIXO
+consultor_0197,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0197,Execução com Qualidade,ACIMA
+consultor_0197,Inovação,DENTRO
+consultor_0197,Geração de Receita,DENTRO
+consultor_0198,Vivência e Disseminação,DENTRO
+consultor_0198,Autodesenvolvimento,ACIMA
+consultor_0198,Liderança,DENTRO
+consultor_0198,"Visão, Planejamento e Organização",ACIMA
+consultor_0198,Gestão da Entrega,ABAIXO
+consultor_0198,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0198,Execução com Qualidade,DENTRO
+consultor_0198,Inovação,ABAIXO
+consultor_0198,Geração de Receita,ABAIXO
+consultor_0199,Vivência e Disseminação,DENTRO
+consultor_0199,Autodesenvolvimento,ABAIXO
+consultor_0199,Liderança,ABAIXO
+consultor_0199,"Visão, Planejamento e Organização",ACIMA
+consultor_0199,Gestão da Entrega,ACIMA
+consultor_0199,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0199,Execução com Qualidade,ABAIXO
+consultor_0199,Inovação,ACIMA
+consultor_0199,Geração de Receita,ACIMA
+consultor_0200,Vivência e Disseminação,ACIMA
+consultor_0200,Autodesenvolvimento,ACIMA
+consultor_0200,Liderança,DENTRO
+consultor_0200,"Visão, Planejamento e Organização",DENTRO
+consultor_0200,Gestão da Entrega,DENTRO
+consultor_0200,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0200,Execução com Qualidade,DENTRO
+consultor_0200,Inovação,ACIMA
+consultor_0200,Geração de Receita,DENTRO
+consultor_0201,Vivência e Disseminação,DENTRO
+consultor_0201,Autodesenvolvimento,DENTRO
+consultor_0201,Liderança,ABAIXO
+consultor_0201,"Visão, Planejamento e Organização",ACIMA
+consultor_0201,Gestão da Entrega,ACIMA
+consultor_0201,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0201,Execução com Qualidade,DENTRO
+consultor_0201,Inovação,DENTRO
+consultor_0201,Geração de Receita,ACIMA
+consultor_0202,Vivência e Disseminação,DENTRO
+consultor_0202,Autodesenvolvimento,DENTRO
+consultor_0202,Liderança,ACIMA
+consultor_0202,"Visão, Planejamento e Organização",ACIMA
+consultor_0202,Gestão da Entrega,ACIMA
+consultor_0202,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0202,Execução com Qualidade,DENTRO
+consultor_0202,Inovação,DENTRO
+consultor_0202,Geração de Receita,ABAIXO
+consultor_0203,Vivência e Disseminação,DENTRO
+consultor_0203,Autodesenvolvimento,ABAIXO
+consultor_0203,Liderança,DENTRO
+consultor_0203,"Visão, Planejamento e Organização",DENTRO
+consultor_0203,Gestão da Entrega,ABAIXO
+consultor_0203,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0203,Execução com Qualidade,DENTRO
+consultor_0203,Inovação,ABAIXO
+consultor_0203,Geração de Receita,DENTRO
+consultor_0204,Vivência e Disseminação,DENTRO
+consultor_0204,Autodesenvolvimento,ACIMA
+consultor_0204,Liderança,DENTRO
+consultor_0204,"Visão, Planejamento e Organização",ACIMA
+consultor_0204,Gestão da Entrega,ABAIXO
+consultor_0204,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0204,Execução com Qualidade,ABAIXO
+consultor_0204,Inovação,DENTRO
+consultor_0204,Geração de Receita,ABAIXO
+consultor_0205,Vivência e Disseminação,DENTRO
+consultor_0205,Autodesenvolvimento,DENTRO
+consultor_0205,Liderança,ACIMA
+consultor_0205,"Visão, Planejamento e Organização",DENTRO
+consultor_0205,Gestão da Entrega,DENTRO
+consultor_0205,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0205,Execução com Qualidade,ABAIXO
+consultor_0205,Inovação,DENTRO
+consultor_0205,Geração de Receita,DENTRO
+consultor_0206,Vivência e Disseminação,ACIMA
+consultor_0206,Autodesenvolvimento,DENTRO
+consultor_0206,Liderança,DENTRO
+consultor_0206,"Visão, Planejamento e Organização",DENTRO
+consultor_0206,Gestão da Entrega,ABAIXO
+consultor_0206,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0206,Execução com Qualidade,ACIMA
+consultor_0206,Inovação,ACIMA
+consultor_0206,Geração de Receita,ACIMA
+consultor_0207,Vivência e Disseminação,DENTRO
+consultor_0207,Autodesenvolvimento,DENTRO
+consultor_0207,Liderança,DENTRO
+consultor_0207,"Visão, Planejamento e Organização",ABAIXO
+consultor_0207,Gestão da Entrega,DENTRO
+consultor_0207,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0207,Execução com Qualidade,DENTRO
+consultor_0207,Inovação,DENTRO
+consultor_0207,Geração de Receita,DENTRO
+consultor_0208,Vivência e Disseminação,ABAIXO
+consultor_0208,Autodesenvolvimento,ACIMA
+consultor_0208,Liderança,ABAIXO
+consultor_0208,"Visão, Planejamento e Organização",ACIMA
+consultor_0208,Gestão da Entrega,ACIMA
+consultor_0208,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0208,Execução com Qualidade,ACIMA
+consultor_0208,Inovação,ABAIXO
+consultor_0208,Geração de Receita,DENTRO
+consultor_0209,Vivência e Disseminação,ACIMA
+consultor_0209,Autodesenvolvimento,DENTRO
+consultor_0209,Liderança,DENTRO
+consultor_0209,"Visão, Planejamento e Organização",DENTRO
+consultor_0209,Gestão da Entrega,DENTRO
+consultor_0209,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0209,Execução com Qualidade,ABAIXO
+consultor_0209,Inovação,ACIMA
+consultor_0209,Geração de Receita,DENTRO
+consultor_0210,Vivência e Disseminação,DENTRO
+consultor_0210,Autodesenvolvimento,ABAIXO
+consultor_0210,Liderança,DENTRO
+consultor_0210,"Visão, Planejamento e Organização",ACIMA
+consultor_0210,Gestão da Entrega,DENTRO
+consultor_0210,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0210,Execução com Qualidade,DENTRO
+consultor_0210,Inovação,ACIMA
+consultor_0210,Geração de Receita,DENTRO
+consultor_0211,Vivência e Disseminação,ACIMA
+consultor_0211,Autodesenvolvimento,DENTRO
+consultor_0211,Liderança,DENTRO
+consultor_0211,"Visão, Planejamento e Organização",DENTRO
+consultor_0211,Gestão da Entrega,ACIMA
+consultor_0211,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0211,Execução com Qualidade,DENTRO
+consultor_0211,Inovação,DENTRO
+consultor_0211,Geração de Receita,ACIMA
+consultor_0212,Vivência e Disseminação,DENTRO
+consultor_0212,Autodesenvolvimento,DENTRO
+consultor_0212,Liderança,DENTRO
+consultor_0212,"Visão, Planejamento e Organização",DENTRO
+consultor_0212,Gestão da Entrega,DENTRO
+consultor_0212,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0212,Execução com Qualidade,ACIMA
+consultor_0212,Inovação,DENTRO
+consultor_0212,Geração de Receita,DENTRO
+consultor_0213,Vivência e Disseminação,DENTRO
+consultor_0213,Autodesenvolvimento,DENTRO
+consultor_0213,Liderança,DENTRO
+consultor_0213,"Visão, Planejamento e Organização",DENTRO
+consultor_0213,Gestão da Entrega,ABAIXO
+consultor_0213,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0213,Execução com Qualidade,ACIMA
+consultor_0213,Inovação,DENTRO
+consultor_0213,Geração de Receita,DENTRO
+consultor_0214,Vivência e Disseminação,DENTRO
+consultor_0214,Autodesenvolvimento,DENTRO
+consultor_0214,Liderança,DENTRO
+consultor_0214,"Visão, Planejamento e Organização",DENTRO
+consultor_0214,Gestão da Entrega,DENTRO
+consultor_0214,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0214,Execução com Qualidade,ACIMA
+consultor_0214,Inovação,DENTRO
+consultor_0214,Geração de Receita,DENTRO
+consultor_0215,Vivência e Disseminação,DENTRO
+consultor_0215,Autodesenvolvimento,ACIMA
+consultor_0215,Liderança,ACIMA
+consultor_0215,"Visão, Planejamento e Organização",ABAIXO
+consultor_0215,Gestão da Entrega,DENTRO
+consultor_0215,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0215,Execução com Qualidade,DENTRO
+consultor_0215,Inovação,ACIMA
+consultor_0215,Geração de Receita,DENTRO
+consultor_0216,Vivência e Disseminação,ABAIXO
+consultor_0216,Autodesenvolvimento,DENTRO
+consultor_0216,Liderança,DENTRO
+consultor_0216,"Visão, Planejamento e Organização",DENTRO
+consultor_0216,Gestão da Entrega,ACIMA
+consultor_0216,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0216,Execução com Qualidade,DENTRO
+consultor_0216,Inovação,ACIMA
+consultor_0216,Geração de Receita,DENTRO
+consultor_0217,Vivência e Disseminação,DENTRO
+consultor_0217,Autodesenvolvimento,DENTRO
+consultor_0217,Liderança,ACIMA
+consultor_0217,"Visão, Planejamento e Organização",ACIMA
+consultor_0217,Gestão da Entrega,ACIMA
+consultor_0217,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0217,Execução com Qualidade,ABAIXO
+consultor_0217,Inovação,DENTRO
+consultor_0217,Geração de Receita,ACIMA
+consultor_0218,Vivência e Disseminação,DENTRO
+consultor_0218,Autodesenvolvimento,ABAIXO
+consultor_0218,Liderança,ACIMA
+consultor_0218,"Visão, Planejamento e Organização",ACIMA
+consultor_0218,Gestão da Entrega,ACIMA
+consultor_0218,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0218,Execução com Qualidade,DENTRO
+consultor_0218,Inovação,DENTRO
+consultor_0218,Geração de Receita,ACIMA
+consultor_0219,Vivência e Disseminação,ACIMA
+consultor_0219,Autodesenvolvimento,ABAIXO
+consultor_0219,Liderança,ACIMA
+consultor_0219,"Visão, Planejamento e Organização",DENTRO
+consultor_0219,Gestão da Entrega,DENTRO
+consultor_0219,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0219,Execução com Qualidade,ACIMA
+consultor_0219,Inovação,ACIMA
+consultor_0219,Geração de Receita,ABAIXO
+consultor_0220,Vivência e Disseminação,DENTRO
+consultor_0220,Autodesenvolvimento,ACIMA
+consultor_0220,Liderança,DENTRO
+consultor_0220,"Visão, Planejamento e Organização",ACIMA
+consultor_0220,Gestão da Entrega,ABAIXO
+consultor_0220,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0220,Execução com Qualidade,DENTRO
+consultor_0220,Inovação,DENTRO
+consultor_0220,Geração de Receita,ACIMA
+consultor_0221,Vivência e Disseminação,DENTRO
+consultor_0221,Autodesenvolvimento,ABAIXO
+consultor_0221,Liderança,ACIMA
+consultor_0221,"Visão, Planejamento e Organização",DENTRO
+consultor_0221,Gestão da Entrega,DENTRO
+consultor_0221,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0221,Execução com Qualidade,ACIMA
+consultor_0221,Inovação,ACIMA
+consultor_0221,Geração de Receita,DENTRO
+consultor_0222,Vivência e Disseminação,ACIMA
+consultor_0222,Autodesenvolvimento,ACIMA
+consultor_0222,Liderança,DENTRO
+consultor_0222,"Visão, Planejamento e Organização",DENTRO
+consultor_0222,Gestão da Entrega,DENTRO
+consultor_0222,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0222,Execução com Qualidade,DENTRO
+consultor_0222,Inovação,DENTRO
+consultor_0222,Geração de Receita,DENTRO
+consultor_0223,Vivência e Disseminação,DENTRO
+consultor_0223,Autodesenvolvimento,ACIMA
+consultor_0223,Liderança,DENTRO
+consultor_0223,"Visão, Planejamento e Organização",DENTRO
+consultor_0223,Gestão da Entrega,DENTRO
+consultor_0223,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0223,Execução com Qualidade,DENTRO
+consultor_0223,Inovação,DENTRO
+consultor_0223,Geração de Receita,DENTRO
+consultor_0224,Vivência e Disseminação,ABAIXO
+consultor_0224,Autodesenvolvimento,DENTRO
+consultor_0224,Liderança,DENTRO
+consultor_0224,"Visão, Planejamento e Organização",ACIMA
+consultor_0224,Gestão da Entrega,DENTRO
+consultor_0224,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0224,Execução com Qualidade,DENTRO
+consultor_0224,Inovação,ABAIXO
+consultor_0224,Geração de Receita,DENTRO
+consultor_0225,Vivência e Disseminação,DENTRO
+consultor_0225,Autodesenvolvimento,ACIMA
+consultor_0225,Liderança,DENTRO
+consultor_0225,"Visão, Planejamento e Organização",DENTRO
+consultor_0225,Gestão da Entrega,DENTRO
+consultor_0225,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0225,Execução com Qualidade,ABAIXO
+consultor_0225,Inovação,DENTRO
+consultor_0225,Geração de Receita,DENTRO
+consultor_0226,Vivência e Disseminação,ACIMA
+consultor_0226,Autodesenvolvimento,DENTRO
+consultor_0226,Liderança,ACIMA
+consultor_0226,"Visão, Planejamento e Organização",DENTRO
+consultor_0226,Gestão da Entrega,ACIMA
+consultor_0226,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0226,Execução com Qualidade,DENTRO
+consultor_0226,Inovação,ACIMA
+consultor_0226,Geração de Receita,ABAIXO
+consultor_0227,Vivência e Disseminação,ACIMA
+consultor_0227,Autodesenvolvimento,ABAIXO
+consultor_0227,Liderança,DENTRO
+consultor_0227,"Visão, Planejamento e Organização",DENTRO
+consultor_0227,Gestão da Entrega,ACIMA
+consultor_0227,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0227,Execução com Qualidade,ACIMA
+consultor_0227,Inovação,ACIMA
+consultor_0227,Geração de Receita,ABAIXO
+consultor_0228,Vivência e Disseminação,DENTRO
+consultor_0228,Autodesenvolvimento,DENTRO
+consultor_0228,Liderança,DENTRO
+consultor_0228,"Visão, Planejamento e Organização",ACIMA
+consultor_0228,Gestão da Entrega,DENTRO
+consultor_0228,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0228,Execução com Qualidade,ACIMA
+consultor_0228,Inovação,DENTRO
+consultor_0228,Geração de Receita,ABAIXO
+consultor_0229,Vivência e Disseminação,ABAIXO
+consultor_0229,Autodesenvolvimento,ACIMA
+consultor_0229,Liderança,DENTRO
+consultor_0229,"Visão, Planejamento e Organização",DENTRO
+consultor_0229,Gestão da Entrega,DENTRO
+consultor_0229,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0229,Execução com Qualidade,DENTRO
+consultor_0229,Inovação,ACIMA
+consultor_0229,Geração de Receita,DENTRO
+consultor_0230,Vivência e Disseminação,ACIMA
+consultor_0230,Autodesenvolvimento,ACIMA
+consultor_0230,Liderança,ABAIXO
+consultor_0230,"Visão, Planejamento e Organização",ABAIXO
+consultor_0230,Gestão da Entrega,ACIMA
+consultor_0230,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0230,Execução com Qualidade,DENTRO
+consultor_0230,Inovação,DENTRO
+consultor_0230,Geração de Receita,DENTRO
+consultor_0231,Vivência e Disseminação,ACIMA
+consultor_0231,Autodesenvolvimento,ACIMA
+consultor_0231,Liderança,DENTRO
+consultor_0231,"Visão, Planejamento e Organização",ABAIXO
+consultor_0231,Gestão da Entrega,ACIMA
+consultor_0231,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0231,Execução com Qualidade,ACIMA
+consultor_0231,Inovação,DENTRO
+consultor_0231,Geração de Receita,DENTRO
+consultor_0232,Vivência e Disseminação,ACIMA
+consultor_0232,Autodesenvolvimento,ACIMA
+consultor_0232,Liderança,ACIMA
+consultor_0232,"Visão, Planejamento e Organização",ABAIXO
+consultor_0232,Gestão da Entrega,DENTRO
+consultor_0232,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0232,Execução com Qualidade,ACIMA
+consultor_0232,Inovação,DENTRO
+consultor_0232,Geração de Receita,DENTRO
+consultor_0233,Vivência e Disseminação,DENTRO
+consultor_0233,Autodesenvolvimento,DENTRO
+consultor_0233,Liderança,DENTRO
+consultor_0233,"Visão, Planejamento e Organização",ACIMA
+consultor_0233,Gestão da Entrega,DENTRO
+consultor_0233,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0233,Execução com Qualidade,DENTRO
+consultor_0233,Inovação,DENTRO
+consultor_0233,Geração de Receita,DENTRO
+consultor_0234,Vivência e Disseminação,ACIMA
+consultor_0234,Autodesenvolvimento,ACIMA
+consultor_0234,Liderança,ABAIXO
+consultor_0234,"Visão, Planejamento e Organização",DENTRO
+consultor_0234,Gestão da Entrega,ACIMA
+consultor_0234,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0234,Execução com Qualidade,ABAIXO
+consultor_0234,Inovação,DENTRO
+consultor_0234,Geração de Receita,ACIMA
+consultor_0235,Vivência e Disseminação,ACIMA
+consultor_0235,Autodesenvolvimento,DENTRO
+consultor_0235,Liderança,ACIMA
+consultor_0235,"Visão, Planejamento e Organização",ACIMA
+consultor_0235,Gestão da Entrega,DENTRO
+consultor_0235,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0235,Execução com Qualidade,ACIMA
+consultor_0235,Inovação,DENTRO
+consultor_0235,Geração de Receita,DENTRO
+consultor_0236,Vivência e Disseminação,ACIMA
+consultor_0236,Autodesenvolvimento,DENTRO
+consultor_0236,Liderança,DENTRO
+consultor_0236,"Visão, Planejamento e Organização",DENTRO
+consultor_0236,Gestão da Entrega,ABAIXO
+consultor_0236,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0236,Execução com Qualidade,DENTRO
+consultor_0236,Inovação,DENTRO
+consultor_0236,Geração de Receita,ABAIXO
+consultor_0237,Vivência e Disseminação,DENTRO
+consultor_0237,Autodesenvolvimento,ACIMA
+consultor_0237,Liderança,DENTRO
+consultor_0237,"Visão, Planejamento e Organização",DENTRO
+consultor_0237,Gestão da Entrega,ACIMA
+consultor_0237,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0237,Execução com Qualidade,DENTRO
+consultor_0237,Inovação,DENTRO
+consultor_0237,Geração de Receita,ACIMA
+consultor_0238,Vivência e Disseminação,DENTRO
+consultor_0238,Autodesenvolvimento,ACIMA
+consultor_0238,Liderança,DENTRO
+consultor_0238,"Visão, Planejamento e Organização",DENTRO
+consultor_0238,Gestão da Entrega,DENTRO
+consultor_0238,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0238,Execução com Qualidade,ACIMA
+consultor_0238,Inovação,DENTRO
+consultor_0238,Geração de Receita,DENTRO
+consultor_0239,Vivência e Disseminação,DENTRO
+consultor_0239,Autodesenvolvimento,DENTRO
+consultor_0239,Liderança,ACIMA
+consultor_0239,"Visão, Planejamento e Organização",DENTRO
+consultor_0239,Gestão da Entrega,ACIMA
+consultor_0239,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0239,Execução com Qualidade,DENTRO
+consultor_0239,Inovação,ACIMA
+consultor_0239,Geração de Receita,DENTRO
+consultor_0240,Vivência e Disseminação,ABAIXO
+consultor_0240,Autodesenvolvimento,ACIMA
+consultor_0240,Liderança,ACIMA
+consultor_0240,"Visão, Planejamento e Organização",DENTRO
+consultor_0240,Gestão da Entrega,DENTRO
+consultor_0240,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0240,Execução com Qualidade,ACIMA
+consultor_0240,Inovação,DENTRO
+consultor_0240,Geração de Receita,ABAIXO
+consultor_0241,Vivência e Disseminação,DENTRO
+consultor_0241,Autodesenvolvimento,DENTRO
+consultor_0241,Liderança,DENTRO
+consultor_0241,"Visão, Planejamento e Organização",DENTRO
+consultor_0241,Gestão da Entrega,DENTRO
+consultor_0241,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0241,Execução com Qualidade,ACIMA
+consultor_0241,Inovação,ACIMA
+consultor_0241,Geração de Receita,ACIMA
+consultor_0242,Vivência e Disseminação,ABAIXO
+consultor_0242,Autodesenvolvimento,ACIMA
+consultor_0242,Liderança,DENTRO
+consultor_0242,"Visão, Planejamento e Organização",DENTRO
+consultor_0242,Gestão da Entrega,DENTRO
+consultor_0242,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0242,Execução com Qualidade,ACIMA
+consultor_0242,Inovação,ACIMA
+consultor_0242,Geração de Receita,ACIMA
+consultor_0243,Vivência e Disseminação,DENTRO
+consultor_0243,Autodesenvolvimento,ACIMA
+consultor_0243,Liderança,DENTRO
+consultor_0243,"Visão, Planejamento e Organização",ABAIXO
+consultor_0243,Gestão da Entrega,DENTRO
+consultor_0243,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0243,Execução com Qualidade,ACIMA
+consultor_0243,Inovação,DENTRO
+consultor_0243,Geração de Receita,ACIMA
+consultor_0244,Vivência e Disseminação,ACIMA
+consultor_0244,Autodesenvolvimento,DENTRO
+consultor_0244,Liderança,DENTRO
+consultor_0244,"Visão, Planejamento e Organização",ACIMA
+consultor_0244,Gestão da Entrega,ACIMA
+consultor_0244,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0244,Execução com Qualidade,ACIMA
+consultor_0244,Inovação,DENTRO
+consultor_0244,Geração de Receita,ACIMA
+consultor_0245,Vivência e Disseminação,DENTRO
+consultor_0245,Autodesenvolvimento,DENTRO
+consultor_0245,Liderança,DENTRO
+consultor_0245,"Visão, Planejamento e Organização",DENTRO
+consultor_0245,Gestão da Entrega,DENTRO
+consultor_0245,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0245,Execução com Qualidade,ABAIXO
+consultor_0245,Inovação,ABAIXO
+consultor_0245,Geração de Receita,ACIMA
+consultor_0246,Vivência e Disseminação,DENTRO
+consultor_0246,Autodesenvolvimento,ABAIXO
+consultor_0246,Liderança,DENTRO
+consultor_0246,"Visão, Planejamento e Organização",DENTRO
+consultor_0246,Gestão da Entrega,DENTRO
+consultor_0246,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0246,Execução com Qualidade,DENTRO
+consultor_0246,Inovação,DENTRO
+consultor_0246,Geração de Receita,ACIMA
+consultor_0247,Vivência e Disseminação,DENTRO
+consultor_0247,Autodesenvolvimento,DENTRO
+consultor_0247,Liderança,ACIMA
+consultor_0247,"Visão, Planejamento e Organização",DENTRO
+consultor_0247,Gestão da Entrega,ACIMA
+consultor_0247,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0247,Execução com Qualidade,ACIMA
+consultor_0247,Inovação,ACIMA
+consultor_0247,Geração de Receita,DENTRO
+consultor_0248,Vivência e Disseminação,ABAIXO
+consultor_0248,Autodesenvolvimento,ACIMA
+consultor_0248,Liderança,DENTRO
+consultor_0248,"Visão, Planejamento e Organização",ABAIXO
+consultor_0248,Gestão da Entrega,ABAIXO
+consultor_0248,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0248,Execução com Qualidade,ACIMA
+consultor_0248,Inovação,DENTRO
+consultor_0248,Geração de Receita,DENTRO
+consultor_0249,Vivência e Disseminação,ABAIXO
+consultor_0249,Autodesenvolvimento,DENTRO
+consultor_0249,Liderança,DENTRO
+consultor_0249,"Visão, Planejamento e Organização",ABAIXO
+consultor_0249,Gestão da Entrega,ACIMA
+consultor_0249,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0249,Execução com Qualidade,DENTRO
+consultor_0249,Inovação,ABAIXO
+consultor_0249,Geração de Receita,DENTRO
+consultor_0250,Vivência e Disseminação,ACIMA
+consultor_0250,Autodesenvolvimento,DENTRO
+consultor_0250,Liderança,DENTRO
+consultor_0250,"Visão, Planejamento e Organização",ABAIXO
+consultor_0250,Gestão da Entrega,DENTRO
+consultor_0250,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0250,Execução com Qualidade,DENTRO
+consultor_0250,Inovação,DENTRO
+consultor_0250,Geração de Receita,DENTRO
+consultor_0251,Vivência e Disseminação,ACIMA
+consultor_0251,Autodesenvolvimento,ACIMA
+consultor_0251,Liderança,ACIMA
+consultor_0251,"Visão, Planejamento e Organização",ACIMA
+consultor_0251,Gestão da Entrega,DENTRO
+consultor_0251,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0251,Execução com Qualidade,DENTRO
+consultor_0251,Inovação,DENTRO
+consultor_0251,Geração de Receita,ACIMA
+consultor_0252,Vivência e Disseminação,DENTRO
+consultor_0252,Autodesenvolvimento,DENTRO
+consultor_0252,Liderança,DENTRO
+consultor_0252,"Visão, Planejamento e Organização",ACIMA
+consultor_0252,Gestão da Entrega,DENTRO
+consultor_0252,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0252,Execução com Qualidade,DENTRO
+consultor_0252,Inovação,DENTRO
+consultor_0252,Geração de Receita,ABAIXO
+consultor_0253,Vivência e Disseminação,ACIMA
+consultor_0253,Autodesenvolvimento,ACIMA
+consultor_0253,Liderança,ACIMA
+consultor_0253,"Visão, Planejamento e Organização",DENTRO
+consultor_0253,Gestão da Entrega,DENTRO
+consultor_0253,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0253,Execução com Qualidade,ABAIXO
+consultor_0253,Inovação,DENTRO
+consultor_0253,Geração de Receita,DENTRO
+consultor_0254,Vivência e Disseminação,DENTRO
+consultor_0254,Autodesenvolvimento,ACIMA
+consultor_0254,Liderança,DENTRO
+consultor_0254,"Visão, Planejamento e Organização",DENTRO
+consultor_0254,Gestão da Entrega,ACIMA
+consultor_0254,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0254,Execução com Qualidade,DENTRO
+consultor_0254,Inovação,DENTRO
+consultor_0254,Geração de Receita,DENTRO
+consultor_0255,Vivência e Disseminação,DENTRO
+consultor_0255,Autodesenvolvimento,ABAIXO
+consultor_0255,Liderança,DENTRO
+consultor_0255,"Visão, Planejamento e Organização",DENTRO
+consultor_0255,Gestão da Entrega,ABAIXO
+consultor_0255,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0255,Execução com Qualidade,DENTRO
+consultor_0255,Inovação,ABAIXO
+consultor_0255,Geração de Receita,DENTRO
+consultor_0256,Vivência e Disseminação,DENTRO
+consultor_0256,Autodesenvolvimento,DENTRO
+consultor_0256,Liderança,ACIMA
+consultor_0256,"Visão, Planejamento e Organização",ABAIXO
+consultor_0256,Gestão da Entrega,DENTRO
+consultor_0256,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0256,Execução com Qualidade,DENTRO
+consultor_0256,Inovação,DENTRO
+consultor_0256,Geração de Receita,DENTRO
+consultor_0257,Vivência e Disseminação,DENTRO
+consultor_0257,Autodesenvolvimento,ABAIXO
+consultor_0257,Liderança,ABAIXO
+consultor_0257,"Visão, Planejamento e Organização",DENTRO
+consultor_0257,Gestão da Entrega,DENTRO
+consultor_0257,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0257,Execução com Qualidade,DENTRO
+consultor_0257,Inovação,DENTRO
+consultor_0257,Geração de Receita,DENTRO
+consultor_0258,Vivência e Disseminação,DENTRO
+consultor_0258,Autodesenvolvimento,DENTRO
+consultor_0258,Liderança,DENTRO
+consultor_0258,"Visão, Planejamento e Organização",ABAIXO
+consultor_0258,Gestão da Entrega,ABAIXO
+consultor_0258,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0258,Execução com Qualidade,DENTRO
+consultor_0258,Inovação,DENTRO
+consultor_0258,Geração de Receita,DENTRO
+consultor_0259,Vivência e Disseminação,ACIMA
+consultor_0259,Autodesenvolvimento,DENTRO
+consultor_0259,Liderança,DENTRO
+consultor_0259,"Visão, Planejamento e Organização",DENTRO
+consultor_0259,Gestão da Entrega,ABAIXO
+consultor_0259,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0259,Execução com Qualidade,DENTRO
+consultor_0259,Inovação,DENTRO
+consultor_0259,Geração de Receita,DENTRO
+consultor_0260,Vivência e Disseminação,ABAIXO
+consultor_0260,Autodesenvolvimento,DENTRO
+consultor_0260,Liderança,DENTRO
+consultor_0260,"Visão, Planejamento e Organização",DENTRO
+consultor_0260,Gestão da Entrega,ABAIXO
+consultor_0260,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0260,Execução com Qualidade,DENTRO
+consultor_0260,Inovação,DENTRO
+consultor_0260,Geração de Receita,DENTRO
+consultor_0261,Vivência e Disseminação,DENTRO
+consultor_0261,Autodesenvolvimento,DENTRO
+consultor_0261,Liderança,DENTRO
+consultor_0261,"Visão, Planejamento e Organização",ACIMA
+consultor_0261,Gestão da Entrega,ACIMA
+consultor_0261,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0261,Execução com Qualidade,DENTRO
+consultor_0261,Inovação,DENTRO
+consultor_0261,Geração de Receita,ABAIXO
+consultor_0262,Vivência e Disseminação,DENTRO
+consultor_0262,Autodesenvolvimento,ABAIXO
+consultor_0262,Liderança,DENTRO
+consultor_0262,"Visão, Planejamento e Organização",DENTRO
+consultor_0262,Gestão da Entrega,DENTRO
+consultor_0262,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0262,Execução com Qualidade,ACIMA
+consultor_0262,Inovação,DENTRO
+consultor_0262,Geração de Receita,ACIMA
+consultor_0263,Vivência e Disseminação,DENTRO
+consultor_0263,Autodesenvolvimento,DENTRO
+consultor_0263,Liderança,DENTRO
+consultor_0263,"Visão, Planejamento e Organização",ACIMA
+consultor_0263,Gestão da Entrega,ACIMA
+consultor_0263,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0263,Execução com Qualidade,DENTRO
+consultor_0263,Inovação,ACIMA
+consultor_0263,Geração de Receita,DENTRO
+consultor_0264,Vivência e Disseminação,ACIMA
+consultor_0264,Autodesenvolvimento,DENTRO
+consultor_0264,Liderança,DENTRO
+consultor_0264,"Visão, Planejamento e Organização",DENTRO
+consultor_0264,Gestão da Entrega,ABAIXO
+consultor_0264,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0264,Execução com Qualidade,DENTRO
+consultor_0264,Inovação,ABAIXO
+consultor_0264,Geração de Receita,DENTRO
+consultor_0265,Vivência e Disseminação,DENTRO
+consultor_0265,Autodesenvolvimento,DENTRO
+consultor_0265,Liderança,ABAIXO
+consultor_0265,"Visão, Planejamento e Organização",DENTRO
+consultor_0265,Gestão da Entrega,ABAIXO
+consultor_0265,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0265,Execução com Qualidade,DENTRO
+consultor_0265,Inovação,ACIMA
+consultor_0265,Geração de Receita,DENTRO
+consultor_0266,Vivência e Disseminação,ABAIXO
+consultor_0266,Autodesenvolvimento,DENTRO
+consultor_0266,Liderança,ACIMA
+consultor_0266,"Visão, Planejamento e Organização",DENTRO
+consultor_0266,Gestão da Entrega,DENTRO
+consultor_0266,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0266,Execução com Qualidade,ACIMA
+consultor_0266,Inovação,DENTRO
+consultor_0266,Geração de Receita,ABAIXO
+consultor_0267,Vivência e Disseminação,DENTRO
+consultor_0267,Autodesenvolvimento,DENTRO
+consultor_0267,Liderança,ABAIXO
+consultor_0267,"Visão, Planejamento e Organização",DENTRO
+consultor_0267,Gestão da Entrega,ACIMA
+consultor_0267,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0267,Execução com Qualidade,ACIMA
+consultor_0267,Inovação,DENTRO
+consultor_0267,Geração de Receita,ABAIXO
+consultor_0268,Vivência e Disseminação,DENTRO
+consultor_0268,Autodesenvolvimento,DENTRO
+consultor_0268,Liderança,DENTRO
+consultor_0268,"Visão, Planejamento e Organização",DENTRO
+consultor_0268,Gestão da Entrega,DENTRO
+consultor_0268,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0268,Execução com Qualidade,ACIMA
+consultor_0268,Inovação,DENTRO
+consultor_0268,Geração de Receita,ACIMA
+consultor_0269,Vivência e Disseminação,ACIMA
+consultor_0269,Autodesenvolvimento,DENTRO
+consultor_0269,Liderança,DENTRO
+consultor_0269,"Visão, Planejamento e Organização",DENTRO
+consultor_0269,Gestão da Entrega,ABAIXO
+consultor_0269,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0269,Execução com Qualidade,ABAIXO
+consultor_0269,Inovação,DENTRO
+consultor_0269,Geração de Receita,ACIMA
+consultor_0270,Vivência e Disseminação,ACIMA
+consultor_0270,Autodesenvolvimento,DENTRO
+consultor_0270,Liderança,DENTRO
+consultor_0270,"Visão, Planejamento e Organização",DENTRO
+consultor_0270,Gestão da Entrega,ABAIXO
+consultor_0270,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0270,Execução com Qualidade,DENTRO
+consultor_0270,Inovação,DENTRO
+consultor_0270,Geração de Receita,DENTRO
+consultor_0271,Vivência e Disseminação,DENTRO
+consultor_0271,Autodesenvolvimento,ACIMA
+consultor_0271,Liderança,DENTRO
+consultor_0271,"Visão, Planejamento e Organização",DENTRO
+consultor_0271,Gestão da Entrega,DENTRO
+consultor_0271,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0271,Execução com Qualidade,DENTRO
+consultor_0271,Inovação,DENTRO
+consultor_0271,Geração de Receita,ACIMA
+consultor_0272,Vivência e Disseminação,DENTRO
+consultor_0272,Autodesenvolvimento,ACIMA
+consultor_0272,Liderança,DENTRO
+consultor_0272,"Visão, Planejamento e Organização",DENTRO
+consultor_0272,Gestão da Entrega,ACIMA
+consultor_0272,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0272,Execução com Qualidade,DENTRO
+consultor_0272,Inovação,DENTRO
+consultor_0272,Geração de Receita,ABAIXO
+consultor_0273,Vivência e Disseminação,DENTRO
+consultor_0273,Autodesenvolvimento,ABAIXO
+consultor_0273,Liderança,ACIMA
+consultor_0273,"Visão, Planejamento e Organização",ACIMA
+consultor_0273,Gestão da Entrega,ACIMA
+consultor_0273,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0273,Execução com Qualidade,ABAIXO
+consultor_0273,Inovação,ACIMA
+consultor_0273,Geração de Receita,DENTRO
+consultor_0274,Vivência e Disseminação,ACIMA
+consultor_0274,Autodesenvolvimento,DENTRO
+consultor_0274,Liderança,DENTRO
+consultor_0274,"Visão, Planejamento e Organização",DENTRO
+consultor_0274,Gestão da Entrega,ABAIXO
+consultor_0274,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0274,Execução com Qualidade,DENTRO
+consultor_0274,Inovação,ACIMA
+consultor_0274,Geração de Receita,ACIMA
+consultor_0275,Vivência e Disseminação,DENTRO
+consultor_0275,Autodesenvolvimento,ABAIXO
+consultor_0275,Liderança,ABAIXO
+consultor_0275,"Visão, Planejamento e Organização",ACIMA
+consultor_0275,Gestão da Entrega,DENTRO
+consultor_0275,Conhecimento Técnico e Experiência Prática,ABAIXO
+consultor_0275,Execução com Qualidade,DENTRO
+consultor_0275,Inovação,DENTRO
+consultor_0275,Geração de Receita,DENTRO
+consultor_0276,Vivência e Disseminação,ABAIXO
+consultor_0276,Autodesenvolvimento,DENTRO
+consultor_0276,Liderança,DENTRO
+consultor_0276,"Visão, Planejamento e Organização",ACIMA
+consultor_0276,Gestão da Entrega,DENTRO
+consultor_0276,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0276,Execução com Qualidade,ABAIXO
+consultor_0276,Inovação,ACIMA
+consultor_0276,Geração de Receita,ACIMA
+consultor_0277,Vivência e Disseminação,ACIMA
+consultor_0277,Autodesenvolvimento,DENTRO
+consultor_0277,Liderança,ACIMA
+consultor_0277,"Visão, Planejamento e Organização",DENTRO
+consultor_0277,Gestão da Entrega,ABAIXO
+consultor_0277,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0277,Execução com Qualidade,ACIMA
+consultor_0277,Inovação,DENTRO
+consultor_0277,Geração de Receita,DENTRO
+consultor_0278,Vivência e Disseminação,DENTRO
+consultor_0278,Autodesenvolvimento,DENTRO
+consultor_0278,Liderança,ACIMA
+consultor_0278,"Visão, Planejamento e Organização",DENTRO
+consultor_0278,Gestão da Entrega,ABAIXO
+consultor_0278,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0278,Execução com Qualidade,DENTRO
+consultor_0278,Inovação,DENTRO
+consultor_0278,Geração de Receita,DENTRO
+consultor_0279,Vivência e Disseminação,DENTRO
+consultor_0279,Autodesenvolvimento,DENTRO
+consultor_0279,Liderança,DENTRO
+consultor_0279,"Visão, Planejamento e Organização",DENTRO
+consultor_0279,Gestão da Entrega,ACIMA
+consultor_0279,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0279,Execução com Qualidade,DENTRO
+consultor_0279,Inovação,ACIMA
+consultor_0279,Geração de Receita,ACIMA
+consultor_0280,Vivência e Disseminação,DENTRO
+consultor_0280,Autodesenvolvimento,ACIMA
+consultor_0280,Liderança,ACIMA
+consultor_0280,"Visão, Planejamento e Organização",ACIMA
+consultor_0280,Gestão da Entrega,DENTRO
+consultor_0280,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0280,Execução com Qualidade,ACIMA
+consultor_0280,Inovação,DENTRO
+consultor_0280,Geração de Receita,DENTRO
+consultor_0281,Vivência e Disseminação,ACIMA
+consultor_0281,Autodesenvolvimento,ABAIXO
+consultor_0281,Liderança,DENTRO
+consultor_0281,"Visão, Planejamento e Organização",DENTRO
+consultor_0281,Gestão da Entrega,ACIMA
+consultor_0281,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0281,Execução com Qualidade,ACIMA
+consultor_0281,Inovação,ABAIXO
+consultor_0281,Geração de Receita,DENTRO
+consultor_0282,Vivência e Disseminação,DENTRO
+consultor_0282,Autodesenvolvimento,DENTRO
+consultor_0282,Liderança,ACIMA
+consultor_0282,"Visão, Planejamento e Organização",DENTRO
+consultor_0282,Gestão da Entrega,DENTRO
+consultor_0282,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0282,Execução com Qualidade,DENTRO
+consultor_0282,Inovação,DENTRO
+consultor_0282,Geração de Receita,ACIMA
+consultor_0283,Vivência e Disseminação,DENTRO
+consultor_0283,Autodesenvolvimento,ABAIXO
+consultor_0283,Liderança,DENTRO
+consultor_0283,"Visão, Planejamento e Organização",DENTRO
+consultor_0283,Gestão da Entrega,ACIMA
+consultor_0283,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0283,Execução com Qualidade,DENTRO
+consultor_0283,Inovação,ACIMA
+consultor_0283,Geração de Receita,DENTRO
+consultor_0284,Vivência e Disseminação,DENTRO
+consultor_0284,Autodesenvolvimento,DENTRO
+consultor_0284,Liderança,ACIMA
+consultor_0284,"Visão, Planejamento e Organização",ACIMA
+consultor_0284,Gestão da Entrega,DENTRO
+consultor_0284,Conhecimento Técnico e Experiência Prática,ACIMA
+consultor_0284,Execução com Qualidade,DENTRO
+consultor_0284,Inovação,ACIMA
+consultor_0284,Geração de Receita,DENTRO
+consultor_0285,Vivência e Disseminação,ACIMA
+consultor_0285,Autodesenvolvimento,ACIMA
+consultor_0285,Liderança,ACIMA
+consultor_0285,"Visão, Planejamento e Organização",ACIMA
+consultor_0285,Gestão da Entrega,DENTRO
+consultor_0285,Conhecimento Técnico e Experiência Prática,DENTRO
+consultor_0285,Execução com Qualidade,DENTRO
+consultor_0285,Inovação,ABAIXO
+consultor_0285,Geração de Receita,ACIMA
