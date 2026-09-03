@@ -15,12 +15,12 @@
 #' com um coto qualquer ainda disponível.
 #'
 #' Como as somas dos graus dos dois lados quase nunca batem exatamente
-#' (grau sorteado independentemente em cada lado), o lado com menos cotos
-#' recebe cotos extras antes da cablagem, sorteados por nó com peso
-#' proporcional ao grau já sorteado (preservando o formato da distribuição,
-#' e nunca dando aresta extra a quem tem grau zero, o que quebraria o cold
-#' start): é a técnica padrão de "redistribuir o resíduo" para fechar a
-#' cablagem quando os dois lados do configuration model não somam igual.
+#' (grau sorteado independentemente em cada lado), os dois lados são
+#' ajustados para uma média de compromisso antes da cablagem (ver
+#' `ajustar_tamanho_cotos()`), em vez de o lado menor absorver a diferença
+#' inteira: jogar toda a diferença num lado só distorcia demais o grau
+#' desse lado na escala real do projeto (achado de `validar_utilidade_sintetico()`,
+#' quase dobrava a variância de grau do lado do consultor).
 #'
 #' A cablagem em si é um laço com custo O(n²) no pior caso (a cada aresta,
 #' filtra os cotos de projeto ainda disponíveis). Aceitável na escala de
@@ -46,16 +46,21 @@ gerar_pares_configuration_model <- function(id_consultor, grau_consultor,
   cotos_projeto <- rep(id_projeto, grau_projeto)
   grupo_dos_cotos_projeto <- rep(grupo_projeto, grau_projeto)
 
-  diferenca <- length(cotos_consultor) - length(cotos_projeto)
-  if (diferenca > 0) {
-    extra <- sample(seq_along(id_projeto), size = diferenca, replace = TRUE, prob = grau_projeto)
-    cotos_projeto <- c(cotos_projeto, id_projeto[extra])
-    grupo_dos_cotos_projeto <- c(grupo_dos_cotos_projeto, grupo_projeto[extra])
-  } else if (diferenca < 0) {
-    extra <- sample(seq_along(id_consultor), size = -diferenca, replace = TRUE, prob = grau_consultor)
-    cotos_consultor <- c(cotos_consultor, id_consultor[extra])
-    grupo_dos_cotos_consultor <- c(grupo_dos_cotos_consultor, grupo_consultor[extra])
-  }
+  tamanho_alvo <- round((length(cotos_consultor) + length(cotos_projeto)) / 2)
+
+  ajuste_consultor <- ajustar_tamanho_cotos(
+    cotos_consultor, grupo_dos_cotos_consultor,
+    id_consultor, grau_consultor, grupo_consultor, tamanho_alvo
+  )
+  cotos_consultor <- ajuste_consultor$cotos
+  grupo_dos_cotos_consultor <- ajuste_consultor$grupo_dos_cotos
+
+  ajuste_projeto <- ajustar_tamanho_cotos(
+    cotos_projeto, grupo_dos_cotos_projeto,
+    id_projeto, grau_projeto, grupo_projeto, tamanho_alvo
+  )
+  cotos_projeto <- ajuste_projeto$cotos
+  grupo_dos_cotos_projeto <- ajuste_projeto$grupo_dos_cotos
 
   n_arestas <- length(cotos_consultor)
   ordem <- sample.int(n_arestas)
