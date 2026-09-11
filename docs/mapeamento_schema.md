@@ -94,26 +94,28 @@ percentual real.
 * **Escalas de proficiência inconsistentes entre arquivos.** O Digital Skills
   usa Júnior/Pleno/Sênior/Especialista/N/A (escala de senioridade reaproveitada);
   o Formulário 2.1 usa Iniciante/Básico/Médio/Avançado. Precisam de um de-para
-  de escala antes de virarem uma coluna só de `C`.
+  de escala antes de virarem uma coluna só de `C`. **Resolvido, ver "Resolvido
+  (2026-09-10)" adiante.**
 * **"N/A" é resposta válida, não é o mesmo que célula vazia.** No Digital
   Skills, "N/A" é o item mais comum em várias colunas de skill (ex.: 37 de 102
   em HTML5) e significa "não se aplica a mim", distinto de não ter respondido.
   Tratar como zero/ausência de skill, não como missing a imputar.
 * **Uma duplicata de respondente** no Digital Skills (102 linhas, 101
   e-mails). Precisa dedup (ex.: manter resposta mais recente por
-  `Hora de conclusão`) antes de qualquer análise.
+  `Hora de conclusão`) antes de qualquer análise. **Resolvido, ver adiante.**
 * **Duas abas quase idênticas dentro de `CLTV_BD_Digital_Skills.xlsx`**
   (`Sheet1` e `BD_DIG_Modificada`): 149 das 150 colunas são idênticas linha a
   linha; a diferença é uma coluna renomeada e o conteúdo de texto livre de
   certificações levemente editado. Não está claro qual é a canônica: confirmar
-  com quem preparou antes de escolher uma para o ETL.
+  com quem preparou antes de escolher uma para o ETL. **Resolvido, ver adiante.**
 * **Taxonomia de skills existe**, aba `De-para` do Digital Skills: 144 skills
   mapeadas em 14 categorias (BackEnd, FrontEnd, Mobile, Banco de dados, Devops,
   Testes, Agilidade, RPA, Tecnologia de dados, Plataformas/Sistemas
   Corporativos...). Boa candidata a `taxonomia_skill`, mas 4 das 14 categorias
   (Certificações obtidas, Certificados, Experiência em consultoria, Segmentos
   de atuação) são campos administrativos misturados na tabela, não categorias
-  de skill de fato: precisa de limpeza antes de usar.
+  de skill de fato: precisa de limpeza antes de usar. **Confirmado já correto
+  no gerador, ver adiante.**
 * **Formatação de cabeçalho de coluna inconsistente**: espaçamento duplo/triplo
   no meio de nomes de coluna nos três arquivos (ex.: `"PHP   (Laravel..."`,
   `"AWS   (EC2..."`), mistura de idioma nos metadados (`Email`/`Name` em inglês,
@@ -129,6 +131,70 @@ percentual real.
   texto livre, "possui alguma preferência em relação à alocação" e "possui
   alguma restrição em relação à alocação": candidatas diretas a
   `preferencias_dominio` (Camada 3).
+
+### Resolvido (2026-09-10): de-para de escalas, aba canônica e dedup
+
+Trabalho offline sobre as planilhas locais, sem precisar de acesso ao
+Databricks, feito antes de soltar os arquivos (PII de colegas, não deve
+sair da máquina). Nenhum e-mail, nome ou texto livre de respondente
+aparece abaixo, só nomes de coluna, categorias de resposta e contagens.
+
+**De-para de escala de proficiência, contra a escala do gerador sintético
+(Iniciante/Básico/Médio/Avançado):**
+
+| Escala real | Arquivo | Equivalente no gerador |
+|---|---|---|
+| N/A | Digital Skills | ausência de skill (zero, não é nível) |
+| Júnior | Digital Skills | Iniciante |
+| Pleno | Digital Skills | Básico |
+| Sênior | Digital Skills | Médio |
+| Especialista | Digital Skills | Avançado |
+| Não possuo conhecimento | ACTAR | ausência de skill (zero, não é nível) |
+| Básico | ACTAR | Básico |
+| Intermed. | ACTAR | Médio |
+| Avançado | ACTAR | Avançado |
+| Iniciante / Básico / Médio / Avançado | Formulário 2.1 | idêntico, sem de-para |
+
+A escala do ACTAR não tinha sido documentada antes desta rodada de
+limpeza (achado novo, nenhuma das reconciliações anteriores tinha olhado
+para ela). Ela não distingue "iniciante" de "não possuo": quem marca
+"Básico" no ACTAR pode corresponder tanto a Iniciante quanto a Básico no
+gerador, assimetria que fica registrada como limitação, não resolvida por
+suposição.
+
+**Achado lateral, fora do escopo desta limpeza mas relevante para
+`experiencia_setorial[]`:** o Formulário 2.1 usa uma segunda escala,
+separada da de proficiência, para as perguntas de experiência setorial por
+prática: "Não tenho experiência" / "Tenho conhecimento sobre o tema mas
+não fiz projeto" / "1 a 3 projetos" / "Mais de 3 projetos" (85 colunas).
+Dá para calibrar `intensidade` em `gerar_experiencia_setorial()` por essa
+escala ordinal, hoje é `runif(0,1)` sem calibração real. Trabalho de
+código futuro.
+
+**Aba canônica de `CLTV_BD_Digital_Skills.xlsx`: `BD_DIG_Modificada`.** As
+duas abas têm as mesmas 102 linhas e 149 das 150 colunas idênticas célula
+a célula. A única diferença de conteúdo é o texto livre de certificações
+(3 células), e a única diferença de esquema é uma coluna renomeada
+("Você possui algum certificado?" em `Sheet1`, "Certificados" em
+`BD_DIG_Modificada`). O próprio nome da aba e o conteúdo revisado indicam
+que é a versão corrigida.
+
+**Taxonomia de skills: limpeza confirmada já correta no gerador.** As 4
+categorias administrativas (Certificações obtidas, Certificados,
+Experiência em consultoria, Segmentos de atuação) têm exatamente 1 linha
+cada na aba `De-para`, confirmando que são campo solto, não categoria de
+skill. As 10 categorias reais somam exatamente 140 skills (Agilidade 14,
+BackEnd 19, Banco de dados 17, Devops 16, FrontEnd 18, Mobile 13,
+Plataformas/Sistemas Corporativos 9, RPA 6, Tecnologia de dados 19, Testes
+9), número que já bate exatamente com `gerar_espaco_skills()`. Nenhuma
+mudança de código necessária aqui, só a confirmação.
+
+**Dedup do respondente duplicado, regra decidida.** O e-mail duplicado em
+`Sheet1`/`BD_DIG_Modificada` (102 linhas, 101 e-mails distintos) tem duas
+respostas cerca de 18 dias de distância uma da outra por `Hora de
+conclusão`. Regra: manter a mais recente, descartar a mais antiga. A linha
+exata fica só no ambiente local, não é necessária para registrar a regra
+e não deve ser citada aqui para não expor a identidade do respondente.
 
 ## Legenda de situação
 
@@ -722,6 +788,12 @@ definição de pronto da wave 2 (EDA).
 * Usar a cobertura real de skills (48,4%) para calibrar a fração de
   consultores com `skills_hard[]` vazio no gerador, hoje sem suposição
   explícita de cobertura populacional.
+* Aplicar ao gerador o de-para de escala de proficiência e a escolha de
+  aba canônica ("Resolvido (2026-09-10)" acima), e calibrar `intensidade`
+  de `gerar_experiencia_setorial()` pela escala de experiência do
+  Formulário 2.1, no lugar do `runif(0,1)` atual. Trabalho de código,
+  sobre decisão já registrada, não depende de acesso nem das planilhas
+  continuarem na máquina.
 * Confirmar com o time de dados a definição quebrada de `vw_apdata_peers_experience`.
 * Contagens agregadas (linhas, taxa de nulos, cardinalidade de chave) por
   tabela candidata, para confirmar granularidade e completude de fato. Não
@@ -730,14 +802,14 @@ definição de pronto da wave 2 (EDA).
   própria), mas acesso à base segue negado (dado mais sensível da empresa).
   Gerador sintético parte 100% da estrutura, sem calibração por distribuição
   real. Se o acesso mudar no futuro, revisar esta seção.
-* Skills chegou via `data/raw/skills/` (fora do git). Falta: (1) montar o de-para
-  de escala de proficiência entre os arquivos, (2) limpar a taxonomia (De-para)
-  das 4 categorias que são metadado, (3) dedup do respondente duplicado no
-  Digital Skills, (4) decidir qual aba usar em `CLTV_BD_Digital_Skills.xlsx`
-  (`Sheet1` vs `BD_DIG_Modificada`). A cobertura real contra os ativos já
-  foi medida (Sexta rodada, 48,4%), mas o crosswalk e-mail/nome →
-  `consultor_id` linha a linha ainda não existe, é necessário para o ETL
-  juntar as planilhas ao resto do modelo, não só para medir cobertura.
+* Skills chegou via `data/raw/skills/` (fora do git). De-para de escala,
+  limpeza de taxonomia, dedup e escolha de aba canônica resolvidos em
+  "Resolvido (2026-09-10)" acima. Falta só o crosswalk e-mail/nome →
+  `consultor_id` linha a linha: a cobertura populacional já foi medida
+  por hashes (Sexta rodada, 48,4%), mas isso não substitui o crosswalk
+  linha a linha que o ETL vai precisar para juntar as planilhas ao resto
+  do modelo. Esse crosswalk só pode ser construído enquanto as planilhas
+  ainda estiverem na máquina.
 * Testar se `Offering`/`Linha de Serviço` (vistos em `vw_crm_oportunidades_latest`/
   `pipelines`) realmente juntam contra `vw_bi_tbl_projetos` (candidato de chave:
   `id_crm`). Enquanto não testado, tratar como visto em oportunidade de venda,
