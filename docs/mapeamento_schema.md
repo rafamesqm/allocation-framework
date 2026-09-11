@@ -695,6 +695,22 @@ mediana 12, P75 19, assimetria 1,49. Cross-check secundário da duração,
 não substitui a calibração de `horas_mes` pós-venda (mediana 120h/mês) que
 o gerador já usa.
 
+**Cobertura real do mapa de skills (228/229 e-mails distintos das 3
+planilhas de `data/raw/skills/` contra os 285 ativos).** Medida por
+interseção de hashes, sem extrair nenhuma linha de dado identificável do
+ambiente: os e-mails das planilhas foram normalizados (minúsculo, sem
+espaço) e transformados em SHA-256 localmente, e só a contagem de hashes
+coincidentes saiu do Databricks, nunca um e-mail. Resultado: **138 dos 285
+ativos (48,4%) têm ao menos uma resposta de skills**, todos batendo contra
+`Email Peers` (corporativo), nenhum contra `Email Pessoal`. Do outro lado,
+138 dos 229 respondentes distintos (60,3%) correspondem a um ativo atual,
+o resto provavelmente já não está na empresa ou tem e-mail divergente
+entre as duas fontes. As planilhas não têm data de resposta centralizada
+por arquivo para confirmar se a diferença é por turnover ou por
+defasagem temporal da coleta, então a explicação exata fica como
+limitação, não um número fechado. Fecha o item de cobertura de skills da
+definição de pronto da wave 1.
+
 ## Próximos passos (não feitos nesta rodada)
 
 * Aplicar aos geradores os números da Sexta rodada: `tipo_contrato`
@@ -702,6 +718,9 @@ o gerador já usa.
   projeto (log-normal por quantis no lugar da Exponencial de 177,6 dias),
   funil de coorte sequencial em `pipeline_demandas`. Trabalho de código
   sobre número já registrado, não depende mais de acesso.
+* Usar a cobertura real de skills (48,4%) para calibrar a fração de
+  consultores com `skills_hard[]` vazio no gerador, hoje sem suposição
+  explícita de cobertura populacional.
 * Confirmar com o time de dados a definição quebrada de `vw_apdata_peers_experience`.
 * Contagens agregadas (linhas, taxa de nulos, cardinalidade de chave) por
   tabela candidata, para confirmar granularidade e completude de fato. Não
@@ -714,9 +733,10 @@ o gerador já usa.
   de escala de proficiência entre os arquivos, (2) limpar a taxonomia (De-para)
   das 4 categorias que são metadado, (3) dedup do respondente duplicado no
   Digital Skills, (4) decidir qual aba usar em `CLTV_BD_Digital_Skills.xlsx`
-  (`Sheet1` vs `BD_DIG_Modificada`), (5) construir o crosswalk e-mail/nome →
-  `consultor_id` contra `vw_apdata_bi_entidades_globais`, (6) cruzar contra o
-  total de consultores ativos para saber a cobertura real.
+  (`Sheet1` vs `BD_DIG_Modificada`). A cobertura real contra os ativos já
+  foi medida (Sexta rodada, 48,4%), mas o crosswalk e-mail/nome →
+  `consultor_id` linha a linha ainda não existe, é necessário para o ETL
+  juntar as planilhas ao resto do modelo, não só para medir cobertura.
 * Testar se `Offering`/`Linha de Serviço` (vistos em `vw_crm_oportunidades_latest`/
   `pipelines`) realmente juntam contra `vw_bi_tbl_projetos` (candidato de chave:
   `id_crm`). Enquanto não testado, tratar como visto em oportunidade de venda,
