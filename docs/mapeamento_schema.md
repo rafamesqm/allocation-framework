@@ -279,7 +279,8 @@ qualquer uso exigiria consideração ética própria antes de virar insumo.
   `setor`/`tipo_projeto`/Offering/Linha de Serviço/Indústria do projeto (proxy,
   campos que existem), nunca tratado como requisito real capturado. A ausência
   vira achado de pesquisa na monografia, registrada explicitamente, não
-  maquiada. Mecanismo exato de estimação fica para a EDA/wave 2.
+  maquiada. Mecanismo exato de estimação fica para a EDA (wave 2) ou a
+  wave 3 decidir.
 * **`margem_atribuida`: granularidade confirmada, não é limitação de busca
   (2026-08-01).** Usuário confirmou que frente/mês é a única granularidade de
   margem que existe na Peers, não há valor por alocação individual em lugar
@@ -709,7 +710,7 @@ entre as duas fontes. As planilhas não têm data de resposta centralizada
 por arquivo para confirmar se a diferença é por turnover ou por
 defasagem temporal da coleta, então a explicação exata fica como
 limitação, não um número fechado. Fecha o item de cobertura de skills da
-definição de pronto da wave 1.
+definição de pronto da wave 2 (EDA).
 
 ## Próximos passos (não feitos nesta rodada)
 

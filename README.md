@@ -30,8 +30,8 @@ Catalog e nunca é persistido em disco.
 │   ├── data/                  # camada de acesso: fonte = synthetic | databricks
 │   ├── etl/                   # constrói as camadas
 │   ├── features/               # C, P, S, R
-│   ├── scoring/                 # wave 2, não iniciado
-│   ├── optim/                    # wave 3, não iniciado
+│   ├── scoring/                 # wave 3, não iniciado
+│   ├── optim/                    # wave 4, não iniciado
 │   └── viz/
 ├── analysis/                     # documentos Quarto/Rmd, EDA como capítulo
 ├── data/
@@ -49,11 +49,12 @@ Catalog e nunca é persistido em disco.
 
 | Wave | Conteúdo | Estado |
 |------|----------|--------|
-| 1 | ETL + EDA | Em andamento |
-| 2 | Scoring híbrido (content-based + colaborativo) | A seguir |
-| 3 | Otimização multiobjetivo com restrições (ILP, ε-constraint / AUGMECON2) | A seguir |
-| 4 | Explicabilidade (SHAP / XAI) | Opcional |
-| 5 | Agente conversacional | Trabalho futuro, não implementado |
+| 1 | Setup e sintetizador (ETL) | Concluído |
+| 2 | EDA | Em andamento |
+| 3 | Scoring híbrido (content-based + colaborativo) | A seguir |
+| 4 | Otimização multiobjetivo com restrições (ILP, ε-constraint / AUGMECON2) | A seguir |
+| 5 | Explicabilidade (SHAP / XAI) | Opcional |
+| 6 | Agente conversacional | Trabalho futuro, não implementado |
 
 ## Stack em R (candidatos, sujeitos à EDA)
 
@@ -69,7 +70,7 @@ candidatos por tarefa, não uma decisão.
 | Similaridade (content-based) | `proxy`, cosseno sobre `C` e `P` |
 | Otimização ILP | `ompr`, `ompr.roi`, `ROI`, `ROI.plugin.glpk`, `ROI.plugin.symphony` |
 | Multiobjetivo (ε-constraint) | laço de escalarização sobre `ompr` / `ROI` |
-| Explicabilidade (wave 4) | `DALEX`, `fastshap`, `shapviz`, `kernelshap` |
+| Explicabilidade (wave 5) | `DALEX`, `fastshap`, `shapviz`, `kernelshap` |
 | Testes | `testthat` |
 | Reprodutibilidade | `renv`, `targets`, `quarto` |
 

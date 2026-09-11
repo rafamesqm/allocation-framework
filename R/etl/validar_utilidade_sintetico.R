@@ -6,7 +6,7 @@
 #' documentados em docs/mapeamento_schema.md: utilidade geral, estatística
 #' agregada de várias variáveis (Snoke, Raab, Nowok, Dibben & Slavkovic,
 #' 2018, "General and Specific Utility Measures for Synthetic Data"), e
-#' utilidade específica, se os achados-alvo da wave 1 (esparsidade, cold
+#' utilidade específica, se os achados-alvo da wave 2 (esparsidade, cold
 #' start, viés de seleção) aparecem de forma parecida no sintético.
 #'
 #' Algumas diferenças são esperadas e já documentadas nos módulos que as

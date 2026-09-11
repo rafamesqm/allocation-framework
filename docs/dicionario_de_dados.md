@@ -91,7 +91,7 @@ foi descartada por estar quase inteiramente nula; `Segmento`, de
 registrar essa ausência como achado de
 pesquisa, não maquiar como se fosse dado observado. O mecanismo exato de
 estimação (ex.: perfil médio de skills de quem já atuou em projetos do mesmo
-setor/offering versus one-hot direto das categorias) é decisão de wave 2,
+setor/offering versus one-hot direto das categorias) é decisão de wave 3,
 calibrada pela EDA, não travada aqui.
 
 ### Entidade: Espaço de Skills → `S`
