@@ -582,13 +582,127 @@ reconciliação), não dá para calibrar probabilidade de avanço estágio a
 estágio de forma estatisticamente válida. Implicação: `pipeline_demandas`
 no gerador deve ser um sorteio multinomial do estágio atual por
 oportunidade, usando o censo como peso, não uma simulação sequencial de
-avanço/perda, o que é uma simplificação documentada frente ao que o
-roadmap presumia possível.
+avanço/perda, o que é uma simplificação documentada frente ao que a
+sequência de construção presumia possível. (Revisado na Sexta rodada: as
+datas de estágio existem, o funil de coorte é calibrável.)
+
+### Sexta rodada (2026-09-10): última varredura antes do corte de acesso
+
+Contexto: último dia de acesso ao ambiente. Varredura final de agregados
+para os campos que seguiam como suposição documentada. Só `COUNT`,
+`GROUP BY`, `AVG`, `STDDEV`, `percentile_approx` e `DATEDIFF`, nunca linha
+de dado. Headcount reverificado, segue 285 ativos, dados estáveis. Aplicar
+estes números aos geradores é trabalho de código posterior, feito sobre
+número já registrado aqui.
+
+**`tipo_contrato` (campo `Modelo` de `vw_apdata_bi_entidades_globais`, 285
+ativos). Semântica do campo agora confirmada pela inspeção dos próprios
+valores, não é mais "não confirmada":**
+
+| Valor real de `Modelo` | n | % |
+|---|---|---|
+| EMPREGADO GERAL CLT | 153 | 53,7 |
+| CONTR INDIVIDUAL DIRETOR NAO EMPREGADO SEM FGTS | 89 | 31,2 |
+| ESTUDANTE ESTAGIARIO | 42 | 14,7 |
+| CONTRIBUINTE INDIVIDUAL AUTONOMO EM GERAL | 1 | 0,4 |
+
+Mapeamento sugerido para `tipo_contrato` binário: CLT (EMPREGADO CLT mais
+ESTAGIARIO) 195 (68,4%), não empregado / PJ (DIRETOR mais AUTONOMO) 90
+(31,6%). O bloco ESTAGIARIO (42) coincide exatamente com a contagem de N4
+na pirâmide: estagiário e nível de base são o mesmo grupo, o que sugere
+amarrar `tipo_contrato` a `nivel_senioridade` numa revisão futura.
+Substitui a suposição de 50/50 do gerador.
+
+**`idiomas[]` (respostas de formulário em `vw_apdata_bi_entidades_globais`,
+285 ativos, sem nulo):**
+
+| Nível | Inglês (n) | Espanhol (n) |
+|---|---|---|
+| FLUENTE ou NATIVO | 61 | 8 |
+| AVANCADO | 132 | 18 |
+| INTERMEDIARIO | 73 | 54 |
+| BASICO | 13 | 147 |
+| NENHUM ou NAO POSSUO | 6 | 58 |
+
+Inglês: 97,9% têm ao menos básico, 67,7% avançado ou fluente, praticamente
+universal como o gerador já assume. Espanhol: 79,6% têm algum nível, mas
+51,6% só básico. Contar só intermediário ou acima dá 28,4%, próximo da
+suposição atual de 0,3. Recalibração: presença de espanhol em algum nível
+sobe de 0,3 para cerca de 0,8, com a massa concentrada em básico.
+
+**Duração real de alocação e de projeto (`vw_gtac_cltv_alocacao`, campos
+`Data de início` e `Data de fim`, sem nulo):**
+
+| Métrica | Alocação individual (n=4999) | Projeto, span das alocações (n=1834) |
+|---|---|---|
+| Média (dias) | 51,6 | 68,8 |
+| Desvio-padrão | 86,8 | 119,7 |
+| P25 / P50 / P75 | 4 / 18 / 60 | 4 / 18 / 81 |
+| Assimetria | 3,97 | 3,6 |
+| Máximo | - | 1184 |
+
+Substitui a duração de baixa confiança da Terceira rodada (177,6 dias de
+`dt_alteracao`, campo de auditoria). A mediana real é 18 dias, muito
+menor. A forma é fortemente assimétrica à direita, mais compatível com
+log-normal por casamento de quantis (mediana 18, P75 60) do que com a
+Exponencial de média 177,6 que o gerador de `projetos` usa hoje.
+
+**Funil de vendas: as datas de estágio por oportunidade existem
+(`vw_crm_oportunidades_latest`).** A Quinta rodada registrou que não havia
+timestamp de estágio. Há: `Data Lead`, `Data Reunião`, `Data Proposta`,
+`Data Projeto`, `Data Rec/Can`. Censo de 4233 oportunidades:
+
+| Estágio atingido | n | % das com Data Lead |
+|---|---|---|
+| Data Lead | 4107 | 100 |
+| Data Reunião | 3341 | 81,3 |
+| Data Proposta | 2664 | 64,9 |
+| Data Projeto (ganho) | 967 | 23,5 |
+| Data Rec/Can (perdido) | 2785 | - |
+
+Taxas de avanço condicionais: Lead para Reunião 81,3%, Reunião para
+Proposta 79,7%, Proposta para Projeto 36,3%. Tempo entre estágios
+(mediana, dias): 2, depois 3, depois 16 (médias 10,6 / 13,8 / 30,
+assimétricas). Isso habilita um funil de coorte sequencial real para
+`pipeline_demandas`, no lugar do sorteio multinomial transversal que a
+Quinta rodada tinha registrado como única opção. A revisão do gerador é
+trabalho de código posterior.
+
+**Mix de senioridade nas alocações (`vw_bi_tbl_pps_alocacao_pessoas`).** O
+campo `nivel` desta view usa agrupamento grosso (N3 e N4 juntos 10457, N2
+7397, N1 6468, MDs 6452) e tem valores de texto livre sujos misturados,
+não serve para `mix_papeis` fino. O campo `sigla_cargo` (as 44 siglas da
+rate card) tem a distribuição de senioridade de quem de fato é alocado,
+dominada por INT (3646), AN (2467), PRI (2192), CT (2148), SAN (2002), com
+cauda longa e alguns valores malformados. Útil como alvo de calibração do
+`papel` em `R` numa revisão futura, não aplicado agora. `mix_papeis` por
+composição de nível dentro do time segue sem fonte limpa.
+
+**`modelo_precificacao` e `local` / `on_site`: confirmados sem fonte.**
+Varridas as tabelas de projeto e CRM. Para precificação, o único candidato
+próximo é `Negócio Tipo` (`vw_crm_oportunidades_latest`), que é origem do
+negócio (Selling 3053, UpSelling 1180), não modelo de cobrança.
+`etapa_modalidade` de `vw_bi_tbl_projetos` é 91% vazia. Nenhuma coluna de
+`local` / `on_site` / presencial / remoto em nenhuma das quatro tabelas.
+`faturamento_internacional` de `vw_bi_tbl_projetos` está preenchido em
+2016 de 4799 registros, e desses 99,7% são domésticos. Mantêm o rótulo
+Suposto do dicionário, agora com a busca registrada como feita.
+
+**`esforco_estimado` pré-venda (`vw_crm_pipelines_latest`, n=1845):**
+`Horas Semana` tem mediana e P75 ambos exatamente 40, um valor default que
+os usuários não alteram, não informativo. `Duração` (em semanas) tem
+mediana 12, P75 19, assimetria 1,49. Cross-check secundário da duração,
+não substitui a calibração de `horas_mes` pós-venda (mediana 120h/mês) que
+o gerador já usa.
 
 ## Próximos passos (não feitos nesta rodada)
 
-* Confirmar com o time de dados a definição quebrada de `vw_apdata_peers_experience`
-  e o real significado do campo "Modelo" em cargos/entidades.
+* Aplicar aos geradores os números da Sexta rodada: `tipo_contrato`
+  (68/32 no lugar de 50/50), presença de espanhol (~0,8), duração de
+  projeto (log-normal por quantis no lugar da Exponencial de 177,6 dias),
+  funil de coorte sequencial em `pipeline_demandas`. Trabalho de código
+  sobre número já registrado, não depende mais de acesso.
+* Confirmar com o time de dados a definição quebrada de `vw_apdata_peers_experience`.
 * Contagens agregadas (linhas, taxa de nulos, cardinalidade de chave) por
   tabela candidata, para confirmar granularidade e completude de fato. Não
   feito nesta rodada, só existência e tipo de coluna.
