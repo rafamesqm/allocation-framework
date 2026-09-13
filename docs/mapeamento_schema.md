@@ -778,40 +778,55 @@ defasagem temporal da coleta, então a explicação exata fica como
 limitação, não um número fechado. Fecha o item de cobertura de skills da
 definição de pronto da wave 2 (EDA).
 
-## Próximos passos (não feitos nesta rodada)
+## Fechamento da wave 1 (2026-09-16)
 
-* Aplicar aos geradores os números da Sexta rodada: `tipo_contrato`
-  (68/32 no lugar de 50/50), presença de espanhol (~0,8), duração de
-  projeto (log-normal por quantis no lugar da Exponencial de 177,6 dias),
-  funil de coorte sequencial em `pipeline_demandas`. Trabalho de código
-  sobre número já registrado, não depende mais de acesso.
-* Usar a cobertura real de skills (48,4%) para calibrar a fração de
-  consultores com `skills_hard[]` vazio no gerador, hoje sem suposição
-  explícita de cobertura populacional.
-* Aplicar ao gerador o de-para de escala de proficiência e a escolha de
-  aba canônica ("Resolvido (2026-09-10)" acima), e calibrar `intensidade`
-  de `gerar_experiencia_setorial()` pela escala de experiência do
-  Formulário 2.1, no lugar do `runif(0,1)` atual. Trabalho de código,
-  sobre decisão já registrada, não depende de acesso nem das planilhas
-  continuarem na máquina.
-* Confirmar com o time de dados a definição quebrada de `vw_apdata_peers_experience`.
-* Contagens agregadas (linhas, taxa de nulos, cardinalidade de chave) por
-  tabela candidata, para confirmar granularidade e completude de fato. Não
-  feito nesta rodada, só existência e tipo de coluna.
+Acesso ao Databricks e às planilhas de `data/raw/skills/` encerraram em
+definitivo (09/09 e antes de 16/09, respectivamente). Revisão do que
+tinha ficado como "próximos passos": o que dependia só de número já
+registrado virou código; o que dependia de acesso ou arquivo vira
+limitação permanente, não pendência.
+
+**Aplicado ao gerador (código, sem depender de acesso):**
+
+* `tipo_contrato` (68,4%/31,6%), presença de espanhol (~0,8), duração de
+  projeto (log-normal por quantis, com teto de 2.368 dias contra cauda
+  implausível) e funil de coorte sequencial em `pipeline_demandas`.
+* Cobertura real de skills (48,4%) calibrando a fração de consultores com
+  `skills_hard[]` vazio.
+
+**Limitação permanente, não pendência (acesso encerrado, nada a reabrir):**
+
+* Confirmação da definição quebrada de `vw_apdata_peers_experience`.
+* Contagens agregadas de completude/cardinalidade por tabela candidata
+  (só existência e tipo de coluna foram confirmados nesta reconciliação).
+* Calibração de `intensidade` em `gerar_experiencia_setorial()` pela
+  escala de experiência do Formulário 2.1: a distribuição populacional
+  por essa escala nunca chegou a ser agregada e registrada aqui, só a
+  existência da escala. Sem o arquivo, não há mais como extrair esse
+  número. `intensidade` segue `runif(0,1)`, suposição documentada.
 * `avaliacao_desempenho`/`avaliador_id`: schema reconstruído (ver seção
-  própria), mas acesso à base segue negado (dado mais sensível da empresa).
-  Gerador sintético parte 100% da estrutura, sem calibração por distribuição
-  real. Se o acesso mudar no futuro, revisar esta seção.
-* Skills chegou via `data/raw/skills/` (fora do git). De-para de escala,
-  limpeza de taxonomia, dedup e escolha de aba canônica resolvidos em
-  "Resolvido (2026-09-10)" acima. Falta só o crosswalk e-mail/nome →
-  `consultor_id` linha a linha: a cobertura populacional já foi medida
-  por hashes (Sexta rodada, 48,4%), mas isso não substitui o crosswalk
-  linha a linha que o ETL vai precisar para juntar as planilhas ao resto
-  do modelo. Esse crosswalk só pode ser construído enquanto as planilhas
-  ainda estiverem na máquina.
-* Testar se `Offering`/`Linha de Serviço` (vistos em `vw_crm_oportunidades_latest`/
-  `pipelines`) realmente juntam contra `vw_bi_tbl_projetos` (candidato de chave:
-  `id_crm`). Enquanto não testado, tratar como visto em oportunidade de venda,
-  não confirmado por projeto executado. Isso importa porque `P` (proxy de
-  `skills_requeridas[]`) pretende usar esses campos.
+  própria), acesso à base nunca foi liberado. Gerador sintético segue
+  100% estrutural, sem calibração por distribuição real.
+* Crosswalk e-mail/nome → `consultor_id` linha a linha: as planilhas
+  saíram da máquina antes de ser construído. Só a cobertura populacional
+  agregada por hash (48,4%) ficou registrada.
+* O de-para de escala de proficiência e a escolha de aba canônica
+  ("Resolvido (2026-09-10)" acima) não têm ETL real para aplicar: a
+  camada de acesso `fonte = "databricks"` nunca foi implementada como
+  código (regra 6 do `CLAUDE.md` não permite persistir nem transformar
+  dado real em pipeline versionada), e o gerador sintético nunca leu as
+  planilhas brutas. Ficam registrados como decisão de projeto, não como
+  código pendente.
+
+**Pendência real, não bloqueante, fora da wave 1:** `mix_papeis`
+(calibrar `papel` em `R` pela distribuição real de `sigla_cargo`, ver
+`docs/roadmap.md`) segue aberto por decisão de design, não por falta de
+número. Fica para quando `papel`/`R` for revisitado, possivelmente na
+wave 3.
+
+**Achado à parte, corrigido nesta revisão:** o item anterior desta seção
+pedia testar se `Offering`/`Linha de Serviço` juntam contra
+`vw_bi_tbl_projetos`. Já estava resolvido antes mesmo de ser escrito
+aqui: a Terceira rodada, acima, tinha validado esse join via `id_crm`
+com ~98% de cobertura. Item removido por já estar coberto, não por ter
+sido feito agora.
