@@ -42,6 +42,20 @@ test_that("datas são coerentes: data_fim nunca antes de data_inicio", {
   expect_true(all(projetos$duracao_dias >= 0))
 })
 
+test_that("duracao_dias aproxima a mediana real calibrada por quantis (Sexta rodada)", {
+  projetos <- gerar_projetos(n_projetos = 20000, semente = 3)
+
+  expect_equal(median(projetos$duracao_dias), 18, tolerance = 0.25)
+  expect_true(max(projetos$duracao_dias) > median(projetos$duracao_dias) * 10)
+})
+
+test_that("duracao_dias respeita o teto, mesmo quando a log-normal sorteia além dele", {
+  projetos <- gerar_projetos(n_projetos = 20000, semente = 3)
+
+  expect_true(all(projetos$duracao_dias <= 2368))
+  expect_true(any(projetos$duracao_dias == 2368))
+})
+
 test_that("gerar_projetos é reprodutível com a mesma semente e data de referência", {
   data_ref <- as.Date("2026-09-01")
   expect_identical(

@@ -21,6 +21,16 @@ test_that("cobertura de skills é parcial, não o catálogo inteiro", {
   expect_true(mean(n_skills_por_consultor) < nrow(skills) * 0.5)
 })
 
+test_that("cobertura populacional de skills aproxima o achado real da Sexta rodada (48,4%)", {
+  consultores <- gerar_consultores(n_consultores = 2000)
+  skills <- gerar_espaco_skills()
+  set.seed(4)
+  skills_consultor <- gerar_skills_consultor(consultores, skills)
+
+  fracao_com_skills <- dplyr::n_distinct(skills_consultor$consultor_id) / nrow(consultores)
+  expect_equal(fracao_com_skills, 0.484, tolerance = 0.03)
+})
+
 test_that("skills conhecidas se concentram nas categorias principais do consultor, não espalhadas", {
   # Testa concentração pela contagem de skills, não pelo número de categorias
   # tocadas: com 10 categorias e cobertura ocasional fora da especialidade,

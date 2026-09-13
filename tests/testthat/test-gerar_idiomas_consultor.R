@@ -26,3 +26,11 @@ test_that("espanhol e outro idioma são ocasionais, não universais", {
   expect_true(pct_espanhol > 0 && pct_espanhol < 1)
   expect_true(pct_outro > 0 && pct_outro < 1)
 })
+
+test_that("presença de espanhol aproxima o achado real da Sexta rodada (~80%)", {
+  consultores <- gerar_consultores(n_consultores = 3000)
+  idiomas <- gerar_idiomas_consultor(consultores)
+
+  pct_espanhol <- mean(consultores$consultor_id %in% idiomas$consultor_id[idiomas$idioma == "Espanhol"])
+  expect_equal(pct_espanhol, 0.8, tolerance = 0.03)
+})

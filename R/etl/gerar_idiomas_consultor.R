@@ -1,17 +1,18 @@
 #' Gera proficiência em idiomas de cada consultor (parte de `C`)
 #'
-#' Inglês é avaliado para todo consultor (prática comum em consultoria);
-#' espanhol e outro idioma são ocasionais. As planilhas de skills têm
-#' pergunta equivalente, mas sem proporção agregada calibrada nesta rodada
-#' (ver docs/mapeamento_schema.md); as probabilidades abaixo são suposição
-#' documentada.
+#' Inglês é avaliado para todo consultor (prática comum em consultoria, e
+#' quase universal na base real, 97,9% com ao menos básico). Espanhol é
+#' calibrado pela Sexta rodada (docs/mapeamento_schema.md): presente em
+#' algum nível para ~80% dos consultores (79,6% real), bem mais comum do que
+#' a suposição inicial de 30%. Outro idioma segue suposição documentada, sem
+#' fonte agregada real.
 #'
 #' @param consultores tibble de `gerar_consultores()`.
 #' @param prob_espanhol Probabilidade de o consultor ter espanhol avaliado.
 #' @param prob_outro_idioma Probabilidade de ter outro idioma além de
 #'   inglês/espanhol.
 #' @return tibble longo: `consultor_id`, `idioma`, `nivel`.
-gerar_idiomas_consultor <- function(consultores, prob_espanhol = 0.3, prob_outro_idioma = 0.1) {
+gerar_idiomas_consultor <- function(consultores, prob_espanhol = 0.8, prob_outro_idioma = 0.1) {
   niveis_idioma <- c("Básico", "Intermediário", "Avançado", "Fluente")
 
   purrr::map_dfr(consultores$consultor_id, function(id_consultor) {

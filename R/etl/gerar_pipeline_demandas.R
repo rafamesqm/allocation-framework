@@ -1,30 +1,53 @@
 #' Gera o estágio atual de oportunidades no funil de vendas (Camada 3)
 #'
-#' As contagens reais por situação (ver docs/mapeamento_schema.md, "Quinta
-#' rodada") não formam um funil de coorte: não são decrescentes na ordem do
-#' funil (Ideia 92, Reunião Inicial 123, Lead 127, Proposta 209, Projeto
-#' 952, Recusada/Cancelada 2799), o que é esperado sob fila (a população
-#' num estágio reflete taxa de entrada vezes tempo médio de permanência,
-#' não quantas oportunidades já passaram por ali). Sem timestamp de mudança
-#' de estágio por oportunidade, não dá para calibrar probabilidade de
-#' avanço/perda estágio a estágio de forma estatisticamente válida.
+#' A Quinta rodada de calibração (docs/mapeamento_schema.md) só tinha a
+#' contagem por situação num instante (censo transversal, não decrescente na
+#' ordem do funil), insuficiente para calibrar avanço estágio a estágio. A
+#' Sexta rodada achou as datas de mudança de estágio por oportunidade (`Data
+#' Lead`/`Reunião`/`Proposta`/`Projeto`), o que habilita um funil de coorte
+#' sequencial real: cada oportunidade tenta avançar Lead → Reunião → Proposta
+#' → Projeto, uma porta de cada vez, com a taxa de avanço condicional real
+#' (81,3% / 79,7% / 36,3%). `estagio` é o estágio mais avançado que a
+#' oportunidade alcançou antes de parar de avançar.
 #'
-#' Por isso este gerador simplifica para um sorteio multinomial do estágio
-#' atual por oportunidade, pesado pelo censo real, em vez de simular uma
-#' sequência de avanço/perda: é uma simplificação documentada, não uma
-#' leitura direta da dinâmica real do funil.
+#' Simplificação registrada: o `estagio` aqui é só o marco mais avançado
+#' alcançado, não um status de resolução (a fonte real também tem um
+#' `Data Rec/Can` separado, indicando perda, e uma oportunidade pode estar
+#' presa num estágio por ainda estar em andamento no momento do censo, não
+#' necessariamente perdida). Sem essa distinção, quem não chega a "Projeto"
+#' fica classificado pelo estágio onde parou, sem afirmar se foi perdida ou
+#' segue aberta. Os tempos medianos entre estágios (2/3/16 dias) também
+#' foram levantados nesta rodada, mas não entram no esquema desta função
+#' (sem campo de data por estágio no retorno), fica para trabalho futuro se
+#' a dimensão temporal do pipeline vier a ser necessária.
 #'
 #' @param n_oportunidades Número de oportunidades a gerar.
 #' @param semente Inteiro para reprodutibilidade.
+#' @param taxa_lead_reuniao,taxa_reuniao_proposta,taxa_proposta_projeto Taxas
+#'   reais de avanço condicional entre estágios consecutivos do funil.
 #' @return tibble com `oportunidade_id`, `estagio`.
-gerar_pipeline_demandas <- function(n_oportunidades, semente = 1) {
+gerar_pipeline_demandas <- function(n_oportunidades,
+                                     semente = 1,
+                                     taxa_lead_reuniao = 0.813,
+                                     taxa_reuniao_proposta = 0.797,
+                                     taxa_proposta_projeto = 0.363) {
   set.seed(semente)
 
-  estagios <- c("Ideia", "Reunião Inicial", "Lead", "Proposta", "Projeto", "Recusada/Cancelada")
-  pesos_estagio <- c(92, 123, 127, 209, 952, 2799)
+  alcancou_reuniao <- stats::rbinom(n_oportunidades, size = 1, prob = taxa_lead_reuniao) == 1
+  alcancou_proposta <- alcancou_reuniao &
+    (stats::rbinom(n_oportunidades, size = 1, prob = taxa_reuniao_proposta) == 1)
+  alcancou_projeto <- alcancou_proposta &
+    (stats::rbinom(n_oportunidades, size = 1, prob = taxa_proposta_projeto) == 1)
+
+  estagio <- dplyr::case_when(
+    alcancou_projeto ~ "Projeto",
+    alcancou_proposta ~ "Proposta",
+    alcancou_reuniao ~ "Reunião",
+    TRUE ~ "Lead"
+  )
 
   tibble::tibble(
     oportunidade_id = sprintf("oportunidade_%05d", seq_len(n_oportunidades)),
-    estagio = sample(estagios, n_oportunidades, replace = TRUE, prob = pesos_estagio)
+    estagio = estagio
   )
 }

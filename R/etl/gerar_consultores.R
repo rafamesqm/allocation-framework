@@ -1,11 +1,14 @@
 #' Gera consultores sintéticos (objeto `C`, Camada 1)
 #'
-#' Pirâmide de senioridade, tempo de casa, localização e disposição a viagem
-#' calibrados por dado real agregado (ver docs/mapeamento_schema.md,
-#' "Calibração agregada"). `tipo_contrato` é suposição documentada: o campo
-#' real equivalente ("Modelo") teve semântica não confirmada com o time de
-#' dados. `fuso` é derivado de `localizacao`, não amostrado: todos os estados
-#' observados na base real estão no fuso America/Sao_Paulo.
+#' Pirâmide de senioridade, tempo de casa, localização, disposição a viagem e
+#' tipo de contrato calibrados por dado real agregado (ver
+#' docs/mapeamento_schema.md, "Calibração agregada" e "Sexta rodada").
+#' `tipo_contrato` agrupa CLT + estagiário como "CLT" e diretor não empregado
+#' + autônomo como "PJ", proporção real do campo "Modelo" (68,4%/31,6%); o
+#' de-para exato entre `tipo_contrato` e `nivel_senioridade` (estagiário
+#' coincide com N4) fica para uma revisão futura, não aplicado aqui. `fuso` é
+#' derivado de `localizacao`, não amostrado: todos os estados observados na
+#' base real estão no fuso America/Sao_Paulo.
 #'
 #' `skills_hard[]`/`recencia_skill[]` não são gerados aqui: ver
 #' `gerar_skills_consultor()`, que produz a tabela longa (consultor × skill).
@@ -32,7 +35,7 @@ gerar_consultores <- function(n_consultores = 285, semente = 1) {
 
   prob_viagem_nacional <- 175 / 285
   prob_viagem_internacional <- 185 / 285
-  prob_pj <- 0.5 # suposição documentada, sem calibração real (ver acima)
+  prob_pj <- 0.316 # calibrado por "Modelo" real, Sexta rodada (ver acima)
 
   nivel_senioridade <- factor(
     sample(niveis_ordenados, size = n_consultores, replace = TRUE, prob = pesos_nivel),

@@ -16,6 +16,13 @@
 #' registrada da skill, amostrada uniformemente até `recencia_maxima_dias`.
 #' Sem calibração real de decaimento, é suposição documentada.
 #'
+#' Cobertura populacional calibrada pela Sexta rodada
+#' (docs/mapeamento_schema.md): só 48,4% dos consultores ativos (138 de 285)
+#' têm ao menos uma resposta nas planilhas de skills, medido por interseção
+#' de hashes de e-mail. Um consultor sorteado como não respondente não
+#' aparece nesta tabela (cold start do lado do conteúdo), em vez de todo
+#' consultor ter cobertura garantida como antes dessa calibração.
+#'
 #' @param consultores tibble produzido por `gerar_consultores()` (usa só
 #'   `consultor_id`).
 #' @param espaco_skills tibble produzido por `gerar_espaco_skills()`.
@@ -26,6 +33,9 @@
 #' @param cobertura_fora_categoria Proporção das skills fora da categoria
 #'   principal que o consultor conhece (skill ocasional fora da especialidade).
 #' @param recencia_maxima_dias Teto, em dias, para a recência da skill.
+#' @param cobertura_populacional Proporção de consultores que respondeu
+#'   alguma planilha de skills (ver detalhe acima); o resto não aparece na
+#'   tabela retornada.
 #' @return tibble longo: `consultor_id`, `skill_id`, `proficiencia`,
 #'   `recencia_dias`. Um consultor sem nenhuma skill sorteada (cold start do
 #'   lado do conteúdo) simplesmente não aparece nesta tabela.
@@ -34,11 +44,15 @@ gerar_skills_consultor <- function(consultores,
                                     n_categorias_principais = 2,
                                     cobertura_categoria_principal = 0.6,
                                     cobertura_fora_categoria = 0.05,
-                                    recencia_maxima_dias = 730) {
+                                    recencia_maxima_dias = 730,
+                                    cobertura_populacional = 0.484) {
   escala_proficiencia <- c("Iniciante", "Básico", "Médio", "Avançado")
   categorias <- unique(espaco_skills$categoria)
 
-  purrr::map_dfr(consultores$consultor_id, function(id_consultor) {
+  respondeu <- stats::runif(nrow(consultores)) < cobertura_populacional
+  consultores_respondentes <- consultores$consultor_id[respondeu]
+
+  purrr::map_dfr(consultores_respondentes, function(id_consultor) {
     categorias_principais <- sample(categorias, size = n_categorias_principais)
     dentro_da_especialidade <- espaco_skills$categoria %in% categorias_principais
 
