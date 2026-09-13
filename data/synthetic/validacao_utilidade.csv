@@ -1,0 +1,12 @@
+categoria,medida,real,sintetico,diferenca_relativa
+geral,correlação nível x custo_carregado,0.9,0.8429608543396527,-0.063376828511497
+geral,correlação nível x tempo_casa,0.34,0.36866468368070315,0.08430789317853861
+geral,correlação nível x pct_alocacao,0.52,0.5102974527833698,-0.018658744647365805
+geral,correlação nível x horas_mes,-0.55,-0.5485656245839868,-0.0026079553018422026
+geral,grau_consultor: média,9,10.236286919831224,0.1373652133145805
+geral,grau_consultor: variância,44.6,65.38460988342987,0.4660226431262303
+geral,grau_projeto: média,2.51,3.238985313751669,0.29043239591699976
+geral,grau_projeto: variância,8.65,7.064467418233224,-0.18329856436610134
+especifica,densidade de R,0.005,0.008941471325372255,0.7882942650744509
+especifica,fração de cold start (consultor),0.17,0.16842105263157892,-0.009287925696594684
+especifica,taxa de pareamento por mesmo setor,0.1,0.6154163231657048,5.154163231657048
