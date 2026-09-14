@@ -1,0 +1,149 @@
+---
+title: "Bloco I.5 Estrutura relacional"
+subtitle: "EDA não direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_i5")
+obj <- bloco$objetos
+observado <- obj$observado
+```
+
+## Propósito do bloco
+
+Último bloco da frente não direcionada. Caracteriza o grafo de coalocação,
+que é o objeto `G` do dicionário e o insumo da formação de times na Camada 4:
+dois consultores são ligados quando dividiram projeto, e o peso da aresta é o
+número de projetos em comum.
+
+O grafo não é dado observado de forma independente. Ele é **derivado** da
+matriz de alocação, por projeção: cada projeto transforma seu time numa
+clique. Essa origem tem consequências fortes sobre o que se pode concluir
+dele, e elas precisam vir antes das medidas.
+
+## A armadilha do modelo nulo
+
+Toda projeção de grafo bipartido tem agrupamento alto, e isso é aritmética,
+não fenômeno. Um time de quatro pessoas produz seis arestas que fecham todos
+os triângulos possíveis entre elas; a transitividade de uma clique é 1 por
+definição. Somar muitas cliques dá um grafo densamente triangulado, qualquer
+que seja o mecanismo que formou os times.
+
+Isso importa porque o reflexo padrão é comparar o agrupamento observado
+contra um grafo aleatório de mesma densidade. Esse teste sempre acusa
+agrupamento muito acima do esperado, e a conclusão soaria como descoberta
+sobre química de time. Seria uma conclusão vazia.
+
+O nulo usado aqui é outro: **uma projeção bipartida com as mesmas sequências
+de grau dos dois lados, cablada sem o viés assortativo por setor**. Ele
+reaproveita o próprio mecanismo do gerador, com o viés desligado, de modo que
+observado e nulo diferem apenas naquilo que se quer testar.
+
+## Estrutura global
+
+```{r resumo}
+mostrar_tabela(
+  bloco$tabelas$i5_resumo_grafo,
+  "Tabela I.5.1: medidas globais do grafo de coalocação."
+)
+```
+
+```{r comparacao}
+mostrar_tabela(
+  bloco$tabelas$i5_comparacao_nulo,
+  "Tabela I.5.2: observado contra a distribuição nula de mesmas sequências de grau.",
+  c("l", "r", "r", "r", "r")
+)
+```
+
+```{r numeros}
+agrupamento <- obj$agrupamento
+arestas <- obj$arestas
+assortatividade <- obj$assortatividade
+```
+
+A comparação separa três leituras.
+
+O **agrupamento** observado é
+`r formatar_decimal(observado$agrupamento, 3)` contra
+`r formatar_decimal(agrupamento$nulo_media, 3)` do nulo. A diferença merece
+uma leitura cuidadosa, porque significância e magnitude divergem aqui. O
+escore z é `r formatar_decimal(agrupamento$escore_z, 1)`, portanto
+detectável, mas a diferença em magnitude é de apenas
+`r formatar_pct(observado$agrupamento / agrupamento$nulo_media - 1)`, e o
+escore só fica alto porque a variância do nulo é minúscula
+(`r formatar_decimal(agrupamento$nulo_desvio, 4)`).
+
+A conclusão prática é que praticamente todo o agrupamento vem da projeção com
+aquelas sequências de grau, não do mecanismo de alocação. E o pouco que o
+viés acrescenta vai na direção contrária da esperada: reduz levemente o
+agrupamento, em vez de aumentá-lo.
+
+As **arestas distintas** contam outra história. O observado tem
+`r formatar_inteiro(observado$arestas)` contra
+`r formatar_inteiro(round(arestas$nulo_media))` do nulo, escore z
+`r formatar_decimal(arestas$escore_z, 1)`. Os mesmos
+`r formatar_inteiro(obj$pares_possiveis)` pares gerados pelos times se
+concentram em menos parcerias distintas, o que equivale a
+`r formatar_pct(obj$excesso_repeticao)` mais coalocações repetidas do que o
+acaso produziria. **É por aqui que o viés de seleção se manifesta na Camada
+4**, não pelo agrupamento.
+
+A **assortatividade por senioridade** é
+`r formatar_decimal(observado$assortatividade_nivel, 3)`, contra
+`r formatar_decimal(assortatividade$nulo_media, 3)` do nulo: indistinguível
+de zero. O gerador cabla por setor e ignora o nível, então a ausência é
+premissa do código. Vale registrar o contraste com o real, onde a composição
+de time por senioridade é regra de negócio conhecida.
+
+## Grau, peso e tamanho de time
+
+```{r grau, fig.width = 7.5, fig.height = 4}
+bloco$figuras$i5_distribuicao_grau
+```
+
+O grafo tem `r observado$isolados` vértices isolados em
+`r observado$vertices`. Esse número só aparece porque o grafo foi montado
+sobre todos os consultores, e não apenas sobre a tabela de arestas. Montá-lo
+a partir das arestas descartaria os isolados em silêncio e inflaria densidade
+e grau médio, porque o denominador teria perdido justamente os vértices de
+grau zero. É o mesmo cuidado tomado na matriz `R` do bloco I.1.
+
+```{r tamanho-time, fig.width = 7.5, fig.height = 4}
+bloco$figuras$i5_tamanho_time
+```
+
+Dos `r formatar_inteiro(obj$n_projetos_alocados)` projetos com alguma
+alocação, `r formatar_inteiro(obj$times_com_par)` têm time de duas pessoas ou
+mais, e só esses contribuem arestas. A contribuição é quadrática no tamanho
+do time, o que significa que poucos projetos grandes podem dominar a contagem
+de pares.
+
+```{r peso}
+mostrar_tabela(
+  bloco$tabelas$i5_peso_arestas,
+  "Tabela I.5.3: distribuição do peso das arestas.",
+  c("r", "r", "r")
+)
+```
+
+A concentração do peso em 1 é esperada, e a cauda é justamente o efeito do
+viés discutido acima. Uma consequência direta para a wave 4: **peso de aresta
+definido como contagem de projetos em comum mede, em boa parte, o viés de
+alocação, e não afinidade de time.** O dicionário deixa em aberto a definição
+de "coalocação boa" para `G`, e este bloco mostra que a definição ingênua
+carrega o viés junto.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

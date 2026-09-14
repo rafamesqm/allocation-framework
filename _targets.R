@@ -174,5 +174,13 @@ list(
       i4_ocupacao_mensal = c(18, 9)
     )
   ), format = "file"),
-  tar_target(bloco_i4_achados, salvar_tabela(bloco_i4$achados, "achados_i4"), format = "file")
+  tar_target(bloco_i4_achados, salvar_tabela(bloco_i4$achados, "achados_i4"), format = "file"),
+
+  tar_target(bloco_i5, executar_i5(dados_eda, semente = parametros$semente)),
+  tar_target(bloco_i5_tabelas, salvar_tabelas_bloco(bloco_i5$tabelas), format = "file"),
+  tar_target(bloco_i5_figuras, salvar_figuras_bloco(
+    bloco_i5$figuras,
+    list(i5_distribuicao_grau = c(17, 9), i5_tamanho_time = c(17, 9))
+  ), format = "file"),
+  tar_target(bloco_i5_achados, salvar_tabela(bloco_i5$achados, "achados_i5"), format = "file")
 )
