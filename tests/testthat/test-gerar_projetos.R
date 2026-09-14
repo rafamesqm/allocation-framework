@@ -39,7 +39,9 @@ test_that("datas são coerentes: data_fim nunca antes de data_inicio", {
   projetos <- gerar_projetos(n_projetos = 500)
 
   expect_true(all(projetos$data_fim >= projetos$data_inicio))
-  expect_true(all(projetos$duracao_dias >= 0))
+  # Piso de 1 dia: projeto de duração zero é artefato de arredondamento, e
+  # deixaria sem janela as alocações que cabem dentro dele.
+  expect_true(all(projetos$duracao_dias >= 1))
 })
 
 test_that("duracao_dias aproxima a mediana real calibrada por quantis (Sexta rodada)", {

@@ -7,12 +7,10 @@
 #' Bernoulli decide se o valor é zero, e uma log-normal gera a parte
 #' positiva.
 #'
-#' Os parâmetros da log-normal (`meanlog`, `sdlog`) são calibrados por
-#' casamento de quantis (P25/P50/P75 reais), não de média/desvio-padrão: com
-#' assimetria extrema, a média e o desvio brutos são dominados pela cauda e
-#' são estimadores instáveis. `sdlog` é a média dos dois `sdlog` implícitos
-#' (cauda inferior e superior), já que uma log-normal não encaixa
-#' exatamente nos três quantis ao mesmo tempo.
+#' Os parâmetros da log-normal são calibrados por casamento de quantis
+#' (P25/P50/P75 reais), não de média/desvio-padrão: com assimetria extrema, a
+#' média e o desvio brutos são dominados pela cauda e são estimadores
+#' instáveis. Ver `calibrar_lognormal_por_quantis()`.
 #'
 #' @param n Quantos valores gerar.
 #' @param prob_zero Probabilidade de o valor ser zero.
@@ -25,12 +23,13 @@ gerar_variavel_hurdle_lognormal <- function(n,
                                              mediana_positivos,
                                              p25_positivos,
                                              p75_positivos) {
-  meanlog <- log(mediana_positivos)
-  sdlog_superior <- log(p75_positivos / mediana_positivos) / stats::qnorm(0.75)
-  sdlog_inferior <- log(mediana_positivos / p25_positivos) / stats::qnorm(0.75)
-  sdlog <- mean(c(sdlog_superior, sdlog_inferior))
+  parametros <- calibrar_lognormal_por_quantis(
+    mediana_positivos, p25_positivos, p75_positivos
+  )
 
   eh_zero <- stats::rbinom(n, size = 1, prob = prob_zero) == 1
-  valor_positivo <- stats::rlnorm(n, meanlog = meanlog, sdlog = sdlog)
+  valor_positivo <- stats::rlnorm(
+    n, meanlog = parametros$meanlog, sdlog = parametros$sdlog
+  )
   ifelse(eh_zero, 0, valor_positivo)
 }

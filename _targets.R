@@ -28,8 +28,7 @@ parametros <- list(
   fracao_com_avaliacao = 0.5,
   dias_ferias = 30,
   ano_ferias = 2026,
-  n_frentes_mes = 5000, # escala real, ver mapeamento_schema.md
-  n_oportunidades = 4302 # soma do censo real por situação, idem
+  n_oportunidades = 4302 # soma do censo real por situação, ver mapeamento_schema.md
 )
 
 list(
@@ -102,7 +101,7 @@ list(
     "ferias_consultor"
   ), format = "file"),
   tar_target(margem_frente_mes_arquivo, salvar_synthetic(
-    gerar_margem_frente_mes(parametros$n_frentes_mes, semente = parametros$semente),
+    gerar_margem_frente_mes(projetos, semente = parametros$semente),
     "margem_frente_mes"
   ), format = "file"),
   tar_target(margem_estrutural_arquivo, salvar_synthetic(

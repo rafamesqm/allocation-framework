@@ -18,9 +18,15 @@
 #' assimetria forte (3,6). Substitui a estimativa anterior (Exponencial de
 #' média 177,6 dias), que vinha de um campo de auditoria
 #' (`dt_alteracao`) sem confirmação como data de fim real. Log-normal
-#' calibrada por casamento de quantis, mesma técnica de
-#' `gerar_variavel_hurdle_lognormal()`, sem massa em zero (duração de
-#' projeto nunca é zero).
+#' calibrada por casamento de quantis (`calibrar_lognormal_por_quantis()`),
+#' sem massa em zero.
+#'
+#' **Piso de 1 dia na duração.** O arredondamento da log-normal produzia
+#' duração exata de zero em cerca de 6% dos projetos (`data_fim` igual a
+#' `data_inicio`), artefato de `round()` sobre a cauda inferior, não
+#' calibração: um projeto de duração zero não existe, e deixava sem janela
+#' as alocações que precisam caber dentro dele
+#' (`gerar_periodo_alocacao()`).
 #'
 #' **Decisão de modelagem: teto em `duracao_teto_dias`.** Os três quantis
 #' reais (4/18/81 dias), batidos exatamente por uma log-normal, implicam uma
@@ -74,15 +80,15 @@ gerar_projetos <- function(n_projetos = 952,
   )
   pesos_offering <- c(991, 642, 530, 524, 427, 424, 192, 155, 119, 114, 49, 47)
 
-  meanlog_duracao <- log(duracao_mediana_dias)
-  sdlog_superior <- log(duracao_p75_dias / duracao_mediana_dias) / stats::qnorm(0.75)
-  sdlog_inferior <- log(duracao_mediana_dias / duracao_p25_dias) / stats::qnorm(0.75)
-  sdlog_duracao <- mean(c(sdlog_superior, sdlog_inferior))
-
-  duracao_dias <- pmin(
-    round(stats::rlnorm(n_projetos, meanlog = meanlog_duracao, sdlog = sdlog_duracao)),
-    duracao_teto_dias
+  parametros_duracao <- calibrar_lognormal_por_quantis(
+    duracao_mediana_dias, duracao_p25_dias, duracao_p75_dias
   )
+
+  duracao_sorteada <- round(stats::rlnorm(
+    n_projetos,
+    meanlog = parametros_duracao$meanlog, sdlog = parametros_duracao$sdlog
+  ))
+  duracao_dias <- pmin(pmax(duracao_sorteada, 1), duracao_teto_dias)
   data_inicio <- data_referencia - sample.int(janela_inicio_dias, n_projetos, replace = TRUE)
 
   tibble::tibble(
