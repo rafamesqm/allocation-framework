@@ -1,0 +1,137 @@
+---
+title: "Bloco I.3 Bivariada e associação"
+subtitle: "EDA não direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_i3")
+obj <- bloco$objetos
+```
+
+## Propósito do bloco
+
+Terceiro bloco da frente não direcionada. Depois de caracterizar cada
+variável isolada, o passo seguinte é como elas se relacionam: quais atributos
+carregam informação redundante, quais são independentes, e que estrutura de
+dependência o modelo vai encontrar.
+
+Há uma dificuldade específica em fazer isso sobre dado sintético, e ela
+precisa ser enfrentada antes de qualquer número. **Toda associação que a
+matriz de correlação mostra foi posta ali por alguém.** Uma correlação forte
+no sintético pode ser reprodução fiel do dado real, efeito colateral de duas
+variáveis dependerem de uma terceira, ou acidente de código. As três parecem
+iguais na tabela e significam coisas radicalmente diferentes.
+
+Por isso este bloco não começa medindo. Começa declarando, em
+`procedencia_associacoes()`, o que cada par **deveria** ser, e só então
+confronta com o medido. São quatro procedências:
+
+- **calibrada**: o gerador induz a associação e existe alvo real registrado.
+- **induzida**: o gerador cria por construção, sem alvo real.
+- **livre**: nenhum mecanismo liga as variáveis, e a expectativa é zero.
+- **ausente**: há dependência documentada no real que o gerador não reproduz.
+
+A leitura de cada painel muda conforme a procedência, e é isso que torna a
+tabela interpretável em vez de apenas volumosa.
+
+## Duas escolhas de método
+
+**O confronto com o alvo real usa Pearson, não Spearman.** Os alvos vieram
+de `CORR()` no Spark, que calcula Pearson. Como o bloco I.2 mostrou, quase
+toda contínua aqui é fortemente assimétrica, e Spearman seria a medida mais
+robusta para ler a estrutura. As duas aparecem lado a lado por isso, mas
+comparar Spearman contra alvo de Pearson compararia coisas diferentes, no
+mesmo espírito do erro de quantis incondicionais corrigido no bloco anterior.
+
+**O V de Cramér vai com correção de viés, e isso não é refinamento.** O V
+clássico não é centrado em zero sob independência: por ser raiz de soma de
+quadrados, seu valor esperado é positivo e cresce com o número de categorias.
+Com 285 consultores, `nivel_senioridade` contra `localizacao` mede em torno
+de 0,18 **mesmo sendo sorteadas de forma completamente independente**, que é
+o caso do gerador. Medido sem correção, o valor observado foi 0,183, e três
+pares independentes teriam sido reportados como dependência real. Com a
+correção de Bergsma (2013), os mesmos pares medem abaixo de 0,05.
+
+## Correlações medidas
+
+```{r correlacoes}
+mostrar_tabela(
+  bloco$tabelas$i3_correlacoes_numericas,
+  "Tabela I.3.1: correlação entre pares de variáveis numéricas.",
+  c("l", "r", "r", "r")
+)
+```
+
+```{r confronto-numerico}
+mostrar_tabela(
+  bloco$tabelas$i3_confronto_numerico,
+  "Tabela I.3.2: correlações confrontadas com a procedência declarada.",
+  c("l", "l", "r", "r", "c", "l")
+)
+```
+
+```{r figura-associacoes, fig.width = 7.5, fig.height = 7}
+bloco$figuras$i3_associacoes_procedencia
+```
+
+```{r numeros-numerico}
+pior <- obj$pior_calibrada
+induzida <- obj$induzida_forte
+```
+
+As `r nrow(obj$calibradas)` correlações com alvo real são reproduzidas. A
+mais distante do alvo é `r pior$variavel_a` x `r pior$variavel_b`, em
+`r formatar_decimal(pior$medida, 3)` contra
+`r formatar_decimal(pior$valor_real, 2)`. Vale lembrar o que isso significa e
+o que não significa: são esses mesmos números que calibraram o gerador, então
+reproduzi-los é verificação de que a calibração sobreviveu às etapas
+seguintes, não evidência sobre a Peers.
+
+A associação induzida mais forte é `r induzida$variavel_a` x
+`r induzida$variavel_b`, em `r formatar_decimal(induzida$medida, 3)`. Ela não
+foi calibrada contra nada: nasce de as duas variáveis dependerem do nível de
+senioridade em direções opostas. É uma correlação real dentro do sintético e
+sem contraparte conhecida fora dele.
+
+Nenhum dos `r nrow(obj$livres)` pares sem mecanismo declarado se afasta de
+zero, sendo `r formatar_decimal(obj$maior_livre, 3)` o maior valor absoluto.
+O gerador não introduziu dependência acidental onde não deveria haver
+nenhuma.
+
+## Associação entre categóricas
+
+```{r confronto-categorico}
+mostrar_tabela(
+  bloco$tabelas$i3_confronto_categorico,
+  "Tabela I.3.3: associação entre categóricas, com V de Cramér corrigido.",
+  c("l", "l", "r", "r", "c", "l")
+)
+```
+
+O par `nivel_senioridade` e `tipo_contrato` merece leitura à parte, porque é
+o único classificado como **ausente**. Mede
+`r formatar_decimal(obj$contrato$medida, 3)`, ou seja, independência. No dado
+real os dois são fortemente ligados: a Sexta rodada de calibração registrou
+que o bloco ESTAGIARIO do campo `Modelo` tem exatamente a mesma contagem que
+o nível N4 da pirâmide, o que indica que estagiário e nível de base são o
+mesmo grupo.
+
+O gerador sorteia `tipo_contrato` de forma independente do nível, por
+refinamento explicitamente adiado no fechamento da wave 1. A consequência
+prática é direta: qualquer análise que dependa da relação entre contrato e
+senioridade é inválida sobre este dado, e a limitação precisa constar na
+monografia em vez de passar como ausência de efeito.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

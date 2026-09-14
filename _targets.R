@@ -156,5 +156,12 @@ list(
     bloco_i2$figuras,
     list(i2_piramide_senioridade = c(16, 9), i2_projetos_distribuicoes = c(18, 8))
   ), format = "file"),
-  tar_target(bloco_i2_achados, salvar_tabela(bloco_i2$achados, "achados_i2"), format = "file")
+  tar_target(bloco_i2_achados, salvar_tabela(bloco_i2$achados, "achados_i2"), format = "file"),
+
+  tar_target(bloco_i3, executar_i3(dados_eda)),
+  tar_target(bloco_i3_tabelas, salvar_tabelas_bloco(bloco_i3$tabelas), format = "file"),
+  tar_target(bloco_i3_figuras, salvar_figuras_bloco(
+    bloco_i3$figuras, list(i3_associacoes_procedencia = c(17, 16))
+  ), format = "file"),
+  tar_target(bloco_i3_achados, salvar_tabela(bloco_i3$achados, "achados_i3"), format = "file")
 )

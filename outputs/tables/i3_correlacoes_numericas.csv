@@ -1,0 +1,16 @@
+Par,Spearman,Pearson,n
+nivel_num x tempo_casa,"0,330","0,369",285
+nivel_num x tempo_nivel,"0,245","0,276",285
+nivel_num x custo_carregado,"0,952","0,843",285
+tempo_casa x tempo_nivel,"0,832","0,836",285
+tempo_casa x custo_carregado,"0,319","0,374",285
+tempo_nivel x custo_carregado,"0,248","0,283",285
+nivel_num x pct_alocacao,"0,530","0,527",2.426
+nivel_num x horas_mes,"-0,535","-0,541",2.426
+nivel_num x duracao_dias,"0,032","0,026",2.426
+pct_alocacao x horas_mes,"-0,311","-0,307",2.426
+pct_alocacao x duracao_dias,"-0,014","-0,002",2.426
+horas_mes x duracao_dias,"-0,022","0,007",2.426
+valor_contrato x esforco_estimado,"0,007","-0,062",952
+valor_contrato x duracao_dias,"0,001","0,030",952
+esforco_estimado x duracao_dias,"0,015","0,027",952
