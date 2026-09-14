@@ -12,27 +12,12 @@ output:
 ```{r setup}
 source(here::here("analysis", "_comum.R"))
 
-dados <- carregar_dados(tabelas = c(
-  "consultores", "custo_carregado", "skills_consultor", "experiencia_setorial",
-  "projetos", "alocacoes", "ocupacao_consultor", "margem_frente_mes",
-  "margem_estrutural", "pipeline_demandas"
-))
+bloco <- ler_bloco("bloco_i2")
+obj <- bloco$objetos
 
-formatar_dif <- function(x) {
-  ifelse(is.na(x), "n/a", paste0(ifelse(x >= 0, "+", ""), formatar_pct(x)))
-}
-
-tabela_confronto <- function(confronto, legenda) {
-  confronto |>
-    dplyr::transmute(
-      Variável = variavel,
-      Estatística = estatistica,
-      Real = formatC(valor_real, format = "f", digits = 2, big.mark = ".", decimal.mark = ","),
-      Sintético = formatC(valor_sintetico, format = "f", digits = 2, big.mark = ".", decimal.mark = ","),
-      `Dif. relativa` = formatar_dif(diferenca_relativa),
-      Rodada = rodada
-    ) |>
-    knitr::kable(align = c("l", "l", "r", "r", "r", "l"), caption = legenda)
+pega_confronto <- function(confronto, v, e) {
+  linha <- confronto[confronto$variavel == v & confronto$estatistica == e, ]
+  list(real = linha$valor_real, sint = linha$valor_sintetico, dif = linha$diferenca_relativa)
 }
 ```
 
@@ -66,61 +51,25 @@ nenhuma.
 # Camada 1, Consultores
 
 ```{r consultores-numericas}
-resumo_consultores <- resumir_numericas(dados$consultores) |>
-  dplyr::bind_rows(resumir_numericas(dados$custo_carregado, "custo_carregado"))
-
-tabela_resumo_consultores <- resumo_consultores |>
-  dplyr::transmute(
-    Variável = variavel,
-    n = n,
-    Mín. = round(minimo, 2), P25 = round(p25, 2), Mediana = round(mediana, 2),
-    P75 = round(p75, 2), Máx. = round(maximo, 2),
-    Média = round(media, 2), Desvio = round(desvio, 2),
-    Assimetria = round(assimetria, 2)
-  )
-
-salvar_tabela(tabela_resumo_consultores, "i2_consultores_numericas")
-knitr::kable(
-  tabela_resumo_consultores,
-  caption = "Tabela I.2.1: resumo das numéricas de consultor."
+mostrar_tabela(
+  bloco$tabelas$i2_consultores_numericas,
+  "Tabela I.2.1: resumo das numéricas de consultor."
 )
 ```
 
 ```{r consultores-categoricas}
-tabela_cat_consultores <- resumir_categoricas(dados$consultores) |>
-  dplyr::filter(variavel != "consultor_id") |>
-  dplyr::transmute(
-    Variável = variavel,
-    Categorias = n_categorias,
-    Moda = moda,
-    `Fração da moda` = formatar_pct(fracao_moda),
-    Equilíbrio = round(equilibrio, 3)
+mostrar_tabela(
+  bloco$tabelas$i2_consultores_categoricas,
+  paste(
+    "Tabela I.2.2: composição das categóricas de consultor. Equilíbrio é a",
+    "entropia normalizada, 1 para categorias igualmente frequentes e 0 para",
+    "uma só dominante."
   )
-
-salvar_tabela(tabela_cat_consultores, "i2_consultores_categoricas")
-knitr::kable(
-  tabela_cat_consultores,
-  caption = "Tabela I.2.2: composição das categóricas de consultor. Equilíbrio é a entropia normalizada, 1 para categorias igualmente frequentes e 0 para uma só dominante."
 )
 ```
 
-```{r consultores-proporcoes, fig.width = 7.5, fig.height = 4.5}
-comparacao_nivel <- confrontar_proporcoes(dados$consultores, "consultores", "nivel_senioridade")
-salvar_tabela(
-  dplyr::mutate(comparacao_nivel, dplyr::across(dplyr::where(is.numeric), \(x) round(x, 4))),
-  "i2_piramide_senioridade"
-)
-
-figura_nivel <- figura_proporcoes_comparadas(
-  comparacao_nivel,
-  titulo = "Pirâmide de senioridade, sintético contra real",
-  subtitulo = "Proporção de consultores por nível, da base (N4) ao topo (N0)",
-  # Ordinal: a ordem da carreira e a informacao da variavel, e ordenar por
-  # frequencia a destruiria. Base embaixo, como se le uma piramide.
-  ordem = c("N0", "N1", "N2", "N3", "N4") |> rev()
-)
-salvar_figura(figura_nivel, "i2_piramide_senioridade", largura_cm = 16, altura_cm = 9)
-figura_nivel
+```{r consultores-figura, fig.width = 7.5, fig.height = 4.5}
+bloco$figuras$i2_piramide_senioridade
 ```
 
 A figura mostra uma característica real que o nome "pirâmide" esconde: a
@@ -128,13 +77,13 @@ estrutura **não é monotônica da base ao topo**. O nível logo acima da base,
 N3, é o mais numeroso, com mais gente que a própria base N4. Isso está
 registrado na calibração original e é traço do dado real, não artefato da
 geração. Importa para a wave 4, porque restrição de composição de time
-formulada como pirâmide estrita seria infactível contra o quadro que de
-fato existe.
+formulada como pirâmide estrita seria infactível contra o quadro que de fato
+existe.
 
 ```{r consultores-numeros}
-fuso <- dplyr::filter(resumir_categoricas(dados$consultores), variavel == "fuso")
-local <- dplyr::filter(resumir_categoricas(dados$consultores), variavel == "localizacao")
-tempo_nivel <- dplyr::filter(resumo_consultores, variavel == "tempo_nivel")
+local <- obj$categoricas_consultores[obj$categoricas_consultores$variavel == "localizacao", ]
+tempo_nivel <- obj$resumo_consultores[obj$resumo_consultores$variavel == "tempo_nivel", ]
+tempo_casa <- obj$resumo_consultores[obj$resumo_consultores$variavel == "tempo_casa", ]
 ```
 
 Duas leituras de composição que já condicionam a montagem de `C`.
@@ -145,234 +94,142 @@ os consultores da Peers estão em `America/Sao_Paulo`. Mas variável constante
 tem poder discriminante nulo por definição, e ocupar uma coluna de `C` com
 ela só adiciona custo. `localizacao`, de onde `fuso` é derivada, tem
 `r local$n_categorias` categorias com equilíbrio
-`r round(local$equilibrio, 2)`, concentrada em
+`r formatar_decimal(local$equilibrio)`, concentrada em
 `r formatar_pct(local$fracao_moda)` numa só: a cauda de estados raros vai
 precisar de agrupamento antes de virar codificação one-hot, senão produz
 colunas quase vazias.
 
-`tempo_nivel` tem assimetria `r round(tempo_nivel$assimetria, 2)`, contra
-`r round(dplyr::filter(resumo_consultores, variavel == "tempo_casa")$assimetria, 2)`
-de `tempo_casa`. A diferença faz sentido de negócio: tempo de casa acumula
-ao longo da carreira inteira, tempo no nível corrente é reiniciado a cada
-promoção, o que concentra a massa perto de zero e alonga a cauda.
+`tempo_nivel` tem assimetria `r formatar_decimal(tempo_nivel$assimetria)`,
+contra `r formatar_decimal(tempo_casa$assimetria)` de `tempo_casa`. A
+diferença faz sentido de negócio: tempo de casa acumula ao longo da carreira
+inteira, tempo no nível corrente é reiniciado a cada promoção, o que
+concentra a massa perto de zero e alonga a cauda.
 
 # Camada 1, Projetos
 
 ```{r projetos-numericas}
-resumo_projetos <- resumir_numericas(dados$projetos)
-
-tabela_resumo_projetos <- resumo_projetos |>
-  dplyr::transmute(
-    Variável = variavel,
-    `Fração zero` = formatar_pct(fracao_zero),
-    P25 = round(p25, 1), Mediana = round(mediana, 1), P75 = round(p75, 1),
-    Máx. = round(maximo, 1), Média = round(media, 1), Desvio = round(desvio, 1),
-    Assimetria = round(assimetria, 2),
-    `Mediana pos.` = round(mediana_pos, 1)
-  )
-
-salvar_tabela(tabela_resumo_projetos, "i2_projetos_numericas")
-knitr::kable(
-  tabela_resumo_projetos,
-  caption = "Tabela I.2.3: resumo das numéricas de projeto."
+mostrar_tabela(
+  bloco$tabelas$i2_projetos_numericas,
+  "Tabela I.2.3: resumo das numéricas de projeto."
 )
 ```
 
 ```{r projetos-confronto}
-confronto_projetos <- confrontar_com_real(resumo_projetos, "projetos")
-salvar_tabela(
-  dplyr::mutate(confronto_projetos, dplyr::across(dplyr::where(is.numeric), \(x) round(x, 4))),
-  "i2_projetos_confronto_real"
+mostrar_tabela(
+  bloco$tabelas$i2_projetos_confronto_real,
+  "Tabela I.2.4: numéricas de projeto contra o agregado real.",
+  c("l", "l", "r", "r", "r", "l")
 )
-tabela_confronto(confronto_projetos, "Tabela I.2.4: numéricas de projeto contra o agregado real.")
 ```
 
 ```{r projetos-figura, fig.width = 8, fig.height = 3.5}
-figura_projetos <- figura_distribuicoes(
-  dados$projetos,
-  colunas = c("valor_contrato", "esforco_estimado", "duracao_dias"),
-  titulo = "Distribuição das numéricas de projeto",
-  subtitulo = "Escala log para acomodar a cauda. Painéis não comparáveis entre si em magnitude",
-  escala_log = TRUE
-)
-salvar_figura(figura_projetos, "i2_projetos_distribuicoes", largura_cm = 18, altura_cm = 8)
-figura_projetos
+bloco$figuras$i2_projetos_distribuicoes
 ```
 
 ```{r projetos-numeros}
-pega_confronto <- function(confronto, v, e) {
-  linha <- confronto[confronto$variavel == v & confronto$estatistica == e, ]
-  list(real = linha$valor_real, sint = linha$valor_sintetico, dif = linha$diferenca_relativa)
-}
-vc_mediana <- pega_confronto(confronto_projetos, "valor_contrato", "mediana_pos")
-vc_assim <- pega_confronto(confronto_projetos, "valor_contrato", "assimetria_pos")
-ee_p25 <- pega_confronto(confronto_projetos, "esforco_estimado", "p25")
-dur_media <- pega_confronto(confronto_projetos, "duracao_dias", "media")
-dur_mediana <- pega_confronto(confronto_projetos, "duracao_dias", "mediana")
+vc_mediana <- pega_confronto(obj$confronto_projetos, "valor_contrato", "mediana_pos")
+vc_assim <- pega_confronto(obj$confronto_projetos, "valor_contrato", "assimetria_pos")
+dur_media <- pega_confronto(obj$confronto_projetos, "duracao_dias", "media")
+dur_mediana <- pega_confronto(obj$confronto_projetos, "duracao_dias", "mediana")
 ```
 
 O confronto separa com nitidez o que a calibração acertou do que ela não
 controlava, e o padrão se repete nas três variáveis.
 
 `valor_contrato` reproduz os quantis dos positivos quase exatamente: a
-mediana sai a `r formatar_dif(vc_mediana$dif)` do real. A assimetria dos
-positivos, porém, sai em `r round(vc_assim$sint, 2)` contra
-`r round(vc_assim$real, 2)` reais, `r formatar_dif(vc_assim$dif)`. Não é
-falha de execução, é o que casamento de quantis faz: fixa três pontos da
-distribuição e não tem instrumento sobre o quarto momento. A cauda extrema
-real é mais pesada do que a log-normal ajustada por quantis consegue
-produzir.
+mediana sai a `r formatar_diferenca(vc_mediana$dif)` do real. A assimetria
+dos positivos, porém, sai em `r formatar_decimal(vc_assim$sint)` contra
+`r formatar_decimal(vc_assim$real)` reais,
+`r formatar_diferenca(vc_assim$dif)`. Não é falha de execução, é o que
+casamento de quantis faz: fixa três pontos da distribuição e não tem
+instrumento sobre o quarto momento. A cauda extrema real é mais pesada do
+que a log-normal ajustada por quantis consegue produzir.
 
 `duracao_dias` mostra o mesmo em espelho. Os três quantis batem (mediana a
-`r formatar_dif(dur_mediana$dif)`), enquanto média e desvio explodem
-(`r formatar_dif(dur_media$dif)` na média) e o máximo sai exatamente no
-dobro do real, porque é o teto de 2.368 dias definido no gerador. Onde a
+`r formatar_diferenca(dur_mediana$dif)`), enquanto média e desvio explodem
+(`r formatar_diferenca(dur_media$dif)` na média) e o máximo sai exatamente
+no dobro do real, porque é o teto de 2.368 dias definido no gerador. Onde a
 calibração mirou, acertou; onde não mirou, a cauda ficou livre.
 
 # Camada 2, Alocações
 
 ```{r alocacoes-numericas}
-resumo_alocacoes <- resumir_numericas(dados$alocacoes)
-
-tabela_resumo_alocacoes <- resumo_alocacoes |>
-  dplyr::transmute(
-    Variável = variavel,
-    `Fração zero` = formatar_pct(fracao_zero),
-    Mín. = round(minimo, 2), P25 = round(p25, 2), Mediana = round(mediana, 2),
-    P75 = round(p75, 2), Máx. = round(maximo, 2),
-    Média = round(media, 2), Desvio = round(desvio, 2), Assimetria = round(assimetria, 2)
-  )
-
-salvar_tabela(tabela_resumo_alocacoes, "i2_alocacoes_numericas")
-knitr::kable(
-  tabela_resumo_alocacoes,
-  caption = "Tabela I.2.5: resumo das numéricas de alocação."
+mostrar_tabela(
+  bloco$tabelas$i2_alocacoes_numericas,
+  "Tabela I.2.5: resumo das numéricas de alocação."
 )
 ```
 
 ```{r alocacoes-confronto}
-confronto_alocacoes <- confrontar_com_real(resumo_alocacoes, "alocacoes")
-salvar_tabela(
-  dplyr::mutate(confronto_alocacoes, dplyr::across(dplyr::where(is.numeric), \(x) round(x, 4))),
-  "i2_alocacoes_confronto_real"
+mostrar_tabela(
+  bloco$tabelas$i2_alocacoes_confronto_real,
+  "Tabela I.2.6: numéricas de alocação contra o agregado real.",
+  c("l", "l", "r", "r", "r", "l")
 )
-tabela_confronto(confronto_alocacoes, "Tabela I.2.6: numéricas de alocação contra o agregado real.")
 ```
 
 ```{r alocacoes-numeros}
-horas_zero <- sum(dados$alocacoes$horas_mes == 0)
-horas <- dplyr::filter(resumo_alocacoes, variavel == "horas_mes")
+horas <- obj$resumo_alocacoes[obj$resumo_alocacoes$variavel == "horas_mes", ]
 ```
 
 Há um defeito de plausibilidade aqui, e ele não estava documentado.
-`horas_mes` é zero em `r horas_zero` das `r formatar_inteiro(nrow(dados$alocacoes))`
-alocações, `r formatar_pct(horas$fracao_zero)` do total. Uma alocação
-registrada com zero hora por mês não descreve nada: ou a pessoa está alocada
-e dedica algum tempo, ou não está alocada e a linha não deveria existir. A
-origem é o piso em zero de `gerar_variavel_por_nivel()`, que trunca a normal
-sem impedir o valor exato. O agregado real de `horas_mes` não reporta massa
-em zero, e a mediana real de 120 horas indica que não há.
+`horas_mes` é zero em `r obj$horas_zero` das
+`r formatar_inteiro(obj$n_alocacoes)` alocações,
+`r formatar_pct(horas$fracao_zero)` do total. Uma alocação registrada com
+zero hora por mês não descreve nada: ou a pessoa está alocada e dedica algum
+tempo, ou não está alocada e a linha não deveria existir. A origem é o piso
+em zero de `gerar_variavel_por_nivel()`, que trunca a normal sem impedir o
+valor exato. O agregado real de `horas_mes` não reporta massa em zero, e a
+mediana real de 120 horas indica que não há.
 
 # Camada 3, Operação
 
 ```{r operacao-numericas}
-resumo_margem <- resumir_numericas(dados$margem_frente_mes, c("receita", "custo", "margem"))
-resumo_ocupacao <- resumir_numericas(dados$ocupacao_consultor, c("pct_ocupacao", "horas_mes"))
-resumo_estrutural <- resumir_numericas(dados$margem_estrutural, c("custo_total", "margem_estrutural"))
-
-tabela_resumo_operacao <- dplyr::bind_rows(
-  dplyr::mutate(resumo_margem, Tabela = "margem_frente_mes"),
-  dplyr::mutate(resumo_ocupacao, Tabela = "ocupacao_consultor"),
-  dplyr::mutate(resumo_estrutural, Tabela = "margem_estrutural")
-) |>
-  dplyr::transmute(
-    Tabela, Variável = variavel,
-    `Fração zero` = formatar_pct(fracao_zero),
-    P25 = round(p25, 1), Mediana = round(mediana, 1), P75 = round(p75, 1),
-    Média = round(media, 1), Desvio = round(desvio, 1), Assimetria = round(assimetria, 2)
-  )
-
-salvar_tabela(tabela_resumo_operacao, "i2_operacao_numericas")
-knitr::kable(
-  tabela_resumo_operacao,
-  caption = "Tabela I.2.7: resumo das numéricas da camada de operação."
+mostrar_tabela(
+  bloco$tabelas$i2_operacao_numericas,
+  "Tabela I.2.7: resumo das numéricas da camada de operação."
 )
 ```
 
 ```{r operacao-confronto}
-confronto_margem <- confrontar_com_real(resumo_margem, "margem_frente_mes")
-salvar_tabela(
-  dplyr::mutate(confronto_margem, dplyr::across(dplyr::where(is.numeric), \(x) round(x, 4))),
-  "i2_margem_confronto_real"
+mostrar_tabela(
+  bloco$tabelas$i2_margem_confronto_real,
+  "Tabela I.2.8: margem por frente-mês contra o agregado real.",
+  c("l", "l", "r", "r", "r", "l")
 )
-tabela_confronto(confronto_margem, "Tabela I.2.8: margem por frente-mês contra o agregado real.")
 ```
 
 ```{r operacao-numeros}
-rec_assim <- pega_confronto(confronto_margem, "receita", "assimetria")
-rec_mediana <- pega_confronto(confronto_margem, "receita", "mediana_pos")
-ocupacao <- dplyr::filter(resumo_ocupacao, variavel == "pct_ocupacao")
-acima_capacidade <- mean(dados$ocupacao_consultor$pct_ocupacao > 1)
-estrutural_negativa <- mean(dados$margem_estrutural$margem_estrutural < 0)
+rec_assim <- pega_confronto(obj$confronto_margem, "receita", "assimetria")
+rec_mediana <- pega_confronto(obj$confronto_margem, "receita", "mediana_pos")
+ocupacao <- obj$resumo_operacao[
+  obj$resumo_operacao$variavel == "pct_ocupacao",
+]
 ```
 
 O custo por frente-mês reproduz o real em todas as estatísticas com âncora.
 A receita reproduz a mediana dos positivos
-(`r formatar_dif(rec_mediana$dif)`) mas erra a assimetria por larga margem,
-`r round(rec_assim$sint, 2)` contra `r round(rec_assim$real, 2)`: o mesmo
-efeito já visto em `valor_contrato`, agravado por a receita real ter cauda
-bem mais curta (assimetria 1,85) do que a log-normal ajustada por quantis
-produz.
+(`r formatar_diferenca(rec_mediana$dif)`) mas erra a assimetria por larga
+margem, `r formatar_decimal(rec_assim$sint)` contra
+`r formatar_decimal(rec_assim$real)`: o mesmo efeito já visto em
+`valor_contrato`, agravado por a receita real ter cauda bem mais curta do
+que a log-normal ajustada por quantis produz.
 
-`pct_ocupacao` tem mediana `r round(ocupacao$mediana, 2)` e ultrapassa a
-capacidade integral em `r formatar_pct(acima_capacidade)` dos pares
-consultor-mês. Isso é leitura possível apenas depois de a alocação ganhar
-eixo temporal; antes disso o número não tinha denominador. Não há âncora
-real para confrontar, porque a ocupação mensal nunca foi agregada enquanto
-havia acesso.
+`pct_ocupacao` tem mediana `r formatar_decimal(ocupacao$mediana)` e
+ultrapassa a capacidade integral em `r formatar_pct(obj$acima_capacidade)`
+dos pares consultor-mês. Isso é leitura possível apenas depois de a alocação
+ganhar eixo temporal; antes disso o número não tinha denominador. Não há
+âncora real para confrontar, porque a ocupação mensal nunca foi agregada
+enquanto havia acesso.
 
-A margem estrutural é negativa em `r formatar_pct(estrutural_negativa)` dos
-projetos. O número combina duas coisas que a EDA direcionada vai precisar
-separar: projeto com contrato de valor zero, que é massa do hurdle, e
-projeto cujo custo alocado de fato supera o contrato.
+A margem estrutural é negativa em
+`r formatar_pct(obj$estrutural_negativa)` dos projetos. O número combina
+duas coisas que a EDA direcionada vai precisar separar: projeto com contrato
+de valor zero, que é massa do hurdle, e projeto cujo custo alocado de fato
+supera o contrato.
 
 # Achados do bloco
 
-**Achado I.2.1** *(consequência do gerador)*. Duas categóricas de consultor
-já se mostram problemáticas para compor `C`. `fuso` é constante na
-população, com equilíbrio zero, e portanto tem poder discriminante nulo:
-reproduz a realidade documentada, mas não deve ocupar coluna na matriz de
-atributos. `localizacao` tem `r local$n_categorias` categorias com
-`r formatar_pct(local$fracao_moda)` concentrados na moda, e a cauda de
-estados raros exige agrupamento antes da codificação, sob pena de gerar
-colunas quase vazias.
-
-**Achado I.2.2** *(âncora real)*. A calibração por casamento de quantis
-acerta onde mira e não controla o resto, de forma consistente nas três
-variáveis contínuas com âncora. Em `valor_contrato` a mediana dos positivos
-sai a `r formatar_dif(vc_mediana$dif)` do real, enquanto a assimetria dos
-positivos fica em `r round(vc_assim$sint, 2)` contra
-`r round(vc_assim$real, 2)`. Em `duracao_dias` os três quantis batem e a
-média sai `r formatar_dif(dur_media$dif)` acima. Consequência prática para
-as waves seguintes: análise que dependa de quantil da distribuição sintética
-é defensável, análise que dependa de média, desvio ou de comportamento de
-cauda extrema não é.
-
-**Achado I.2.3** *(consequência do gerador, defeito não documentado)*.
-`horas_mes` é exatamente zero em `r formatar_pct(horas$fracao_zero)` das
-alocações, o que descreve uma alocação sem dedicação nenhuma e não tem
-contraparte no dado real, onde a mediana é de 120 horas e nenhuma massa em
-zero é reportada. A origem é o piso em zero de
-`gerar_variavel_por_nivel()`. Afeta diretamente qualquer ponderação da
-interação por horas, que é um dos candidatos de rótulo em aberto, e deve ser
-corrigido antes da wave 3.
-
-**Achado I.2.4** *(instrumento)*. O eixo temporal introduzido nas alocações
-torna `pct_ocupacao` uma grandeza interpretável: mediana
-`r round(ocupacao$mediana, 2)` de capacidade usada, com
-`r formatar_pct(acima_capacidade)` dos pares consultor-mês acima da
-capacidade integral. O histórico observado, portanto, viola a restrição de
-capacidade que a wave 4 pretende impor ao otimizador. Não há agregado real
-para confrontar, então o valor aqui é o diagnóstico estar construído e
-aplicável caso o acesso ao dado real seja restabelecido, não a magnitude
-sintética em si.
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

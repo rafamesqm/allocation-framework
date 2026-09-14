@@ -120,5 +120,41 @@ list(
   # Validação -------------------------------------------------------------
   tar_target(validacao_utilidade_arquivo, salvar_synthetic(
     validar_utilidade_sintetico(semente = parametros$semente), "validacao_utilidade"
-  ), format = "file")
+  ), format = "file"),
+
+  # EDA, wave 2 -------------------------------------------------------------
+  # Os blocos leem do disco, e não dos alvos em memória acima, de propósito:
+  # é exatamente o que o auditor faz, e é o que garante que a análise rode
+  # sobre os CSV versionados e não sobre um estado intermediário da sessão.
+  # A dependência dos arquivos é declarada para o targets saber invalidar os
+  # blocos quando o gerador mudar.
+  tar_target(dados_eda, {
+    c(
+      alocacoes_arquivo, consultores_arquivo, projetos_arquivo,
+      custo_carregado_arquivo, espaco_skills_arquivo, skills_consultor_arquivo,
+      experiencia_setorial_arquivo, expertise_funcional_arquivo,
+      idiomas_consultor_arquivo, certificacoes_consultor_arquivo,
+      soft_skills_consultor_arquivo, avaliacoes_desempenho_arquivo,
+      ocupacao_consultor_arquivo, ferias_consultor_arquivo,
+      margem_frente_mes_arquivo, margem_estrutural_arquivo,
+      pipeline_demandas_arquivo, grafo_coalocacao_arquivo,
+      validacao_utilidade_arquivo
+    )
+    carregar_dados()
+  }),
+
+  tar_target(bloco_i1, executar_i1(dados_eda)),
+  tar_target(bloco_i1_tabelas, salvar_tabelas_bloco(bloco_i1$tabelas), format = "file"),
+  tar_target(bloco_i1_figuras, salvar_figuras_bloco(
+    bloco_i1$figuras, list(i1_cobertura_entidades = c(18, 13))
+  ), format = "file"),
+  tar_target(bloco_i1_achados, salvar_tabela(bloco_i1$achados, "achados_i1"), format = "file"),
+
+  tar_target(bloco_i2, executar_i2(dados_eda)),
+  tar_target(bloco_i2_tabelas, salvar_tabelas_bloco(bloco_i2$tabelas), format = "file"),
+  tar_target(bloco_i2_figuras, salvar_figuras_bloco(
+    bloco_i2$figuras,
+    list(i2_piramide_senioridade = c(16, 9), i2_projetos_distribuicoes = c(18, 8))
+  ), format = "file"),
+  tar_target(bloco_i2_achados, salvar_tabela(bloco_i2$achados, "achados_i2"), format = "file")
 )

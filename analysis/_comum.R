@@ -6,9 +6,10 @@
 #
 #     source(here::here("analysis", "_comum.R"))
 #
-# Não carrega dado: cada bloco pede as tabelas de que precisa, via
-# carregar_dados(tabelas = ...), porque avaliacoes_desempenho sozinha tem
-# cerca de 70 MB e quase nenhum bloco a usa.
+# Os documentos não calculam nada: leem o alvo já construído pelo
+# `targets` e narram. Análise que roda duas vezes, uma na pipeline e outra no
+# texto, é análise que pode divergir de si mesma. Rode `targets::tar_make()`
+# antes de renderizar; ver `analysis/_renderizar.R`.
 
 suppressPackageStartupMessages({
   library(here)
@@ -17,6 +18,8 @@ suppressPackageStartupMessages({
 
 # Mesma forma de carregar funções que o _targets.R usa com tar_source("R") e
 # que os testes usam no helper: uma fonte só de verdade sobre o que existe.
+# Necessário aqui porque o documento formata e desenha com as funções de R/,
+# mesmo sem recalcular a análise.
 invisible(lapply(
   list.files(here::here("R"), pattern = "[.]R$", recursive = TRUE, full.names = TRUE),
   source
@@ -32,25 +35,54 @@ knitr::opts_chunk$set(
   dpi = 150
 )
 
-#' Formata proporção como percentual em pt-BR, com vírgula decimal
+#' Lê um alvo de bloco da EDA, com mensagem útil se a pipeline não rodou
 #'
-#' Usada no texto corrido dos blocos, para o número do parágrafo sair do
-#' mesmo cálculo que o da tabela e nunca divergir dela.
+#' `targets::tar_read()` falha com erro pouco informativo quando o alvo não
+#' existe, que é o caso mais provável de quem abre um bloco antes de rodar a
+#' pipeline. Trocar por uma instrução direta economiza o diagnóstico.
 #'
-#' @param x Proporção entre 0 e 1.
-#' @param casas Casas decimais.
-#' @return Texto no formato `"48,4%"`.
-formatar_pct <- function(x, casas = 1) {
-  paste0(formatC(100 * x, format = "f", digits = casas, decimal.mark = ","), "%")
+#' O store é apontado explicitamente para a raiz do projeto. O `knitr`
+#' renderiza com o diretório de trabalho em `analysis/`, e sem isso o
+#' `targets` procuraria o store em `analysis/_targets/`, que não existe, e
+#' concluiria que nenhum alvo foi construído.
+#'
+#' @param nome Nome do alvo, sem aspas necessárias.
+#' @return O valor do alvo.
+ler_bloco <- function(nome) {
+  store <- here::here("_targets")
+
+  if (!nome %in% targets::tar_objects(store = store)) {
+    stop(
+      "Alvo '", nome, "' não encontrado. Rode targets::tar_make() antes de ",
+      "renderizar os blocos da EDA.",
+      call. = FALSE
+    )
+  }
+  targets::tar_read_raw(nome, store = store)
 }
 
-#' Formata número inteiro com separador de milhar em pt-BR
+#' Renderiza uma tabela do bloco no padrão do capítulo
 #'
-#' @param x Número.
-#' @return Texto no formato `"50.946"`.
-formatar_inteiro <- function(x) {
-  # decimal.mark explícito mesmo sem casas decimais: sem ele, o separador
-  # decimal continua sendo o ponto e o R avisa que os dois marcadores
-  # coincidem, o que em pt-BR seria de fato ambíguo.
-  formatC(x, format = "d", big.mark = ".", decimal.mark = ",")
+#' @param tabela Data frame já formatado para leitura.
+#' @param legenda Legenda da tabela.
+#' @param alinhamento Vetor de alinhamento por coluna, opcional.
+#' @return Objeto de tabela do knitr.
+mostrar_tabela <- function(tabela, legenda, alinhamento = NULL) {
+  knitr::kable(tabela, align = alinhamento, caption = legenda)
+}
+
+#' Renderiza os achados de um bloco como texto corrido
+#'
+#' Os achados vêm do alvo, não do texto do documento, e por isso não podem
+#' divergir do que o código concluiu. Enunciado e implicação já embutem os
+#' valores calculados.
+#'
+#' @param achados tibble de `registrar_achados()`.
+#' @return Texto em markdown, para uso em chunk com `results = "asis"`.
+mostrar_achados <- function(achados) {
+  paste0(
+    "**Achado ", achados$codigo, "** *(", achados$etiqueta, ")*. ",
+    achados$enunciado, " ", achados$implicacao,
+    collapse = "\n\n"
+  )
 }
