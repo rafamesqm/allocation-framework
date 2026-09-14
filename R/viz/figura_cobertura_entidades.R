@@ -26,6 +26,8 @@
 #' @param cobertura tibble de `resumir_cobertura()`.
 #' @return Objeto ggplot.
 figura_cobertura_entidades <- function(cobertura) {
+  paleta <- paleta_monografia()
+
   dados_figura <- cobertura |>
     dplyr::mutate(
       entidade_destino = sub("[.].*$", "", entidade),
@@ -34,7 +36,8 @@ figura_cobertura_entidades <- function(cobertura) {
     )
 
   ggplot2::ggplot(dados_figura, ggplot2::aes(cobertura, rotulo)) +
-    ggplot2::geom_col(width = 0.7) +
+    ggplot2::geom_col(width = 0.7, fill = paleta$categorica[1]) +
+    tema_monografia() +
     ggplot2::scale_x_continuous(
       labels = function(x) paste0(formatC(100 * x, format = "d"), "%"),
       limits = c(0, 1), expand = ggplot2::expansion(mult = c(0, 0.02))

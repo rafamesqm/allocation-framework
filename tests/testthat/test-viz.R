@@ -199,3 +199,42 @@ test_that("salvar_figura escreve o png e devolve o caminho", {
   expect_true(file.exists(caminho))
   expect_match(caminho, "teste\\.png$")
 })
+
+test_that("toda figura carrega o proprio tema, sem depender da sessao", {
+  # Regressao real: apos o refactor, as figuras passaram a ser construidas
+  # dentro do targets, onde aplicar_padrao_monografia() nunca roda. Saiam
+  # com o tema cinza padrao do ggplot2 e o check de saude nao pegou, porque
+  # olhava validade do PNG, nao aparencia. Tema explicito em cada figura
+  # elimina a dependencia de estado de sessao.
+  tema_anterior <- ggplot2::theme_get()
+  ggplot2::theme_set(ggplot2::theme_grey())
+  on.exit(ggplot2::theme_set(tema_anterior))
+
+  cobertura <- tibble::tibble(
+    tabela = "satelite", entidade = "consultores.consultor_id",
+    coluna = "consultor_id", com_registro = 2L, total = 4L,
+    sem_registro = 2L, cobertura = 0.5
+  )
+  comparacao <- tibble::tibble(
+    categoria = c("x", "y"), proporcao_real = c(0.6, 0.4),
+    proporcao_sintetica = c(0.55, 0.45), diferenca = c(-0.05, 0.05),
+    rodada = "Teste"
+  )
+  confronto <- tibble::tibble(
+    variavel_a = "a", variavel_b = "b", procedencia = "livre",
+    medida = 0.02, valor_real = NA_real_, diferenca_do_alvo = NA_real_,
+    atencao = FALSE, mecanismo = "teste", rodada = NA_character_
+  )
+
+  figuras <- list(
+    figura_cobertura_entidades(cobertura),
+    figura_proporcoes_comparadas(comparacao, "Titulo"),
+    figura_distribuicoes(tibble::tibble(a = c(1, 10, 100)), "a", "Titulo"),
+    figura_associacoes_por_procedencia(confronto, "Titulo")
+  )
+
+  for (figura in figuras) {
+    expect_s3_class(figura$theme$panel.border, "element_rect")
+    expect_s3_class(figura$theme$panel.grid.minor, "element_line")
+  }
+})

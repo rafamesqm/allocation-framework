@@ -46,6 +46,7 @@ figura_proporcoes_comparadas <- function(comparacao, titulo, subtitulo = NULL,
 
   ggplot2::ggplot(dados_figura, ggplot2::aes(proporcao, categoria, fill = origem)) +
     ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.75), width = 0.7) +
+    tema_monografia() +
     ggplot2::scale_fill_manual(values = unname(paleta$categorica[1:2])) +
     ggplot2::scale_x_continuous(
       labels = function(x) paste0(formatC(100 * x, format = "d"), "%"),

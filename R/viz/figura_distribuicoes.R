@@ -41,8 +41,12 @@ figura_distribuicoes <- function(tabela, colunas, titulo,
   }
 
   figura <- ggplot2::ggplot(dados_longos, ggplot2::aes(valor)) +
-    ggplot2::geom_histogram(bins = 40, colour = "white", linewidth = 0.15) +
-    ggplot2::facet_wrap(~variavel, scales = "free", ncol = n_colunas)
+    ggplot2::geom_histogram(
+      bins = 40, colour = "white", linewidth = 0.15,
+      fill = paleta_monografia()$categorica[1]
+    ) +
+    ggplot2::facet_wrap(~variavel, scales = "free", ncol = n_colunas) +
+    tema_monografia()
 
   # Em log, rótulo de potência de dez em vez do número por extenso. Com
   # `valor_contrato` cobrindo cinco ordens de grandeza, os números escritos
