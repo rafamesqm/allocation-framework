@@ -114,6 +114,7 @@ Alimenta o colaborativo e constrói os rótulos. É o coração do sinal.
 |-------|------|---------------|-----------------|-----------------|
 | `(consultor_id, projeto_id)` | chave de relação | alocação | célula de `R` | disponível |
 | `papel` · `pct_alocacao` · `horas` | categórico + numérico | alocação | peso da interação | disponível |
+| `data_inicio` · `data_fim` · `duracao_dias` | data / numérico | alocação | janela de vigência da interação, base de `k` e do decaimento temporal | disponível |
 | `avaliacao_desempenho` | ordinal (3 níveis, por competência) | alocação · competência · etapa | rótulo explícito | disponível |
 | `avaliador_id` | categórico (papel: individual, gestor às cegas, gestor final) | alocação · etapa | debiasing de rater | parcial |
 | `margem_atribuida` | numérico (R$ / %) | frente · mês (não alocação) | ponderação econômica | parcial |
@@ -201,7 +202,7 @@ Alimenta o otimizador multiobjetivo.
 | Campo | Tipo | Granularidade | Objeto | Papel | Disponibilidade |
 |-------|------|---------------|--------|-------|-----------------|
 | `custo_carregado` | numérico (R$/h) | pessoa · período | `c` | margem + restrição orçam. | disponível |
-| `calendario_alocacao` · `pct_ocupacao` | série temporal | pessoa · período | `k` | restrição de capacidade | parcial |
+| `calendario_alocacao` · `pct_ocupacao` | série temporal | pessoa · mês | `k` | restrição de capacidade | parcial |
 | `ferias` · `capacidade_periodo` | data / numérico | pessoa · período | `k` | limite de alocação | parcial |
 | `conflito_interesse` | matriz pessoa × cliente | par | `A` | restrição dura | aspiracional |
 | `preferencias_dominio` | vetor / ranking | consultor | `f` | objetivo de satisfação | parcial |
@@ -239,6 +240,28 @@ O sintético deve emular não só o esquema, mas as características que estress
 * Temporalidade: datas de alocação, férias, decaimento de recência de skill.
 Parametrize o gerador (`n_consultores`, `n_projetos`, `densidade`, `fracao_cold_start`,
 `semente`) para reprodutibilidade.
+
+### Revisão de esquema (2026-09-13), na abertura da wave 2
+
+Três lacunas do gerador foram corrigidas antes de começar a EDA, todas
+pela regra 7 do `CLAUDE.md`: o campo existe na fonte real e faltava no
+sintético, então o sintético estava incompleto.
+
+* **Janela de datas por alocação.** `alocacoes` não tinha `data_inicio` /
+  `data_fim`, embora `vw_gtac_cltv_alocacao` tenha as duas e a
+  temporalidade já estivesse na lista de expectativas acima. Sem elas o
+  vetor `k` não é construível: a soma de `pct_alocacao` por consultor não
+  tem denominador, e o histórico inteiro aparenta superalocação.
+  Calibração pela Sexta rodada (`mapeamento_schema.md`).
+* **`pct_ocupacao` passa a ser série por pessoa e mês**, com mês parcial
+  ponderado pelos dias cobertos, que é a granularidade que a Camada 3
+  sempre exigiu. Antes era um total agregado por consultor.
+* **Margem por frente-mês ganha chave.** A tabela trazia só receita,
+  custo e margem, sem identificador, o que tornava o candidato (c) da
+  construção do rótulo impossível de confrontar com `R`. Passa a ser
+  projeto e mês. A frente está colapsada em projeto, simplificação
+  documentada: quantas frentes um projeto tem nunca foi agregado
+  enquanto havia acesso.
 
 Pedido do orientador (2026-09-01): o gerador precisa reproduzir dispersão,
 assimetria e correlação entre variáveis, não só a média de cada campo
