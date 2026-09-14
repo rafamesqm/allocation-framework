@@ -13,6 +13,25 @@ executar_i4 <- function(dados,
                          especificacao = especificacao_tabelas()) {
   janela <- resumir_janela_temporal(dados, especificacao)
 
+  # Janela de análise declarada, com censura à direita na data de referência.
+  #
+  # A cauda de duração de projeto não é corrigível no gerador: os quantis
+  # reais são log-simétricos (81/18 = 18/4 = 4,5), então a log-normal ajusta o
+  # corpo com perfeição, mas essa mesma log-normal implica média de 216 dias
+  # contra 68,8 reais. Nenhuma log-normal de dois parâmetros, com ou sem teto,
+  # bate quantis, média e máximo ao mesmo tempo: a distribuição real não é
+  # log-normal, e descobrir qual é exigiria dado que não existe mais.
+  #
+  # A saída é de protocolo, não de modelagem: declarar a janela em que a
+  # análise vale e censurar o resto, que é prática padrão em análise de
+  # sobrevivência. O período com entrada de projetos vai do primeiro início
+  # até a data de referência; além dela só há projeção da cauda.
+  inicio_janela <- min(dados$projetos$data_inicio)
+  janela_analise <- c(inicio_janela, data_referencia)
+
+  dentro_da_janela <- dados$alocacoes$data_inicio <= data_referencia
+  fracao_alem_da_janela <- mean(!dentro_da_janela)
+
   inicios_projeto <- serie_mensal_eventos(dados$projetos$data_inicio)
   vigencias <- serie_vigencias_mensais(
     dados$alocacoes$data_inicio, dados$alocacoes$data_fim
@@ -47,11 +66,14 @@ executar_i4 <- function(dados,
     sazonalidade = sazonalidade,
     ocupacao_mensal = ocupacao_mensal,
     recencia = recencia,
+    recencia_valores = dados$skills_consultor$recencia_dias,
     fim_mais_distante = fim_mais_distante,
     dias_alem = dias_alem,
     anos_alem = anos_alem,
     inicio_alocacao_mais_tardio = inicio_alocacao_mais_tardio,
-    data_referencia = data_referencia
+    data_referencia = data_referencia,
+    janela_analise = janela_analise,
+    fracao_alem_da_janela = fracao_alem_da_janela
   )
 
   tabelas <- list(
@@ -110,9 +132,15 @@ executar_i4 <- function(dados,
       format(inicio_alocacao_mais_tardio), "."
     ),
     paste0(
-      "Efeito do teto de 2.368 dias na duração de projeto, decisão fechada na ",
-      "wave 1. Qualquer recorte temporal precisa declarar a janela que usa, e ",
-      "análise de série sobre a cauda opera em região sem lastro real."
+      "Não é corrigível no gerador: os quantis reais são log-simétricos, então ",
+      "a log-normal ajusta o corpo, mas implica média de 216 dias contra 68,8 ",
+      "reais. A distribuição real não é log-normal e não há mais dado para ",
+      "descobrir qual é. Fica a saída de protocolo: **a janela de análise ",
+      "declarada vai de ", format(janela_analise[1]), " a ",
+      format(janela_analise[2]), ", com censura à direita**, e as ",
+      formatar_pct(fracao_alem_da_janela),
+      " das alocações que começam depois disso ficam fora de qualquer ",
+      "conclusão temporal."
     ),
 
     "I.4.2", "instrumento",
@@ -132,16 +160,23 @@ executar_i4 <- function(dados,
 
     "I.4.3", "consequência do gerador",
     paste0(
-      "A recência de skill é praticamente uniforme entre 1 e ",
-      formatar_inteiro(recencia$maximo), " dias, com mediana ",
-      formatar_inteiro(recencia$mediana), " e média ",
-      formatar_inteiro(round(recencia$media)), "."
+      "A recência de skill é constante dentro de cada consultor e agrupada em ",
+      "poucas ondas: ", formatar_inteiro(recencia$n), " registros assumem só ",
+      dplyr::n_distinct(dados$skills_consultor$recencia_dias),
+      " valores distintos, concentrados entre ",
+      formatar_inteiro(recencia$minimo), " e ",
+      formatar_inteiro(recencia$maximo), " dias."
     ),
     paste0(
-      "A fonte real é a hora de conclusão de três formulários, o que ",
-      "concentraria a recência em poucas datas, não a espalharia de forma ",
-      "uniforme. Peso de decaimento por recência calibrado sobre este dado ",
-      "mediria uma suavidade que a fonte real não tem."
+      "Este bloco mediu recência uniforme entre 1 e 730 dias na primeira ",
+      "versão, com valor independente por skill, e isso motivou a correção. ",
+      "As duas propriedades agora reproduzidas são estruturais: na fonte real ",
+      "as skills de uma pessoa vêm de uma resposta de formulário só, e são ",
+      "três formulários aplicados em campanha. **As datas das ondas são ",
+      "suposição declarada, não calibração**, porque as planilhas saíram da ",
+      "máquina antes de qualquer data ser agregada. O que se pode afirmar é a ",
+      "forma, e ela importa: o decaimento por recência se comporta de modo ",
+      "descontínuo, não suave, e a wave 3 precisa tratá-lo assim."
     ),
 
     "I.4.4", "instrumento",

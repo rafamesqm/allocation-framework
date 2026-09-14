@@ -63,8 +63,13 @@ procedencia_associacoes <- function() {
     "idem",
 
     # Categóricas -----------------------------------------------------------
-    "nivel_senioridade", "tipo_contrato", "ausente", NA_real_, "Sexta",
-    "no real o bloco ESTAGIARIO coincide com N4; o gerador sorteia contrato de forma independente",
+    # Reclassificada de `ausente` para `induzida` quando o gerador passou a
+    # amarrar contrato ao nível (ver `gerar_tipo_contrato()`). A âncora real
+    # é a coincidência exata entre os 42 ESTAGIARIO e os 42 N4, que determina
+    # a base; acima dela não há de-para documentado, então a magnitude da
+    # associação é propriedade do código e não há alvo real para confrontar.
+    "nivel_senioridade", "tipo_contrato", "induzida", NA_real_, "Sexta",
+    "nível de base amarrado a CLT pela coincidência ESTAGIARIO igual a N4; marginal calibrada acima dela",
     "nivel_senioridade", "localizacao", "livre", NA_real_, NA_character_,
     "sorteios independentes",
     "setor", "tipo_projeto", "livre", NA_real_, NA_character_,

@@ -168,17 +168,21 @@ executar_i2 <- function(dados) {
       "extrema não é."
     ),
 
-    "I.2.3", "consequência do gerador",
+    "I.2.3", "instrumento",
     paste0(
-      "horas_mes é exatamente zero em ", formatar_pct(horas$fracao_zero),
-      " das alocações, o que descreve alocação sem dedicação nenhuma e não ",
-      "tem contraparte no dado real, onde a mediana é 120 horas e nenhuma ",
-      "massa em zero é reportada."
+      "Nenhuma variável de alocação acumula massa nos limites da sua faixa: ",
+      "horas_mes vale exatamente zero em ", formatar_pct(horas$fracao_zero, 2),
+      " das alocações e pct_alocacao vale exatamente 1,00 em ",
+      formatar_pct(mean(dados$alocacoes$pct_alocacao == 1), 2), "."
     ),
     paste0(
-      "Origem no piso em zero de `gerar_variavel_por_nivel()`. Afeta qualquer ",
-      "ponderação da interação por horas, que é candidato de rótulo em ",
-      "aberto, e deve ser corrigido antes da wave 3."
+      "Não era assim quando este bloco foi escrito: mediam 4,2% e 7,2%, ",
+      "porque `gerar_variavel_por_nivel()` recortava com pmax e pmin em vez ",
+      "de reamostrar, empilhando no limite toda a massa que caía fora. ",
+      "Alocação com zero hora ou dedicação exatamente integral não tem ",
+      "contraparte no dado real. A EDA encontrou o defeito, o gerador foi ",
+      "corrigido para reamostragem por rejeição, e a verificação continua ",
+      "rodando a cada execução."
     ),
 
     "I.2.4", "instrumento",

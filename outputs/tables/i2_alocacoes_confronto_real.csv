@@ -5,5 +5,5 @@ duracao_dias,media,"51,60","120,42","+133,4%",Sexta
 duracao_dias,mediana,"18,00","12,00","-33,3%",Sexta
 duracao_dias,p25,"4,00","3,00","-25,0%",Sexta
 duracao_dias,p75,"60,00","58,00","-3,3%",Sexta
-horas_mes,desvio,"66,90","64,24","-4,0%",Segunda
-horas_mes,mediana,"120,00","121,07","+0,9%",Segunda
+horas_mes,desvio,"66,90","61,39","-8,2%",Segunda
+horas_mes,mediana,"120,00","122,63","+2,2%",Segunda

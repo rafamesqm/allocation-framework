@@ -1,7 +1,7 @@
 Variável,Categorias,Moda,Fração da moda,Equilíbrio
 nivel_senioridade,5,N3,"36,5%",0.864
-tipo_contrato,2,CLT,"69,5%",0.888
-localizacao,10,SAO PAULO,"60,4%",0.475
+tipo_contrato,2,CLT,"66,7%",0.918
+localizacao,9,SAO PAULO,"60,4%",0.488
 fuso,1,America/Sao_Paulo,"100,0%",0
-disposicao_viagem_nacional,2,TRUE,"63,9%",0.944
-disposicao_viagem_internacional,2,TRUE,"67,7%",0.907
+disposicao_viagem_nacional,2,TRUE,"62,5%",0.955
+disposicao_viagem_internacional,2,TRUE,"66,3%",0.922

@@ -116,19 +116,28 @@ mostrar_tabela(
 )
 ```
 
-O par `nivel_senioridade` e `tipo_contrato` merece leitura à parte, porque é
-o único classificado como **ausente**. Mede
-`r formatar_decimal(obj$contrato$medida, 3)`, ou seja, independência. No dado
-real os dois são fortemente ligados: a Sexta rodada de calibração registrou
-que o bloco ESTAGIARIO do campo `Modelo` tem exatamente a mesma contagem que
-o nível N4 da pirâmide, o que indica que estagiário e nível de base são o
-mesmo grupo.
+O par `nivel_senioridade` e `tipo_contrato` merece leitura à parte, porque
+foi a medição deste bloco que motivou uma correção no gerador.
 
-O gerador sorteia `tipo_contrato` de forma independente do nível, por
-refinamento explicitamente adiado no fechamento da wave 1. A consequência
-prática é direta: qualquer análise que dependa da relação entre contrato e
-senioridade é inválida sobre este dado, e a limitação precisa constar na
-monografia em vez de passar como ausência de efeito.
+Na primeira versão o par media 0,037, isto é, independência, e estava
+classificado como **ausente**: dependência que existe no real e que o
+sintético não reproduzia. A âncora é forte e exata. A Sexta rodada de
+calibração registrou que o bloco ESTAGIARIO do campo `Modelo` tem exatamente
+a mesma contagem que o nível N4 da pirâmide, o que indica que estagiário e
+nível de base são o mesmo grupo. O gerador, porém, sorteava o contrato de
+forma independente, por refinamento adiado no fechamento da wave 1, e
+produzia estagiários PJ.
+
+Hoje o par mede `r formatar_decimal(obj$contrato$medida, 3)` e está
+classificado como **induzida**. A correção amarra o nível de base a CLT de
+forma determinística e mantém a marginal calibrada acima dele.
+
+A ressalva que permanece é sobre o alcance da âncora. Ela determina a base e
+nada além: os 90 não empregados reais não cabem em N0 mais N1, que somam
+apenas 63 pessoas, então não existe de-para documentado no topo da pirâmide.
+Por isso a magnitude `r formatar_decimal(obj$contrato$medida, 3)` é
+propriedade do código, não medida da Peers, e a classificação é `induzida` e
+não `calibrada`.
 
 ## Achados do bloco
 

@@ -160,15 +160,17 @@ executar_i3 <- function(dados) {
     paste0(
       "nivel_senioridade e tipo_contrato medem ",
       formatar_decimal(contrato$medida, 3),
-      " de V de Cramér corrigido, ou seja, independência. No dado real os ",
-      "dois são fortemente ligados: o bloco ESTAGIARIO tem exatamente a ",
-      "mesma contagem de N4."
+      " de V de Cramér corrigido, uma dependência clara. Ela existe porque o ",
+      "nível de base é amarrado a CLT no gerador, reproduzindo a coincidência ",
+      "exata entre os 42 ESTAGIARIO e os 42 N4 registrada na calibração real."
     ),
     paste0(
-      "É dependência real que o sintético não reproduz, por refinamento ",
-      "adiado na wave 1. Qualquer análise que dependa da relação entre ",
-      "contrato e senioridade é inválida sobre este dado, e a limitação deve ",
-      "constar na monografia."
+      "Este bloco mediu 0,037 na primeira versão, isto é, independência, e a ",
+      "constatação motivou a correção do gerador. A ressalva que permanece: a ",
+      "âncora real determina apenas a base, porque os 90 não empregados reais ",
+      "não cabem em N0 mais N1, que somam 63. Acima da base o contrato é ",
+      "marginal calibrada, então a magnitude 0,291 é propriedade do código e ",
+      "não medida da Peers."
     )
   ))
 

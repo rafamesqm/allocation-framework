@@ -4,7 +4,7 @@ ocupacao_consultor,7.399,5,"consultor_id, ano_mes",sim
 margem_frente_mes,5.659,5,"projeto_id, ano_mes",sim
 pipeline_demandas,4.302,2,oportunidade_id,sim
 grafo_coalocacao,4.231,3,"consultor_a, consultor_b",sim
-skills_consultor,3.024,4,"consultor_id, skill_id",sim
+skills_consultor,3.008,4,"consultor_id, skill_id",sim
 soft_skills_consultor,2.565,3,"consultor_id, competencia",sim
 alocacoes,2.426,8,"consultor_id, projeto_id",sim
 margem_estrutural,952,4,projeto_id,sim

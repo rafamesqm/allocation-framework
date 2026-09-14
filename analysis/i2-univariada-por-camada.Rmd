@@ -172,15 +172,27 @@ mostrar_tabela(
 horas <- obj$resumo_alocacoes[obj$resumo_alocacoes$variavel == "horas_mes", ]
 ```
 
-Há um defeito de plausibilidade aqui, e ele não estava documentado.
-`horas_mes` é zero em `r obj$horas_zero` das
-`r formatar_inteiro(obj$n_alocacoes)` alocações,
-`r formatar_pct(horas$fracao_zero)` do total. Uma alocação registrada com
-zero hora por mês não descreve nada: ou a pessoa está alocada e dedica algum
-tempo, ou não está alocada e a linha não deveria existir. A origem é o piso
-em zero de `gerar_variavel_por_nivel()`, que trunca a normal sem impedir o
-valor exato. O agregado real de `horas_mes` não reporta massa em zero, e a
-mediana real de 120 horas indica que não há.
+Este bloco encontrou aqui um defeito de plausibilidade que não estava
+documentado, e que desde então foi corrigido no gerador. Vale registrar o
+episódio, porque ele mostra o tipo de problema que só aparece quando se olha
+a distribuição inteira e não apenas o resumo.
+
+Na primeira versão, `horas_mes` era exatamente zero em 4,2% das alocações e
+`pct_alocacao` era exatamente 1,00 em 7,2%. Nenhum dos dois descreve algo
+real: ou a pessoa está alocada e dedica algum tempo, ou não está e a linha
+não deveria existir; e dedicação integral exata em uma alocação de cada
+catorze é implausível.
+
+A causa era única para os dois casos. `gerar_variavel_por_nivel()` aplicava
+`pmax` e `pmin` para respeitar os limites, o que **empilha no limite toda a
+massa que cairia fora dele**, criando um pico artificial que a calibração
+nunca pediu. Vale notar que subir o piso de zero para uma hora não
+resolveria: apenas moveria o pico. A correção foi trocar o recorte por
+reamostragem por rejeição, que devolve a normal truncada pretendida sem ponto
+de massa, redesenhando só o ruído para não destruir a correlação calibrada.
+
+Hoje as três contagens são zero, e a verificação continua rodando a cada
+execução da pipeline.
 
 # Camada 3, Operação
 

@@ -116,20 +116,34 @@ inteiramente plausível.
 recencia <- obj$recencia
 ```
 
-A recência de skill se distribui de forma praticamente uniforme entre
-`r formatar_inteiro(recencia$minimo)` e
-`r formatar_inteiro(recencia$maximo)` dias, com mediana
-`r formatar_inteiro(recencia$mediana)` e média
-`r formatar_inteiro(round(recencia$media))`. Mediana e média quase
-coincidentes, num intervalo fechado, são a assinatura de uma distribuição
-uniforme.
+Este é o segundo ponto em que a medição deste capítulo motivou correção no
+gerador.
 
-Vale confrontar isso com a fonte real. Segundo o mapeamento de schema, a
-recência derivaria da hora de conclusão dos formulários de skills, que são
-três instrumentos aplicados em ondas. Uma origem assim concentraria a
-recência em poucas datas, com grandes vazios entre elas, e não a espalharia
-de modo uniforme. A diferença não é cosmética: um peso de decaimento
-calibrado sobre este dado mediria uma suavidade que a fonte real não tem.
+Na primeira versão, a recência se distribuía de forma praticamente uniforme
+entre 1 e 730 dias, e era sorteada **de forma independente para cada skill**,
+inclusive dentro do mesmo consultor. As duas coisas contrariam a fonte real.
+Segundo o mapeamento de schema, a recência deriva da hora de conclusão dos
+formulários de skills: as skills de uma pessoa vêm de uma resposta só, logo
+compartilham a mesma data, e são três instrumentos aplicados em campanha, o
+que concentra as datas em poucos grupos com grandes vazios entre eles.
+
+Hoje a recência é constante dentro de cada consultor, e os
+`r formatar_inteiro(recencia$n)` registros assumem apenas
+`r dplyr::n_distinct(obj$recencia_valores)` valores distintos, entre
+`r formatar_inteiro(recencia$minimo)` e
+`r formatar_inteiro(recencia$maximo)` dias.
+
+Uma declaração necessária sobre o alcance da correção. **As datas das ondas
+são suposição, não calibração**: as planilhas saíram da máquina antes de
+qualquer data ser agregada, e não há mais como recuperá-las. O que o gerador
+reproduz é a forma, poucos grupos apertados em vez de um contínuo, e é só
+isso que a monografia pode afirmar.
+
+A forma, porém, é o que importa aqui. Com a recência agrupada, um peso de
+decaimento se comporta de modo descontínuo: consultores da mesma onda são
+indistinguíveis entre si e há saltos entre ondas. Sobre a versão uniforme
+anterior, o mesmo peso pareceria variar de forma suave, e a wave 3 poderia
+calibrá-lo sobre uma suavidade que a fonte real não tem.
 
 ## Achados do bloco
 
