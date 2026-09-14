@@ -1,0 +1,8 @@
+Tabela,Variável,Fração zero,P25,Mediana,P75,Média,Desvio,Assimetria
+margem_frente_mes,receita,"16,7%",25911.7,98032.8,267945.5,255586,541829.3,8.28
+margem_frente_mes,custo,"45,6%",0,12649.7,21643.2,12171.8,12858,0.7
+margem_frente_mes,margem,"7,8%",13913.7,86437.9,258492.2,243414.2,541982.3,8.27
+ocupacao_consultor,pct_ocupacao,"0,0%",0.5,0.7,1.1,0.9,0.6,1.73
+ocupacao_consultor,horas_mes,"4,2%",71.3,135.1,195.4,160.9,138.5,2.08
+margem_estrutural,custo_total,"22,5%",23187.9,83417.3,180568.6,128444.3,143247.8,1.83
+margem_estrutural,margem_estrutural,"3,8%",-86938,1978.8,223752.2,321701.1,1385570.4,8.36

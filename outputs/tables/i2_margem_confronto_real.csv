@@ -1,0 +1,14 @@
+variavel,estatistica,valor_real,valor_sintetico,diferenca_relativa,rodada
+custo,desvio,17980.01,12857.9542,-0.2849,Quinta
+custo,fracao_zero,0.447,0.4561,0.0203,Quinta
+custo,media,14315.61,12171.784,-0.1498,Quinta
+custo,mediana_pos,21000,20787.2297,-0.0101,Quinta
+custo,p25_pos,16000,16140.8551,0.0088,Quinta
+custo,p75_pos,26250,26787.0361,0.0205,Quinta
+receita,assimetria,1.85,8.2775,3.4743,Quinta
+receita,desvio,202058.84,541829.2542,1.6815,Quinta
+receita,fracao_zero,0.159,0.1672,0.0514,Quinta
+receita,media,192076.84,255585.9765,0.3306,Quinta
+receita,mediana_pos,136901.46,136838.9866,-5e-4,Quinta
+receita,p25_pos,46105.5,56815.8225,0.2323,Quinta
+receita,p75_pos,268683.84,322379.9802,0.1998,Quinta
