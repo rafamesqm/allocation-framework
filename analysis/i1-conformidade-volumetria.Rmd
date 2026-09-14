@@ -1,0 +1,236 @@
+---
+title: "Bloco I.1 Conformidade e volumetria"
+subtitle: "EDA não direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+dados <- carregar_dados()
+especificacao <- especificacao_tabelas()
+
+inventario <- inventariar_tabelas(dados, especificacao)
+divergencias <- verificar_conformidade(dados, especificacao)
+integridade <- verificar_integridade_referencial(dados, especificacao)
+cobertura <- resumir_cobertura(dados, especificacao)
+```
+
+## Propósito do bloco
+
+Primeiro bloco da frente não direcionada. Antes de descrever qualquer
+distribuição é preciso estabelecer o que existe, com que granularidade, e se
+o dado honra o contrato de esquema que o resto do trabalho assume. Um erro
+aqui não aparece como erro adiante, aparece como resultado plausível e
+errado: chave que se repete infla contagem, chave órfã some no join e fecha
+a conta a menos.
+
+O contrato está em `docs/dicionario_de_dados.md`, em prosa, e transcrito em
+forma verificável por `especificacao_tabelas()`, com
+`r nrow(especificacao)` colunas declaradas em
+`r dplyr::n_distinct(especificacao$tabela)` tabelas. É essa transcrição que
+permite conferir conformidade em vez de afirmá-la.
+
+## Inventário e granularidade
+
+```{r inventario}
+tabela_inventario <- inventario |>
+  dplyr::transmute(
+    Tabela = tabela,
+    Linhas = formatar_inteiro(linhas),
+    Colunas = colunas,
+    `Chave declarada` = chave,
+    `Chave única` = ifelse(chave_unica, "sim", "NÃO")
+  )
+
+salvar_tabela(tabela_inventario, "i1_inventario")
+
+knitr::kable(
+  tabela_inventario,
+  align = c("l", "r", "r", "l", "c"),
+  caption = "Tabela I.1.1: porte e granularidade das tabelas versionadas."
+)
+```
+
+A coluna que carrega conteúdo analítico não é a contagem de linhas, é a
+última: ela confronta a granularidade declarada no contrato com a que o dado
+de fato tem. Chave declarada que se repete significaria que a tabela não é o
+que o dicionário diz que é.
+
+As três maiores tabelas concentram o volume por razões distintas, e vale
+separá-las. `avaliacoes_desempenho` tem
+`r formatar_inteiro(inventario$linhas[inventario$tabela == "avaliacoes_desempenho"])`
+linhas porque a granularidade real da avaliação é item por etapa, não
+avaliação por alocação: são 14 itens em 3 etapas para cada alocação
+avaliada. `ocupacao_consultor` e `margem_frente_mes` são grandes porque
+expandem entidade por mês de vigência, que é a granularidade que a Camada 3
+exige para sustentar a restrição de capacidade.
+
+## Conformidade ao contrato
+
+```{r conformidade}
+tabela_divergencias <- divergencias |>
+  dplyr::transmute(
+    Tabela = tabela,
+    Coluna = coluna,
+    Divergência = tipo_divergencia,
+    Detalhe = detalhe
+  )
+
+# Gravada mesmo quando vazia, de propósito: o arquivo com zero linha é a
+# evidência de que a verificação rodou e nada encontrou, e é diferente de
+# não haver arquivo nenhum.
+salvar_tabela(tabela_divergencias, "i1_divergencias_contrato")
+
+if (nrow(tabela_divergencias) == 0) {
+  cat("Nenhuma divergência entre o contrato e o dado carregado.\n")
+} else {
+  knitr::kable(
+    tabela_divergencias,
+    caption = "Tabela I.1.2: divergências entre contrato e fonte."
+  )
+}
+```
+
+A verificação cobre quatro formas de divergência: tabela declarada e não
+encontrada, coluna declarada e ausente, coluna presente e não declarada, e
+coluna com tipo diferente do contratado. Coluna extra conta como divergência
+de pleno direito: campo que ninguém declarou é campo que ninguém decidiu, e
+que acabaria virando insumo de modelo sem ter passado por decisão alguma.
+
+## Integridade referencial
+
+```{r integridade}
+tabela_integridade <- integridade |>
+  dplyr::transmute(
+    Tabela = tabela,
+    Coluna = coluna,
+    Referência = referencia,
+    `Valores distintos` = formatar_inteiro(valores_distintos),
+    Órfãos = orfaos
+  )
+
+salvar_tabela(tabela_integridade, "i1_integridade_referencial")
+
+knitr::kable(
+  tabela_integridade,
+  align = c("l", "l", "l", "r", "r"),
+  caption = "Tabela I.1.3: chaves estrangeiras e contagem de órfãos."
+)
+```
+
+São `r nrow(integridade)` referências declaradas, com
+`r sum(integridade$orfaos)` chaves órfãs. Integridade completa aqui não é
+mérito da modelagem e não deve ser lida como tal: o gerador constrói as
+tabelas satélite a partir das entidades, então órfão só apareceria por defeito
+de código. O valor da verificação é ser uma salvaguarda que roda a cada
+execução da pipeline, não uma descoberta sobre os dados.
+
+## Cobertura, no lugar de completude
+
+Análise de dados faltantes é vácua neste conjunto: o gerador preenche o que
+gera, e um mapa de completude cheio de zeros daria aparência de rigor sem
+dizer nada sobre o problema. O que de fato falta aqui não é célula, é linha.
+O consultor que não tem nenhuma skill registrada não tem uma célula vazia
+num formulário, ele simplesmente não existe na tabela de skills.
+
+Essa é a forma de ausência que o modelo vai enfrentar, é ela que produz cold
+start, e uma delas é calibrada contra a realidade.
+
+```{r cobertura-tabela}
+tabela_cobertura <- cobertura |>
+  dplyr::transmute(
+    Tabela = tabela,
+    `Entidade referenciada` = entidade,
+    `Com registro` = com_registro,
+    Total = total,
+    `Sem registro` = sem_registro,
+    Cobertura = formatar_pct(cobertura)
+  )
+
+salvar_tabela(tabela_cobertura, "i1_cobertura_entidades")
+
+knitr::kable(
+  tabela_cobertura,
+  align = c("l", "l", "r", "r", "r", "r"),
+  caption = "Tabela I.1.4: cobertura das tabelas satélite sobre as entidades."
+)
+```
+
+```{r cobertura-figura, fig.width = 7.5, fig.height = 5.5}
+figura <- figura_cobertura_entidades(cobertura)
+salvar_figura(figura, "i1_cobertura_entidades", largura_cm = 18, altura_cm = 13)
+figura
+```
+
+```{r cobertura-numeros}
+pega <- function(tab, col) {
+  linha <- cobertura[cobertura$tabela == tab & cobertura$coluna == col, ]
+  list(cobertura = linha$cobertura, sem = linha$sem_registro, total = linha$total)
+}
+skills <- pega("skills_consultor", "consultor_id")
+aloc_consultor <- pega("alocacoes", "consultor_id")
+aloc_projeto <- pega("alocacoes", "projeto_id")
+```
+
+Três leituras, com status epistêmico diferente entre si.
+
+A cobertura de skills, `r formatar_pct(skills$cobertura)`, é a única com
+âncora empírica: reproduz a medida real de 48,4% dos consultores ativos com
+ao menos uma resposta de formulário, levantada por interseção de hashes no
+último acesso ao ambiente. O número diz que **mais da metade dos consultores
+não tem nenhum atributo de skill**, e isso limita o content-based antes de
+qualquer decisão de algoritmo.
+
+A cobertura de alocação, `r formatar_pct(aloc_consultor$cobertura)` do lado
+do consultor e `r formatar_pct(aloc_projeto$cobertura)` do lado do projeto,
+é consequência direta da fração de cold start parametrizada no gerador,
+calibrada em 17% contra o dado real, com a ressalva de cobertura de join já
+registrada em `docs/mapeamento_schema.md`. A caracterização propriamente dita
+fica para o bloco II.3.
+
+As tabelas com cobertura total (`custo_carregado`, `expertise_funcional`,
+`ferias_consultor`, `idiomas_consultor`, `soft_skills_consultor`,
+`experiencia_setorial`, e as duas de margem) são consequência do gerador, não
+observação: ele produz uma linha por entidade por construção. No dado real
+não há razão para esperar cobertura integral em nenhuma delas, e tratar
+qualquer uma como universal seria erro de leitura.
+
+## Achados do bloco
+
+**Achado I.1.1** *(instrumento)*. O conjunto sintético versionado está
+conforme o contrato de esquema: `r nrow(especificacao)` colunas declaradas em
+`r dplyr::n_distinct(especificacao$tabela)` tabelas, `r nrow(divergencias)`
+divergências de nome ou tipo, e todas as `r nrow(inventario)` chaves
+declaradas são únicas no dado. A conformidade é verificada por código a cada
+execução, não afirmada em prosa, e o mesmo teste falha se gerador e
+dicionário divergirem no futuro.
+
+**Achado I.1.2** *(consequência do gerador)*. A integridade referencial é
+completa: `r nrow(integridade)` referências, `r sum(integridade$orfaos)`
+chaves órfãs. Isso decorre de o gerador construir as satélites a partir das
+entidades e não deve ser lido como propriedade do domínio. No dado real da
+Peers há evidência do contrário: o join entre a tabela de entidades e a de
+alocação cobre apenas 64% dos colaboradores, e essa lacuna é uma limitação
+declarada do projeto, não um problema resolvido.
+
+**Achado I.1.3** *(âncora real, parcial)*. A ausência relevante neste
+conjunto não é célula vazia, é entidade sem registro, e ela é fortemente
+desigual entre tabelas: vai de cobertura integral a
+`r formatar_pct(min(cobertura$cobertura))` no pior caso. O caso de maior
+consequência para a modelagem é skills, com
+`r formatar_pct(skills$cobertura)` de cobertura e
+`r skills$sem` dos `r skills$total` consultores sem nenhum atributo técnico,
+número calibrado contra a medida real de 48,4%. Qualquer componente baseado
+em conteúdo opera, no melhor caso, sobre menos da metade da população.
+
+**Achado I.1.4** *(consequência do gerador)*. Oito das dezoito referências
+têm cobertura integral por construção do gerador, entre elas custo,
+expertise funcional, férias, idiomas e as duas de margem. Nenhuma delas tem
+calibração real de cobertura, e nenhuma análise posterior deve tratá-las
+como universais no dado real sem dizer que essa universalidade é artefato.
