@@ -1,9 +1,10 @@
 #' Salva uma tabela sintética em `data/synthetic/`, como CSV
 #'
 #' Efeito colateral isolado e explícito (ver docs/persona.md): é a única
-#' função do projeto que escreve em disco. `data/synthetic/` é a única
-#' fonte de dados versionada do repositório (CLAUDE.md, regra 7). CSV, não
-#' `.rds`, para o arquivo ficar legível e auditável fora do R.
+#' função do projeto que escreve dados em disco (`salvar_figura()` é a
+#' equivalente para figuras). `data/synthetic/` é a única fonte de dados
+#' versionada do repositório (CLAUDE.md, regra 7). CSV, não `.rds`, para o
+#' arquivo ficar legível e auditável fora do R.
 #'
 #' @param tabela tibble a salvar.
 #' @param nome Nome do arquivo, sem extensão.
