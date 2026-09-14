@@ -19,7 +19,7 @@
 #'
 #' @param dados Lista nomeada de tibbles, de `carregar_dados()`.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
-executar_i3 <- function(dados) {
+executar_i3 <- function(dados, estabilidade = NULL) {
   consultor <- dados$consultores |>
     dplyr::left_join(dados$custo_carregado, by = "consultor_id") |>
     dplyr::mutate(nivel_num = senioridade_numerica(nivel_senioridade))
@@ -125,7 +125,19 @@ executar_i3 <- function(dados) {
     paste0(
       "Verifica que a estrutura de dependência calibrada sobreviveu às etapas ",
       "seguintes do gerador. Não é descoberta sobre a Peers: foram esses ",
-      "números que calibraram o gerador."
+      "números que calibraram o gerador. ",
+      if (is.null(estabilidade)) {
+        ""
+      } else {
+        paste0(
+          "A estabilidade entre realizações é muito desigual, e a comparação ",
+          "pontual só vale onde ela é alta: nível por custo fica em ",
+          formatar_intervalo(estabilidade, "cor_nivel_custo", \(x) formatar_decimal(x, 3)),
+          ", enquanto nível por tempo de casa fica em ",
+          formatar_intervalo(estabilidade, "cor_nivel_tempo_casa", \(x) formatar_decimal(x, 3)),
+          ", faixa larga demais para confrontar com alvo pontual (ver I.0.4)."
+        )
+      }
     ),
 
     "I.3.2", "consequência do gerador",

@@ -19,7 +19,8 @@
 #' @param especificacao Contrato de esquema, de `especificacao_tabelas()`.
 #' @return Lista com `objetos` (tibbles de análise), `tabelas` (formatadas
 #'   para leitura), `figuras` (ggplots) e `achados` (registro validado).
-executar_i1 <- function(dados, especificacao = especificacao_tabelas()) {
+executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
+                         estabilidade = NULL) {
   inventario <- inventariar_tabelas(dados, especificacao)
   divergencias <- verificar_conformidade(dados, especificacao)
   integridade <- verificar_integridade_referencial(dados, especificacao)
@@ -98,16 +99,30 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas()) {
 
     "I.1.3", "âncora real",
     paste0(
-      "A ausência relevante não é célula vazia, é entidade sem registro, e ",
-      "varia de cobertura integral a ", formatar_pct(min(cobertura$cobertura)),
-      " no pior caso. Skills cobre ", formatar_pct(skills$cobertura),
-      " dos consultores, com ", skills$sem_registro, " dos ", skills$total,
-      " sem nenhum atributo técnico."
+      "A ausência relevante não é célula vazia, é entidade sem registro. ",
+      "Skills é o caso de maior consequência: nesta realização cobre ",
+      formatar_pct(skills$cobertura), " dos consultores",
+      if (is.null(estabilidade)) {
+        "."
+      } else {
+        paste0(
+          ", e sobre as realizações a fração **sem** nenhum atributo técnico ",
+          "fica em ", formatar_intervalo(estabilidade, "fracao_sem_skills"), "."
+        )
+      }
     ),
     paste0(
-      "Calibrado contra a medida real de 48,4%. Qualquer componente baseado ",
-      "em conteúdo opera sobre menos da metade da população, o que limita o ",
-      "content-based antes de qualquer escolha de algoritmo."
+      "Calibrado contra a medida real de 48,4%. Um componente baseado em ",
+      "conteúdo opera sobre aproximadamente metade da população, e isso o ",
+      "limita antes de qualquer escolha de algoritmo. ",
+      if (is.null(estabilidade)) {
+        ""
+      } else {
+        paste0(
+          "O intervalo cruza a marca de metade, então a afirmação de que é ",
+          "*mais* da metade não se sustenta numa realização única: ver I.0.2."
+        )
+      }
     ),
 
     "I.1.4", "consequência do gerador",

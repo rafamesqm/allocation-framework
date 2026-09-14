@@ -28,7 +28,8 @@ parametros <- list(
   fracao_com_avaliacao = 0.5,
   dias_ferias = 30,
   ano_ferias = 2026,
-  n_oportunidades = 4302 # soma do censo real por situação, ver mapeamento_schema.md
+  n_oportunidades = 4302, # soma do censo real por situação, ver mapeamento_schema.md
+  n_replicas_estabilidade = 100 # realizações para o intervalo de Monte Carlo do bloco I.0
 )
 
 list(
@@ -143,14 +144,32 @@ list(
     carregar_dados()
   }),
 
-  tar_target(bloco_i1, executar_i1(dados_eda)),
+  # Estabilidade de Monte Carlo: repete a geração inteira sobre várias
+  # sementes, para os blocos poderem reportar intervalo em vez de ponto. Não
+  # lê de dados_eda de propósito, porque precisa variar a semente e o dado
+  # versionado é de uma semente só.
+  tar_target(replicas_estabilidade, simular_estabilidade(
+    sementes = seq_len(parametros$n_replicas_estabilidade),
+    n_consultores = parametros$n_consultores,
+    n_projetos = parametros$n_projetos,
+    data_referencia = parametros$data_referencia
+  )),
+  tar_target(bloco_i0, executar_i0(replicas_estabilidade)),
+  tar_target(bloco_i0_tabelas, salvar_tabelas_bloco(bloco_i0$tabelas), format = "file"),
+  tar_target(bloco_i0_figuras, salvar_figuras_bloco(
+    bloco_i0$figuras, list(i0_estabilidade = c(17, 14))
+  ), format = "file"),
+  tar_target(bloco_i0_achados, salvar_tabela(bloco_i0$achados, "achados_i0"), format = "file"),
+  tar_target(estabilidade, bloco_i0$objetos$estabilidade),
+
+  tar_target(bloco_i1, executar_i1(dados_eda, estabilidade = estabilidade)),
   tar_target(bloco_i1_tabelas, salvar_tabelas_bloco(bloco_i1$tabelas), format = "file"),
   tar_target(bloco_i1_figuras, salvar_figuras_bloco(
     bloco_i1$figuras, list(i1_cobertura_entidades = c(18, 13))
   ), format = "file"),
   tar_target(bloco_i1_achados, salvar_tabela(bloco_i1$achados, "achados_i1"), format = "file"),
 
-  tar_target(bloco_i2, executar_i2(dados_eda)),
+  tar_target(bloco_i2, executar_i2(dados_eda, estabilidade = estabilidade)),
   tar_target(bloco_i2_tabelas, salvar_tabelas_bloco(bloco_i2$tabelas), format = "file"),
   tar_target(bloco_i2_figuras, salvar_figuras_bloco(
     bloco_i2$figuras,
@@ -158,7 +177,7 @@ list(
   ), format = "file"),
   tar_target(bloco_i2_achados, salvar_tabela(bloco_i2$achados, "achados_i2"), format = "file"),
 
-  tar_target(bloco_i3, executar_i3(dados_eda)),
+  tar_target(bloco_i3, executar_i3(dados_eda, estabilidade = estabilidade)),
   tar_target(bloco_i3_tabelas, salvar_tabelas_bloco(bloco_i3$tabelas), format = "file"),
   tar_target(bloco_i3_figuras, salvar_figuras_bloco(
     bloco_i3$figuras, list(i3_associacoes_procedencia = c(17, 16))

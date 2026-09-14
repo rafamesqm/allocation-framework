@@ -1,0 +1,115 @@
+---
+title: "Bloco I.0 Preâmbulo metodológico e estabilidade"
+subtitle: "EDA não direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_i0")
+obj <- bloco$objetos
+```
+
+## O que este capítulo pode concluir
+
+A análise exploratória deste trabalho roda sobre dados sintéticos cujo
+mecanismo gerador é conhecido e foi escrito neste projeto. Isso impõe um
+limite que precisa ser dito antes de qualquer número: **uma EDA sobre dado
+sintético não descobre o que foi plantado nele.** Constatar sobredispersão de
+grau num dado gerado por Binomial Negativa não é achado; é conferência.
+
+O capítulo não contorna esse limite, ele o declara. Todo achado carrega uma
+etiqueta que diz o que aquele resultado autoriza a afirmar.
+
+```{r etiquetas}
+mostrar_tabela(
+  bloco$tabelas$i0_etiquetas,
+  "Tabela I.0.1: status epistêmico dos achados.",
+  c("l", "l")
+)
+```
+
+A distribuição final das etiquetas é, por si só, um resultado: ela mede o
+quanto a Parte I fala sobre a Peers e o quanto fala sobre o instrumento. A
+resposta honesta é que fala pouco sobre a empresa, e por isso a contribuição
+desta frente é metodológica, não substantiva. A frente direcionada, na Parte
+II, é que carrega as decisões de modelagem.
+
+## Por que um intervalo, e não um número
+
+O conjunto de dados versionado é **uma realização** do gerador, produzida com
+uma semente fixa. Todo valor reportado nos blocos seguintes vem dela. Se a
+população sintética fosse sorteada de novo, cada número se moveria, e nada no
+capítulo dizia quanto.
+
+Este bloco mede isso, repetindo a geração completa sobre
+`r obj$n_replicas` realizações e reportando mediana e intervalo de
+`r round(100 * obj$nivel)`% para cada grandeza que sustenta um achado.
+
+Uma distinção que precisa ficar explícita, porque confundi-la seria grave.
+**O intervalo aqui mede variabilidade do gerador, não incerteza sobre a
+Peers.** O dado real é o que é; a incerteza sobre ele vem das ressalvas de
+cobertura de join registradas em `mapeamento_schema.md`, sobretudo dos 64% de
+correspondência entre a tabela de entidades e a de alocação. Ler este
+intervalo como margem de erro sobre a empresa transformaria variabilidade de
+código em afirmação empírica, que é exatamente o erro que este capítulo
+existe para evitar.
+
+## Estabilidade das grandezas
+
+```{r figura, fig.width = 7.5, fig.height = 6}
+bloco$figuras$i0_estabilidade
+```
+
+```{r tabela}
+mostrar_tabela(
+  bloco$tabelas$i0_estabilidade,
+  "Tabela I.0.2: variabilidade de Monte Carlo por grandeza, com os achados que cada uma sustenta.",
+  c("l", "r", "r", "r", "r", "r", "l", "l")
+)
+```
+
+O corte entre frágil e estável está em
+`r formatar_pct(obj$limite_fragilidade)` de amplitude relativa. É convenção
+de leitura declarada, não teste: serve para ordenar prioridades de reescrita,
+não para decidir nada sozinho.
+
+Três leituras merecem destaque.
+
+**A fração de consultores sem nenhuma skill fica em
+`r formatar_intervalo(obj$estabilidade, "fracao_sem_skills")`.** O intervalo
+`r if (obj$cruza_metade) "cruza" else "não cruza"` a marca de metade da
+população. Como o achado I.1.3 havia sido escrito a partir de uma realização
+só, ele afirmava que *mais* da metade dos consultores não tem atributo de
+conteúdo, e essa afirmação inverte de sinal dentro do intervalo. O enunciado
+foi reescrito para reportar a faixa. A conclusão de fundo sobrevive, e é ela
+que importa para a wave 3: o componente de conteúdo opera sobre
+aproximadamente metade da população.
+
+**A invariância de algumas grandezas não é robustez.** A fração de cold start
+do consultor sai idêntica em todas as realizações porque é um parâmetro
+imposto ao gerador, não uma medida emergente. Reportá-la como achado devolve
+a entrada em forma de resultado, e o bloco II.3 precisa tratá-la assim. As
+duas medidas de massa nos limites são invariantes por outro motivo: foram
+corrigidas para zero exato.
+
+**As quatro correlações calibradas têm estabilidade muito desigual.** Nível
+por custo é praticamente fixo entre realizações, enquanto nível por tempo de
+casa varia numa faixa larga. A diferença tem explicação simples: numa amostra
+de 285 pessoas, uma correlação em torno de 0,34 tem erro padrão de cerca de
+0,05, e o intervalo observado é compatível com isso. A consequência prática é
+que a comparação pontual dessa correlação contra o alvo real não sustenta
+conclusão nenhuma, e que a diferença relativa reportada na tabela de
+validação de utilidade é métrica enganosa nessa escala.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

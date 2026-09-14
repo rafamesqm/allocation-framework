@@ -7,7 +7,7 @@
 #'
 #' @param dados Lista nomeada de tibbles, de `carregar_dados()`.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
-executar_i2 <- function(dados) {
+executar_i2 <- function(dados, estabilidade = NULL) {
   resumo_consultores <- dplyr::bind_rows(
     resumir_numericas(dados$consultores),
     resumir_numericas(dados$custo_carregado, "custo_carregado")
@@ -190,7 +190,16 @@ executar_i2 <- function(dados) {
       "Com o eixo temporal, pct_ocupacao vira grandeza interpretável: mediana ",
       formatar_decimal(ocupacao$mediana), " de capacidade usada, com ",
       formatar_pct(acima_capacidade), " dos pares consultor-mês acima da ",
-      "capacidade integral."
+      "capacidade integral",
+      if (is.null(estabilidade)) {
+        "."
+      } else {
+        paste0(
+          " nesta realização, ou ",
+          formatar_intervalo(estabilidade, "acima_capacidade"),
+          " sobre as realizações."
+        )
+      }
     ),
     paste0(
       "O histórico observado viola a restrição de capacidade que a wave 4 ",
