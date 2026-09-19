@@ -42,23 +42,51 @@ list(
   )),
   tar_target(consultores_arquivo, salvar_synthetic(consultores, "consultores"), format = "file"),
 
-  tar_target(skills_consultor, gerar_skills_consultor(consultores, espaco_skills)),
+  # Os sinais de conteúdo derivados de formulário compartilham um único
+  # conjunto de respondentes, porque na fonte real vêm da mesma campanha de
+  # três planilhas (docs/mapeamento_schema.md). Quem não respondeu não tem
+  # nenhum deles. Ver sortear_respondentes_formulario() para a consequência
+  # estrutural de sortear cobertura por sinal, que é o que se fazia antes.
+  #
+  # `idiomas_consultor` fica de fora da restrição de propósito: sua fonte é
+  # `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os 285
+  # ativos, e não o formulário. É o único sinal de conteúdo genuinamente
+  # universal, e tratá-lo como os demais apagaria a única cobertura completa
+  # que os dados reais oferecem.
+  tar_target(respondentes_formulario, sortear_respondentes_formulario(consultores)),
+
+  tar_target(skills_consultor, gerar_skills_consultor(
+    consultores, espaco_skills, respondentes = respondentes_formulario
+  )),
   tar_target(skills_consultor_arquivo, salvar_synthetic(skills_consultor, "skills_consultor"), format = "file"),
 
+  # Latente: a experiência setorial existe tenha ou não sido declarada, e é a
+  # ela que `gerar_alocacoes()` responde. Só a parte observada é salva.
   tar_target(experiencia_setorial, gerar_experiencia_setorial(consultores)),
-  tar_target(experiencia_setorial_arquivo, salvar_synthetic(experiencia_setorial, "experiencia_setorial"), format = "file"),
+  tar_target(experiencia_setorial_observada, restringir_a_respondentes(
+    experiencia_setorial, respondentes_formulario
+  )),
+  tar_target(experiencia_setorial_arquivo, salvar_synthetic(
+    experiencia_setorial_observada, "experiencia_setorial"
+  ), format = "file"),
 
   tar_target(expertise_funcional_arquivo, salvar_synthetic(
-    gerar_expertise_funcional(consultores), "expertise_funcional"
+    restringir_a_respondentes(
+      gerar_expertise_funcional(consultores), respondentes_formulario
+    ), "expertise_funcional"
   ), format = "file"),
   tar_target(idiomas_consultor_arquivo, salvar_synthetic(
     gerar_idiomas_consultor(consultores), "idiomas_consultor"
   ), format = "file"),
   tar_target(certificacoes_consultor_arquivo, salvar_synthetic(
-    gerar_certificacoes_consultor(consultores), "certificacoes_consultor"
+    gerar_certificacoes_consultor(
+      consultores, respondentes = respondentes_formulario
+    ), "certificacoes_consultor"
   ), format = "file"),
   tar_target(soft_skills_consultor_arquivo, salvar_synthetic(
-    gerar_soft_skills_consultor(consultores), "soft_skills_consultor"
+    restringir_a_respondentes(
+      gerar_soft_skills_consultor(consultores), respondentes_formulario
+    ), "soft_skills_consultor"
   ), format = "file"),
 
   tar_target(projetos, gerar_projetos(

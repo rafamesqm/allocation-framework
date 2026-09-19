@@ -22,9 +22,15 @@
 #' Cobertura populacional calibrada pela Sexta rodada
 #' (docs/mapeamento_schema.md): só 48,4% dos consultores ativos (138 de 285)
 #' têm ao menos uma resposta nas planilhas de skills, medido por interseção
-#' de hashes de e-mail. Um consultor sorteado como não respondente não
-#' aparece nesta tabela (cold start do lado do conteúdo), em vez de todo
-#' consultor ter cobertura garantida como antes dessa calibração.
+#' de hashes de e-mail. Um consultor não respondente não aparece nesta
+#' tabela (cold start do lado do conteúdo), em vez de todo consultor ter
+#' cobertura garantida como antes dessa calibração.
+#'
+#' O conjunto de respondentes chega por argumento, e não é sorteado aqui,
+#' por ser compartilhado com os demais sinais de formulário (ver
+#' `sortear_respondentes_formulario()`). Sortear dentro de cada gerador
+#' faria as ausências parecerem independentes entre si, quando na fonte real
+#' elas são a mesma pessoa não tendo respondido a mesma campanha.
 #'
 #' @param consultores tibble produzido por `gerar_consultores()` (usa só
 #'   `consultor_id`).
@@ -36,9 +42,9 @@
 #' @param cobertura_fora_categoria Proporção das skills fora da categoria
 #'   principal que o consultor conhece (skill ocasional fora da especialidade).
 #' @param recencia_maxima_dias Teto, em dias, para a recência da skill.
-#' @param cobertura_populacional Proporção de consultores que respondeu
-#'   alguma planilha de skills (ver detalhe acima); o resto não aparece na
-#'   tabela retornada.
+#' @param respondentes Vetor de `consultor_id` que respondeu alguma planilha
+#'   de skills, de `sortear_respondentes_formulario()`; o resto não aparece
+#'   na tabela retornada.
 #' @return tibble longo: `consultor_id`, `skill_id`, `proficiencia`,
 #'   `recencia_dias`. Um consultor sem nenhuma skill sorteada (cold start do
 #'   lado do conteúdo) simplesmente não aparece nesta tabela.
@@ -47,15 +53,17 @@ gerar_skills_consultor <- function(consultores,
                                     n_categorias_principais = 2,
                                     cobertura_categoria_principal = 0.6,
                                     cobertura_fora_categoria = 0.05,
+                                    respondentes = NULL,
                                     recencia_maxima_dias = 730,
-                                    cobertura_populacional = 0.484,
                                     ondas_recencia_dias = c(110, 365, 620),
                                     dispersao_onda_dias = 15) {
   escala_proficiencia <- c("Iniciante", "Básico", "Médio", "Avançado")
   categorias <- unique(espaco_skills$categoria)
 
-  respondeu <- stats::runif(nrow(consultores)) < cobertura_populacional
-  consultores_respondentes <- consultores$consultor_id[respondeu]
+  if (is.null(respondentes)) {
+    respondentes <- sortear_respondentes_formulario(consultores)
+  }
+  consultores_respondentes <- intersect(consultores$consultor_id, respondentes)
 
   # Recência é sorteada por consultor, não por skill, e em torno de poucas
   # ondas. As duas coisas são estruturais, não cosméticas.
