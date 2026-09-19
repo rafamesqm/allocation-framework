@@ -44,6 +44,10 @@ medir_realizacao <- function(semente,
 
   cobertura_skills <- dplyr::n_distinct(skills$consultor_id) / nrow(consultores)
 
+  grau_consultor <- dplyr::count(alocacoes, consultor_id)$n
+  grau_projeto <- dplyr::count(alocacoes, projeto_id)$n
+  linha_base <- medir_linha_base_popularidade(alocacoes, consultores, tamanhos = 20)
+
   tibble::tibble(
     semente = semente,
     densidade_R = nrow(alocacoes) / (nrow(consultores) * nrow(projetos)),
@@ -64,6 +68,11 @@ medir_realizacao <- function(semente,
     acima_capacidade = mean(ocupacao$pct_ocupacao > 1),
     grau_medio_consultor = nrow(alocacoes) / dplyr::n_distinct(alocacoes$consultor_id),
     taxa_mesmo_setor = mean(grupo_consultor == setor_projeto, na.rm = TRUE),
+    gini_grau_consultor = calcular_lorenz(grau_consultor)$gini,
+    gini_grau_projeto = calcular_lorenz(grau_projeto)$gini,
+    dispersao_grau_consultor = stats::var(grau_consultor) / mean(grau_consultor),
+    dispersao_grau_projeto = stats::var(grau_projeto) / mean(grau_projeto),
+    recall_popularidade_20 = linha_base$recall,
     massa_pct_alocacao_em_1 = mean(alocacoes$pct_alocacao == 1),
     massa_horas_mes_em_0 = mean(alocacoes$horas_mes == 0)
   )

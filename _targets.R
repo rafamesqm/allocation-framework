@@ -201,5 +201,13 @@ list(
     bloco_i5$figuras,
     list(i5_distribuicao_grau = c(17, 9), i5_tamanho_time = c(17, 9))
   ), format = "file"),
-  tar_target(bloco_i5_achados, salvar_tabela(bloco_i5$achados, "achados_i5"), format = "file")
+  tar_target(bloco_i5_achados, salvar_tabela(bloco_i5$achados, "achados_i5"), format = "file"),
+
+  # Parte II, direcionada ---------------------------------------------------
+  tar_target(bloco_ii1, executar_ii1(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii1_tabelas, salvar_tabelas_bloco(bloco_ii1$tabelas), format = "file"),
+  tar_target(bloco_ii1_figuras, salvar_figuras_bloco(
+    bloco_ii1$figuras, list(ii1_lorenz = c(16, 10), ii1_linha_base = c(16, 10))
+  ), format = "file"),
+  tar_target(bloco_ii1_achados, salvar_tabela(bloco_ii1$achados, "achados_ii1"), format = "file")
 )
