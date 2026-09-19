@@ -31,7 +31,19 @@
 #' @param legenda_estetica Estética a que o título de legenda se aplica,
 #'   `"fill"` (default, preenchimento de barra e área) ou `"colour"` (linha
 #'   e ponto). Ignorado quando `legenda` é `NULL`.
+#' **Título e subtítulo são quebrados em linhas automaticamente.** O ggplot2
+#' não quebra nem avisa: texto mais largo que a área de desenho simplesmente
+#' sai pela borda direita do PNG, e some sem erro nenhum. Foi assim que o
+#' subtítulo do bloco II.3 saiu cortado, e o defeito não aparece em teste que
+#' só verifica se o arquivo é um PNG válido. Quebrar aqui protege toda figura
+#' do projeto de uma vez, em vez de exigir que cada chamada conte caracteres.
+#'
+#' As larguras são diferentes porque o subtítulo usa fonte menor que o título
+#' (ver `tema_monografia()`) e por isso cabe mais texto na mesma largura.
+#'
 #' @param fonte Nota de rodapé.
+#' @param largura_titulo,largura_subtitulo Largura máxima, em caracteres,
+#'   antes da quebra de linha.
 #' @return Objeto de rótulos do ggplot2, para somar ao gráfico.
 rotular_figura <- function(titulo,
                             eixo_x,
@@ -39,7 +51,9 @@ rotular_figura <- function(titulo,
                             subtitulo = NULL,
                             legenda = NULL,
                             legenda_estetica = c("fill", "colour"),
-                            fonte = "Fonte: elaboração própria sobre os dados sintéticos do projeto.") {
+                            fonte = "Fonte: elaboração própria sobre os dados sintéticos do projeto.",
+                            largura_titulo = 70,
+                            largura_subtitulo = 95) {
   if (missing(titulo) || !is.character(titulo) || length(titulo) != 1 || !nzchar(titulo)) {
     stop("Toda figura da monografia precisa de título.", call. = FALSE)
   }
@@ -53,8 +67,8 @@ rotular_figura <- function(titulo,
   legenda_estetica <- match.arg(legenda_estetica)
 
   rotulos <- list(
-    title = titulo,
-    subtitle = subtitulo,
+    title = quebrar_rotulo(titulo, largura_titulo),
+    subtitle = quebrar_rotulo(subtitulo, largura_subtitulo),
     x = eixo_x,
     y = eixo_y,
     caption = fonte
@@ -64,4 +78,21 @@ rotular_figura <- function(titulo,
   }
 
   do.call(ggplot2::labs, rotulos)
+}
+
+#' Quebra um rótulo de figura em linhas, respeitando os limites de palavra
+#'
+#' `strwrap()` já faz o trabalho; o que esta função acrescenta é passar `NULL`
+#' adiante sem tropeçar, porque subtítulo é opcional, e devolver uma string
+#' única com quebras em vez do vetor de linhas que `strwrap()` retorna.
+#'
+#' @param texto Texto do rótulo, ou `NULL`.
+#' @param largura Largura máxima em caracteres.
+#' @return O texto com quebras de linha, ou `NULL` se a entrada for `NULL`.
+quebrar_rotulo <- function(texto, largura) {
+  if (is.null(texto) || !nzchar(texto)) {
+    return(texto)
+  }
+
+  paste(strwrap(texto, width = largura), collapse = "\n")
 }

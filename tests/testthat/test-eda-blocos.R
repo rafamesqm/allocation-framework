@@ -120,3 +120,47 @@ test_that("salvar_figuras_bloco respeita dimensao por figura e cai no padrao sem
   expect_length(caminhos, 2)
   expect_true(all(file.exists(caminhos)))
 })
+
+test_that("titulo e subtitulo longos sao quebrados, e nao cortados na borda", {
+  # O ggplot2 nao quebra nem avisa: texto mais largo que a area de desenho sai
+  # pela borda direita do PNG e some sem erro. Teste que so verifica se o
+  # arquivo e um PNG valido nao pega isso.
+  subtitulo_longo <- paste(rep("palavra", 40), collapse = " ")
+
+  rotulos <- rotular_figura(
+    titulo = paste(rep("titulo", 30), collapse = " "),
+    subtitulo = subtitulo_longo,
+    eixo_x = "x", eixo_y = "y"
+  )
+
+  expect_true(grepl("\n", rotulos$title, fixed = TRUE))
+  expect_true(grepl("\n", rotulos$subtitle, fixed = TRUE))
+  expect_true(all(nchar(strsplit(rotulos$title, "\n", fixed = TRUE)[[1]]) <= 70))
+  expect_true(all(nchar(strsplit(rotulos$subtitle, "\n", fixed = TRUE)[[1]]) <= 95))
+})
+
+test_that("rotulo curto e subtitulo ausente passam intactos", {
+  rotulos <- rotular_figura(titulo = "Titulo curto", eixo_x = "x", eixo_y = NULL)
+
+  expect_equal(rotulos$title, "Titulo curto")
+  expect_null(rotulos$subtitle)
+})
+
+test_that("nenhuma figura da pipeline tem rotulo cortado na borda", {
+  # Varre todos os blocos: qualquer linha de titulo ou subtitulo acima do
+  # limite denuncia uma figura que sairia com texto fora do PNG.
+  blocos <- c("bloco_i0", "bloco_i1", "bloco_i2", "bloco_i4", "bloco_i5",
+              "bloco_ii1", "bloco_ii2", "bloco_ii3")
+
+  linhas <- unlist(lapply(blocos, function(nome) {
+    figuras <- targets::tar_read_raw(nome, store = here::here("_targets"))$figuras
+    unlist(lapply(figuras, function(figura) {
+      c(
+        strsplit(figura$labels$title %||% "", "\n", fixed = TRUE)[[1]],
+        strsplit(figura$labels$subtitle %||% "", "\n", fixed = TRUE)[[1]]
+      )
+    }))
+  }))
+
+  expect_true(all(nchar(linhas) <= 95))
+})
