@@ -104,8 +104,7 @@ severa. Adotar a autoavaliação como rótulo daria uma variável em que quase
 tudo é o mesmo valor, com pouco a discriminar.
 
 **A etapa adotada é parte da definição do rótulo, não detalhe de
-implementação.** O candidato (a) do dicionário já previa normalização por
-avaliador; a medida mostra que ela é obrigatória.
+implementação.**
 
 Vale separar duas coisas que a tabela mistura. Divergir em **nível** é
 leniência, e normalização resolve. Divergir em **ordem** é mais grave, porque
@@ -131,9 +130,25 @@ mostrar_tabela(
 O primeiro componente explica
 `r formatar_pct(dim$variancia_primeiro_componente)` da variância, contra
 `r formatar_pct(1 / dim$n_itens)` que `r dim$n_itens` itens independentes
-dariam. A correlação média entre itens é
-`r formatar_decimal(dim$correlacao_media_itens, 2)` e o alfa de Cronbach,
-`r formatar_decimal(dim$alfa_cronbach, 2)`, acima do piso usual de 0,7.
+dariam.
+
+Cada medida sai em duas versões, e as duas ficam reportadas porque nenhuma
+é neutra. A de Pearson trata a nota de três níveis como 1, 2 e 3, o que
+supõe espaçamento igual entre categorias e **atenua** a correlação por causa
+da discretização grosseira. A policórica supõe, em troca, uma normal latente
+por trás de cada item e estima a correlação entre as latentes. A correlação
+média entre itens vai de
+`r formatar_decimal(dim$correlacao_media_itens, 2)` por Pearson a
+`r formatar_decimal(dim$correlacao_media_policorica, 2)` por policórica, e o
+alfa de `r formatar_decimal(dim$alfa_cronbach, 2)` bruto a
+`r formatar_decimal(dim$alfa_ordinal, 2)` ordinal, os dois acima do piso
+usual de 0,7.
+
+A distância entre as duas versões é informativa por si: ela mede quanto da
+confiabilidade estava escondida pela discretização. A implementação da
+policórica é própria, em R base, porque `mvtnorm` está instalado nesta
+máquina mas não no `renv.lock`, e a regra de reprodutibilidade exige que o
+auditor rode a pipeline depois de um `renv::restore()`.
 
 **Isso autoriza o rótulo escalar**: colapsar os 14 itens numa média não
 destrói estrutura, porque a estrutura é comum.
@@ -144,6 +159,45 @@ histórias legítimas: variância entre pessoas é aptidão, variância dentro d
 pessoa é adequação ao projeto, que é justamente o que a alocação tenta
 otimizar. O que importava era saber que existe a primeira, porque sem ela não
 há o que recomendar.
+
+## Normalizar por avaliador não é refinamento
+
+O candidato (a) diz "desempenho **normalizado por avaliador**". Vale medir o
+efeito disso em vez de repetir a palavra.
+
+No sintético toda alocação passa pelas três etapas, então a leniência de
+cada uma é um deslocamento constante que se cancela na comparação entre
+consultores. Isso esconde o problema que a normalização existe para
+resolver. Na Peers, alocações diferentes são avaliadas por gestores
+diferentes, e a leniência de quem avaliou entra na comparação como variação
+espúria entre pessoas.
+
+A tabela abaixo reproduz esse regime atribuindo um avaliador sorteado a cada
+alocação. É cenário declarado, não dado: serve para demonstrar a
+necessidade, não para estimar a magnitude do problema na Peers, que depende
+de `avaliador_id` e é desconhecida.
+
+```{r construcoes}
+mostrar_tabela(
+  bloco$tabelas$ii5_construcoes_rotulo,
+  "Tabela II.5.5: efeito de normalizar, sob um avaliador por alocação.",
+  c("l", "r", "r")
+)
+```
+
+Sem normalizar,
+`r formatar_pct(obj$bruta$contaminacao_avaliador)` da variância do rótulo é
+explicada por **quem** avaliou, e não por quem foi avaliado. Padronizando
+dentro de cada avaliador, a contaminação vai a zero e o sinal entre
+consultores **sobe**, de
+`r formatar_pct(obj$bruta$sinal_entre_consultores)` para
+`r formatar_pct(obj$normalizada$sinal_entre_consultores)`.
+
+Não há troca a ponderar: a normalização remove variação espúria e ganha
+sinal. A forma usada é padronização dentro do avaliador, que tira o nível e
+preserva a ordem. Formas mais elaboradas, como modelo de limiar por
+avaliador, exigiriam `avaliador_id`, que o dicionário registra como
+disponibilidade parcial e que não existe no sintético.
 
 ## A margem não cabe dentro de `R`
 
@@ -178,13 +232,57 @@ que é a fonte do problema do candidato (c).
 ```{r candidatos}
 mostrar_tabela(
   bloco$tabelas$ii5_candidatos_rotulo,
-  "Tabela II.5.5: os quatro candidatos do dicionário contra o medido.",
+  "Tabela II.5.6: os quatro candidatos do dicionário contra o medido.",
   c("l", "l", "l", "c", "l")
 )
 ```
 
-Sobrevivem `r nrow(obj$candidatos_viaveis)`:
+Têm mecanismo que se sustenta `r nrow(obj$candidatos_viaveis)`:
 **`r paste(obj$candidatos_viaveis$candidato, collapse = " e ")`**.
+
+A tabela separa dois eixos de propósito. **Mecanismo** diz se a grandeza é
+construível a partir do que a Peers tem. **Escala calibrada** diz se o
+sintético reproduz o nível dela de forma crível. Colapsar os dois num
+veredito só confundiria coisas diferentes, e o candidato (d) é justamente o
+caso que obriga a distinção.
+
+## A margem estrutural: mecanismo certo, escala que não fecha
+
+Conferida a plausibilidade dos **valores**, e não só a estrutura dos zeros,
+a margem estrutural não fecha.
+`r formatar_pct(margem$fracao_margem_estrutural_negativa)` dos projetos com
+contrato positivo saem com margem negativa, e no quinto percentil o prejuízo
+chega a `r formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1)`
+vezes o valor do contrato. A mediana,
+`r formatar_pct(margem$margem_estrutural_relativa_mediana)`, é plausível; a
+cauda não.
+
+**É o primeiro caso no capítulo de grandezas individualmente calibradas que
+não fecham em conjunto.** `valor_contrato`, `horas_mes` e `custo_carregado`
+têm cada um sua âncora real, e a combinação dos três produz margem
+implausível.
+
+A hipótese mais provável é de granularidade. A fonte de `valor_contrato` é a
+tabela `actarnet_alocacao_pessoas`, cujo nome e volume sugerem grão de
+alocação e pessoa, enquanto o dicionário a trata como atributo de projeto.
+Se for isso, o bloco está comparando o valor de uma pessoa contra o custo do
+time inteiro. **Não é verificável**: o acesso encerrou, e isso fica como
+limitação nomeada, não como pendência.
+
+Duas correções já foram feitas no gerador por causa deste diagnóstico, e
+nenhuma das duas resolveu o resíduo. A primeira foi de unidade:
+`custo_carregado` vezes `horas_mes` dá reais por mês, e estava sendo
+subtraído de um valor total, sem integrar pela duração. A segunda foi de
+acoplamento: contrato, esforço estimado e esforço de fato alocado eram
+sorteados de forma independente, com correlação de 0,05 entre esforço
+estimado e horas alocadas, então um projeto de contrato pequeno podia
+receber uma equipe grande por muito tempo. Depois das duas, a correlação
+entre custo e contrato em log subiu de 0,01 para 0,87 e a cauda encolheu
+duas ordens de grandeza, mas a fração negativa continua alta.
+
+A consequência prática: o candidato (d) é a forma certa de calcular margem,
+e o sintético não calibra a escala dela. A wave 4 pode usá-lo para testar a
+mecânica do otimizador, não para dimensionar o objetivo econômico.
 
 **A decisão que este bloco habilita é (a) para `R` e (d) para `f`.** A célula
 de `R` é o desempenho, normalizado por avaliador e com a etapa declarada. A

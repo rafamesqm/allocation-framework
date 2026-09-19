@@ -37,13 +37,15 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     dados$avaliacoes_desempenho, etapa = etapa_rotulo
   )
   margem <- medir_atribuibilidade_da_margem(dados)
+  construcoes <- comparar_construcoes_de_rotulo(dados$avaliacoes_desempenho)
 
   candidatos <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = margem$tem_consultor_na_margem,
     fracao_projetos_com_equipe = margem$fracao_projetos_com_equipe,
     custo_zero_frente_mes = margem$custo_zero_frente_mes,
     custo_zero_explicavel_estrutural = margem$custo_zero_estrutural_sem_alocacao,
-    alfa_cronbach = dimensionalidade$alfa_cronbach
+    alfa_cronbach = dimensionalidade$alfa_ordinal,
+    fracao_margem_negativa = margem$fracao_margem_estrutural_negativa
   )
   candidatos_viaveis <- dplyr::filter(candidatos, viavel)
 
@@ -65,6 +67,9 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     dimensionalidade = dimensionalidade,
     variancia_escore = variancia_escore,
     margem = margem,
+    construcoes = construcoes,
+    bruta = construcoes[construcoes$forma == "Nota bruta", ],
+    normalizada = construcoes[construcoes$forma == "Normalizada por avaliador", ],
     candidatos = candidatos,
     candidatos_viaveis = candidatos_viaveis,
     par_mais_divergente = par_mais_divergente,
@@ -111,8 +116,10 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
         "Variância do primeiro componente",
         "Variância dos dois primeiros",
         "Se os itens fossem independentes",
-        "Correlação média entre itens",
-        "Alfa de Cronbach",
+        "Correlação média entre itens (Pearson)",
+        "Correlação média entre itens (policórica)",
+        "Alfa de Cronbach (bruto)",
+        "Alfa ordinal (policórico)",
         "Fração da variância entre consultores"
       ),
       Valor = c(
@@ -122,14 +129,24 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
         formatar_pct(dimensionalidade$variancia_dois_primeiros),
         formatar_pct(1 / dimensionalidade$n_itens),
         formatar_decimal(dimensionalidade$correlacao_media_itens, 3),
+        formatar_decimal(dimensionalidade$correlacao_media_policorica, 3),
         formatar_decimal(dimensionalidade$alfa_cronbach, 3),
+        formatar_decimal(dimensionalidade$alfa_ordinal, 3),
         formatar_pct(variancia_escore$fracao_entre_consultores)
       )
     ),
+    ii5_construcoes_rotulo = construcoes |>
+      dplyr::transmute(
+        `Forma do rótulo` = forma,
+        `Variância explicada pelo avaliador` = formatar_pct(contaminacao_avaliador),
+        `Sinal entre consultores` = formatar_pct(sinal_entre_consultores)
+      ),
     ii5_candidatos_rotulo = candidatos |>
       dplyr::transmute(
         Candidato = candidato, `Construção` = descricao, Exige = exige,
-        `Viável` = ifelse(viavel, "sim", "não"), Justificativa = justificativa
+        `Mecanismo` = ifelse(viavel, "sim", "não"),
+        `Escala calibrada` = ifelse(calibrado, "sim", "não"),
+        Justificativa = justificativa
       )
   )
 
@@ -168,9 +185,8 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     paste0(
       "**A etapa adotada é parte da definição do rótulo, não detalhe de ",
       "implementação.** Adotar a autoavaliação daria um rótulo em que quase ",
-      "tudo é ACIMA, com pouco a discriminar. O candidato (a) do dicionário ",
-      "já previa normalização por avaliador, e a medida mostra que ela é ",
-      "obrigatória, não opcional."
+      "tudo é ACIMA, com pouco a discriminar. O achado II.5.7 mede o efeito ",
+      "de normalizar, em vez de deduzi-lo daqui."
     ),
 
     "II.5.2", "instrumento",
@@ -179,14 +195,22 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "deles é escala confiável: primeiro componente em ",
       formatar_pct(dimensionalidade$variancia_primeiro_componente),
       " contra ", formatar_pct(1 / dimensionalidade$n_itens),
-      " que itens independentes dariam, correlação média entre itens de ",
+      " que itens independentes dariam. A correlação média entre itens é ",
       formatar_decimal(dimensionalidade$correlacao_media_itens, 2),
-      " e alfa de Cronbach de ",
-      formatar_decimal(dimensionalidade$alfa_cronbach, 2), "."
+      " por Pearson e ",
+      formatar_decimal(dimensionalidade$correlacao_media_policorica, 2),
+      " por policórica, e o alfa vai de ",
+      formatar_decimal(dimensionalidade$alfa_cronbach, 2), " bruto a ",
+      formatar_decimal(dimensionalidade$alfa_ordinal, 2), " ordinal."
     ),
     paste0(
       "Autoriza o rótulo escalar: colapsar os itens numa média não destrói ",
-      "estrutura, porque a estrutura é comum. **Este bloco mediu alfa ",
+      "estrutura, porque a estrutura é comum. A distância entre as duas ",
+      "versões de cada medida é o preço da discretização: tratar nota de ",
+      "três níveis como 1, 2 e 3 supõe espaçamento igual e atenua a ",
+      "correlação, e a policórica troca essa suposição pela de normal ",
+      "latente. As duas ficam reportadas porque nenhuma é neutra. **Este ",
+      "bloco mediu alfa ",
       "negativo na primeira versão**, e a constatação motivou a correção do ",
       "gerador, que sorteava cada item de forma independente e produzia um ",
       "rótulo sem sinal nenhum sobre a pessoa. O efeito halo é dos fenômenos ",
@@ -230,11 +254,42 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "não depende do apontamento, que é a fonte do problema."
     ),
 
+    "II.5.8", "instrumento",
+    paste0(
+      "Conferida a plausibilidade dos **valores**, e não só a estrutura dos ",
+      "zeros, a margem estrutural não fecha: ",
+      formatar_pct(margem$fracao_margem_estrutural_negativa),
+      " dos projetos com contrato positivo saem com margem negativa, e no ",
+      "quinto percentil o prejuízo chega a ",
+      formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1),
+      " vezes o valor do contrato. A mediana, ",
+      formatar_pct(margem$margem_estrutural_relativa_mediana),
+      ", é plausível; a cauda não."
+    ),
+    paste0(
+      "**É o primeiro caso no capítulo de grandezas individualmente ",
+      "calibradas que não fecham em conjunto.** `valor_contrato`, ",
+      "`horas_mes` e `custo_carregado` têm cada um sua âncora real, e a ",
+      "combinação dos três produz margem implausível. A hipótese mais ",
+      "provável é de granularidade: a fonte de `valor_contrato` é a tabela ",
+      "`actarnet_alocacao_pessoas`, cujo nome e volume sugerem grão de ",
+      "alocação e pessoa, enquanto o dicionário a trata como atributo de ",
+      "projeto. Se for isso, o bloco está comparando valor de uma pessoa ",
+      "contra custo do time inteiro. **Não é verificável**, porque o acesso ",
+      "encerrou, e fica como limitação nomeada. A consequência prática: o ",
+      "candidato (d) é a forma certa de calcular margem, mas o sintético não ",
+      "calibra a escala dela, e a wave 4 não deve usar o nível da margem ",
+      "sintética para nada além de testar a mecânica do otimizador."
+    ),
+
     "II.5.5", "instrumento",
     paste0(
       "Dos quatro candidatos de rótulo do dicionário, ",
-      nrow(candidatos_viaveis), " sobrevivem: ",
-      paste(candidatos_viaveis$candidato, collapse = " e "), "."
+      nrow(candidatos_viaveis), " têm mecanismo que se sustenta: ",
+      paste(candidatos_viaveis$candidato, collapse = " e "),
+      ". Nenhum dos dois tem escala calibrada no sintético: a de (a) porque ",
+      "a base de avaliação nunca teve acesso liberado, a de (d) pelo motivo ",
+      "do achado II.5.8."
     ),
     paste0(
       "**A decisão habilitada é o candidato (a) para `R` e o candidato (d) ",
@@ -245,6 +300,28 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "suspeitava ao registrar que a granularidade da margem pesava a favor ",
       "de (c) ou (d), agora com o (c) também descartado, por motivo que o ",
       "dicionário não previa."
+    ),
+
+    "II.5.7", "instrumento",
+    paste0(
+      "Normalizar por avaliador não é refinamento. Sob o cenário em que cada ",
+      "alocação é avaliada por um único avaliador, que é o regime real, ",
+      formatar_pct(objetos$bruta$contaminacao_avaliador),
+      " da variância da nota bruta é explicada por **quem** avaliou, e não ",
+      "por quem foi avaliado. Padronizando dentro de cada avaliador, a ",
+      "contaminação vai a zero e o sinal entre consultores **sobe** de ",
+      formatar_pct(objetos$bruta$sinal_entre_consultores), " para ",
+      formatar_pct(objetos$normalizada$sinal_entre_consultores), "."
+    ),
+    paste0(
+      "Fecha o candidato (a) de verdade, em vez de repetir a palavra ",
+      "`normalizado` que o dicionário usa. A normalização remove variação ",
+      "espúria e **ganha** sinal, então não há troca a ponderar. A forma ",
+      "usada é padronização dentro do avaliador, que tira o nível e preserva ",
+      "a ordem; formas mais elaboradas exigiriam `avaliador_id`, registrado ",
+      "no dicionário como disponibilidade parcial e ausente do sintético. O ",
+      "cenário de avaliador único é declarado e serve para demonstrar a ",
+      "necessidade, não para estimar a magnitude do problema na Peers."
     ),
 
     "II.5.6", "consequência do gerador",

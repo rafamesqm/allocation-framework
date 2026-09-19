@@ -107,10 +107,24 @@ medir_divergencia_entre_avaliadores <- function(avaliacoes) {
 #' valor baixo: é sinal de que os itens não compartilham nada e que a média
 #' deles não é escala nenhuma.
 #'
+#' **Cada medida sai em duas versões, de Pearson e policórica**, e as duas
+#' são reportadas lado a lado. A de Pearson trata a nota de três níveis como
+#' 1, 2 e 3, o que supõe espaçamento igual entre categorias e atenua a
+#' correlação por causa da discretização grosseira. A policórica supõe, em
+#' troca, normal latente por trás de cada item, e estima a correlação entre
+#' as latentes (ver `correlacao_policorica()`). Nenhuma das duas é neutra: a
+#' primeira compra espaçamento igual, a segunda compra normalidade.
+#'
+#' Reportar as duas deixa a escolha visível em vez de embutida, e a distância
+#' entre elas é informativa por si: ela mede quanto da confiabilidade estava
+#' escondida pela discretização. O alfa sobre a matriz policórica é o alfa
+#' ordinal de Zumbo, Gadermann e Zeisser (2007), que é a forma recomendada
+#' para item de poucas categorias.
+#'
 #' @param avaliacoes tibble de avaliações.
 #' @param etapa Etapa a analisar.
-#' @return Lista com `n_itens`, `n_avaliacoes`, `variancia_primeiro_componente`,
-#'   `correlacao_media_itens`, `alfa_cronbach` e `matriz`.
+#' @return Lista com as medidas em versão de Pearson e policórica, mais
+#'   `matriz` e as duas matrizes de correlação.
 medir_dimensionalidade_dos_itens <- function(avaliacoes, etapa = "gestor_final") {
   largo <- avaliacoes |>
     dplyr::filter(etapa == !!etapa) |>
@@ -123,11 +137,15 @@ medir_dimensionalidade_dos_itens <- function(avaliacoes, etapa = "gestor_final")
 
   n_itens <- ncol(matriz)
   correlacoes <- stats::cor(matriz)
-  decomposicao <- stats::prcomp(matriz, scale. = TRUE)
-  variancia <- decomposicao$sdev^2 / sum(decomposicao$sdev^2)
+  policoricas <- matriz_policorica(matriz)
 
-  # Alfa de Cronbach na forma padrão: quanto da variância do escore somado
-  # vem de covariância entre itens, e não da variância de cada um isolado.
+  variancia <- eigen(correlacoes, symmetric = TRUE, only.values = TRUE)$values
+  variancia <- variancia / sum(variancia)
+  variancia_policorica <- eigen(policoricas, symmetric = TRUE, only.values = TRUE)$values
+  variancia_policorica <- variancia_policorica / sum(variancia_policorica)
+
+  # Alfa de Cronbach na forma bruta: quanto da variância do escore somado vem
+  # de covariância entre itens, e não da variância de cada um isolado.
   variancia_itens <- sum(apply(matriz, 2, stats::var))
   variancia_total <- stats::var(rowSums(matriz))
   alfa <- (n_itens / (n_itens - 1)) * (1 - variancia_itens / variancia_total)
@@ -139,8 +157,14 @@ medir_dimensionalidade_dos_itens <- function(avaliacoes, etapa = "gestor_final")
     variancia_dois_primeiros = sum(variancia[1:2]),
     correlacao_media_itens = mean(correlacoes[upper.tri(correlacoes)]),
     alfa_cronbach = alfa,
+    variancia_primeiro_componente_policorica = variancia_policorica[1],
+    correlacao_media_policorica = mean(policoricas[upper.tri(policoricas)]),
+    alfa_ordinal = alfa_de_matriz(policoricas),
     matriz = matriz,
-    variancia_componentes = variancia
+    correlacoes = correlacoes,
+    policoricas = policoricas,
+    variancia_componentes = variancia,
+    variancia_componentes_policorica = variancia_policorica
   )
 }
 
@@ -210,8 +234,20 @@ medir_atribuibilidade_da_margem <- function(dados) {
   com_receita <- frente_mes$receita > 0
   margem_relativa <- frente_mes$margem[com_receita] / frente_mes$receita[com_receita]
 
+  # Plausibilidade dos valores, e não só dos zeros. A primeira versão deste
+  # bloco declarou o candidato (d) viável olhando só a estrutura dos zeros, e
+  # não conferiu se as margens resultantes faziam sentido. Não faziam.
+  com_contrato <- estrutural$valor_contrato > 0
+  margem_relativa_estrutural <- estrutural$margem_estrutural[com_contrato] /
+    estrutural$valor_contrato[com_contrato]
+
   list(
     tem_consultor_na_margem = "consultor_id" %in% names(frente_mes),
+    margem_estrutural_relativa_mediana = stats::median(margem_relativa_estrutural),
+    fracao_margem_estrutural_negativa = mean(margem_relativa_estrutural < 0),
+    margem_estrutural_relativa_p05 = unname(
+      stats::quantile(margem_relativa_estrutural, 0.05)
+    ),
     equipe = equipe,
     mediana_equipe = stats::median(equipe$consultores),
     maior_equipe = max(equipe$consultores),
@@ -243,23 +279,41 @@ medir_atribuibilidade_da_margem <- function(dados) {
 #' @param custo_zero_explicavel_estrutural Se o custo zero da margem
 #'   estrutural coincide com projeto sem alocação.
 #' @param alfa_cronbach Confiabilidade da escala de itens.
+#' @param fracao_margem_negativa Fração de projetos com margem estrutural
+#'   negativa, que é o teste de plausibilidade do candidato (d).
 #' @param limite_alfa Piso de aceitação do alfa. Convenção declarada.
-#' @return tibble com `candidato`, `descricao`, `exige`, `viavel` e
-#'   `justificativa`.
+#' @param limite_margem_negativa Fração de margem negativa acima da qual o
+#'   candidato (d) é tratado como não calibrado. Convenção declarada: alguns
+#'   projetos de consultoria de fato dão prejuízo, um terço deles não.
+#' Separa **dois eixos** que colapsar num veredito só confundiria. `viavel`
+#' diz se o mecanismo existe e está correto: se a grandeza é construível a
+#' partir do que a Peers tem. `calibrado` diz se o sintético reproduz a
+#' escala dela de forma crível. O candidato (d) é o caso que obriga a
+#' distinção: calcular margem de custo por horas contra contrato é a forma
+#' certa, e ainda assim a margem que sai do sintético é implausível, porque
+#' três grandezas individualmente calibradas não fecham em conjunto.
+#' Reprovar (d) por isso diria que o mecanismo está errado, que não é o caso;
+#' aprová-lo em silêncio esconderia que a wave 4 não pode usar o nível dessa
+#' margem para nada.
+#'
+#' @return tibble com `candidato`, `descricao`, `exige`, `viavel`,
+#'   `calibrado` e `justificativa`.
 avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
                                           fracao_projetos_com_equipe,
                                           custo_zero_frente_mes,
                                           custo_zero_explicavel_estrutural,
                                           alfa_cronbach,
-                                          limite_alfa = 0.7) {
+                                          fracao_margem_negativa,
+                                          limite_alfa = 0.7,
+                                          limite_margem_negativa = 0.15) {
   escala_confiavel <- alfa_cronbach >= limite_alfa
 
   tibble::tribble(
-    ~candidato, ~descricao, ~exige, ~viavel, ~justificativa,
+    ~candidato, ~descricao, ~exige, ~viavel, ~calibrado, ~justificativa,
 
     "(a)", "só desempenho, normalizado por avaliador",
     "escala de itens confiável e uma etapa declarada como rótulo",
-    escala_confiavel,
+    escala_confiavel, FALSE,
     paste0(
       "a média dos itens é escala confiável (alfa de ",
       formatar_decimal(alfa_cronbach, 2), "), e a normalização por avaliador ",
@@ -268,7 +322,7 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
 
     "(b)", "média ponderada ou produto de desempenho por margem",
     "margem atribuível a uma alocação individual",
-    margem_atribuivel,
+    margem_atribuivel, FALSE,
     paste0(
       "a margem não existe por alocação em lugar nenhum da Peers, e ratear a de ",
       "frente e mês entre os membros do time seria necessário em ",
@@ -278,7 +332,7 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
 
     "(c)", "margem como segundo objetivo, na granularidade de frente e mês",
     "margem utilizável como ponderação econômica na granularidade em que existe",
-    custo_zero_frente_mes < 0.1,
+    custo_zero_frente_mes < 0.1, TRUE,
     paste0(
       "a granularidade serve, mas ", formatar_pct(custo_zero_frente_mes),
       " das linhas não têm custo apontado, e margem igual à receita não pondera ",
@@ -289,11 +343,147 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
     "(d)", "margem estrutural, de custo carregado por horas contra valor de contrato",
     "custo e contrato disponíveis para todo projeto com alocação",
     custo_zero_explicavel_estrutural,
+    fracao_margem_negativa < limite_margem_negativa,
     paste0(
-      "não depende do apontamento de custo, que é a fonte do problema do ",
-      "candidato (c): o custo é calculado das horas alocadas e da tabela de ",
-      "custo carregado, e só é zero onde não há ninguém alocado, que não é ",
-      "célula de `R`"
+      "mecanismo correto: não depende do apontamento de custo, que derruba o ",
+      "candidato (c), e só é zero onde não há ninguém alocado, que não é ",
+      "célula de `R`. Mas a escala não fecha no sintético, com ",
+      formatar_pct(fracao_margem_negativa),
+      " dos projetos em margem negativa, então o nível não é utilizável"
+    )
+  )
+}
+
+#' Constrói o rótulo escalar de uma alocação, numa das formas candidatas
+#'
+#' O candidato (a) do dicionário é "só desempenho, **normalizado por
+#' avaliador**", e a normalização não é adorno: sem ela, a nota de uma
+#' alocação depende de quem avaliou tanto quanto de quem foi avaliado. Esta
+#' função constrói as três formas para que a afirmação possa ser testada em
+#' vez de repetida.
+#'
+#' * `"bruto"`: média das notas de todos os itens e todas as etapas.
+#' * `"etapa_unica"`: média dos itens de uma etapa declarada.
+#' * `"normalizado"`: nota padronizada **dentro de cada etapa** antes de
+#'   agregar, o que remove o nível de cada avaliador e preserva a ordem.
+#'
+#' A padronização dentro da etapa é a forma mais simples de normalização por
+#' avaliador, e a adequada aqui: remove a leniência, que é deslocamento de
+#' nível, sem tocar na ordem, que é o que um recomendador usa. Formas mais
+#' elaboradas, como modelo de limiar por avaliador, exigiriam `avaliador_id`,
+#' que o dicionário registra como disponibilidade parcial e que não existe no
+#' sintético.
+#'
+#' @param avaliacoes tibble de avaliações.
+#' @param forma Uma de `"bruto"`, `"etapa_unica"` ou `"normalizado"`.
+#' @param etapa Etapa usada quando `forma` é `"etapa_unica"`.
+#' @return tibble com `consultor_id`, `projeto_id` e `rotulo`.
+construir_rotulo_de_desempenho <- function(avaliacoes,
+                                            forma = c("normalizado", "bruto", "etapa_unica"),
+                                            etapa = "gestor_final") {
+  forma <- match.arg(forma)
+
+  base <- dplyr::mutate(avaliacoes, valor = nota_numerica(nota))
+
+  if (forma == "etapa_unica") {
+    base <- dplyr::filter(base, etapa == !!etapa)
+  }
+  if (forma == "normalizado") {
+    base <- dplyr::mutate(
+      base,
+      valor = (valor - mean(valor)) / stats::sd(valor),
+      .by = etapa
+    )
+  }
+
+  dplyr::summarise(
+    base, rotulo = mean(valor), .by = c(consultor_id, projeto_id)
+  )
+}
+
+#' Sorteia um único avaliador por alocação, como acontece na realidade
+#'
+#' No sintético toda alocação passa pelas três etapas, então a leniência de
+#' cada etapa é um deslocamento constante que se cancela na comparação entre
+#' consultores. Isso esconde o problema que a normalização existe para
+#' resolver: na Peers, alocações diferentes são avaliadas por gestores
+#' diferentes, e a leniência de quem avaliou entra na comparação como
+#' variação espúria entre pessoas.
+#'
+#' Esta função reproduz esse regime atribuindo uma etapa sorteada a cada
+#' alocação, e é o que permite medir o efeito da normalização em vez de
+#' postulá-lo. É cenário declarado, não dado: serve para demonstrar a
+#' necessidade da normalização, não para estimar a magnitude do problema na
+#' Peers, que depende de `avaliador_id` e é desconhecida.
+#'
+#' @param avaliacoes tibble de avaliações.
+#' @param semente Inteiro para reprodutibilidade.
+#' @return A tabela restrita a uma etapa por alocação.
+sortear_avaliador_unico_por_alocacao <- function(avaliacoes, semente = 1) {
+  set.seed(semente)
+
+  etapas <- unique(avaliacoes$etapa)
+  alocacoes <- dplyr::distinct(avaliacoes, consultor_id, projeto_id)
+  alocacoes$etapa_sorteada <- sample(etapas, nrow(alocacoes), replace = TRUE)
+
+  avaliacoes |>
+    dplyr::inner_join(
+      alocacoes, by = c("consultor_id", "projeto_id")
+    ) |>
+    dplyr::filter(etapa == etapa_sorteada) |>
+    dplyr::select(-etapa_sorteada)
+}
+
+#' Compara as formas de construir o rótulo sob avaliador único por alocação
+#'
+#' Mede duas coisas em cada forma. A **contaminação pelo avaliador** é a
+#' fração da variância do rótulo explicada por qual etapa avaliou aquela
+#' alocação, e deveria ser zero: é variação que não diz nada sobre a pessoa
+#' avaliada. O **sinal sobre a pessoa** é a fração da variância que fica
+#' entre consultores, e é o que o recomendador tem para aprender.
+#'
+#' Uma forma boa tem contaminação perto de zero sem perder sinal. É por isso
+#' que as duas precisam ser medidas juntas: zerar a contaminação destruindo o
+#' sinal não resolveria nada.
+#'
+#' @param avaliacoes tibble de avaliações, com todas as etapas.
+#' @param semente Inteiro para o sorteio do avaliador.
+#' @return tibble com uma linha por forma.
+comparar_construcoes_de_rotulo <- function(avaliacoes, semente = 1) {
+  uma_etapa <- sortear_avaliador_unico_por_alocacao(avaliacoes, semente = semente)
+  etapa_por_alocacao <- dplyr::distinct(uma_etapa, consultor_id, projeto_id, etapa)
+
+  medir <- function(rotulos, nome) {
+    com_etapa <- dplyr::left_join(
+      rotulos, etapa_por_alocacao, by = c("consultor_id", "projeto_id")
+    )
+
+    variancia_total <- stats::var(com_etapa$rotulo)
+    media_por_etapa <- dplyr::summarise(
+      com_etapa, media = mean(rotulo), n = dplyr::n(), .by = etapa
+    )
+    media_por_consultor <- dplyr::summarise(
+      com_etapa, media = mean(rotulo), .by = consultor_id
+    )
+
+    # Fração da variância explicada pelo avaliador: a variância das médias de
+    # etapa, ponderada pelo tamanho de cada uma, sobre a variância total.
+    variancia_entre_etapas <- sum(
+      media_por_etapa$n * (media_por_etapa$media - mean(com_etapa$rotulo))^2
+    ) / (nrow(com_etapa) - 1)
+
+    tibble::tibble(
+      forma = nome,
+      contaminacao_avaliador = variancia_entre_etapas / variancia_total,
+      sinal_entre_consultores = stats::var(media_por_consultor$media) / variancia_total
+    )
+  }
+
+  dplyr::bind_rows(
+    medir(construir_rotulo_de_desempenho(uma_etapa, "bruto"), "Nota bruta"),
+    medir(
+      construir_rotulo_de_desempenho(uma_etapa, "normalizado"),
+      "Normalizada por avaliador"
     )
   )
 }

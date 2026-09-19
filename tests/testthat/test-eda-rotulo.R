@@ -99,12 +99,12 @@ test_that("o veredito dos candidatos de rotulo responde as medidas", {
   medido <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
     custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = 0.9
+    alfa_cronbach = 0.9, fracao_margem_negativa = 0.328
   )
   hipotetico <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = TRUE, fracao_projetos_com_equipe = 0,
     custo_zero_frente_mes = 0.01, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = 0.9
+    alfa_cronbach = 0.9, fracao_margem_negativa = 0.02
   )
 
   expect_equal(medido$candidato[medido$viavel], c("(a)", "(d)"))
@@ -113,15 +113,63 @@ test_that("o veredito dos candidatos de rotulo responde as medidas", {
   expect_true(all(nzchar(medido$justificativa)))
 })
 
+test_that("mecanismo e calibracao sao eixos separados no veredito", {
+  # O candidato (d) e o caso que obriga a distincao: o mecanismo esta certo e
+  # a escala do sintetico nao fecha. Colapsar os dois num veredito so diria
+  # que a forma de calcular margem esta errada, que nao e o caso.
+  medido <- avaliar_candidatos_de_rotulo(
+    margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
+    custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
+    alfa_cronbach = 0.9, fracao_margem_negativa = 0.328
+  )
+  d <- medido[medido$candidato == "(d)", ]
+
+  expect_true(d$viavel)
+  expect_false(d$calibrado)
+
+  calibrado <- avaliar_candidatos_de_rotulo(
+    margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
+    custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
+    alfa_cronbach = 0.9, fracao_margem_negativa = 0.02
+  )
+  expect_true(calibrado$calibrado[calibrado$candidato == "(d)"])
+})
+
 test_that("escala nao confiavel derruba o candidato (a)", {
   # Era o caso antes da correcao do gerador, e o veredito precisa acompanhar.
   sem_escala <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
     custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = -0.035
+    alfa_cronbach = -0.035, fracao_margem_negativa = 0.328
   )
 
   expect_false(sem_escala$viavel[sem_escala$candidato == "(a)"])
+})
+
+test_that("normalizar por avaliador remove contaminacao sem perder sinal", {
+  # A afirmacao central do candidato (a), medida em vez de repetida.
+  dados <- carregar_dados()
+
+  construcoes <- comparar_construcoes_de_rotulo(dados$avaliacoes_desempenho)
+  bruta <- construcoes[construcoes$forma == "Nota bruta", ]
+  normalizada <- construcoes[construcoes$forma == "Normalizada por avaliador", ]
+
+  expect_gt(bruta$contaminacao_avaliador, 0.1)
+  expect_lt(normalizada$contaminacao_avaliador, 1e-8)
+  expect_gt(normalizada$sinal_entre_consultores, bruta$sinal_entre_consultores)
+})
+
+test_that("a policorica corrige a atenuacao da discretizacao", {
+  # Pearson sobre ordinal de tres niveis e limite inferior; a policorica
+  # estima a correlacao entre as latentes. A ordem entre as duas nao pode
+  # inverter, senao alguma das duas esta errada.
+  dados <- carregar_dados()
+
+  dim <- medir_dimensionalidade_dos_itens(dados$avaliacoes_desempenho)
+
+  expect_gt(dim$correlacao_media_policorica, dim$correlacao_media_itens)
+  expect_gt(dim$alfa_ordinal, dim$alfa_cronbach)
+  expect_lt(dim$alfa_ordinal, 1)
 })
 
 test_that("o comentario pode ser dispensado sem mexer nas notas", {
@@ -143,7 +191,7 @@ test_that("executar_ii5 devolve as quatro partes do bloco", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_true(all(vapply(bloco$tabelas, is.data.frame, logical(1))))
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
-  expect_equal(nrow(bloco$achados), 6)
+  expect_equal(nrow(bloco$achados), 8)
   expect_true(all(startsWith(bloco$achados$codigo, "II.5.")))
   # A cobertura do rotulo e parametro do gerador, e o achado que a reporta
   # precisa estar etiquetado como tal.
@@ -164,4 +212,74 @@ test_that("as figuras do bloco II.5 carregam o proprio tema", {
     expect_s3_class(figura$theme$panel.border, "element_rect")
     expect_no_error(ggplot2::ggplot_build(figura))
   }
+})
+
+test_that("pnorm_bivariada bate com a formula fechada em casos conhecidos", {
+  # Sem correlacao, a acumulada conjunta e o produto das marginais.
+  expect_equal(pnorm_bivariada(0.3, -1.2, 0), pnorm(0.3) * pnorm(-1.2))
+  # Em correlacao 1 nao chega a ser avaliada, mas perto dela a conjunta
+  # tende ao minimo das marginais.
+  expect_equal(pnorm_bivariada(0, 0, 0.999), 0.5, tolerance = 0.01)
+  # Caso classico: h = k = 0 com rho qualquer vale 1/4 + asin(rho)/(2 pi).
+  for (rho in c(-0.6, -0.2, 0.4, 0.8)) {
+    expect_equal(
+      pnorm_bivariada(0, 0, rho), 0.25 + asin(rho) / (2 * pi),
+      tolerance = 1e-8
+    )
+  }
+})
+
+test_that("a policorica recupera a correlacao latente que Pearson atenua", {
+  set.seed(11)
+  n <- 8000
+  rho <- 0.6
+  z1 <- rnorm(n)
+  z2 <- rho * z1 + sqrt(1 - rho^2) * rnorm(n)
+  corta <- function(z) cut(z, c(-Inf, qnorm(0.15), qnorm(0.75), Inf), labels = FALSE)
+
+  estimada <- correlacao_policorica(corta(z1), corta(z2))
+
+  expect_equal(estimada, rho, tolerance = 0.05)
+  # E Pearson sobre as categorias fica bem abaixo, que e a atenuacao.
+  expect_lt(cor(corta(z1), corta(z2)), rho - 0.05)
+})
+
+test_that("acoplar_por_posto preserva a marginal exatamente", {
+  set.seed(3)
+  valores <- rlnorm(500)
+  referencia <- rnorm(500)
+
+  acoplado <- acoplar_por_posto(valores, referencia, forca = 0.7)
+
+  expect_equal(sort(acoplado), sort(valores))
+  expect_gt(cor(acoplado, referencia, method = "spearman"), 0.4)
+})
+
+test_that("forca zero no acoplamento nao induz correlacao", {
+  set.seed(4)
+  valores <- rlnorm(2000)
+  referencia <- rnorm(2000)
+
+  solto <- acoplar_por_posto(valores, referencia, forca = 0)
+
+  expect_equal(sort(solto), sort(valores))
+  expect_lt(abs(cor(solto, referencia, method = "spearman")), 0.1)
+})
+
+test_that("o acoplamento liga contrato e esforco ao esforco alocado", {
+  # O defeito que motivou: na Camada 3 tudo era independente de tudo, e a
+  # margem estrutural saia sem sentido.
+  dados <- carregar_dados(tabelas = c("projetos", "alocacoes"))
+
+  horas <- dados$alocacoes |>
+    dplyr::mutate(h = horas_mes * duracao_dias / (365.25 / 12)) |>
+    dplyr::summarise(horas = sum(h), .by = projeto_id)
+  com_horas <- dplyr::inner_join(dados$projetos, horas, by = "projeto_id")
+
+  expect_gt(
+    cor(com_horas$valor_contrato, com_horas$horas, method = "spearman"), 0.3
+  )
+  expect_gt(
+    cor(com_horas$esforco_estimado, com_horas$horas, method = "spearman"), 0.3
+  )
 })
