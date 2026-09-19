@@ -1,0 +1,4 @@
+Etapa A,Etapa B,Concordância,Correlação
+individual,gestor_cegas,"36,3%","0,271"
+individual,gestor_final,"53,1%","0,378"
+gestor_cegas,gestor_final,"80,7%","0,801"

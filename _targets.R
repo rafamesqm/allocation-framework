@@ -262,5 +262,16 @@ list(
       ii4_cegueira_propensao = c(19, 10)
     )
   ), format = "file"),
-  tar_target(bloco_ii4_achados, salvar_tabela(bloco_ii4$achados, "achados_ii4"), format = "file")
+  tar_target(bloco_ii4_achados, salvar_tabela(bloco_ii4$achados, "achados_ii4"), format = "file"),
+
+  tar_target(bloco_ii5, executar_ii5(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii5_tabelas, salvar_tabelas_bloco(bloco_ii5$tabelas), format = "file"),
+  tar_target(bloco_ii5_figuras, salvar_figuras_bloco(
+    bloco_ii5$figuras,
+    list(
+      ii5_divergencia_etapas = c(17, 8),
+      ii5_dimensionalidade_itens = c(17, 9)
+    )
+  ), format = "file"),
+  tar_target(bloco_ii5_achados, salvar_tabela(bloco_ii5$achados, "achados_ii5"), format = "file")
 )

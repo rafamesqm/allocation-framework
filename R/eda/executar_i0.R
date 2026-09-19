@@ -38,6 +38,12 @@ mapa_medida_achado <- function() {
     "cobertura_covariavel_alocacoes", "II.4", "covariável de propensão",
     "pares_sem_positividade", "II.4", "positividade",
     "ess_relativo_ips", "II.4", "custo de reponderar",
+    "cobertura_rotulo_pares", "II.5", "cobertura do rótulo",
+    "concordancia_individual_gestor", "II.5", "divergência entre avaliadores",
+    "correlacao_individual_gestor", "II.5", "divergência entre avaliadores",
+    "alfa_cronbach_itens", "II.5", "dimensionalidade do rótulo",
+    "variancia_primeiro_componente", "II.5", "dimensionalidade do rótulo",
+    "fracao_variancia_entre_consultores", "II.5", "sinal sobre a pessoa",
     "massa_pct_alocacao_em_1", "I.2.3", "defeito corrigido",
     "massa_horas_mes_em_0", "I.2.3", "defeito corrigido"
   )
@@ -61,8 +67,16 @@ mapa_medida_achado <- function() {
 #' @param nivel Massa de probabilidade do intervalo reportado.
 #' @param limite_fragilidade Amplitude relativa a partir da qual a grandeza é
 #'   classificada como frágil. Convenção de leitura declarada, não teste.
+#' @param limite_invariancia Amplitude relativa abaixo da qual a grandeza é
+#'   tratada como invariante. Exigir desvio exatamente zero é estrito demais
+#'   e deixa passar parâmetro disfarçado de resultado: `cobertura_rotulo_pares`
+#'   é imposta ao gerador em 50%, mas varia na quinta casa decimal por
+#'   arredondamento do número de avaliações, o que bastava para ela ser
+#'   classificada como estável e escapar do aviso do achado I.0.3. Convenção
+#'   de leitura declarada, não teste.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
-executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15) {
+executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
+                         limite_invariancia = 0.001) {
   estabilidade <- resumir_estabilidade(replicas, nivel = nivel)
 
   classificado <- estabilidade |>
@@ -71,6 +85,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15) {
       classe = dplyr::case_when(
         is.na(amplitude_relativa) ~ "invariante",
         desvio_mc == 0 ~ "invariante",
+        amplitude_relativa < limite_invariancia ~ "invariante",
         amplitude_relativa > limite_fragilidade ~ "frágil",
         .default = "estável"
       )
@@ -207,10 +222,14 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15) {
       paste(invariantes$medida, collapse = ", "), "."
     ),
     paste0(
-      "Invariância aqui não é robustez, é parâmetro. A fração de cold start ",
-      "do consultor é imposta ao gerador, e reportá-la como achado devolve o ",
-      "parâmetro de entrada em forma de resultado. As duas medidas de massa ",
-      "nos limites são invariantes por terem sido corrigidas para zero exato."
+      "Invariância aqui não é robustez, é parâmetro, e as três famílias da ",
+      "lista têm origens diferentes. Cold start do consultor e cobertura do ",
+      "rótulo são frações impostas ao gerador, e reportá-las como achado ",
+      "devolve a entrada em forma de resultado. As coberturas de conteúdo são ",
+      "o complemento exato da âncora real de 48,4%, sorteada como contagem ",
+      "fixa e não como Bernoulli, então não flutuam por construção (ver ",
+      "I.0.2). As medidas de massa nos limites são invariantes por terem sido ",
+      "corrigidas para zero exato."
     ),
 
     "I.0.4", "instrumento",

@@ -1,0 +1,223 @@
+---
+title: "Bloco II.5 Construção do rótulo"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii5")
+obj <- bloco$objetos
+dim <- obj$dimensionalidade
+margem <- obj$margem
+```
+
+## Propósito do bloco
+
+**Âncora na literatura.** Hu, Koren e Volinsky (2008) formalizam o
+colaborativo sobre feedback implícito, que é o caminho de reserva quando não
+há rótulo explícito de qualidade. A distinção entre rótulo explícito e
+implícito é o que este bloco precisa decidir antes da wave 3.
+
+**Propriedade medida.** Cobertura do rótulo explícito, divergência entre as
+etapas de avaliação, dimensionalidade dos itens, decomposição da variância do
+escore, e se a margem pode ser atribuída a uma alocação.
+
+**Decisão que discrimina.** Qual dos quatro candidatos de rótulo de
+`docs/dicionario_de_dados.md` se sustenta.
+
+## Uma correção no gerador veio antes das conclusões
+
+A primeira execução deste bloco mediu alfa de Cronbach **negativo**, primeiro
+componente principal em 8,5% e correlação média entre itens de -0,002. A
+causa estava no gerador: os 14 itens de cada avaliação eram sorteados de
+forma independente, e as três etapas também.
+
+Isso não é um valor baixo, é ausência de estrutura. O rótulo não tinha sinal
+nenhum sobre a pessoa, e um modelo colaborativo treinado sobre ele não teria
+o que aprender, por melhor que fosse. Concluir sobre construção de rótulo em
+cima disso seria pior do que vacuoso: concluiria que a média dos itens não é
+escala, o que é artefato do código e não propriedade do domínio.
+
+Nada disso é plausível. O efeito halo, a correlação alta entre itens de uma
+mesma avaliação, é um dos fenômenos mais bem documentados da literatura de
+avaliação de desempenho. E dois avaliadores da mesma pessoa no mesmo projeto
+observam a mesma realidade: podem discordar muito, e discordam, mas não podem
+ser independentes.
+
+O gerador passou a derivar as notas de uma qualidade latente compartilhada,
+decomposta em efeito de pessoa, efeito de alocação, dificuldade de item e
+ruído de cada avaliador. A **estrutura** é o que se reproduz; as magnitudes
+de cada componente são suposição declarada, porque a base de avaliação nunca
+teve acesso liberado. As marginais calibradas foram preservadas exatamente,
+porque o corte ordinal é feito por quantil do latente.
+
+## A cobertura do rótulo explícito
+
+```{r cobertura}
+mostrar_tabela(
+  bloco$tabelas$ii5_cobertura_rotulo,
+  "Tabela II.5.1: cobertura da avaliação de desempenho.",
+  c("l", "r", "r", "r")
+)
+```
+
+`r formatar_pct(obj$cobertura$cobertura_pares)` das alocações têm avaliação.
+O número é parâmetro do gerador e não diz nada sobre a Peers, onde a
+cobertura real é desconhecida.
+
+## O rótulo é ambíguo até a etapa ser declarada
+
+```{r divergencia, fig.width = 7.5, fig.height = 3.5}
+bloco$figuras$ii5_divergencia_etapas
+```
+
+```{r divergencia-tabela}
+mostrar_tabela(
+  bloco$tabelas$ii5_divergencia_etapas,
+  "Tabela II.5.2: nível e composição da nota em cada etapa.",
+  c("l", "r", "r", "r")
+)
+```
+
+As três etapas avaliam a mesma pessoa, no mesmo projeto, sobre os mesmos
+itens, então a comparação é pareada e direta.
+
+```{r concordancia}
+mostrar_tabela(
+  bloco$tabelas$ii5_concordancia_pares,
+  "Tabela II.5.3: concordância entre etapas, item a item.",
+  c("l", "l", "r", "r")
+)
+```
+
+A autoavaliação põe
+`r formatar_pct(obj$etapa_mais_lenient$fracao_acima)` das notas em ACIMA,
+contra `r formatar_pct(obj$etapa_mais_severa$fracao_acima)` da etapa mais
+severa. Adotar a autoavaliação como rótulo daria uma variável em que quase
+tudo é o mesmo valor, com pouco a discriminar.
+
+**A etapa adotada é parte da definição do rótulo, não detalhe de
+implementação.** O candidato (a) do dicionário já previa normalização por
+avaliador; a medida mostra que ela é obrigatória.
+
+Vale separar duas coisas que a tabela mistura. Divergir em **nível** é
+leniência, e normalização resolve. Divergir em **ordem** é mais grave, porque
+é a ordem que um recomendador precisa: a correlação de
+`r formatar_decimal(obj$par_mais_divergente$correlacao, 2)` entre
+autoavaliação e gestor às cegas fica na faixa baixa que as meta-análises de
+*self-other rating agreement* reportam, e é reproduzida de propósito.
+
+## Os itens medem uma coisa só
+
+```{r dimensionalidade, fig.width = 7.5, fig.height = 4}
+bloco$figuras$ii5_dimensionalidade_itens
+```
+
+```{r dimensionalidade-tabela}
+mostrar_tabela(
+  bloco$tabelas$ii5_dimensionalidade,
+  "Tabela II.5.4: estrutura comum entre os itens e sinal sobre a pessoa.",
+  c("l", "r")
+)
+```
+
+O primeiro componente explica
+`r formatar_pct(dim$variancia_primeiro_componente)` da variância, contra
+`r formatar_pct(1 / dim$n_itens)` que `r dim$n_itens` itens independentes
+dariam. A correlação média entre itens é
+`r formatar_decimal(dim$correlacao_media_itens, 2)` e o alfa de Cronbach,
+`r formatar_decimal(dim$alfa_cronbach, 2)`, acima do piso usual de 0,7.
+
+**Isso autoriza o rótulo escalar**: colapsar os 14 itens numa média não
+destrói estrutura, porque a estrutura é comum.
+
+E `r formatar_pct(obj$variancia_escore$fracao_entre_consultores)` da variância
+do escore é entre consultores, não dentro deles. As duas parcelas contam
+histórias legítimas: variância entre pessoas é aptidão, variância dentro da
+pessoa é adequação ao projeto, que é justamente o que a alocação tenta
+otimizar. O que importava era saber que existe a primeira, porque sem ela não
+há o que recomendar.
+
+## A margem não cabe dentro de `R`
+
+Dois fatos, e cada um mata um candidato.
+
+**A margem não é atribuível a uma alocação.** `margem_frente_mes` não tem
+`consultor_id`, e o usuário confirmou que frente e mês é a única
+granularidade que existe na Peers, não uma limitação de busca.
+`r formatar_pct(margem$fracao_projetos_com_equipe)` dos projetos alocados têm
+mais de uma pessoa, com mediana de `r margem$mediana_equipe` e máximo de
+`r margem$maior_equipe`. Ratear a margem de uma frente entre os membros do
+time seria estimativa apresentada como captura, no mesmo espírito da decisão
+já registrada sobre `skills_requeridas[]`. Isso mata o candidato (b).
+
+**As duas fontes de margem têm custo zero por motivos opostos, e é isso que
+separa (c) de (d).** Em `margem_frente_mes`,
+`r formatar_pct(margem$custo_zero_frente_mes)` das linhas não têm custo
+apontado, e `r formatar_pct(margem$fracao_margem_relativa_integral)` das
+linhas com receita têm margem **igual** à receita. O número é âncora real,
+calibrado contra os 44,7% de `peers_custointerns_vlr`: é incompletude de
+apontamento no sistema de origem, não defeito do sintético. Uma margem que
+iguala a receita não pondera nada.
+
+Em `margem_estrutural`, o custo zero coincide
+`r if (margem$custo_zero_estrutural_sem_alocacao) "exatamente" else "apenas em parte"`
+com projeto sem nenhuma alocação, o que é explicável e inofensivo: projeto sem
+alocação não é célula de `R`. A margem estrutural não depende do apontamento,
+que é a fonte do problema do candidato (c).
+
+## Que candidato sobrevive
+
+```{r candidatos}
+mostrar_tabela(
+  bloco$tabelas$ii5_candidatos_rotulo,
+  "Tabela II.5.5: os quatro candidatos do dicionário contra o medido.",
+  c("l", "l", "l", "c", "l")
+)
+```
+
+Sobrevivem `r nrow(obj$candidatos_viaveis)`:
+**`r paste(obj$candidatos_viaveis$candidato, collapse = " e ")`**.
+
+**A decisão que este bloco habilita é (a) para `R` e (d) para `f`.** A célula
+de `R` é o desempenho, normalizado por avaliador e com a etapa declarada. A
+margem sai de `R` e entra como objetivo separado no otimizador, calculada
+estruturalmente de custo carregado por horas contra valor de contrato.
+
+O dicionário já suspeitava disso ao registrar que a granularidade da margem
+pesava a favor de (c) ou (d). O que ele não previa era o descarte de (c), que
+não cai por granularidade e sim por incompletude de apontamento.
+
+## O acoplamento que fica, e o limite do bloco
+
+Com a margem fora de `R`, o rótulo depende **inteiramente** de
+`avaliacao_desempenho`, sem sinal de reserva. O dicionário nomeou esse
+acoplamento, e ele agora está decidido em vez de suspeitado.
+
+A consequência é desconfortável e precisa ficar escrita. A base de avaliação
+de desempenho é o dado mais sensível da empresa, o acesso nunca foi liberado,
+e o esquema foi reconstruído de tela. **Nenhum número deste bloco fala sobre a
+Peers**: distribuição, cobertura e estrutura de dependência são todas
+suposição declarada. O que transfere é a bateria de diagnósticos, pronta para
+rodar no dia em que o acesso vier.
+
+Sem esse acesso, a alternativa é o feedback implícito de Hu, Koren e Volinsky
+(2008), sobre a mera ocorrência da alocação. É caminho legítimo e
+documentado, mas o bloco II.4 mostrou que ele carrega um viés de seleção que
+não é corrigível nesta base: um colaborativo sobre implicit feedback aqui
+modela o processo de escolha atual, não a qualidade do match. A diferença
+entre os dois caminhos não é de conveniência, é do que cada um autoriza
+concluir.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```
