@@ -47,13 +47,26 @@ medir_realizacao <- function(semente,
   atributos <- tibble::tibble(consultor_id = consultores$consultor_id, nivel_num = nivel_num)
   g <- construir_grafo_coalocacao(grafo, consultores, atributos)
 
-  setor_predominante <- experiencia |>
-    dplyr::arrange(dplyr::desc(intensidade)) |>
-    dplyr::distinct(consultor_id, .keep_all = TRUE)
-  grupo_consultor <- setor_predominante$segmento[
-    match(alocacoes$consultor_id, setor_predominante$consultor_id)
+  # Duas versões do mesmo mecanismo, de propósito. A latente é o viés que o
+  # gerador de fato aplicou; a observável é a única que um analista consegue
+  # calcular, porque depende de `experiencia_setorial` restrita aos
+  # respondentes do formulário. A distância entre as duas é o que o bloco
+  # II.4 mede, e ela só é pequena porque o gerador sorteia a resposta ao
+  # formulário de forma independente da alocação. No dado real essa
+  # independência é suposição, e não há como verificá-la.
+  setor_latente <- setor_predominante_observado(experiencia)
+  setor_observado <- setor_predominante_observado(experiencia_observada)
+
+  grupo_consultor <- setor_latente$segmento[
+    match(alocacoes$consultor_id, setor_latente$consultor_id)
+  ]
+  grupo_consultor_observavel <- setor_observado$segmento[
+    match(alocacoes$consultor_id, setor_observado$consultor_id)
   ]
   setor_projeto <- projetos$setor[match(alocacoes$projeto_id, projetos$projeto_id)]
+
+  propensao <- estimar_propensao_por_popularidade(alocacoes, consultores, projetos)
+  positividade <- diagnosticar_positividade(propensao, alocacoes, consultores, projetos)
 
   cobertura_skills <- dplyr::n_distinct(skills$consultor_id) / nrow(consultores)
 
@@ -85,6 +98,12 @@ medir_realizacao <- function(semente,
     acima_capacidade = mean(ocupacao$pct_ocupacao > 1),
     grau_medio_consultor = nrow(alocacoes) / dplyr::n_distinct(alocacoes$consultor_id),
     taxa_mesmo_setor = mean(grupo_consultor == setor_projeto, na.rm = TRUE),
+    taxa_mesmo_setor_observavel = mean(
+      grupo_consultor_observavel == setor_projeto, na.rm = TRUE
+    ),
+    cobertura_covariavel_alocacoes = mean(!is.na(grupo_consultor_observavel)),
+    pares_sem_positividade = positividade$fracao_pares_sem_positividade,
+    ess_relativo_ips = positividade$ess_relativo,
     gini_grau_consultor = calcular_lorenz(grau_consultor)$gini,
     gini_grau_projeto = calcular_lorenz(grau_projeto)$gini,
     dispersao_grau_consultor = stats::var(grau_consultor) / mean(grau_consultor),
@@ -171,4 +190,36 @@ formatar_intervalo <- function(estabilidade, nome_medida, formatador = formatar_
     formatador(linha$mediana), " (", formatador(linha$inferior),
     " a ", formatador(linha$superior), ")"
   )
+}
+
+#' Diz onde uma realização cai dentro do intervalo de Monte Carlo da grandeza
+#'
+#' Existe porque reportar um ponto que cai fora do próprio intervalo, sem
+#' dizer que caiu, é o tipo de incoerência que passa despercebida na escrita e
+#' não passa na banca. Aconteceu no bloco II.4: a realização versionada é o
+#' extremo das cem réplicas na positividade, e o enunciado citava o ponto e o
+#' intervalo lado a lado como se fossem compatíveis.
+#'
+#' Não é sinal de defeito quando acontece. A realização versionada é um
+#' sorteio como os outros, e um sorteio em cada dez cai fora de um intervalo
+#' de 90% por definição. O que não pode é o texto silenciar sobre isso.
+#'
+#' @param estabilidade tibble de `resumir_estabilidade()`.
+#' @param nome_medida Nome da grandeza.
+#' @param valor Valor observado na realização versionada.
+#' @return `"dentro"`, `"abaixo"` ou `"acima"`; `NA` se a grandeza não foi
+#'   medida nas réplicas.
+posicao_no_intervalo <- function(estabilidade, nome_medida, valor) {
+  if (is.null(estabilidade)) return(NA_character_)
+
+  linha <- estabilidade[estabilidade$medida == nome_medida, ]
+  if (nrow(linha) == 0) return(NA_character_)
+
+  if (valor < linha$inferior) {
+    "abaixo"
+  } else if (valor > linha$superior) {
+    "acima"
+  } else {
+    "dentro"
+  }
 }

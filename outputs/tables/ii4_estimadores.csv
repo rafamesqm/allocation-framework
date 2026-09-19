@@ -1,0 +1,6 @@
+Estimador,Exige,Viável,Justificativa
+IPS com propensão por popularidade,positividade em todo par e propensão que capture o mecanismo de seleção,não,"a propensão por popularidade é cega à afinidade setorial, que é o que domina a seleção, e reponderar por ela corrige a dimensão errada; some-se que 75,8% do tamanho efetivo de amostra se perde na reponderação"
+IPS com propensão por covariáveis,a covariável que explica a seleção observada para todo consultor,não,"o setor predominante do consultor vem do formulário de skills e existe para 48,4% deles, então mais da metade da matriz não tem entrada para o modelo"
+IPS auto-normalizado (SNIPS),"positividade em todo par, trocando parte da variância por viés pequeno",não,"reduz a variância do IPS, mas não cria peso finito para estrato de propensão zero nem enxerga mecanismo que a propensão não modela"
+Validação contra exposição aleatória,amostra de pares expostos ao acaso,não,"é o que torna a propensão falsificável na literatura, e não existe nesta base nem há como construir retroativamente"
+"Estimador sobre o observado, com viés declarado","que a conclusão seja enunciada sobre a população observada, não sobre a população inteira",sim,"não corrige o viés, mas não finge corrigi-lo; é o que resta quando a propensão não é nem estimável em toda a matriz nem validável"

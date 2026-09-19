@@ -34,6 +34,10 @@ mapa_medida_achado <- function() {
     "cobertura_setor_observada", "I.1.3, II.3", "cobertura do conteúdo",
     "zona_morta_setor", "II.3", "cold start cruzado",
     "taxa_mesmo_setor", "II.4", "viés de seleção",
+    "taxa_mesmo_setor_observavel", "II.4", "viés de seleção",
+    "cobertura_covariavel_alocacoes", "II.4", "covariável de propensão",
+    "pares_sem_positividade", "II.4", "positividade",
+    "ess_relativo_ips", "II.4", "custo de reponderar",
     "massa_pct_alocacao_em_1", "I.2.3", "defeito corrigido",
     "massa_horas_mes_em_0", "I.2.3", "defeito corrigido"
   )

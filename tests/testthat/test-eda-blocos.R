@@ -152,7 +152,7 @@ test_that("nenhuma figura da pipeline tem rotulo cortado na borda", {
   # subtitulo, porque foi por eixo e legenda que a figura do bloco II.4
   # escapou da primeira versao deste teste.
   blocos <- c("bloco_i0", "bloco_i1", "bloco_i2", "bloco_i4", "bloco_i5",
-              "bloco_ii1", "bloco_ii2", "bloco_ii3")
+              "bloco_ii1", "bloco_ii2", "bloco_ii3", "bloco_ii4")
 
   quebrar <- function(texto) strsplit(texto %||% "", "\n", fixed = TRUE)[[1]]
 

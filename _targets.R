@@ -251,5 +251,16 @@ list(
   tar_target(bloco_ii3_figuras, salvar_figuras_bloco(
     bloco_ii3$figuras, list(ii3_cobertura_sinais = c(17, 11))
   ), format = "file"),
-  tar_target(bloco_ii3_achados, salvar_tabela(bloco_ii3$achados, "achados_ii3"), format = "file")
+  tar_target(bloco_ii3_achados, salvar_tabela(bloco_ii3$achados, "achados_ii3"), format = "file"),
+
+  tar_target(bloco_ii4, executar_ii4(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii4_tabelas, salvar_tabelas_bloco(bloco_ii4$tabelas), format = "file"),
+  tar_target(bloco_ii4_figuras, salvar_figuras_bloco(
+    bloco_ii4$figuras,
+    list(
+      ii4_distribuicao_propensao = c(17, 10),
+      ii4_cegueira_propensao = c(19, 10)
+    )
+  ), format = "file"),
+  tar_target(bloco_ii4_achados, salvar_tabela(bloco_ii4$achados, "achados_ii4"), format = "file")
 )
