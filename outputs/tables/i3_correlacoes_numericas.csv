@@ -11,6 +11,6 @@ nivel_num x duracao_dias,"0,032","0,026",2.426
 pct_alocacao x horas_mes,"-0,244","-0,243",2.426
 pct_alocacao x duracao_dias,"-0,010","-0,003",2.426
 horas_mes x duracao_dias,"-0,040","-0,031",2.426
-valor_contrato x esforco_estimado,"0,007","-0,062",952
-valor_contrato x duracao_dias,"0,001","0,030",952
-esforco_estimado x duracao_dias,"0,015","0,027",952
+valor_contrato x esforco_estimado,"0,738","0,330",952
+valor_contrato x duracao_dias,"0,672","0,412",952
+esforco_estimado x duracao_dias,"0,691","0,466",952

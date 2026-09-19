@@ -18,8 +18,12 @@
 #' categorias (ver `calcular_v_cramer()`).
 #'
 #' @param dados Lista nomeada de tibbles, de `carregar_dados()`.
+#' @param estabilidade tibble de `resumir_estabilidade()`, opcional.
+#' @param limite_livre Valor absoluto de associação a partir do qual um par
+#'   declarado sem mecanismo é tratado como dependência acidental. Convenção
+#'   de leitura declarada, não teste.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
-executar_i3 <- function(dados, estabilidade = NULL) {
+executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
   consultor <- dados$consultores |>
     dplyr::left_join(dados$custo_carregado, by = "consultor_id") |>
     dplyr::mutate(nivel_num = senioridade_numerica(nivel_senioridade))
@@ -73,7 +77,9 @@ executar_i3 <- function(dados, estabilidade = NULL) {
     contrato = contrato,
     induzida_forte = induzida_forte,
     pior_calibrada = pior_calibrada,
-    maior_livre = max(abs(livres$medida))
+    maior_livre = if (nrow(livres) > 0) max(abs(livres$medida)) else 0,
+    pior_livre = if (nrow(livres) > 0) livres[which.max(abs(livres$medida)), ] else livres,
+    limite_livre = limite_livre
   )
 
   formatar_confronto <- function(confronto, rotulo_medida) {
@@ -156,16 +162,56 @@ executar_i3 <- function(dados, estabilidade = NULL) {
 
     "I.3.3", "instrumento",
     paste0(
-      "Nenhum dos ", nrow(livres), " pares sem mecanismo declarado se afasta ",
-      "de zero: o maior valor absoluto é ",
-      formatar_decimal(objetos$maior_livre, 3),
-      ". O gerador não introduziu dependência não intencional entre ",
-      "variáveis que deveriam ser independentes."
+      if (nrow(livres) == 0) {
+        paste0(
+          "Não resta nenhum par sem mecanismo declarado entre as numéricas ",
+          "confrontadas: os três últimos, de projeto, ganharam mecanismo ",
+          "quando o gerador passou a acoplar contrato e esforço ao esforço ",
+          "alocado."
+        )
+      } else if (objetos$maior_livre <= limite_livre) {
+        paste0(
+          "Nenhum dos ", nrow(livres), " pares sem mecanismo declarado se ",
+          "afasta de zero: o maior valor absoluto é ",
+          formatar_decimal(objetos$maior_livre, 3),
+          ". O gerador não introduziu dependência não intencional entre ",
+          "variáveis que deveriam ser independentes."
+        )
+      } else {
+        paste0(
+          "Dos ", nrow(livres), " pares sem mecanismo declarado, ao menos um ",
+          "se afasta de zero: ", objetos$pior_livre$variavel_a, " e ",
+          objetos$pior_livre$variavel_b, " medem ",
+          formatar_decimal(objetos$maior_livre, 3),
+          ", acima do limite de ", formatar_decimal(limite_livre, 2),
+          " adotado como convenção de leitura."
+        )
+      }
     ),
     paste0(
+      if (nrow(livres) == 0) {
+        paste0(
+          "**Com a categoria vazia, esta verificação passa a não vigiar ",
+          "nada**, e isso é perda de cobertura do instrumento, não boa ",
+          "notícia. Registrar a categoria vazia é o que impede de ler o ",
+          "silêncio como aprovação. Toda variável nova que entrar no gerador ",
+          "sem mecanismo declarado volta a povoá-la, e é para esse momento ",
+          "que a verificação continua no lugar. "
+        )
+      } else {
+        ""
+      },
       "A verificação roda a cada execução e passa a acusar dependência ",
       "acidental introduzida por mudança futura no gerador, que é o tipo de ",
-      "defeito que nenhum teste unitário de peça isolada pega."
+      "defeito que nenhum teste unitário de peça isolada pega. **Ela já ",
+      "pegou uma**: quando o bloco II.5 acoplou contrato e esforço estimado ",
+      "ao esforço de fato alocado, os três pares de projeto deixaram de ser ",
+      "independentes e este achado passou a acusá-los. A resposta correta ",
+      "não foi afrouxar o limite, foi reclassificar os três de `livre` para ",
+      "`induzida` em `procedencia_associacoes()`, porque eles passaram a ter ",
+      "mecanismo declarado. O enunciado acima é condicional de propósito: ",
+      "afirmar que nada se afasta de zero enquanto o número diz o contrário ",
+      "seria a incoerência que este capítulo existe para não cometer."
     ),
 
     "I.3.4", "consequência do gerador",

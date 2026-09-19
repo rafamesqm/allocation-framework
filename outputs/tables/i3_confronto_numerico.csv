@@ -4,10 +4,10 @@ nivel_num x horas_mes,calibrada,"-0,529","-0,55",,"idem, com alvo negativo: mais
 nivel_num x pct_alocacao,calibrada,"0,484","0,52",,amostragem condicional ao nível por casamento de momentos
 nivel_num x tempo_casa,calibrada,"0,383","0,34",,"modelo linear em nível mais ruído, calibrado por momentos"
 tempo_casa x tempo_nivel,induzida,"0,823",n/a,,"tempo no nível é fração do tempo de casa, logo limitado por ele"
+esforco_estimado x duracao_dias,induzida,"0,466",n/a,,idem
+valor_contrato x duracao_dias,induzida,"0,412",n/a,,"alocação mais longa acumula mais horas, e as horas ordenam o contrato"
 tempo_casa x custo_carregado,induzida,"0,356",n/a,,indireta: as duas dependem do nível de senioridade
 nivel_num x tempo_nivel,induzida,"0,343",n/a,,"herdada por tempo_nivel derivar de tempo_casa, que depende do nível"
+valor_contrato x esforco_estimado,induzida,"0,330",n/a,,"ambos permutados pelo posto do esforço alocado, o que os liga entre si"
 tempo_nivel x custo_carregado,induzida,"0,290",n/a,,"indireta pela mesma cadeia, mais fraca"
 pct_alocacao x horas_mes,induzida,"-0,243",n/a,,indireta e de sinal oposto: as duas dependem do nível em direções contrárias
-valor_contrato x esforco_estimado,livre,"-0,062",n/a,,"sorteios independentes, sem vínculo entre porte financeiro e esforço"
-valor_contrato x duracao_dias,livre,"0,030",n/a,,idem
-esforco_estimado x duracao_dias,livre,"0,027",n/a,,idem

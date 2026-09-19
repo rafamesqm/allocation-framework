@@ -55,11 +55,19 @@ procedencia_associacoes <- function() {
     "idem",
 
     # Projeto ---------------------------------------------------------------
-    "valor_contrato", "esforco_estimado", "livre", NA_real_, NA_character_,
-    "sorteios independentes, sem vínculo entre porte financeiro e esforço",
-    "valor_contrato", "duracao_dias", "livre", NA_real_, NA_character_,
-    "idem",
-    "esforco_estimado", "duracao_dias", "livre", NA_real_, NA_character_,
+    # As três reclassificadas de `livre` para `induzida` quando o bloco II.5
+    # mostrou que a independência entre porte financeiro e esforço tornava a
+    # margem estrutural sem sentido (ver `acoplar_projetos_ao_esforco()`).
+    # Contrato e esforço estimado passam a ser permutados pelo posto do
+    # esforço de fato alocado, o que induz associação entre os dois e com a
+    # duração, já que alocação mais longa acumula mais horas. A existência do
+    # vínculo é estrutura reproduzida; a força é suposição declarada, sem
+    # alvo real para confrontar.
+    "valor_contrato", "esforco_estimado", "induzida", NA_real_, NA_character_,
+    "ambos permutados pelo posto do esforço alocado, o que os liga entre si",
+    "valor_contrato", "duracao_dias", "induzida", NA_real_, NA_character_,
+    "alocação mais longa acumula mais horas, e as horas ordenam o contrato",
+    "esforco_estimado", "duracao_dias", "induzida", NA_real_, NA_character_,
     "idem",
 
     # Categóricas -----------------------------------------------------------

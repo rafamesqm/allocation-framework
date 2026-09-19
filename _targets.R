@@ -93,7 +93,6 @@ list(
     n_projetos = parametros$n_projetos, semente = parametros$semente,
     data_referencia = parametros$data_referencia
   )),
-  tar_target(projetos_arquivo, salvar_synthetic(projetos, "projetos"), format = "file"),
 
   # Camada 2: Interações --------------------------------------------------
   tar_target(alocacoes, gerar_alocacoes(
@@ -104,6 +103,13 @@ list(
     prob_vies = parametros$prob_vies
   )),
   tar_target(alocacoes_arquivo, salvar_synthetic(alocacoes, "alocacoes"), format = "file"),
+
+  # Acopla contrato e esforço estimado ao esforço de fato alocado. Roda
+  # depois da alocação porque é dela que sai o esforço, e não há ciclo:
+  # `gerar_alocacoes()` usa do projeto só setor e janela de datas. Ver
+  # `acoplar_projetos_ao_esforco()` para o defeito de Camada 3 que motivou.
+  tar_target(projetos_acoplados, acoplar_projetos_ao_esforco(projetos, alocacoes)),
+  tar_target(projetos_arquivo, salvar_synthetic(projetos_acoplados, "projetos"), format = "file"),
 
   tar_target(avaliacoes_desempenho_arquivo, salvar_synthetic(
     gerar_avaliacoes_desempenho(
@@ -130,11 +136,11 @@ list(
     "ferias_consultor"
   ), format = "file"),
   tar_target(margem_frente_mes_arquivo, salvar_synthetic(
-    gerar_margem_frente_mes(projetos, semente = parametros$semente),
+    gerar_margem_frente_mes(projetos_acoplados, semente = parametros$semente),
     "margem_frente_mes"
   ), format = "file"),
   tar_target(margem_estrutural_arquivo, salvar_synthetic(
-    gerar_margem_estrutural(alocacoes, custo_carregado, projetos), "margem_estrutural"
+    gerar_margem_estrutural(alocacoes, custo_carregado, projetos_acoplados), "margem_estrutural"
   ), format = "file"),
   tar_target(pipeline_demandas_arquivo, salvar_synthetic(
     gerar_pipeline_demandas(parametros$n_oportunidades, semente = parametros$semente),
