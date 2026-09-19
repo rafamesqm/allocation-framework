@@ -209,5 +209,12 @@ list(
   tar_target(bloco_ii1_figuras, salvar_figuras_bloco(
     bloco_ii1$figuras, list(ii1_lorenz = c(16, 10), ii1_linha_base = c(16, 10))
   ), format = "file"),
-  tar_target(bloco_ii1_achados, salvar_tabela(bloco_ii1$achados, "achados_ii1"), format = "file")
+  tar_target(bloco_ii1_achados, salvar_tabela(bloco_ii1$achados, "achados_ii1"), format = "file"),
+
+  tar_target(bloco_ii2, executar_ii2(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii2_tabelas, salvar_tabelas_bloco(bloco_ii2$tabelas), format = "file"),
+  tar_target(bloco_ii2_figuras, salvar_figuras_bloco(
+    bloco_ii2$figuras, list(ii2_evidencia = c(17, 10), ii2_subdeterminacao = c(16, 9))
+  ), format = "file"),
+  tar_target(bloco_ii2_achados, salvar_tabela(bloco_ii2$achados, "achados_ii2"), format = "file")
 )

@@ -47,6 +47,7 @@ medir_realizacao <- function(semente,
   grau_consultor <- dplyr::count(alocacoes, consultor_id)$n
   grau_projeto <- dplyr::count(alocacoes, projeto_id)$n
   linha_base <- medir_linha_base_popularidade(alocacoes, consultores, tamanhos = 20)
+  identificabilidade_k5 <- medir_identificabilidade(alocacoes, consultores, projetos, fatores = 5)
 
   tibble::tibble(
     semente = semente,
@@ -73,6 +74,8 @@ medir_realizacao <- function(semente,
     dispersao_grau_consultor = stats::var(grau_consultor) / mean(grau_consultor),
     dispersao_grau_projeto = stats::var(grau_projeto) / mean(grau_projeto),
     recall_popularidade_20 = linha_base$recall,
+    projetos_subdeterminados_k5 = identificabilidade_k5$fracao_projetos_subdeterminados,
+    consultores_subdeterminados_k5 = identificabilidade_k5$fracao_consultores_subdeterminados,
     massa_pct_alocacao_em_1 = mean(alocacoes$pct_alocacao == 1),
     massa_horas_mes_em_0 = mean(alocacoes$horas_mes == 0)
   )

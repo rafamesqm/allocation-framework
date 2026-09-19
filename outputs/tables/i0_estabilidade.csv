@@ -8,6 +8,7 @@ recall_popularidade_20,"0,2164","0,0158","0,1847","0,2360","23,7%",frágil,II.1
 n_localizacoes,"9,0000","0,8411","8,0000","10,0000","22,2%",frágil,I.2.1
 cobertura_skills,"0,4842","0,0301","0,4314","0,5333","21,1%",frágil,I.1.3
 fracao_sem_skills,"0,5158","0,0301","0,4667","0,5686","19,8%",frágil,I.1.3
+consultores_subdeterminados_k5,"0,3579","0,0179","0,3263","0,3860","16,7%",frágil,II.2
 agrupamento_grafo,"0,3548","0,0145","0,3337","0,3803","13,1%",estável,I.5.1
 cold_start_projeto,"0,1943","0,0077","0,1849","0,2081","11,9%",estável,"I.1.3, II.3"
 gini_grau_consultor,"0,3841","0,0136","0,3624","0,4029","10,5%",estável,II.1
@@ -19,6 +20,7 @@ grau_medio_consultor,"10,4304","0,2629","10,0671","10,9032","8,0%",estável,II.1
 cor_nivel_custo,"0,8347","0,0192","0,8010","0,8606","7,1%",estável,I.3.1
 gini_grau_projeto,"0,4076","0,0091","0,3925","0,4211","7,0%",estável,II.1
 isolados_grafo,"49,0000","0,9151","48,0000","51,0000","6,1%",estável,I.5.4
+projetos_subdeterminados_k5,"0,8172","0,0095","0,7994","0,8319","4,0%",estável,II.2
 cold_start_consultor,"0,1684","0,0000","0,1684","0,1684","0,0%",invariante,"I.1.3, II.3"
 massa_pct_alocacao_em_1,"0,0000","0,0000","0,0000","0,0000",n/a,invariante,I.2.3
 massa_horas_mes_em_0,"0,0000","0,0000","0,0000","0,0000",n/a,invariante,I.2.3
