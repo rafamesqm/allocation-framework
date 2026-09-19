@@ -1,0 +1,6 @@
+Forma,Exige,Viável,Justificativa
+Ponderado,os dois componentes produzem escore para todo par,não,"o colaborativo não produz escore para entidade sem histórico, e são 17% dos consultores e 21% dos projetos; ponderar exigiria um valor de reserva que na prática é o próprio conteúdo"
+Chaveado,critério observável para escolher o componente por caso,sim,"a presença de histórico é critério observável e direto; degenera para conteúdo na maioria dos casos, dado o bloco II.2"
+Cascata,um componente ordena e o outro refina,sim,o conteúdo tem cobertura universal no espaço setorial e serve para gerar o conjunto candidato; o colaborativo reordena onde houver histórico suficiente
+Aumento de atributo,saída do colaborativo entra como atributo do conteúdo,não,"exige que a saída do colaborativo seja confiável, e o bloco II.2 mostra que ela não é identificável nesta escala"
+Meta-nível,modelo aprendido por um componente alimenta o outro,não,"mesma exigência do aumento de atributo, agravada por depender do modelo inteiro e não de um escore"

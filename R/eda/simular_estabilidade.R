@@ -4,8 +4,13 @@
 #' existe para que a Parte I possa dizer quanto de cada número reportado é
 #' estrutura e quanto é a semente que calhou de ser usada.
 #'
-#' Reproduz o caminho de geração do `_targets.R` em vez de ler os CSV: é
-#' preciso variar a semente, e o dado versionado é de uma semente só.
+#' **A realização versionada não é a réplica de semente 1.** O `targets`
+#' atribui a cada alvo uma semente própria e determinística, derivada do nome
+#' do alvo, enquanto aqui os geradores correm em sequência num mesmo fluxo
+#' aleatório. As duas coisas são reprodutíveis, mas não coincidem. A leitura
+#' correta é que o conjunto versionado é um sorteio da mesma distribuição que
+#' estas réplicas caracterizam, e não um elemento desta amostra.
+#'
 #' `avaliacoes_desempenho` fica de fora por não alimentar nenhum achado da
 #' Parte I e responder sozinha por quase todo o tempo de geração.
 #'
@@ -48,6 +53,8 @@ medir_realizacao <- function(semente,
   grau_projeto <- dplyr::count(alocacoes, projeto_id)$n
   linha_base <- medir_linha_base_popularidade(alocacoes, consultores, tamanhos = 20)
   identificabilidade_k5 <- medir_identificabilidade(alocacoes, consultores, projetos, fatores = 5)
+  sem_interacao <- !consultores$consultor_id %in% alocacoes$consultor_id
+  sem_skills <- !consultores$consultor_id %in% skills$consultor_id
 
   tibble::tibble(
     semente = semente,
@@ -76,6 +83,7 @@ medir_realizacao <- function(semente,
     recall_popularidade_20 = linha_base$recall,
     projetos_subdeterminados_k5 = identificabilidade_k5$fracao_projetos_subdeterminados,
     consultores_subdeterminados_k5 = identificabilidade_k5$fracao_consultores_subdeterminados,
+    zona_morta_skills = mean(sem_interacao & sem_skills),
     massa_pct_alocacao_em_1 = mean(alocacoes$pct_alocacao == 1),
     massa_horas_mes_em_0 = mean(alocacoes$horas_mes == 0)
   )

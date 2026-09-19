@@ -30,6 +30,7 @@ mapa_medida_achado <- function() {
     "recall_popularidade_20", "II.1", "linha de base",
     "projetos_subdeterminados_k5", "II.2", "identificabilidade",
     "consultores_subdeterminados_k5", "II.2", "identificabilidade",
+    "zona_morta_skills", "II.3", "cold start cruzado",
     "taxa_mesmo_setor", "II.4", "viés de seleção",
     "massa_pct_alocacao_em_1", "I.2.3", "defeito corrigido",
     "massa_horas_mes_em_0", "I.2.3", "defeito corrigido"

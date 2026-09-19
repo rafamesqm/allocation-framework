@@ -1,0 +1,140 @@
+---
+title: "Bloco II.3 Cold start e forma do híbrido"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii3")
+obj <- bloco$objetos
+skills <- obj$cobertura[obj$cobertura$sinal == "skills técnicas", ]
+```
+
+## Propósito do bloco
+
+**Âncora na literatura.** Burke (2002) organiza os híbridos de recomendação
+em formas com exigências distintas sobre os componentes. Schein, Popescul,
+Ungar e Pennock (2002) formalizam o cold start como o regime em que o
+colaborativo não tem o que dizer e o conteúdo precisa responder sozinho.
+
+**Propriedade medida.** Cobertura de cada sinal disponível, separadamente, e
+o cruzamento entre ausência de histórico e ausência de atributo.
+
+**Decisão que discrimina.** Qual forma de híbrido é viável. A resposta não
+vem de preferência, vem do padrão de cobertura: forma que exige escore dos
+dois componentes para todo par é inviável quando um deles não cobre parte
+das entidades.
+
+## Uma leitura da Parte I que este bloco desfaz
+
+O achado I.1.3 registrou que cerca de metade dos consultores não tem skill
+registrada, e concluiu que um componente baseado em conteúdo opera sobre
+aproximadamente metade da população. A conclusão estava certa para o sinal
+medido e errada como afirmação sobre o conteúdo em geral, porque tratava os
+sinais de conteúdo como um bloco.
+
+```{r cobertura, fig.width = 7.5, fig.height = 5}
+bloco$figuras$ii3_cobertura_sinais
+```
+
+```{r cobertura-tabela}
+mostrar_tabela(
+  bloco$tabelas$ii3_cobertura_sinais,
+  "Tabela II.3.1: cobertura de cada sinal, por lado da matriz.",
+  c("l", "l", "l", "r", "r", "r")
+)
+```
+
+Medidos separadamente, `r nrow(obj$universais)` sinais de conteúdo cobrem
+**todos** os consultores: experiência setorial, expertise funcional, idiomas
+e soft skills. Skills técnicas cobrem
+`r formatar_pct(skills$cobertura)` e certificações,
+`r formatar_pct(obj$cobertura$cobertura[obj$cobertura$sinal == "certificações"])`.
+
+Do lado do projeto, setor e offering cobrem 100%, por construção do proxy de
+`P`.
+
+## A zona morta depende de qual sinal se adota
+
+```{r quadrantes}
+mostrar_tabela(
+  bloco$tabelas$ii3_quadrantes_skills,
+  "Tabela II.3.2: quadrantes de viabilidade, tomando skills como sinal de conteúdo.",
+  c("l", "r", "r")
+)
+```
+
+Com skills como sinal de conteúdo, `r obj$cruzamento_skills$zona_morta`
+consultores ficam sem histórico e sem atributo, uma zona em que nenhum
+componente do híbrido tem o que dizer.
+
+Com experiência setorial, a zona morta é de
+`r obj$cruzamento_setor$zona_morta` consultores.
+
+Aqui a ausência de `skills_requeridas[]` como processo na Peers, já
+registrada como achado de pesquisa nas pré-definições, tem uma consequência
+que não era óbvia. Como `P` é estimado a partir de setor e offering, e não de
+requisito técnico capturado, **as skills não teriam contraparte para casar de
+todo modo**. Sua cobertura parcial deixa de ser o gargalo que parecia ser, e
+o gargalo se desloca para a granularidade do espaço setorial.
+
+Uma ressalva sobre o número da zona morta: o gerador sorteia a ausência de
+histórico e a ausência de skills de forma independente, então o excesso
+observado sobre o esperado sob independência
+(`r formatar_decimal(obj$cruzamento_skills$zona_morta_esperada, 1)`) é
+variação de realização, não estrutura. O bloco I.0 acompanha essa grandeza.
+
+## Quais formas de híbrido sobrevivem
+
+```{r formas}
+mostrar_tabela(
+  bloco$tabelas$ii3_formas_hibrido,
+  "Tabela II.3.3: formas de híbrido de Burke (2002) contra o padrão de cobertura medido.",
+  c("l", "l", "c", "l")
+)
+```
+
+Das cinco formas, `r nrow(obj$formas_viaveis)` sobrevivem:
+**`r paste(obj$formas_viaveis$forma, collapse = " e ")`**.
+
+As outras três caem pelo mesmo motivo, em graus diferentes: todas exigem que
+a saída do colaborativo seja confiável, e os blocos II.1 e II.2 mostraram que
+ela não é. A forma ponderada, que a arquitetura conceitual das
+pré-definições sugeria ao falar em combinar sinais, exigiria escore do
+colaborativo para entidade sem histórico, que são
+`r formatar_pct(1 - obj$interacao_consultor$cobertura)` dos consultores e
+`r formatar_pct(1 - obj$interacao_projeto$cobertura)` dos projetos.
+
+**A decisão que este bloco habilita é cascata com o conteúdo à frente.** O
+conteúdo gera o conjunto candidato, aproveitando a cobertura universal no
+espaço setorial, e o colaborativo reordena apenas onde há histórico
+suficiente para isso significar algo.
+
+## O gargalo que se desloca
+
+Cobertura universal não é o mesmo que poder discriminante, e é importante
+não trocar uma conclusão otimista por outra.
+
+O espaço setorial tem `r obj$segmentos` segmentos e
+`r obj$combinacoes_setoriais` combinações de segmento e offering observadas
+entre os projetos. Com 285 consultores, isso dá em média
+`r formatar_decimal(obj$consultores_por_segmento, 0)` consultores por
+segmento.
+
+Um casamento que só distingue segmento não separa consultores **dentro** do
+mesmo segmento, e é justamente essa discriminação que a alocação precisa
+fazer. O gargalo do conteúdo, portanto, não é cobertura; é resolução. Quanto
+de sinal o espaço setorial de fato carrega é a pergunta do bloco II.6.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```
