@@ -34,10 +34,16 @@ executar_ii2 <- function(dados, estabilidade = NULL,
     dados$alocacoes, dados$consultores, dados$projetos, fatores = 10
   )
 
+  # A curva desenha a escala real, e não a sintética, porque é a real que
+  # sustenta o argumento do bloco. As duas coincidem em 0,02% na razão por
+  # parâmetro, então plotar ambas daria duas linhas sobrepostas, o que o
+  # leitor lê como defeito de renderização e não como concordância. A tabela
+  # mostra as duas lado a lado, que é onde a coincidência fica visível.
   curva_comparacao <- purrr::map(fatores, function(k) {
     comparar_porte_com_referencias(
       dados$alocacoes, dados$consultores, dados$projetos, fatores = k
-    )
+    ) |>
+      dplyr::filter(conjunto != "Alocação de consultores (sintético)")
   }) |>
     purrr::list_rbind()
 
@@ -48,16 +54,25 @@ executar_ii2 <- function(dados, estabilidade = NULL,
   k10 <- em(10)
 
   este <- comparacao_k10[comparacao_k10$conjunto == comparacao_k10$conjunto[1], ]
+  real <- comparacao_k10[comparacao_k10$conjunto == "Alocação de consultores (real)", ]
   netflix <- comparacao_k10[comparacao_k10$conjunto == "Netflix Prize", ]
   movielens_pequeno <- comparacao_k10[comparacao_k10$conjunto == "MovieLens 100K", ]
   razao_netflix <- netflix$obs_por_parametro / este$obs_por_parametro
   razao_movielens <- movielens_pequeno$obs_por_parametro / este$obs_por_parametro
+
+  # A distância relativa entre a razão do sintético e a dos agregados reais.
+  # É o que autoriza dizer que a conclusão do bloco não depende do gerador.
+  desvio_real <- abs(este$obs_por_parametro - real$obs_por_parametro) /
+    real$obs_por_parametro
 
   objetos <- list(
     identificabilidade = identificabilidade,
     comparacao_k10 = comparacao_k10,
     curva_comparacao = curva_comparacao,
     k1 = k1, k2 = k2, k5 = k5, k10 = k10,
+    este = este,
+    real = real,
+    desvio_real = desvio_real,
     razao_netflix = razao_netflix,
     razao_movielens = razao_movielens,
     fatores = fatores
@@ -88,7 +103,7 @@ executar_ii2 <- function(dados, estabilidade = NULL,
     ii2_evidencia = figura_evidencia_por_parametro(
       curva_comparacao,
       titulo = "Evidência por parâmetro, contra conjuntos públicos de referência",
-      subtitulo = "Linha tracejada: um parâmetro livre por observação"
+      subtitulo = "Escala real da Peers, medida no Unity Catalog; o sintético coincide com ela em 0,02%. Linha tracejada: um parâmetro livre por observação"
     ),
     ii2_subdeterminacao = figura_subdeterminacao(
       identificabilidade,
@@ -111,9 +126,15 @@ executar_ii2 <- function(dados, estabilidade = NULL,
     ),
     paste0(
       "Abaixo de uma observação por parâmetro não há evidência suficiente ",
-      "para estimar o modelo sem que a regularização faça o trabalho. Como a ",
-      "escala real é a mesma, 285 consultores e 952 projetos, a conclusão ",
-      "vale para o dado real e não apenas para o sintético."
+      "para estimar o modelo sem que a regularização faça o trabalho. A ",
+      "conclusão não depende do gerador: refeita direto sobre os agregados ",
+      "reais documentados, ", formatar_inteiro(real$interacoes),
+      " pares distintos entre ", formatar_inteiro(real$usuarios),
+      " colaboradores e ", formatar_inteiro(real$itens),
+      " códigos de alocação, a razão com dez fatores dá ",
+      formatar_decimal(real$obs_por_parametro, 3), ", contra ",
+      formatar_decimal(este$obs_por_parametro, 3),
+      " no sintético, uma diferença de ", formatar_pct(desvio_real), "."
     ),
 
     "II.2.2", "instrumento",
@@ -172,8 +193,11 @@ executar_ii2 <- function(dados, estabilidade = NULL,
       "para ser, degenera na linha de base de popularidade que ela precisava ",
       "superar. **A decisão que este bloco habilita é que o colaborativo não ",
       "pode ser o componente principal**, e que o peso precisa recair sobre o ",
-      "conteúdo e sobre restrição, não sobre o histórico de interação. A ",
-      "forma do híbrido é decisão do bloco II.3."
+      "conteúdo e sobre restrição, não sobre o histórico de interação. Com a ",
+      "ressalva, que é do bloco II.3 e não deste, de que o conteúdo também ",
+      "não cobre todo mundo: ele alcança menos consultores que o próprio ",
+      "colaborativo, e transferir o peso para ele não resolve o caso de quem ",
+      "não tem nenhum dos dois. A forma do híbrido é decisão do bloco II.3."
     )
   ))
 

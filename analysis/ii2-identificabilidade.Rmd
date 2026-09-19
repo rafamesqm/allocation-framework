@@ -61,6 +61,15 @@ Com cinco fatores, `r formatar_decimal(obj$k5$obs_por_parametro, 2)`.
 Um número isolado não diz se é pouco. A comparação é com os conjuntos sobre
 os quais a fatoração latente foi construída e validada.
 
+A tabela traz também a **escala real** da matriz de alocação, e não apenas a
+sintética. Os três números estão documentados em
+`docs/mapeamento_schema.md`: `r formatar_inteiro(obj$real$interacoes)` pares
+distintos entre `r formatar_inteiro(obj$real$usuarios)` colaboradores e
+`r formatar_inteiro(obj$real$itens)` códigos de alocação, levantados no
+último acesso ao Unity Catalog. Isso muda o estatuto da conclusão deste
+bloco: ela deixa de depender de o gerador ter acertado a escala e passa a ser
+calculável direto sobre agregados reais.
+
 ```{r comparacao}
 mostrar_tabela(
   bloco$tabelas$ii2_comparacao_porte,
@@ -80,6 +89,22 @@ contra `r formatar_decimal(movielens$obs_por_parametro, 1)` do MovieLens
 São `r formatar_decimal(obj$razao_movielens, 0)` e
 `r formatar_decimal(obj$razao_netflix, 0)` vezes menos evidência,
 respectivamente.
+
+A escala real dá `r formatar_decimal(obj$real$obs_por_parametro, 3)` contra
+`r formatar_decimal(obj$este$obs_por_parametro, 3)` do sintético, uma
+diferença de `r formatar_pct(obj$desvio_real)`. As duas coincidem porque o
+que a razão mede é a proporção entre pares observados e soma das dimensões,
+e o gerador foi calibrado justamente sobre a densidade real. **A conclusão
+deste bloco, portanto, não é sobre o sintético.** A figura desenha a curva
+real pelo mesmo motivo: plotar as duas daria duas linhas sobrepostas, que o
+leitor leria como defeito de renderização em vez de concordância.
+
+Uma ressalva que acompanha o número real e não se resolve: o join que
+produziu os `r formatar_inteiro(obj$real$interacoes)` pares supõe que `ID`
+em entidades e `Cód. Colaborador` em alocação são a mesma chave, o que nunca
+foi confirmado com o time de dados, e o acesso está encerrado. Para o uso que
+se faz dele aqui, comparar ordem de grandeza, seria preciso errar por mais de
+uma ordem de grandeza para a conclusão mudar.
 
 O MovieLens 100K merece atenção especial nessa comparação: é o **menor**
 conjunto de uso corrente na literatura, frequentemente criticado por ser

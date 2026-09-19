@@ -86,23 +86,66 @@ medir_identificabilidade <- function(alocacoes, consultores, projetos,
 #' @param alocacoes,consultores,projetos Dados deste projeto.
 #' @param fatores Número de fatores usado na comparação.
 #' @param referencias tibble de `referencias_identificabilidade()`.
+#' @param incluir_real Se `TRUE`, acrescenta a escala real da Peers medida no
+#'   Unity Catalog, de `escala_real_alocacao()`.
 #' @return tibble com `conjunto`, `interacoes`, `usuarios`, `itens`,
 #'   `parametros` e `obs_por_parametro`, incluindo este projeto na primeira
 #'   linha.
 comparar_porte_com_referencias <- function(alocacoes, consultores, projetos,
                                             fatores = 10,
-                                            referencias = referencias_identificabilidade()) {
+                                            referencias = referencias_identificabilidade(),
+                                            incluir_real = TRUE) {
   este_projeto <- tibble::tibble(
-    conjunto = "Alocação de consultores",
+    conjunto = "Alocação de consultores (sintético)",
     interacoes = nrow(alocacoes),
     usuarios = nrow(consultores),
     itens = nrow(projetos)
   )
 
-  dplyr::bind_rows(este_projeto, referencias) |>
+  linhas <- if (incluir_real) {
+    dplyr::bind_rows(este_projeto, escala_real_alocacao(), referencias)
+  } else {
+    dplyr::bind_rows(este_projeto, referencias)
+  }
+
+  linhas |>
     dplyr::mutate(
       fatores = fatores,
       parametros = (usuarios + itens) * fatores,
       obs_por_parametro = interacoes / parametros
     )
+}
+
+#' Escala real da matriz de alocação da Peers, medida no Unity Catalog
+#'
+#' Muda o estatuto da conclusão do bloco II.2. Sem esta linha, a razão de
+#' observações por parâmetro é calculada sobre o sintético, e a afirmação de
+#' que ela vale para o real depende de o gerador ter acertado a escala. Com
+#' ela, a razão é calculada direto sobre agregados reais documentados, e a
+#' conclusão sobre identificabilidade passa a não depender do gerador em
+#' nada.
+#'
+#' Os três números estão em `docs/mapeamento_schema.md` (Primeira rodada,
+#' `vw_gtac_cltv_alocacao`): 4.598 pares distintos entre 511 colaboradores e
+#' 1.833 códigos de alocação. Note que 511 é o histórico completo, com
+#' desligados, e não os 285 ativos, e que o código de alocação não é a mesma
+#' coisa que projeto; é a granularidade que o dado real oferece.
+#'
+#' **Ressalva que acompanha o número.** O join que produziu os 4.598 pares
+#' supõe que `ID` em entidades e `Cód. Colaborador` em alocação são a mesma
+#' chave, o que nunca foi confirmado com o time de dados, e o acesso está
+#' encerrado. O número é estimativa de primeira passada. Para o uso que se
+#' faz dele aqui, comparar ordem de grandeza contra conjuntos públicos, a
+#' ressalva não morde: seria preciso errar por mais de uma ordem de grandeza
+#' para a conclusão mudar.
+#'
+#' @return tibble de uma linha, no mesmo formato de
+#'   `referencias_identificabilidade()`.
+escala_real_alocacao <- function() {
+  tibble::tibble(
+    conjunto = "Alocação de consultores (real)",
+    interacoes = 4598,
+    usuarios = 511,
+    itens = 1833
+  )
 }

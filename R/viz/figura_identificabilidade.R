@@ -13,8 +13,17 @@
 #' @param comparacao tibble longo com `conjunto`, `fatores` e
 #'   `obs_por_parametro`.
 #' @param titulo,subtitulo Rótulos da figura.
+#' @param fonte Nota de rodapé. O default difere do restante do projeto de
+#'   propósito: esta figura não desenha dado sintético nenhum, e sim
+#'   agregados reais e números publicados de conjuntos de referência.
+#'   Repetir a nota padrão aqui seria afirmar uma procedência errada.
 #' @return Objeto ggplot.
-figura_evidencia_por_parametro <- function(comparacao, titulo, subtitulo = NULL) {
+figura_evidencia_por_parametro <- function(comparacao, titulo, subtitulo = NULL,
+                                            fonte = paste(
+                                              "Fonte: agregados de",
+                                              "docs/mapeamento_schema.md para a escala real, e números publicados",
+                                              "dos conjuntos de referência."
+                                            )) {
   paleta <- paleta_monografia()
 
   dados_figura <- dplyr::mutate(
@@ -44,7 +53,8 @@ figura_evidencia_por_parametro <- function(comparacao, titulo, subtitulo = NULL)
       eixo_x = "Número de fatores latentes",
       eixo_y = "Observações por parâmetro (log)",
       legenda = "Conjunto",
-      legenda_estetica = "colour"
+      legenda_estetica = "colour",
+      fonte = fonte
     )
 }
 

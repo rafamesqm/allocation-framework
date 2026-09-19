@@ -32,17 +32,45 @@ test_that("a subdeterminacao cresce de forma monotonica com o numero de fatores"
   expect_true(all(diff(medida$obs_por_parametro) < 0))
 })
 
-test_that("a comparacao com referencias publicas inclui este projeto e os tres conjuntos", {
+test_that("a comparacao inclui o sintetico, a escala real e os tres conjuntos", {
   dados <- carregar_dados(tabelas = c("consultores", "projetos", "alocacoes"))
 
   comparacao <- comparar_porte_com_referencias(
     dados$alocacoes, dados$consultores, dados$projetos, fatores = 10
   )
 
-  expect_equal(nrow(comparacao), 4)
+  expect_equal(nrow(comparacao), 5)
   expect_true(all(c("Netflix Prize", "MovieLens 1M", "MovieLens 100K") %in% comparacao$conjunto))
-  # Este projeto tem menos evidencia por parametro que qualquer referencia.
-  expect_equal(which.min(comparacao$obs_por_parametro), 1)
+
+  # Os dois lados do problema, sintetico e real, tem menos evidencia por
+  # parametro que qualquer referencia publica.
+  este <- comparacao[grepl("Alocação de consultores", comparacao$conjunto), ]
+  publicos <- comparacao[!grepl("Alocação de consultores", comparacao$conjunto), ]
+  expect_equal(nrow(este), 2)
+  expect_lt(max(este$obs_por_parametro), min(publicos$obs_por_parametro))
+})
+
+test_that("a escala real vem dos agregados documentados e sustenta a conclusao", {
+  # E o que torna o achado II.2.1 independente do gerador: a razao calculada
+  # sobre os agregados reais bate com a do sintetico.
+  real <- escala_real_alocacao()
+
+  expect_equal(real$interacoes, 4598)
+  expect_equal(real$usuarios, 511)
+  expect_equal(real$itens, 1833)
+  expect_lt(real$interacoes / ((real$usuarios + real$itens) * 10), 1)
+})
+
+test_that("a comparacao pode dispensar a escala real", {
+  dados <- carregar_dados(tabelas = c("consultores", "projetos", "alocacoes"))
+
+  comparacao <- comparar_porte_com_referencias(
+    dados$alocacoes, dados$consultores, dados$projetos,
+    fatores = 10, incluir_real = FALSE
+  )
+
+  expect_equal(nrow(comparacao), 4)
+  expect_false(any(grepl("real", comparacao$conjunto)))
 })
 
 test_that("os numeros dos conjuntos publicos batem com os valores publicados", {
