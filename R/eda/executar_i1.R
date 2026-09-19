@@ -28,14 +28,32 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
 
   skills <- cobertura[cobertura$tabela == "skills_consultor" &
     cobertura$coluna == "consultor_id", ]
-  cobertura_integral <- sum(cobertura$cobertura == 1)
+  integrais <- dplyr::filter(cobertura, cobertura == 1)
+  cobertura_integral <- nrow(integrais)
+
+  # Os sinais que vêm da campanha de formulários compartilham exatamente o
+  # mesmo conjunto de respondentes, e é isso que torna a ausência de conteúdo
+  # um bloco único de consultores em vez de ausências que se compensariam.
+  #
+  # A lista vem declarada de `tabelas_derivadas_de_formulario()`, e não de um
+  # filtro sobre a cobertura medida: `alocacoes` e `ocupacao_consultor`
+  # também têm cobertura parcial, por motivo inteiramente diferente, e um
+  # filtro as arrastaria para dentro da afirmação.
+  sinais_de_formulario <- tabelas_derivadas_de_formulario()
+  cobertura_formulario <- cobertura |>
+    dplyr::filter(coluna == "consultor_id", tabela %in% sinais_de_formulario)
+  cobertura_unica_formulario <- length(unique(round(cobertura_formulario$cobertura, 6))) == 1
 
   objetos <- list(
     inventario = inventario,
     divergencias = divergencias,
     integridade = integridade,
     cobertura = cobertura,
-    especificacao = especificacao
+    especificacao = especificacao,
+    integrais = integrais,
+    sinais_de_formulario = sinais_de_formulario,
+    cobertura_formulario = cobertura_formulario,
+    cobertura_unica_formulario = cobertura_unica_formulario
   )
 
   tabelas <- list(
@@ -99,42 +117,72 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
 
     "I.1.3", "âncora real",
     paste0(
-      "A ausência relevante não é célula vazia, é entidade sem registro. ",
-      "Skills é o caso de maior consequência: nesta realização cobre ",
-      formatar_pct(skills$cobertura), " dos consultores",
+      "A ausência relevante não é célula vazia, é entidade sem registro. O ",
+      "caso de maior consequência é o do conteúdo, e skills é o ",
+      "representante dele com âncora real: nesta realização cobre ",
+      formatar_pct(skills$cobertura), " dos consultores, a mesma cobertura ",
+      "dos demais sinais da campanha de formulários (ver I.1.5)",
       if (is.null(estabilidade)) {
         "."
       } else {
         paste0(
-          ", e sobre as realizações a fração **sem** nenhum atributo técnico ",
-          "fica em ", formatar_intervalo(estabilidade, "fracao_sem_skills"), "."
+          ", e sobre as realizações a fração **sem** nenhum atributo de ",
+          "conteúdo declarado fica em ",
+          formatar_intervalo(estabilidade, "fracao_sem_skills"), "."
         )
       }
     ),
     paste0(
       "Calibrado contra a medida real de 48,4%. Um componente baseado em ",
       "conteúdo opera sobre aproximadamente metade da população, e isso o ",
-      "limita antes de qualquer escolha de algoritmo. ",
-      if (is.null(estabilidade)) {
-        ""
+      "limita antes de qualquer escolha de algoritmo. A magnitude não é ",
+      "estimada pelo sintético, é imposta a ele pela âncora real: ver I.0.2 ",
+      "para por que a ausência de variação entre realizações não deve ser ",
+      "lida como robustez."
+    ),
+
+    "I.1.5", "instrumento",
+    paste0(
+      "Os ", length(sinais_de_formulario), " sinais de conteúdo que a fonte ",
+      "real deriva da campanha de formulários de skills (",
+      paste(sinais_de_formulario, collapse = ", "), ") têm cobertura ",
+      if (cobertura_unica_formulario) {
+        paste0(
+          "idêntica entre si, de ",
+          formatar_pct(max(cobertura_formulario$cobertura)),
+          ", porque são as mesmas pessoas que responderam"
+        )
       } else {
         paste0(
-          "O intervalo cruza a marca de metade, então a afirmação de que é ",
-          "*mais* da metade não se sustenta numa realização única: ver I.0.2."
+          "divergente entre si, de ",
+          formatar_pct(min(cobertura_formulario$cobertura)), " a ",
+          formatar_pct(max(cobertura_formulario$cobertura)),
+          ", o que o gerador não deveria produzir e indica que o sorteio de ",
+          "respondentes deixou de ser compartilhado"
         )
-      }
+      }, "."
+    ),
+    paste0(
+      "A consequência é estrutural e não aritmética: o cold start do lado do ",
+      "conteúdo é **um bloco único** de consultores sem nenhum atributo ",
+      "declarado, e não ausências independentes por sinal que se ",
+      "compensariam entre si. Trocar um sinal de conteúdo por outro não ",
+      "recupera ninguém, o que decide a forma do híbrido no bloco II.3."
     ),
 
     "I.1.4", "consequência do gerador",
     paste0(
       cobertura_integral, " das ", nrow(cobertura),
-      " referências têm cobertura integral por construção do gerador, entre ",
-      "elas custo, expertise funcional, férias, idiomas e as duas de margem."
+      " referências têm cobertura integral por construção do gerador: ",
+      paste0(integrais$tabela, ".", integrais$coluna, collapse = ", "), "."
     ),
     paste0(
       "Nenhuma delas tem calibração real de cobertura, e nenhuma análise ",
       "posterior deve tratá-las como universais no dado real sem dizer que ",
-      "essa universalidade é artefato."
+      "essa universalidade é artefato. A única exceção é ",
+      "`idiomas_consultor`, cuja fonte é `vw_apdata_bi_entidades_globais`, ",
+      "base corporativa sem nulo entre os 285 ativos: ali a cobertura ",
+      "integral é âncora real, não construção."
     )
   ))
 

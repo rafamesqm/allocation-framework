@@ -1,27 +1,29 @@
 Medida,Mediana,Desvio MC,Inferior,Superior,Amplitude relativa,Classe,Sustenta
-zona_morta_skills,"0,0842","0,0121","0,0702","0,1123","50,0%",frágil,II.3
 cor_nivel_tempo_casa,"0,3348","0,0472","0,2538","0,4043","45,0%",frágil,I.3.1
+zona_morta_skills,"0,0877","0,0107","0,0667","0,1019","40,2%",frágil,II.3
+zona_morta_setor,"0,0877","0,0107","0,0667","0,1019","40,2%",frágil,II.3
+acima_capacidade,"0,2328","0,0267","0,1990","0,2854","37,1%",frágil,I.2.4
 v_contrato_nivel,"0,2852","0,0315","0,2377","0,3417","36,5%",frágil,I.3.4
-acima_capacidade,"0,2344","0,0279","0,1979","0,2827","36,2%",frágil,I.2.4
 dispersao_grau_consultor,"5,4685","0,5345","4,6055","6,3903","32,6%",frágil,II.1
 dispersao_grau_projeto,"2,2036","0,1808","1,9612","2,5460","26,5%",frágil,II.1
 recall_popularidade_20,"0,2164","0,0158","0,1847","0,2360","23,7%",frágil,II.1
 n_localizacoes,"9,0000","0,8411","8,0000","10,0000","22,2%",frágil,I.2.1
-cobertura_skills,"0,4842","0,0301","0,4314","0,5333","21,1%",frágil,I.1.3
-fracao_sem_skills,"0,5158","0,0301","0,4667","0,5686","19,8%",frágil,I.1.3
 consultores_subdeterminados_k5,"0,3579","0,0179","0,3263","0,3860","16,7%",frágil,II.2
-agrupamento_grafo,"0,3548","0,0145","0,3337","0,3803","13,1%",estável,I.5.1
+agrupamento_grafo,"0,3542","0,0143","0,3350","0,3804","12,8%",estável,I.5.1
 cold_start_projeto,"0,1943","0,0077","0,1849","0,2081","11,9%",estável,"I.1.3, II.3"
 gini_grau_consultor,"0,3841","0,0136","0,3624","0,4029","10,5%",estável,II.1
-cor_nivel_pct_alocacao,"0,4738","0,0145","0,4506","0,4994","10,3%",estável,I.3.1
-taxa_mesmo_setor,"0,6188","0,0172","0,5899","0,6439","8,7%",estável,II.4
-cor_nivel_horas_mes,"-0,5201","0,0135","-0,5448","-0,4997","8,7%",estável,I.3.1
+cor_nivel_pct_alocacao,"0,4738","0,0149","0,4467","0,4948","10,2%",estável,I.3.1
+taxa_mesmo_setor,"0,6193","0,0176","0,5877","0,6439","9,1%",estável,II.4
+cor_nivel_horas_mes,"-0,5236","0,0137","-0,5457","-0,5003","8,7%",estável,I.3.1
 densidade_R,"0,0091","0,0002","0,0088","0,0095","8,0%",estável,II.1
 grau_medio_consultor,"10,4304","0,2629","10,0671","10,9032","8,0%",estável,II.1
 cor_nivel_custo,"0,8347","0,0192","0,8010","0,8606","7,1%",estável,I.3.1
 gini_grau_projeto,"0,4076","0,0091","0,3925","0,4211","7,0%",estável,II.1
-isolados_grafo,"49,0000","0,9151","48,0000","51,0000","6,1%",estável,I.5.4
+isolados_grafo,"49,0000","1,0132","48,0000","51,0000","6,1%",estável,I.5.4
 projetos_subdeterminados_k5,"0,8172","0,0095","0,7994","0,8319","4,0%",estável,II.2
 cold_start_consultor,"0,1684","0,0000","0,1684","0,1684","0,0%",invariante,"I.1.3, II.3"
+cobertura_skills,"0,4842","0,0000","0,4842","0,4842","0,0%",invariante,I.1.3
+fracao_sem_skills,"0,5158","0,0000","0,5158","0,5158","0,0%",invariante,I.1.3
+cobertura_setor_observada,"0,4842","0,0000","0,4842","0,4842","0,0%",invariante,"I.1.3, II.3"
 massa_pct_alocacao_em_1,"0,0000","0,0000","0,0000","0,0000",n/a,invariante,I.2.3
 massa_horas_mes_em_0,"0,0000","0,0000","0,0000","0,0000",n/a,invariante,I.2.3

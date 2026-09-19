@@ -26,10 +26,18 @@ medir_realizacao <- function(semente,
   projetos <- gerar_projetos(
     n_projetos = n_projetos, semente = semente, data_referencia = data_referencia
   )
+  # `experiencia` é o atributo latente e alimenta a alocação, que responde à
+  # experiência real da pessoa. `experiencia_observada` é o que o formulário
+  # capturou, e é sobre ela que a cobertura de conteúdo é medida. Misturar as
+  # duas aqui reintroduziria o artefato que a Parte II encontrou.
+  respondentes <- sortear_respondentes_formulario(consultores)
   experiencia <- gerar_experiencia_setorial(consultores)
+  experiencia_observada <- restringir_a_respondentes(experiencia, respondentes)
   alocacoes <- gerar_alocacoes(consultores, projetos, experiencia, semente = semente)
   custo <- gerar_custo_carregado(consultores, semente = semente)
-  skills <- gerar_skills_consultor(consultores, gerar_espaco_skills())
+  skills <- gerar_skills_consultor(
+    consultores, gerar_espaco_skills(), respondentes = respondentes
+  )
   grafo <- gerar_grafo_coalocacao(alocacoes)
   ocupacao <- agregar_ocupacao_consultor(alocacoes)
 
@@ -55,6 +63,7 @@ medir_realizacao <- function(semente,
   identificabilidade_k5 <- medir_identificabilidade(alocacoes, consultores, projetos, fatores = 5)
   sem_interacao <- !consultores$consultor_id %in% alocacoes$consultor_id
   sem_skills <- !consultores$consultor_id %in% skills$consultor_id
+  sem_setor_observado <- !consultores$consultor_id %in% experiencia_observada$consultor_id
 
   tibble::tibble(
     semente = semente,
@@ -84,6 +93,8 @@ medir_realizacao <- function(semente,
     projetos_subdeterminados_k5 = identificabilidade_k5$fracao_projetos_subdeterminados,
     consultores_subdeterminados_k5 = identificabilidade_k5$fracao_consultores_subdeterminados,
     zona_morta_skills = mean(sem_interacao & sem_skills),
+    cobertura_setor_observada = mean(!sem_setor_observado),
+    zona_morta_setor = mean(sem_interacao & sem_setor_observado),
     massa_pct_alocacao_em_1 = mean(alocacoes$pct_alocacao == 1),
     massa_horas_mes_em_0 = mean(alocacoes$horas_mes == 0)
   )

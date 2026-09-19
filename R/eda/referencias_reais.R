@@ -199,3 +199,35 @@ confrontar_proporcoes <- function(tabela, nome_tabela, nome_variavel,
     dplyr::select(categoria, proporcao_real, proporcao_sintetica, diferenca, rodada) |>
     dplyr::arrange(dplyr::desc(proporcao_real))
 }
+
+#' Tabelas cujo sinal a fonte real deriva da campanha de formulários de skills
+#'
+#' Declaração, não inferência. A lista vem do crosswalk de
+#' `docs/mapeamento_schema.md`, que aponta `skills_hard[]`,
+#' `experiencia_setorial[]`, `expertise_funcional` e `soft_skills[]` para os
+#' arquivos de `data/raw/skills/`, com `certificacoes[]` como campo opcional
+#' dentro dos mesmos formulários.
+#'
+#' Precisa ser declarada porque não dá para reconhecer essas tabelas pela
+#' cobertura medida: `alocacoes` e `ocupacao_consultor` também cobrem parte
+#' dos consultores, por motivo inteiramente diferente, e um filtro por
+#' cobertura parcial as arrastaria junto.
+#'
+#' `idiomas_consultor` fica de fora: a fonte é
+#' `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os 285
+#' ativos, e não o formulário.
+#'
+#' @param incluir_opcionais Se `TRUE`, inclui `certificacoes_consultor`, que
+#'   é campo opcional dentro do formulário e por isso cobre um subconjunto
+#'   dos respondentes, não todos eles.
+#' @return Vetor com os nomes das tabelas.
+tabelas_derivadas_de_formulario <- function(incluir_opcionais = FALSE) {
+  obrigatorias <- c(
+    "skills_consultor",
+    "experiencia_setorial",
+    "expertise_funcional",
+    "soft_skills_consultor"
+  )
+
+  if (incluir_opcionais) c(obrigatorias, "certificacoes_consultor") else obrigatorias
+}

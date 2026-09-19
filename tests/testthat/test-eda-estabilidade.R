@@ -96,7 +96,10 @@ test_that("os blocos aceitam estabilidade e citam o intervalo no achado", {
   achado_sem <- sem_intervalo$achados$enunciado[sem_intervalo$achados$codigo == "I.1.3"]
   achado_com <- com_intervalo$achados$enunciado[com_intervalo$achados$codigo == "I.1.3"]
 
-  expect_false(grepl(" a ", achado_sem, fixed = TRUE))
+  # Sem estabilidade o achado nao pode citar faixa entre realizacoes; com ela,
+  # precisa citar. Testado pela mencao a realizacoes, e nao pela presenca do
+  # conectivo " a ", que aparece na prosa comum do enunciado.
+  expect_false(grepl("realizações", achado_sem, fixed = TRUE))
   expect_match(achado_com, "realizações")
   expect_true(nchar(achado_com) > nchar(achado_sem))
 })

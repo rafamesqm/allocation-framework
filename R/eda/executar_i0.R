@@ -31,6 +31,8 @@ mapa_medida_achado <- function() {
     "projetos_subdeterminados_k5", "II.2", "identificabilidade",
     "consultores_subdeterminados_k5", "II.2", "identificabilidade",
     "zona_morta_skills", "II.3", "cold start cruzado",
+    "cobertura_setor_observada", "I.1.3, II.3", "cobertura do conteúdo",
+    "zona_morta_setor", "II.3", "cold start cruzado",
     "taxa_mesmo_setor", "II.4", "viés de seleção",
     "massa_pct_alocacao_em_1", "I.2.3", "defeito corrigido",
     "massa_horas_mes_em_0", "I.2.3", "defeito corrigido"
@@ -74,9 +76,19 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15) {
   invariantes <- dplyr::filter(classificado, classe == "invariante")
   mais_fragil <- classificado[which.max(classificado$amplitude_relativa), ]
 
-  # O caso que mais importa: a fração sem skills cruza a metade dentro do
-  # intervalo, então a leitura qualitativa do achado I.1.3 depende da semente.
+  # O caso que mais importa é a fração de consultores sem atributo de
+  # conteúdo, porque dela depende a leitura qualitativa do achado I.1.3.
+  #
+  # Há três regimes possíveis, e eles não querem dizer a mesma coisa. Se o
+  # intervalo cruza a metade, a leitura depende da semente. Se não cruza mas
+  # a grandeza varia, a leitura é robusta. E se a grandeza não varia, ela
+  # parou de ser um resultado: virou o complemento do parâmetro de cobertura,
+  # que é o que acontece desde que os sinais de formulário passaram a
+  # compartilhar um conjunto fixo de respondentes calibrado em 48,4%. Chamar
+  # esse terceiro caso de estabilidade seria vender parâmetro como achado,
+  # exatamente o que o achado I.0.3 existe para denunciar.
   sem_skills <- estabilidade[estabilidade$medida == "fracao_sem_skills", ]
+  sem_skills_invariante <- sem_skills$desvio_mc == 0
   cruza_metade <- sem_skills$inferior < 0.5 && sem_skills$superior > 0.5
 
   objetos <- list(
@@ -88,6 +100,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15) {
     mais_fragil = mais_fragil,
     sem_skills = sem_skills,
     cruza_metade = cruza_metade,
+    sem_skills_invariante = sem_skills_invariante,
     n_replicas = nrow(replicas),
     nivel = nivel,
     limite_fragilidade = limite_fragilidade
@@ -135,7 +148,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15) {
     paste0(
       "O conjunto versionado é uma realização entre muitas, e a variabilidade ",
       "entre elas não é desprezível: das ", nrow(classificado),
-      " grandezas que sustentam achados da Parte I, ", nrow(frageis),
+      " grandezas que sustentam achados do capítulo, ", nrow(frageis),
       " têm amplitude relativa acima de ",
       formatar_pct(limite_fragilidade), ". A mais frágil é ",
       mais_fragil$medida, ", com ",
@@ -150,13 +163,29 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15) {
 
     "I.0.2", "instrumento",
     paste0(
-      "A fração de consultores sem nenhuma skill fica em ",
-      formatar_intervalo(estabilidade, "fracao_sem_skills"),
-      ", intervalo que ", if (cruza_metade) "cruza" else "não cruza",
-      " a marca de metade da população."
+      "A fração de consultores sem nenhum atributo de conteúdo declarado ",
+      "fica em ", formatar_intervalo(estabilidade, "fracao_sem_skills"),
+      if (sem_skills_invariante) {
+        ", sem variação entre realizações."
+      } else {
+        paste0(
+          ", intervalo que ", if (cruza_metade) "cruza" else "não cruza",
+          " a marca de metade da população."
+        )
+      }
     ),
     paste0(
-      if (cruza_metade) {
+      if (sem_skills_invariante) {
+        paste0(
+          "A ausência de variação **não** é robustez do achado I.1.3, e ler ",
+          "assim seria o erro que o achado I.0.3 descreve. Desde que os ",
+          "sinais de formulário passaram a compartilhar um conjunto fixo de ",
+          "respondentes, esta fração é o complemento exato da cobertura real ",
+          "calibrada de 48,4%: ela não é estimada pelo sintético, é imposta a ",
+          "ele. O que o sintético sustenta aqui é a estrutura de quem fica de ",
+          "fora, não a magnitude, que vem inteira da âncora real."
+        )
+      } else if (cruza_metade) {
         paste0(
           "A afirmação qualitativa de que mais da metade dos consultores não ",
           "tem atributo de conteúdo, escrita no achado I.1.3 a partir de uma ",

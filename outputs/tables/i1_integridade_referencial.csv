@@ -1,11 +1,11 @@
 Tabela,Coluna,Referência,Valores distintos,Órfãos
-skills_consultor,consultor_id,consultores.consultor_id,134,0
+skills_consultor,consultor_id,consultores.consultor_id,138,0
 skills_consultor,skill_id,espaco_skills.skill_id,140,0
-experiencia_setorial,consultor_id,consultores.consultor_id,285,0
-expertise_funcional,consultor_id,consultores.consultor_id,285,0
+experiencia_setorial,consultor_id,consultores.consultor_id,138,0
+expertise_funcional,consultor_id,consultores.consultor_id,138,0
 idiomas_consultor,consultor_id,consultores.consultor_id,285,0
-certificacoes_consultor,consultor_id,consultores.consultor_id,107,0
-soft_skills_consultor,consultor_id,consultores.consultor_id,285,0
+certificacoes_consultor,consultor_id,consultores.consultor_id,49,0
+soft_skills_consultor,consultor_id,consultores.consultor_id,138,0
 alocacoes,consultor_id,consultores.consultor_id,237,0
 alocacoes,projeto_id,projetos.projeto_id,749,0
 avaliacoes_desempenho,consultor_id,consultores.consultor_id,219,0

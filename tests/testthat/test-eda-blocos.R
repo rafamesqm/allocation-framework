@@ -61,7 +61,7 @@ test_that("executar_i1 devolve as quatro partes do bloco", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_true(all(vapply(bloco$tabelas, is.data.frame, logical(1))))
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
-  expect_equal(nrow(bloco$achados), 4)
+  expect_equal(nrow(bloco$achados), 5)
 })
 
 test_that("executar_i2 devolve as quatro partes do bloco", {

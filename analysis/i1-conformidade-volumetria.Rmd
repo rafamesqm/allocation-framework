@@ -126,12 +126,21 @@ aloc_projeto <- pega("alocacoes", "projeto_id")
 
 Três leituras, com status epistêmico diferente entre si.
 
-A cobertura de skills, `r formatar_pct(skills$cobertura)`, é a única com
-âncora empírica: reproduz a medida real de 48,4% dos consultores ativos com
-ao menos uma resposta de formulário, levantada por interseção de hashes no
-último acesso ao ambiente. O número diz que **mais da metade dos consultores
-não tem nenhum atributo de skill**, e isso limita o content-based antes de
-qualquer decisão de algoritmo.
+A cobertura de skills, `r formatar_pct(skills$cobertura)`, tem âncora
+empírica: reproduz a medida real de 48,4% dos consultores ativos com ao
+menos uma resposta de formulário, levantada por interseção de hashes no
+último acesso ao ambiente.
+
+O ponto que importa, porém, não é o de skills isoladamente. Os
+`r length(obj$sinais_de_formulario)` sinais que a fonte real deriva da mesma
+campanha de formulários
+(`r paste(obj$sinais_de_formulario, collapse = ", ")`) cobrem exatamente as
+mesmas pessoas, e o achado I.1.5 registra a verificação. Quem não respondeu
+não tem nenhum deles, e por isso **mais da metade dos consultores não tem
+atributo de conteúdo algum derivado de formulário**, e não apenas uma lacuna
+em skills que outro sinal preencheria. É um bloco único de pessoas, o que
+limita o content-based antes de qualquer decisão de algoritmo e decide a
+forma do híbrido no bloco II.3.
 
 A cobertura de alocação, `r formatar_pct(aloc_consultor$cobertura)` do lado
 do consultor e `r formatar_pct(aloc_projeto$cobertura)` do lado do projeto,
@@ -140,10 +149,20 @@ calibrada em 17% contra o dado real, com a ressalva de cobertura de join já
 registrada em `docs/mapeamento_schema.md`. A caracterização propriamente
 dita fica para o bloco II.3.
 
-As tabelas com cobertura total são consequência do gerador, não observação:
-ele produz uma linha por entidade por construção. No dado real não há razão
-para esperar cobertura integral em nenhuma delas, e tratar qualquer uma como
-universal seria erro de leitura.
+As tabelas com cobertura total são, em geral, consequência do gerador e não
+observação: ele produz uma linha por entidade por construção, e no dado real
+não há razão para esperar cobertura integral. Tratar qualquer uma delas como
+universal seria erro de leitura, e foi exatamente esse erro que a primeira
+versão do bloco II.3 cometeu, ao concluir sobre a arquitetura do híbrido
+apoiada em coberturas integrais que este achado já classificava como
+artefato.
+
+A exceção é `idiomas_consultor`. A fonte é
+`vw_apdata_bi_entidades_globais`, base corporativa que não tem nulo entre os
+285 ativos, então ali a cobertura integral é âncora real. É o único sinal de
+conteúdo do lado do consultor sobre o qual se pode afirmar cobertura
+universal no dado real, e o bloco II.3 mostra que ele é também o que menos
+discrimina.
 
 ## Achados do bloco
 
