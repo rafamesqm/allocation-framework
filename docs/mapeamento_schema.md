@@ -406,6 +406,33 @@ mín/média/máx por nível para amostrar `custo_carregado` no sintético.
 média ~431.862, máximo ~38.816.467. Distribuição muito assimétrica à direita,
 não normal, não amostrar como normal no sintético.
 
+**Granularidade confirmada pelo usuário (2026-09-19): `valor_contrato` em
+`actarnet_alocacao_pessoas` é por projeto, não por alocação e pessoa.** O
+bloco II.5 da EDA levantou a hipótese contrária, a partir do nome da tabela
+e do volume de linhas, ao encontrar margem estrutural implausível. A
+hipótese está descartada, e a implausibilidade continua a ser explicada.
+Ver a questão aberta sobre `vw_gtac_fin_taxa_hora` abaixo.
+
+**Questão aberta (levantada pelo bloco II.5 da EDA, 2026-09-19): `Taxa` em
+`vw_gtac_fin_taxa_hora` é preço ou custo?** A Quinta rodada registrou a
+tabela como *rate card*, termo que designa tabela de preço. O dicionário e o
+gerador a tratam como `custo_carregado`, isto é, custo da pessoa para a
+empresa. As duas leituras não são compatíveis, e a EDA achou dois indícios
+de que a coluna é preço:
+
+* a razão entre custo calculado e valor de contrato centra em torno de 1,
+  quando custo contra receita centraria bem abaixo disso;
+* sobre a jornada calibrada de 120 h/mês, a taxa implica custo mensal da
+  ordem de 32 mil reais para o nível mais júnior e 144 mil para o mais
+  sênior, valores plausíveis como faturamento e não como salário mais
+  encargos.
+
+Se a coluna for preço, a Peers não tem custo interno por pessoa em lugar
+nenhum além de `peers_custointerns_vlr` (frente/mês, 44,7% zerado), e o
+objetivo econômico da wave 4 fica sem base de dados defensável. O acesso ao
+ambiente está encerrado e a distinção não é derivável do que ficou
+registrado, então fica como questão aberta e não como achado.
+
 **Cold start e densidade (join de checagem, não validado a fundo):** 48 dos
 285 consultores ativos não aparecem em nenhuma linha de `vw_gtac_cltv_alocacao`
 (~17%, primeira estimativa de cold start do lado consultor). 4598 pares

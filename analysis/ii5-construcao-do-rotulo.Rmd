@@ -232,7 +232,7 @@ que é a fonte do problema do candidato (c).
 ```{r candidatos}
 mostrar_tabela(
   bloco$tabelas$ii5_candidatos_rotulo,
-  "Tabela II.5.6: os quatro candidatos do dicionário contra o medido.",
+  "Tabela II.5.8: os quatro candidatos do dicionário contra o medido.",
   c("l", "l", "l", "c", "l")
 )
 ```
@@ -262,12 +262,59 @@ não fecham em conjunto.** `valor_contrato`, `horas_mes` e `custo_carregado`
 têm cada um sua âncora real, e a combinação dos três produz margem
 implausível.
 
-A hipótese mais provável é de granularidade. A fonte de `valor_contrato` é a
-tabela `actarnet_alocacao_pessoas`, cujo nome e volume sugerem grão de
-alocação e pessoa, enquanto o dicionário a trata como atributo de projeto.
-Se for isso, o bloco está comparando o valor de uma pessoa contra o custo do
-time inteiro. **Não é verificável**: o acesso encerrou, e isso fica como
-limitação nomeada, não como pendência.
+A primeira hipótese levantada aqui foi de granularidade: a fonte de
+`valor_contrato` é a tabela `actarnet_alocacao_pessoas`, cujo nome e volume
+sugerem grão de alocação e pessoa, enquanto o dicionário a trata como
+atributo de projeto. **O usuário descartou essa hipótese**: o valor é por
+projeto. Fica registrado em `docs/mapeamento_schema.md`, e a
+implausibilidade continua a ser explicada.
+
+A segunda hipótese sobrevive, e é mais séria.
+
+### A taxa usada como custo é provavelmente preço
+
+A fonte de `custo_carregado` é `vw_gtac_fin_taxa_hora`, que a Quinta rodada
+de calibração registrou textualmente como **rate card**, isto é, tabela de
+preço por cargo. Preço é o que o cliente paga; custo carregado é o que a
+pessoa custa à empresa. Se a coluna for preço, calcular margem como contrato
+menos taxa vezes horas subtrai o faturamento dele mesmo, e o resultado fica
+em torno de zero por construção, com o sinal decidido pelo ruído.
+
+Dois indícios, e nenhum deles exige acreditar na hipótese de antemão.
+
+**Onde a razão centra.** A razão entre custo calculado e valor de contrato
+centra em `r formatar_decimal(obj$escala_margem$centro_da_razao, 2)`. Se
+fossem custo e receita, ela centraria bem abaixo de 1, na margem típica do
+setor. Centrar em 1 é o que se espera de duas medidas da mesma grandeza.
+
+**Quanto a taxa implica de custo mensal.**
+
+```{r escala-margem}
+mostrar_tabela(
+  bloco$tabelas$ii5_escala_margem,
+  "Tabela II.5.7: custo mensal por pessoa implicado pela taxa, sobre a jornada calibrada.",
+  c("l", "r", "r", "r")
+)
+```
+
+Sobre a jornada calibrada de
+`r obj$escala_margem$jornada_mensal` horas por mês, a taxa implica
+`r formatar_inteiro(round(obj$escala_margem$custo_mensal_mais_junior))`
+reais mensais para o nível mais júnior e
+`r formatar_inteiro(round(obj$escala_margem$custo_mensal_mais_senior))`
+para o mais sênior. São valores plausíveis como faturamento por pessoa, e
+não como salário mais encargos.
+
+**O bloco mede e não decide.** A distinção entre preço e custo não é
+derivável do que ficou registrado, e o acesso ao ambiente encerrou. Fica
+como questão aberta em `docs/mapeamento_schema.md`.
+
+Se a leitura estiver certa, a consequência é pesada: a Peers não teria custo
+interno por pessoa em lugar nenhum além de `peers_custointerns_vlr`, que é
+justamente a fonte incompleta que derruba o candidato (c). **Nenhum dos dois
+caminhos entregaria margem utilizável**, e o objetivo econômico da wave 4
+ficaria sem base de dados defensável. Isso não invalida o modelo de
+alocação, que não depende de margem; muda o que a wave 4 pode prometer.
 
 Duas correções já foram feitas no gerador por causa deste diagnóstico, e
 nenhuma das duas resolveu o resíduo. A primeira foi de unidade:

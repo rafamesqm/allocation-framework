@@ -487,3 +487,72 @@ comparar_construcoes_de_rotulo <- function(avaliacoes, semente = 1) {
     )
   )
 }
+
+#' Diagnostica por que a escala da margem estrutural não fecha
+#'
+#' O bloco II.5 encontrou margem estrutural implausível e levantou duas
+#' hipóteses. A primeira, de que `valor_contrato` teria grão de alocação e
+#' pessoa e não de projeto, **foi descartada**: o usuário confirmou que em
+#' `actarnet_alocacao_pessoas` o valor é por projeto. A segunda é a que esta
+#' função mede.
+#'
+#' **A hipótese medida: a taxa usada como custo é preço, não custo.** A fonte
+#' de `custo_carregado` é `vw_gtac_fin_taxa_hora`, que a Quinta rodada
+#' registrou textualmente como *rate card*, isto é, tabela de preço por
+#' cargo. Preço é o que o cliente paga; custo carregado é o que a pessoa
+#' custa à empresa. Se a tabela for preço, calcular margem como contrato
+#' menos taxa vezes horas subtrai o faturamento dele mesmo, e o resultado
+#' fica em torno de zero por construção, com o sinal decidido pelo ruído.
+#'
+#' Dois sinais que a função mede, e que não dependem de acreditar na
+#' hipótese:
+#'
+#' * **Onde a razão centra.** Se custo e contrato fossem custo e receita, a
+#'   razão entre eles centraria bem abaixo de 1, na margem típica do setor.
+#'   Centrar em 1 é o que se espera de duas medidas da mesma grandeza.
+#' * **Quanto a taxa implica de custo mensal por pessoa.** Multiplicada pela
+#'   jornada mensal calibrada, ela dá o custo que cada nível teria para a
+#'   empresa. Valores muito acima do plausível para salário mais encargos
+#'   indicam preço, não custo.
+#'
+#' A função **não decide**: ela mede e deixa o veredito para quem conhece a
+#' semântica da coluna. O acesso ao ambiente está encerrado e a distinção
+#' entre preço e custo não é derivável do que ficou registrado.
+#'
+#' @param dados Lista nomeada de tibbles.
+#' @param jornada_mensal Horas por mês usadas para converter taxa em custo
+#'   mensal. Default na mediana calibrada de `horas_mes`.
+#' @return Lista com o centro e a dispersão da log-razão, a tabela de custo
+#'   mensal implícito por nível, e `razao_centra_em_um`.
+diagnosticar_escala_da_margem <- function(dados, jornada_mensal = 120) {
+  comparaveis <- dados$margem_estrutural |>
+    dplyr::filter(valor_contrato > 0, custo_total > 0)
+
+  log_razao <- log(comparaveis$custo_total / comparaveis$valor_contrato)
+  centro <- exp(mean(log_razao))
+
+  custo_mensal <- dados$custo_carregado |>
+    dplyr::left_join(
+      dplyr::select(dados$consultores, consultor_id, nivel_senioridade),
+      by = "consultor_id"
+    ) |>
+    dplyr::summarise(
+      taxa_mediana = stats::median(custo_carregado),
+      consultores = dplyr::n(),
+      .by = nivel_senioridade
+    ) |>
+    dplyr::mutate(custo_mensal_implicito = taxa_mediana * jornada_mensal) |>
+    dplyr::arrange(nivel_senioridade)
+
+  list(
+    centro_da_razao = centro,
+    dispersao_log_razao = stats::sd(log_razao),
+    # Centrar em 1 é o que se espera de duas medidas da mesma grandeza, e não
+    # de custo contra receita. A faixa é convenção de leitura declarada.
+    razao_centra_em_um = centro > 0.7 && centro < 1.4,
+    custo_mensal = custo_mensal,
+    custo_mensal_mais_junior = min(custo_mensal$custo_mensal_implicito),
+    custo_mensal_mais_senior = max(custo_mensal$custo_mensal_implicito),
+    jornada_mensal = jornada_mensal
+  )
+}

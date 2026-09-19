@@ -191,7 +191,7 @@ test_that("executar_ii5 devolve as quatro partes do bloco", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_true(all(vapply(bloco$tabelas, is.data.frame, logical(1))))
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
-  expect_equal(nrow(bloco$achados), 8)
+  expect_equal(nrow(bloco$achados), 9)
   expect_true(all(startsWith(bloco$achados$codigo, "II.5.")))
   # A cobertura do rotulo e parametro do gerador, e o achado que a reporta
   # precisa estar etiquetado como tal.
@@ -281,5 +281,24 @@ test_that("o acoplamento liga contrato e esforco ao esforco alocado", {
   )
   expect_gt(
     cor(com_horas$esforco_estimado, com_horas$horas, method = "spearman"), 0.3
+  )
+})
+
+test_that("o diagnostico de escala da margem mede sem decidir", {
+  # A funcao existe para tornar a evidencia auditavel, nao para concluir que
+  # a taxa e preco. O veredito depende de semantica de coluna que nao esta
+  # registrada e cujo acesso encerrou.
+  dados <- carregar_dados()
+
+  escala <- diagnosticar_escala_da_margem(dados)
+
+  expect_gt(escala$centro_da_razao, 0)
+  expect_true(escala$razao_centra_em_um)
+  expect_equal(nrow(escala$custo_mensal), 5)
+  expect_gt(escala$custo_mensal_mais_senior, escala$custo_mensal_mais_junior)
+  # O custo mensal implicito e a taxa vezes a jornada, sem nada no meio.
+  expect_equal(
+    escala$custo_mensal$custo_mensal_implicito,
+    escala$custo_mensal$taxa_mediana * escala$jornada_mensal
   )
 })

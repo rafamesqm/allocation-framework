@@ -38,6 +38,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
   )
   margem <- medir_atribuibilidade_da_margem(dados)
   construcoes <- comparar_construcoes_de_rotulo(dados$avaliacoes_desempenho)
+  escala_margem <- diagnosticar_escala_da_margem(dados)
 
   candidatos <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = margem$tem_consultor_na_margem,
@@ -67,6 +68,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     dimensionalidade = dimensionalidade,
     variancia_escore = variancia_escore,
     margem = margem,
+    escala_margem = escala_margem,
     construcoes = construcoes,
     bruta = construcoes[construcoes$forma == "Nota bruta", ],
     normalizada = construcoes[construcoes$forma == "Normalizada por avaliador", ],
@@ -135,6 +137,13 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
         formatar_pct(variancia_escore$fracao_entre_consultores)
       )
     ),
+    ii5_escala_margem = escala_margem$custo_mensal |>
+      dplyr::transmute(
+        `Nível` = nivel_senioridade,
+        Consultores = consultores,
+        `Taxa (R$/h)` = formatar_decimal(taxa_mediana, 2),
+        `Custo mensal implícito` = formatar_inteiro(round(custo_mensal_implicito))
+      ),
     ii5_construcoes_rotulo = construcoes |>
       dplyr::transmute(
         `Forma do rótulo` = forma,
@@ -270,16 +279,39 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "**É o primeiro caso no capítulo de grandezas individualmente ",
       "calibradas que não fecham em conjunto.** `valor_contrato`, ",
       "`horas_mes` e `custo_carregado` têm cada um sua âncora real, e a ",
-      "combinação dos três produz margem implausível. A hipótese mais ",
-      "provável é de granularidade: a fonte de `valor_contrato` é a tabela ",
-      "`actarnet_alocacao_pessoas`, cujo nome e volume sugerem grão de ",
-      "alocação e pessoa, enquanto o dicionário a trata como atributo de ",
-      "projeto. Se for isso, o bloco está comparando valor de uma pessoa ",
-      "contra custo do time inteiro. **Não é verificável**, porque o acesso ",
-      "encerrou, e fica como limitação nomeada. A consequência prática: o ",
-      "candidato (d) é a forma certa de calcular margem, mas o sintético não ",
-      "calibra a escala dela, e a wave 4 não deve usar o nível da margem ",
-      "sintética para nada além de testar a mecânica do otimizador."
+      "combinação dos três produz margem implausível. A causa provável está ",
+      "no achado II.5.9, e não em granularidade: a hipótese de que ",
+      "`valor_contrato` teria grão de alocação e pessoa foi levantada aqui e ",
+      "**descartada pelo usuário**, que confirmou que em ",
+      "`actarnet_alocacao_pessoas` o valor é por projeto."
+    ),
+
+    "II.5.9", "âncora real",
+    paste0(
+      "A taxa usada como custo é provavelmente preço. A razão entre custo ",
+      "calculado e valor de contrato centra em ",
+      formatar_decimal(escala_margem$centro_da_razao, 2),
+      ", quando custo contra receita centraria bem abaixo de 1, e a taxa ",
+      "implica custo mensal de ",
+      formatar_inteiro(round(escala_margem$custo_mensal_mais_junior)),
+      " reais para o nível mais júnior e ",
+      formatar_inteiro(round(escala_margem$custo_mensal_mais_senior)),
+      " para o mais sênior, sobre a jornada calibrada de ",
+      escala_margem$jornada_mensal, " horas por mês."
+    ),
+    paste0(
+      "A fonte de `custo_carregado` é `vw_gtac_fin_taxa_hora`, que a Quinta ",
+      "rodada de calibração registrou textualmente como **rate card**, isto ",
+      "é, tabela de preço por cargo. Preço é o que o cliente paga; custo ",
+      "carregado é o que a pessoa custa à empresa. Se a coluna for preço, ",
+      "calcular margem como contrato menos taxa vezes horas subtrai o ",
+      "faturamento dele mesmo, e o resultado fica em torno de zero por ",
+      "construção, com o sinal decidido pelo ruído. É exatamente o padrão ",
+      "observado. **A distinção não é derivável do que ficou registrado** e o ",
+      "acesso encerrou, então o bloco mede e não decide. Se a leitura estiver ",
+      "certa, a Peers não tem custo interno por pessoa em lugar nenhum além ",
+      "de `peers_custointerns_vlr`, que é justamente a fonte incompleta do ",
+      "candidato (c), e **nenhum dos dois caminhos entrega margem utilizável**."
     ),
 
     "II.5.5", "instrumento",
