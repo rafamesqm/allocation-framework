@@ -147,6 +147,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     ii5_construcoes_rotulo = construcoes |>
       dplyr::transmute(
         `Forma do rótulo` = forma,
+        Avaliadores = avaliadores,
         `Variância explicada pelo avaliador` = formatar_pct(contaminacao_avaliador),
         `Sinal entre consultores` = formatar_pct(sinal_entre_consultores)
       ),
@@ -336,8 +337,8 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
 
     "II.5.7", "instrumento",
     paste0(
-      "Normalizar por avaliador não é refinamento. Sob o cenário em que cada ",
-      "alocação é avaliada por um único avaliador, que é o regime real, ",
+      "Normalizar por avaliador não é refinamento. Entre os ",
+      objetos$bruta$avaliadores, " gestores que assinam avaliações, ",
       formatar_pct(objetos$bruta$contaminacao_avaliador),
       " da variância da nota bruta é explicada por **quem** avaliou, e não ",
       "por quem foi avaliado. Padronizando dentro de cada avaliador, a ",
@@ -350,10 +351,13 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "`normalizado` que o dicionário usa. A normalização remove variação ",
       "espúria e **ganha** sinal, então não há troca a ponderar. A forma ",
       "usada é padronização dentro do avaliador, que tira o nível e preserva ",
-      "a ordem; formas mais elaboradas exigiriam `avaliador_id`, registrado ",
-      "no dicionário como disponibilidade parcial e ausente do sintético. O ",
-      "cenário de avaliador único é declarado e serve para demonstrar a ",
-      "necessidade, não para estimar a magnitude do problema na Peers."
+      "a ordem. **A medida deixou de depender de cenário simulado**: até a ",
+      "consulta ao dono do dado de RH, `avaliador_id` constava do dicionário ",
+      "como disponibilidade parcial e não existia no sintético, e o bloco ",
+      "precisava sortear um avaliador por alocação para demonstrar o efeito. ",
+      "A consulta confirmou que a avaliação é por projeto e tem gestor ",
+      "identificado, o gerador passou a emitir o avaliador, e o número acima ",
+      "é medido e não encenado."
     ),
 
     "II.5.6", "consequência do gerador",
@@ -380,12 +384,17 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       }
     ),
     paste0(
-      "**Nenhum número deste bloco fala sobre a Peers.** A base de avaliação ",
-      "de desempenho é o dado mais sensível da empresa e o acesso nunca foi ",
-      "liberado: o esquema foi reconstruído de tela, e distribuição, ",
-      "cobertura e estrutura de dependência são todas suposição declarada. A ",
-      "cobertura é parâmetro do gerador. O que transfere é a bateria de ",
-      "diagnósticos, pronta para rodar se o acesso vier. E fica o acoplamento ",
+      "**Nenhum número deste bloco fala sobre a Peers, e agora isso é ",
+      "definitivo.** A consulta ao dono do dado de RH negou o acesso até a ",
+      "estatísticas agregadas sem dado individual, então distribuição, ",
+      "cobertura e magnitude da estrutura de dependência são limitação ",
+      "permanente e não pendência. O dicionário registrava esse acesso como ",
+      "a alavanca de maior retorno do projeto; a alavanca está fechada. O que ",
+      "a consulta trouxe foi **estrutura**, não número: que a avaliação é por ",
+      "projeto, que tem gestor identificado e que a distribuição de nota ",
+      "tende a variar por senioridade, e as três coisas o gerador passou a ",
+      "reproduzir. O que transfere é a bateria de diagnósticos, pronta para ",
+      "rodar no dia em que houver dado. E fica o acoplamento ",
       "que o dicionário nomeou: com a margem fora de `R`, o rótulo depende ",
       "inteiramente de desempenho, e sem esse acesso a alternativa é feedback ",
       "implícito (Hu, Koren e Volinsky, 2008), que o bloco II.4 mostrou ",

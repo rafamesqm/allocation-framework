@@ -37,12 +37,31 @@
 #' defeito anterior. Duas pessoas avaliando a mesma alocação discordam muito,
 #' mas não observam realidades diferentes.
 #'
-#' O texto real da rubrica, que muda por `nivel_senioridade` do avaliado
-#' (ver docs/mapeamento_schema.md), não é gerado: só a nota ordinal e o
-#' comentário são modelados, a rubrica em si é um artefato de interface, não
-#' um dado a reproduzir. Por isso a nota não é deslocada por nível de
-#' senioridade: não há evidência real de que a distribuição de nota (e não
-#' só o texto da rubrica) varie por nível.
+#' O texto real da rubrica, que muda por `nivel_senioridade` do avaliado,
+#' não é gerado: só a nota ordinal e o comentário são modelados, e a rubrica
+#' em si é artefato de interface, não dado a reproduzir.
+#'
+#' **A nota é deslocada por nível de senioridade**, o que inverte a suposição
+#' anterior. A versão anterior não deslocava, alegando falta de evidência de
+#' que a distribuição (e não só o texto da rubrica) variasse por nível. A
+#' consulta ao dono do dado de RH em 2026-09-19 (docs/mapeamento_schema.md)
+#' respondeu que tende a variar. Direção e magnitude não foram informadas,
+#' então o que se reproduz é a **existência** do efeito; `efeito_nivel` é
+#' suposição declarada, positiva por um argumento de sobrevivência, já que
+#' quem chega aos níveis mais altos passou por mais ciclos de avaliação.
+#'
+#' **Cada alocação tem um avaliador identificado**, e não apenas um papel. A
+#' mesma consulta confirmou que a avaliação é por projeto, que um colaborador
+#' pode ter várias num mesmo ciclo, e que cada uma tem um ou mais gestores. O
+#' eixo "qual gestor" não é o mesmo que o eixo "papel" (individual, às cegas,
+#' final), e é o primeiro que faz a severidade de quem avaliou entrar como
+#' variação espúria na comparação entre pessoas. Antes desta correção o bloco
+#' II.5 precisava **simular** esse regime para medir o efeito da normalização
+#' por avaliador; agora ele está no dado.
+#'
+#' Simplificação declarada: um gestor por alocação, não vários. Modelar o
+#' colegiado exigiria decidir como as notas de dois gestores se combinam, e
+#' isso não foi informado.
 #'
 #' @param alocacoes tibble de `gerar_alocacoes()`.
 #' @param fracao_com_avaliacao Fração das alocações que recebem avaliação.
@@ -55,6 +74,11 @@
 #' @param sd_ruido_individual,sd_ruido_gestor Desvio do ruído de cada
 #'   avaliador sobre a qualidade latente. O da autoavaliação é maior porque
 #'   é o que produz a concordância baixa entre as duas etapas.
+#' @param sd_leniencia_gestor Desvio da severidade própria de cada gestor,
+#'   que desloca todas as notas que ele dá.
+#' @param fracao_gestores Fração do quadro que atua como gestor avaliador.
+#' @param efeito_nivel Deslocamento da qualidade latente por passo de
+#'   senioridade. Suposição declarada, ver detalhe acima.
 #' @param com_comentario Se `FALSE`, omite a coluna `comentario`. O texto
 #'   livre responde por praticamente todo o tempo de geração desta tabela e
 #'   não entra em nenhuma grandeza medida, então a simulação de Monte Carlo
@@ -70,7 +94,11 @@ gerar_avaliacoes_desempenho <- function(alocacoes,
                                          prob_calibracao_puxa_individual = 0.3,
                                          sd_ruido_individual = 1.4,
                                          sd_ruido_gestor = 0.5,
+                                         sd_leniencia_gestor = 0.45,
+                                         fracao_gestores = 0.15,
+                                         efeito_nivel = 0.2,
                                          com_comentario = TRUE,
+                                         consultores = NULL,
                                          semente = 1) {
   set.seed(semente)
 
@@ -97,29 +125,64 @@ gerar_avaliacoes_desempenho <- function(alocacoes,
   )
 
   n_total <- nrow(base)
+  base$alocacao_id <- paste(base$consultor_id, base$projeto_id)
 
   # A qualidade latente é a mesma para as duas etapas independentes: os dois
   # avaliadores observam a mesma alocação. O que os separa é o ruído de cada
   # um, e é só isso que os faz discordar.
   qualidade <- construir_qualidade_latente(
     consultor_id = base$consultor_id,
-    alocacao_id = paste(base$consultor_id, base$projeto_id),
+    alocacao_id = base$alocacao_id,
     item = base$item
   )
+
+  # Deslocamento por senioridade do avaliado. Só entra se `consultores` for
+  # informado, porque é de lá que sai o nível; sem ele o gerador segue
+  # rodando sem o efeito, o que mantém as chamadas antigas válidas.
+  if (!is.null(consultores)) {
+    nivel <- senioridade_numerica(
+      consultores$nivel_senioridade[match(base$consultor_id, consultores$consultor_id)]
+    )
+    qualidade <- qualidade + efeito_nivel * (nivel - mean(nivel))
+  }
+
+  # Cada alocação é avaliada por um gestor identificado, e cada gestor tem
+  # sua própria severidade, que desloca todas as notas que ele dá. É esse
+  # deslocamento que a normalização por avaliador do bloco II.5 remove.
+  gestores <- sortear_gestores_avaliadores(
+    unique(base$alocacao_id), fracao_gestores,
+    dplyr::n_distinct(alocacoes$consultor_id)
+  )
+  gestor_da_linha <- gestores$gestor[match(base$alocacao_id, gestores$alocacao_id)]
+  leniencia <- sortear_efeito_por_grupo(gestor_da_linha, sd_leniencia_gestor)
 
   nota_individual <- cortar_latente_em_nota(
     qualidade + stats::rnorm(n_total, sd = sd_ruido_individual), pesos_individual
   )
   nota_gestor_cegas <- cortar_latente_em_nota(
-    qualidade + stats::rnorm(n_total, sd = sd_ruido_gestor), pesos_gestor_cegas
+    qualidade + leniencia + stats::rnorm(n_total, sd = sd_ruido_gestor),
+    pesos_gestor_cegas
   )
   nota_gestor_final <- calibrar_nota_final(nota_gestor_cegas, nota_individual, prob_calibracao_puxa_individual)
 
+  # Na autoavaliação o avaliador é o próprio avaliado, o que é fato sobre o
+  # processo e não convenção: é o que permite tratar as três etapas pelo
+  # mesmo eixo de avaliador sem inventar uma identidade para a pessoa.
   avaliacoes <- dplyr::bind_rows(
-    dplyr::mutate(base, etapa = "individual", nota = nota_individual),
-    dplyr::mutate(base, etapa = "gestor_cegas", nota = nota_gestor_cegas),
-    dplyr::mutate(base, etapa = "gestor_final", nota = nota_gestor_final)
-  )
+    dplyr::mutate(
+      base, etapa = "individual", nota = nota_individual,
+      avaliador_id = consultor_id
+    ),
+    dplyr::mutate(
+      base, etapa = "gestor_cegas", nota = nota_gestor_cegas,
+      avaliador_id = gestor_da_linha
+    ),
+    dplyr::mutate(
+      base, etapa = "gestor_final", nota = nota_gestor_final,
+      avaliador_id = gestor_da_linha
+    )
+  ) |>
+    dplyr::select(-alocacao_id)
 
   if (!com_comentario) {
     return(avaliacoes)

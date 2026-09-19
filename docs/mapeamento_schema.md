@@ -805,6 +805,97 @@ defasagem temporal da coleta, então a explicação exata fica como
 limitação, não um número fechado. Fecha o item de cobertura de skills da
 definição de pronto da wave 2 (EDA).
 
+## Consulta ao data owner de RH (2026-09-19)
+
+Respostas obtidas por consulta direta, durante a wave 2. Não vêm de query:
+são declarações do dono do dado sobre semântica e processo, e é isso que
+as torna úteis, porque semântica não é derivável de agregado. Cada item
+abaixo diz o que muda no projeto.
+
+**Agregados da base de avaliação de desempenho: NÃO haverá acesso.** Nem
+mesmo estatísticas agregadas sem dado individual. O dicionário registrava o
+acesso a essa base como "a alavanca de maior retorno do projeto"; a alavanca
+está fechada. Distribuição, cobertura e estrutura de dependência de
+`avaliacao_desempenho` passam de "sem calibração por ora" a **limitação
+permanente**. O bloco II.5 já operava assim, e agora é definitivo.
+
+**`avaliador_id` existe, e a estrutura é mais rica do que o dicionário
+supunha.** A avaliação é **por projeto**: num mesmo ciclo um colaborador
+pode ter várias avaliações, uma por projeto, e **cada uma pode ter um ou
+mais gestores**. Duas consequências:
+
+* o grão (consultor, projeto) que o gerador já usa está certo;
+* o confronto entre avaliadores deixa de ser hipotético. O bloco II.5.7
+  simulava, como cenário declarado, o regime em que cada alocação é avaliada
+  por um avaliador diferente, para mostrar que a normalização por avaliador
+  é obrigatória. **Esse regime é o real.** A severidade de cada gestor entra
+  de fato como variação espúria entre pessoas, e o eixo "papel" (individual,
+  gestor às cegas, gestor final) não é o mesmo eixo que "qual gestor".
+
+**A distribuição de nota muda por nível de senioridade, não só a rubrica.**
+Contradiz suposição documentada em `gerar_avaliacoes_desempenho()`, que
+dizia não haver evidência de que a distribuição (e não só o texto da
+rubrica) variasse por nível. Há: o dono do dado confirma que "tende a
+mudar". **A direção e a magnitude não foram informadas**, então o gerador
+reproduz a existência do efeito e declara o resto como suposição.
+
+**Cobertura do Formulário de Skills 2.1 isolado: pode assumir 48,4%.**
+Confirma a escolha que `sortear_respondentes_formulario()` já fazia. Deixa
+de ser teto conservador adotado por falta de número e passa a ser
+aproximação sancionada pelo dono do dado.
+
+**Os três formulários tiveram públicos diferentes, e isso contraria o
+gerador.** Um foi geral, um só para ACTAR e um só para pessoas de Digital.
+O gerador hoje usa **um único** conjunto de respondentes compartilhado por
+todos os sinais de formulário, o que o bloco II.3 adotou justamente para
+corrigir o defeito oposto (cobertura sorteada de forma independente por
+sinal). A verdade está no meio: os sinais do 2.1 (experiência setorial,
+expertise funcional, soft skills) compartilham um público, e `skills_hard`,
+que vem de Digital e ACTAR, tem **outro**, com sobreposição parcial (19 dos
+137 respondentes do 2.1 também responderam o Digital Skills, 0 responderam o
+de Tecnologia). **Fica como questão aberta** a cobertura de cada formulário
+entre os 285 ativos, sem a qual não dá para dimensionar os três públicos.
+
+**O formulário virou processo recorrente, anual, com rodada até o fim de
+2026.** Muda o que o modelo pode propor sobre atualização de perfil: a
+recência de skill deixa de ser um artefato de campanha única e passa a ter
+cadência conhecida. Reforça a modelagem em ondas de
+`gerar_skills_consultor()`, que era suposição de forma.
+
+**`skills_requeridas[]` não existe: confirmado pelo dono do dado.** Sobe de
+"nenhuma fonte encontrada" para confirmação explícita. O achado de pesquisa
+registrado em `predefinicoes.md` fica fechado.
+
+**Candidatos cogitados e preteridos não são registrados: confirmado.**
+Confirma a terceira linha de `verificar_amostra_de_exposicao_aleatoria()`,
+que o bloco II.4 tratava como leitura própria. A ausência de contrafactual
+é fato sobre a Peers, não suposição.
+
+**"Frente" é termo sobrecarregado, e nenhum dos sentidos é "projeto".**
+São ao menos dois conceitos distintos, e a diferença importa:
+
+* **frente interna**: iniciativa da casa, muitas vezes desassociada de
+  projeto, com participação **voluntária**. Uma pessoa pode ser da frente
+  interna de RH enquanto atua em projetos de cliente.
+* **frente ou capability dentro da vertical de Digital**: Data Science,
+  Data Analytics, Tech Strategy, Solutions, Cyber Security, Digital Products
+  & Platforms.
+
+Consequências. A simplificação de `gerar_margem_frente_mes()`, que colapsa
+frente em projeto, fica registrada como **provavelmente incorreta** e não só
+como falta de número: se frente interna é voluntária e desassociada de
+projeto, custo de frente e custo de projeto não são a mesma coisa. E a qual
+dos sentidos `vw_bi_custo_frente_mensal` se refere passa a ser questão
+aberta, porque a resposta muda a interpretação da margem.
+
+**A afinidade entre atributo do consultor e offering do projeto é mecanismo
+real.** "A tendência é que pessoas dessas capabilities sejam alocadas em
+projetos específicos dessas offerings." É âncora para o bloco II.6, e muda o
+estatuto do viés de seleção do bloco II.4: a **magnitude** plantada no
+gerador segue sendo propriedade do código, mas a **existência** de
+pareamento por afinidade deixa de ser suposição e passa a ser confirmada
+pelo dono do processo.
+
 ## Fechamento da wave 1 (2026-09-16)
 
 Acesso ao Databricks e às planilhas de `data/raw/skills/` encerraram em

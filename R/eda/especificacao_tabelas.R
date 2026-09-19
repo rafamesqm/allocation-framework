@@ -87,6 +87,7 @@ especificacao_tabelas <- function() {
     "avaliacoes_desempenho", "etapa", "texto", "chave", NA_character_,
     "avaliacoes_desempenho", "categoria_item", "texto", "atributo", NA_character_,
     "avaliacoes_desempenho", "nota", "texto", "atributo", NA_character_,
+    "avaliacoes_desempenho", "avaliador_id", "texto", "atributo", NA_character_,
     "avaliacoes_desempenho", "comentario", "texto", "atributo", NA_character_,
 
     # Camada 3: Operação ---------------------------------------------------

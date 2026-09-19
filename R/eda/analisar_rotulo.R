@@ -362,82 +362,56 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
 #' função constrói as três formas para que a afirmação possa ser testada em
 #' vez de repetida.
 #'
-#' * `"bruto"`: média das notas de todos os itens e todas as etapas.
-#' * `"etapa_unica"`: média dos itens de uma etapa declarada.
-#' * `"normalizado"`: nota padronizada **dentro de cada etapa** antes de
-#'   agregar, o que remove o nível de cada avaliador e preserva a ordem.
+#' * `"bruto"`: média dos itens da etapa adotada, como a nota sai.
+#' * `"normalizado"`: nota padronizada **dentro de cada avaliador** antes de
+#'   agregar, o que remove a severidade de quem avaliou e preserva a ordem.
 #'
-#' A padronização dentro da etapa é a forma mais simples de normalização por
-#' avaliador, e a adequada aqui: remove a leniência, que é deslocamento de
-#' nível, sem tocar na ordem, que é o que um recomendador usa. Formas mais
-#' elaboradas, como modelo de limiar por avaliador, exigiriam `avaliador_id`,
-#' que o dicionário registra como disponibilidade parcial e que não existe no
-#' sintético.
+#' A padronização dentro do avaliador é a forma mais simples de normalização
+#' e a adequada aqui: remove a severidade, que é deslocamento de nível, sem
+#' tocar na ordem, que é o que um recomendador usa. Formas mais elaboradas,
+#' como modelo de limiar por avaliador, exigiriam mais dado por avaliador do
+#' que há.
 #'
-#' @param avaliacoes tibble de avaliações.
-#' @param forma Uma de `"bruto"`, `"etapa_unica"` ou `"normalizado"`.
-#' @param etapa Etapa usada quando `forma` é `"etapa_unica"`.
-#' @return tibble com `consultor_id`, `projeto_id` e `rotulo`.
+#' Opera sobre uma etapa por vez, e não sobre a média das três, porque o
+#' rótulo é uma nota e não um consenso: a etapa adotada é parte da definição
+#' (ver achado II.5.1).
+#'
+#' @param avaliacoes tibble de avaliações, com `avaliador_id`.
+#' @param forma Uma de `"normalizado"` ou `"bruto"`.
+#' @param etapa Etapa adotada como rótulo.
+#' @return tibble com `consultor_id`, `projeto_id`, `avaliador_id` e
+#'   `rotulo`.
 construir_rotulo_de_desempenho <- function(avaliacoes,
-                                            forma = c("normalizado", "bruto", "etapa_unica"),
+                                            forma = c("normalizado", "bruto"),
                                             etapa = "gestor_final") {
   forma <- match.arg(forma)
 
-  base <- dplyr::mutate(avaliacoes, valor = nota_numerica(nota))
+  base <- avaliacoes |>
+    dplyr::filter(etapa == !!etapa) |>
+    dplyr::mutate(valor = nota_numerica(nota))
 
-  if (forma == "etapa_unica") {
-    base <- dplyr::filter(base, etapa == !!etapa)
-  }
   if (forma == "normalizado") {
+    # Avaliador com uma avaliação só não tem dispersão para padronizar, e
+    # dividir por zero o expulsaria do rótulo. Fica com o desvio da
+    # população, que é o mais conservador: não inventa precisão que não há.
+    desvio_geral <- stats::sd(base$valor)
     base <- dplyr::mutate(
       base,
-      valor = (valor - mean(valor)) / stats::sd(valor),
-      .by = etapa
+      valor = (valor - mean(valor)) /
+        dplyr::if_else(dplyr::n() > 1 & stats::sd(valor) > 0, stats::sd(valor), desvio_geral),
+      .by = avaliador_id
     )
   }
 
   dplyr::summarise(
-    base, rotulo = mean(valor), .by = c(consultor_id, projeto_id)
+    base, rotulo = mean(valor), .by = c(consultor_id, projeto_id, avaliador_id)
   )
 }
 
-#' Sorteia um único avaliador por alocação, como acontece na realidade
-#'
-#' No sintético toda alocação passa pelas três etapas, então a leniência de
-#' cada etapa é um deslocamento constante que se cancela na comparação entre
-#' consultores. Isso esconde o problema que a normalização existe para
-#' resolver: na Peers, alocações diferentes são avaliadas por gestores
-#' diferentes, e a leniência de quem avaliou entra na comparação como
-#' variação espúria entre pessoas.
-#'
-#' Esta função reproduz esse regime atribuindo uma etapa sorteada a cada
-#' alocação, e é o que permite medir o efeito da normalização em vez de
-#' postulá-lo. É cenário declarado, não dado: serve para demonstrar a
-#' necessidade da normalização, não para estimar a magnitude do problema na
-#' Peers, que depende de `avaliador_id` e é desconhecida.
-#'
-#' @param avaliacoes tibble de avaliações.
-#' @param semente Inteiro para reprodutibilidade.
-#' @return A tabela restrita a uma etapa por alocação.
-sortear_avaliador_unico_por_alocacao <- function(avaliacoes, semente = 1) {
-  set.seed(semente)
-
-  etapas <- unique(avaliacoes$etapa)
-  alocacoes <- dplyr::distinct(avaliacoes, consultor_id, projeto_id)
-  alocacoes$etapa_sorteada <- sample(etapas, nrow(alocacoes), replace = TRUE)
-
-  avaliacoes |>
-    dplyr::inner_join(
-      alocacoes, by = c("consultor_id", "projeto_id")
-    ) |>
-    dplyr::filter(etapa == etapa_sorteada) |>
-    dplyr::select(-etapa_sorteada)
-}
-
-#' Compara as formas de construir o rótulo sob avaliador único por alocação
+#' Compara as formas de construir o rótulo, contra o avaliador registrado
 #'
 #' Mede duas coisas em cada forma. A **contaminação pelo avaliador** é a
-#' fração da variância do rótulo explicada por qual etapa avaliou aquela
+#' fração da variância do rótulo explicada por qual gestor avaliou aquela
 #' alocação, e deveria ser zero: é variação que não diz nada sobre a pessoa
 #' avaliada. O **sinal sobre a pessoa** é a fração da variância que fica
 #' entre consultores, e é o que o recomendador tem para aprender.
@@ -446,43 +420,47 @@ sortear_avaliador_unico_por_alocacao <- function(avaliacoes, semente = 1) {
 #' que as duas precisam ser medidas juntas: zerar a contaminação destruindo o
 #' sinal não resolveria nada.
 #'
-#' @param avaliacoes tibble de avaliações, com todas as etapas.
-#' @param semente Inteiro para o sorteio do avaliador.
+#' **Mede sobre o avaliador registrado, e não sobre um cenário simulado.** A
+#' primeira versão desta função sorteava uma etapa por alocação para
+#' reproduzir o regime de avaliadores distintos, porque `avaliador_id` não
+#' existia no sintético. A consulta ao dono do dado de RH confirmou que a
+#' avaliação é por projeto e tem gestor identificado, o gerador passou a
+#' emitir `avaliador_id`, e a demonstração deixou de depender de cenário.
+#'
+#' @param avaliacoes tibble de avaliações, com `avaliador_id`.
+#' @param etapa Etapa adotada como rótulo.
 #' @return tibble com uma linha por forma.
-comparar_construcoes_de_rotulo <- function(avaliacoes, semente = 1) {
-  uma_etapa <- sortear_avaliador_unico_por_alocacao(avaliacoes, semente = semente)
-  etapa_por_alocacao <- dplyr::distinct(uma_etapa, consultor_id, projeto_id, etapa)
-
+comparar_construcoes_de_rotulo <- function(avaliacoes, etapa = "gestor_final") {
   medir <- function(rotulos, nome) {
-    com_etapa <- dplyr::left_join(
-      rotulos, etapa_por_alocacao, by = c("consultor_id", "projeto_id")
+    variancia_total <- stats::var(rotulos$rotulo)
+    media_geral <- mean(rotulos$rotulo)
+
+    por_avaliador <- dplyr::summarise(
+      rotulos, media = mean(rotulo), n = dplyr::n(), .by = avaliador_id
+    )
+    por_consultor <- dplyr::summarise(
+      rotulos, media = mean(rotulo), .by = consultor_id
     )
 
-    variancia_total <- stats::var(com_etapa$rotulo)
-    media_por_etapa <- dplyr::summarise(
-      com_etapa, media = mean(rotulo), n = dplyr::n(), .by = etapa
-    )
-    media_por_consultor <- dplyr::summarise(
-      com_etapa, media = mean(rotulo), .by = consultor_id
-    )
-
-    # Fração da variância explicada pelo avaliador: a variância das médias de
-    # etapa, ponderada pelo tamanho de cada uma, sobre a variância total.
-    variancia_entre_etapas <- sum(
-      media_por_etapa$n * (media_por_etapa$media - mean(com_etapa$rotulo))^2
-    ) / (nrow(com_etapa) - 1)
+    # Fração da variância explicada pelo avaliador: a variância das médias
+    # por gestor, ponderada pelo número de avaliações de cada um, sobre a
+    # variância total.
+    variancia_entre_avaliadores <- sum(
+      por_avaliador$n * (por_avaliador$media - media_geral)^2
+    ) / (nrow(rotulos) - 1)
 
     tibble::tibble(
       forma = nome,
-      contaminacao_avaliador = variancia_entre_etapas / variancia_total,
-      sinal_entre_consultores = stats::var(media_por_consultor$media) / variancia_total
+      avaliadores = nrow(por_avaliador),
+      contaminacao_avaliador = variancia_entre_avaliadores / variancia_total,
+      sinal_entre_consultores = stats::var(por_consultor$media) / variancia_total
     )
   }
 
   dplyr::bind_rows(
-    medir(construir_rotulo_de_desempenho(uma_etapa, "bruto"), "Nota bruta"),
+    medir(construir_rotulo_de_desempenho(avaliacoes, "bruto", etapa), "Nota bruta"),
     medir(
-      construir_rotulo_de_desempenho(uma_etapa, "normalizado"),
+      construir_rotulo_de_desempenho(avaliacoes, "normalizado", etapa),
       "Normalizada por avaliador"
     )
   )

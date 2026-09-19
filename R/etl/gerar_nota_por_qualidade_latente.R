@@ -89,3 +89,32 @@ cortar_latente_em_nota <- function(latente, pesos) {
 
   names(pesos)[indice]
 }
+
+#' Sorteia o gestor avaliador de cada alocação
+#'
+#' A consulta ao dono do dado de RH confirmou que a avaliação é por projeto e
+#' que cada uma tem gestor identificado, então o avaliador é um eixo do dado
+#' e não uma convenção do gerador. Gestores diferentes avaliam alocações
+#' diferentes do mesmo consultor, e é isso que faz a severidade de cada um
+#' entrar como variação espúria na comparação entre pessoas.
+#'
+#' O tamanho do corpo de gestores sai de uma fração do **quadro**, e não do
+#' número de alocações. A distinção não é sutil: dimensionar por alocação
+#' produziria mais gestores do que pessoas na empresa, cada um avaliando uma
+#' ou duas vezes, e a severidade individual viraria ruído em vez de um
+#' deslocamento estimável. Quem é gestor avaliador não está em nenhuma tabela
+#' do crosswalk, então a fração é suposição declarada.
+#'
+#' @param alocacao_id Vetor de identificadores de alocação, sem repetição.
+#' @param fracao_gestores Fração do quadro que atua como avaliador.
+#' @param n_consultores Tamanho do quadro, base para dimensionar o corpo.
+#' @return tibble com `alocacao_id` e `gestor`.
+sortear_gestores_avaliadores <- function(alocacao_id, fracao_gestores, n_consultores) {
+  n_gestores <- max(2, round(n_consultores * fracao_gestores))
+  identificadores <- sprintf("gestor_%04d", seq_len(n_gestores))
+
+  tibble::tibble(
+    alocacao_id = alocacao_id,
+    gestor = sample(identificadores, length(alocacao_id), replace = TRUE)
+  )
+}

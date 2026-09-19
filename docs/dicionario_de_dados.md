@@ -116,7 +116,7 @@ Alimenta o colaborativo e constrói os rótulos. É o coração do sinal.
 | `papel` · `pct_alocacao` · `horas` | categórico + numérico | alocação | peso da interação | disponível |
 | `data_inicio` · `data_fim` · `duracao_dias` | data / numérico | alocação | janela de vigência da interação, base de `k` e do decaimento temporal | disponível |
 | `avaliacao_desempenho` | ordinal (3 níveis, por competência) | alocação · competência · etapa | rótulo explícito | disponível |
-| `avaliador_id` | categórico (papel: individual, gestor às cegas, gestor final) | alocação · etapa | debiasing de rater | parcial |
+| `avaliador_id` | categórico: identidade do gestor, mais o papel (individual, gestor às cegas, gestor final) | alocação · etapa | debiasing de rater | confirmado |
 | `margem_atribuida` | numérico (R$ / %) | frente · mês (não alocação) | ponderação econômica | parcial |
 | `flag_restaffing` · `solicitacao_nominal` | booleano | alocação | feedback implícito | aspiracional |
 
@@ -143,12 +143,22 @@ decidido, só registrado como evidência para a EDA.
 `R` passa a depender inteiramente de `avaliacao_desempenho`, sem nenhum sinal
 de reserva. Hoje isso trava a validação empírica do colaborativo sobre dado
 real (funciona no sintético, porque parte da estrutura; não funciona no real
-sem acesso à base de avaliações). Reforça que o acesso ao banco de desempenho
-é a alavanca de maior retorno do projeto agora, mesmo não sendo pré-requisito
-para começar a trabalhar sobre o sintético.
+sem acesso à base de avaliações).
 
-**Caminho intermediário para o colaborativo sobre dado real, enquanto o
-acesso a desempenho não vem:** um colaborativo de *implicit feedback* sobre a
+**Resolvido em 2026-09-19, e não a favor: o acesso está negado.** Este
+documento registrava o acesso ao banco de desempenho como a alavanca de maior
+retorno do projeto. A consulta ao dono do dado de RH negou até estatísticas
+agregadas sem dado individual (ver `mapeamento_schema.md`). A alavanca está
+fechada, e o caminho descrito abaixo deixa de ser intermediário: é o único
+que existe para dado real.
+
+A mesma consulta, porém, trouxe **estrutura** sobre a avaliação, que é o que
+o gerador podia aproveitar: ela é por projeto, tem gestor identificado, e a
+distribuição de nota tende a variar por senioridade além da rubrica. As três
+coisas foram incorporadas ao gerador.
+
+**Caminho único para o colaborativo sobre dado real, agora que o acesso a
+desempenho está negado:** um colaborativo de *implicit feedback* sobre a
 própria ocorrência da alocação (quem foi alocado a quê, com ou sem peso por
 `pct_alocacao`/`horas`) funciona sem precisar de `avaliacao_desempenho`.
 Ressalva importante: isso não contorna o viés de seleção já registrado em

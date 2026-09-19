@@ -44,7 +44,8 @@ medir_realizacao <- function(semente,
   grafo <- gerar_grafo_coalocacao(alocacoes)
   ocupacao <- agregar_ocupacao_consultor(alocacoes)
   avaliacoes <- gerar_avaliacoes_desempenho(
-    alocacoes, com_comentario = FALSE, semente = semente
+    alocacoes, com_comentario = FALSE, consultores = consultores,
+    semente = semente
   )
 
   divergencia <- medir_divergencia_entre_avaliadores(avaliacoes)

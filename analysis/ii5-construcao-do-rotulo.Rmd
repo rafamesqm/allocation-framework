@@ -165,27 +165,26 @@ há o que recomendar.
 O candidato (a) diz "desempenho **normalizado por avaliador**". Vale medir o
 efeito disso em vez de repetir a palavra.
 
-No sintético toda alocação passa pelas três etapas, então a leniência de
-cada uma é um deslocamento constante que se cancela na comparação entre
-consultores. Isso esconde o problema que a normalização existe para
-resolver. Na Peers, alocações diferentes são avaliadas por gestores
-diferentes, e a leniência de quem avaliou entra na comparação como variação
-espúria entre pessoas.
+Alocações diferentes são avaliadas por gestores diferentes, e a severidade
+de quem avaliou entra na comparação entre pessoas como variação espúria.
 
-A tabela abaixo reproduz esse regime atribuindo um avaliador sorteado a cada
-alocação. É cenário declarado, não dado: serve para demonstrar a
-necessidade, não para estimar a magnitude do problema na Peers, que depende
-de `avaliador_id` e é desconhecida.
+**Isto deixou de ser cenário e passou a ser dado.** Até a consulta ao dono
+do dado de RH, `avaliador_id` constava do dicionário como disponibilidade
+parcial e não existia no sintético, e esta seção precisava sortear um
+avaliador por alocação para demonstrar o efeito. A consulta confirmou que a
+avaliação é **por projeto**, que um colaborador pode ter várias num mesmo
+ciclo e que cada uma tem gestor identificado. O gerador passou a emitir o
+avaliador, e o que se mede abaixo é o regime real.
 
 ```{r construcoes}
 mostrar_tabela(
   bloco$tabelas$ii5_construcoes_rotulo,
-  "Tabela II.5.5: efeito de normalizar, sob um avaliador por alocação.",
-  c("l", "r", "r")
+  "Tabela II.5.5: efeito de normalizar, contra o avaliador registrado.",
+  c("l", "r", "r", "r")
 )
 ```
 
-Sem normalizar,
+Entre os `r obj$bruta$avaliadores` gestores que assinam avaliações,
 `r formatar_pct(obj$bruta$contaminacao_avaliador)` da variância do rótulo é
 explicada por **quem** avaliou, e não por quem foi avaliado. Padronizando
 dentro de cada avaliador, a contaminação vai a zero e o sinal entre
@@ -196,8 +195,7 @@ consultores **sobe**, de
 Não há troca a ponderar: a normalização remove variação espúria e ganha
 sinal. A forma usada é padronização dentro do avaliador, que tira o nível e
 preserva a ordem. Formas mais elaboradas, como modelo de limiar por
-avaliador, exigiriam `avaliador_id`, que o dicionário registra como
-disponibilidade parcial e que não existe no sintético.
+avaliador, exigiriam mais avaliações por gestor do que há.
 
 ## A margem não cabe dentro de `R`
 

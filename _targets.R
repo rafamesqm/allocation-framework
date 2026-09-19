@@ -115,6 +115,7 @@ list(
     gerar_avaliacoes_desempenho(
       alocacoes,
       fracao_com_avaliacao = parametros$fracao_com_avaliacao,
+      consultores = consultores,
       semente = parametros$semente
     ),
     "avaliacoes_desempenho"

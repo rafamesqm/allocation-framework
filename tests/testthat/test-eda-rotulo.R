@@ -146,6 +146,51 @@ test_that("escala nao confiavel derruba o candidato (a)", {
   expect_false(sem_escala$viavel[sem_escala$candidato == "(a)"])
 })
 
+test_that("cada alocacao tem um avaliador identificado", {
+  # Confirmado pelo dono do dado de RH: a avaliacao e por projeto e tem
+  # gestor identificado. Antes disso o bloco II.5 precisava simular o
+  # regime para medir o efeito da normalizacao.
+  dados <- carregar_dados()
+  av <- dados$avaliacoes_desempenho
+
+  expect_true("avaliador_id" %in% names(av))
+  expect_false(anyNA(av$avaliador_id))
+  # Na autoavaliacao o avaliador e o proprio avaliado.
+  individual <- av[av$etapa == "individual", ]
+  expect_equal(individual$avaliador_id, individual$consultor_id)
+  # As duas etapas de gestor da mesma alocacao tem o mesmo avaliador.
+  gestor <- av[av$etapa %in% c("gestor_cegas", "gestor_final"), ]
+  por_alocacao <- dplyr::summarise(
+    gestor, n = dplyr::n_distinct(avaliador_id),
+    .by = c(consultor_id, projeto_id)
+  )
+  expect_true(all(por_alocacao$n == 1))
+  # E o corpo de gestores e menor que o quadro, nao maior.
+  expect_lt(dplyr::n_distinct(gestor$avaliador_id), nrow(dados$consultores))
+})
+
+test_that("a nota se desloca com a senioridade do avaliado", {
+  # O dono do dado confirmou que a distribuicao tende a variar por nivel,
+  # alem da rubrica. A direcao e suposicao declarada; o que o teste fixa e
+  # que o efeito existe e e monotonico.
+  dados <- carregar_dados()
+
+  # Correlacao sobre todas as avaliacoes, e nao monotonicidade entre as cinco
+  # medias por nivel: N0 tem poucas dezenas de avaliacoes e a media dele
+  # oscila, entao exigir monotonicidade estrita testaria o ruido e nao o
+  # mecanismo.
+  escores <- dados$avaliacoes_desempenho |>
+    dplyr::filter(etapa == "gestor_final") |>
+    dplyr::summarise(escore = mean(nota_numerica(nota)), .by = c(consultor_id, projeto_id)) |>
+    dplyr::left_join(
+      dplyr::select(dados$consultores, consultor_id, nivel_senioridade),
+      by = "consultor_id"
+    ) |>
+    dplyr::mutate(nivel = senioridade_numerica(nivel_senioridade))
+
+  expect_gt(cor(escores$nivel, escores$escore), 0.1)
+})
+
 test_that("normalizar por avaliador remove contaminacao sem perder sinal", {
   # A afirmacao central do candidato (a), medida em vez de repetida.
   dados <- carregar_dados()
@@ -154,9 +199,10 @@ test_that("normalizar por avaliador remove contaminacao sem perder sinal", {
   bruta <- construcoes[construcoes$forma == "Nota bruta", ]
   normalizada <- construcoes[construcoes$forma == "Normalizada por avaliador", ]
 
-  expect_gt(bruta$contaminacao_avaliador, 0.1)
+  expect_gt(bruta$contaminacao_avaliador, 0.05)
   expect_lt(normalizada$contaminacao_avaliador, 1e-8)
   expect_gt(normalizada$sinal_entre_consultores, bruta$sinal_entre_consultores)
+  expect_equal(bruta$avaliadores, normalizada$avaliadores)
 })
 
 test_that("a policorica corrige a atenuacao da discretizacao", {
