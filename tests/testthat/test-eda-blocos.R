@@ -147,20 +147,53 @@ test_that("rotulo curto e subtitulo ausente passam intactos", {
 })
 
 test_that("nenhuma figura da pipeline tem rotulo cortado na borda", {
-  # Varre todos os blocos: qualquer linha de titulo ou subtitulo acima do
-  # limite denuncia uma figura que sairia com texto fora do PNG.
+  # Varre todos os blocos: qualquer linha acima do limite denuncia uma figura
+  # que sairia com texto fora do PNG. Cobre nome de eixo e nao so titulo e
+  # subtitulo, porque foi por eixo e legenda que a figura do bloco II.4
+  # escapou da primeira versao deste teste.
   blocos <- c("bloco_i0", "bloco_i1", "bloco_i2", "bloco_i4", "bloco_i5",
               "bloco_ii1", "bloco_ii2", "bloco_ii3")
 
-  linhas <- unlist(lapply(blocos, function(nome) {
+  quebrar <- function(texto) strsplit(texto %||% "", "\n", fixed = TRUE)[[1]]
+
+  # Verifica o rotulo como ele fica DEPOIS da requebra contra a largura real,
+  # que e o que vai para o PNG. Testar o rotulo do objeto do bloco mediria a
+  # quebra provisoria de rotular_figura e nao a que decide o corte. A largura
+  # usada e a menor em uso no projeto, que e o caso mais apertado.
+  largura_mais_estreita <- 16
+  orcamento <- c(titulo = 3.4, subtitulo = 4.8, eixo = 3.6) * largura_mais_estreita
+
+  excessos <- unlist(lapply(blocos, function(nome) {
     figuras <- targets::tar_read_raw(nome, store = here::here("_targets"))$figuras
-    unlist(lapply(figuras, function(figura) {
+    lapply(figuras, function(figura) {
+      pronta <- requebrar_rotulos(figura, largura_mais_estreita)
       c(
-        strsplit(figura$labels$title %||% "", "\n", fixed = TRUE)[[1]],
-        strsplit(figura$labels$subtitle %||% "", "\n", fixed = TRUE)[[1]]
+        max(c(0, nchar(quebrar(pronta$labels$title)) - orcamento[["titulo"]])),
+        max(c(0, nchar(quebrar(pronta$labels$subtitle)) - orcamento[["subtitulo"]])),
+        max(c(0, nchar(quebrar(pronta$labels$x)) - orcamento[["eixo"]])),
+        max(c(0, nchar(quebrar(pronta$labels$y)) - orcamento[["eixo"]]))
       )
-    }))
+    })
   }))
 
-  expect_true(all(nchar(linhas) <= 95))
+  # Uma palavra unica maior que o orcamento nao tem como ser quebrada, e
+  # denuncia rotulo que precisa ser reescrito, nao requebrado.
+  expect_true(all(excessos == 0))
+})
+
+test_that("requebrar_rotulos preserva eixo omitido de proposito", {
+  # Atribuir NULL a elemento de lista o remove, e removido o ggplot2 volta ao
+  # default e estampa o nome cru da coluna no eixo. A figura do bloco II.4
+  # saiu com "cenario" escrito no eixo por causa disso.
+  figura <- ggplot2::ggplot(
+    tibble::tibble(a = 1:3, b = letters[1:3]), ggplot2::aes(a, b)
+  ) +
+    ggplot2::geom_col() +
+    rotular_figura(titulo = "Titulo", eixo_x = "Eixo horizontal", eixo_y = NULL)
+
+  pronta <- requebrar_rotulos(figura, 16)
+
+  expect_true("y" %in% names(pronta$labels))
+  expect_null(pronta$labels$y)
+  expect_equal(pronta$labels$x, "Eixo horizontal")
 })

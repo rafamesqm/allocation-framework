@@ -41,9 +41,16 @@
 #' As larguras são diferentes porque o subtítulo usa fonte menor que o título
 #' (ver `tema_monografia()`) e por isso cabe mais texto na mesma largura.
 #'
+#' Os nomes de eixo são quebrados também, e numa largura menor, porque eles
+#' não ocupam a figura inteira: ficam centrados sobre a área de desenho, que é
+#' mais estreita que a página por causa dos rótulos de categoria à esquerda.
+#' Um nome de eixo longo some pela direita do mesmo jeito que um subtítulo, e
+#' foi o que aconteceu na primeira versão da figura de propensão do bloco
+#' II.4, depois da correção que tratava só título e subtítulo.
+#'
 #' @param fonte Nota de rodapé.
-#' @param largura_titulo,largura_subtitulo Largura máxima, em caracteres,
-#'   antes da quebra de linha.
+#' @param largura_titulo,largura_subtitulo,largura_eixo Largura máxima, em
+#'   caracteres, antes da quebra de linha.
 #' @return Objeto de rótulos do ggplot2, para somar ao gráfico.
 rotular_figura <- function(titulo,
                             eixo_x,
@@ -53,7 +60,8 @@ rotular_figura <- function(titulo,
                             legenda_estetica = c("fill", "colour"),
                             fonte = "Fonte: elaboração própria sobre os dados sintéticos do projeto.",
                             largura_titulo = 70,
-                            largura_subtitulo = 95) {
+                            largura_subtitulo = 95,
+                            largura_eixo = 60) {
   if (missing(titulo) || !is.character(titulo) || length(titulo) != 1 || !nzchar(titulo)) {
     stop("Toda figura da monografia precisa de título.", call. = FALSE)
   }
@@ -69,8 +77,8 @@ rotular_figura <- function(titulo,
   rotulos <- list(
     title = quebrar_rotulo(titulo, largura_titulo),
     subtitle = quebrar_rotulo(subtitulo, largura_subtitulo),
-    x = eixo_x,
-    y = eixo_y,
+    x = quebrar_rotulo(eixo_x, largura_eixo),
+    y = quebrar_rotulo(eixo_y, largura_eixo),
     caption = fonte
   )
   if (!is.null(legenda)) {
