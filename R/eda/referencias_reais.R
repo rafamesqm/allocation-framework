@@ -54,11 +54,14 @@ referencias_reais <- function() {
     # Camada 1: Projetos ---------------------------------------------------
     # Quantis de valor_contrato são dos positivos, e a assimetria também:
     # a fonte real os reporta sob o rótulo "só positivos".
-    "projetos", "valor_contrato", "fracao_zero", NA_character_, 0.147, "Segunda",
-    "projetos", "valor_contrato", "p25_pos", NA_character_, 34814, "Segunda",
-    "projetos", "valor_contrato", "mediana_pos", NA_character_, 108300, "Segunda",
-    "projetos", "valor_contrato", "p75_pos", NA_character_, 375054, "Segunda",
-    "projetos", "valor_contrato", "assimetria_pos", NA_character_, 12.68, "Segunda",
+    # Recalibrados pela segunda consulta comercial, de `silver.pps`, tabela
+    # completa e mesma fonte da âncora de margem. Os valores anteriores
+    # vinham de `actarnet_alocacao_pessoas` e davam mediana quatro vezes
+    # menor; misturar as duas fontes era o que fazia a margem não fechar.
+    "projetos", "valor_contrato", "fracao_zero", NA_character_, 0.147, "Segunda consulta",
+    "projetos", "valor_contrato", "p25_pos", NA_character_, 190000, "Segunda consulta",
+    "projetos", "valor_contrato", "mediana_pos", NA_character_, 457000, "Segunda consulta",
+    "projetos", "valor_contrato", "p75_pos", NA_character_, 1100000, "Segunda consulta",
 
     "projetos", "esforco_estimado", "desvio", NA_character_, 66.90, "Segunda",
     "projetos", "esforco_estimado", "p25", NA_character_, 32, "Segunda",
@@ -66,12 +69,13 @@ referencias_reais <- function() {
     "projetos", "esforco_estimado", "p75", NA_character_, 160, "Segunda",
     "projetos", "esforco_estimado", "assimetria", NA_character_, -0.05, "Segunda",
 
-    "projetos", "duracao_dias", "media", NA_character_, 68.8, "Sexta",
-    "projetos", "duracao_dias", "desvio", NA_character_, 119.7, "Sexta",
-    "projetos", "duracao_dias", "p25", NA_character_, 4, "Sexta",
-    "projetos", "duracao_dias", "mediana", NA_character_, 18, "Sexta",
-    "projetos", "duracao_dias", "p75", NA_character_, 81, "Sexta",
-    "projetos", "duracao_dias", "assimetria", NA_character_, 3.6, "Sexta",
+    # Idem: a duração passa a vir de `pps`, em semanas (p10/50/90 de
+    # 3,6/11,6/43,6), convertidas em dias. A calibração anterior media outra
+    # coisa e deixava o projeto curto demais para acumular as horas que o
+    # contrato implica.
+    "projetos", "duracao_dias", "p25", NA_character_, 42, "Segunda consulta",
+    "projetos", "duracao_dias", "mediana", NA_character_, 81, "Segunda consulta",
+    "projetos", "duracao_dias", "p75", NA_character_, 156, "Segunda consulta",
     "projetos", "duracao_dias", "maximo", NA_character_, 1184, "Sexta",
 
     "projetos", "setor", "prop", "Varejo", 1097 / 4086, "Terceira",
@@ -105,22 +109,43 @@ referencias_reais <- function() {
     "alocacoes", "horas_mes", "mediana", NA_character_, 120, "Segunda",
 
     # Camada 3: Operação ---------------------------------------------------
-    # Na fonte real, fração de zero, média, desvio e assimetria de receita e
-    # custo são gerais; só os quantis são dos positivos.
-    "margem_frente_mes", "receita", "fracao_zero", NA_character_, 0.159, "Quinta",
-    "margem_frente_mes", "receita", "media", NA_character_, 192076.84, "Quinta",
-    "margem_frente_mes", "receita", "desvio", NA_character_, 202058.84, "Quinta",
-    "margem_frente_mes", "receita", "assimetria", NA_character_, 1.85, "Quinta",
-    "margem_frente_mes", "receita", "p25_pos", NA_character_, 46105.50, "Quinta",
-    "margem_frente_mes", "receita", "mediana_pos", NA_character_, 136901.46, "Quinta",
-    "margem_frente_mes", "receita", "p75_pos", NA_character_, 268683.84, "Quinta",
+    # Os quantis da receita mensal vêm da segunda consulta às bases
+    # comerciais, sobre meses com receita positiva. Substituem os da Quinta
+    # rodada, que liam a mesma fonte como receita e custo quando ela é
+    # receita decomposta por origem. A fração de zero segue sendo a das
+    # linhas totalmente zeradas.
+    "receita_projeto_mes", "receita_total", "fracao_zero", NA_character_, 0.159, "Segunda consulta",
+    "receita_projeto_mes", "receita_total", "p25_pos", NA_character_, 90000, "Segunda consulta",
+    "receita_projeto_mes", "receita_total", "mediana_pos", NA_character_, 172000, "Segunda consulta",
+    "receita_projeto_mes", "receita_total", "p75_pos", NA_character_, 304000, "Segunda consulta"
+  )
+}
 
-    "margem_frente_mes", "custo", "fracao_zero", NA_character_, 0.447, "Quinta",
-    "margem_frente_mes", "custo", "media", NA_character_, 14315.61, "Quinta",
-    "margem_frente_mes", "custo", "desvio", NA_character_, 17980.01, "Quinta",
-    "margem_frente_mes", "custo", "p25_pos", NA_character_, 16000, "Quinta",
-    "margem_frente_mes", "custo", "mediana_pos", NA_character_, 21000, "Quinta",
-    "margem_frente_mes", "custo", "p75_pos", NA_character_, 26250, "Quinta"
+#' Âncoras de margem no nível do projeto, da segunda consulta comercial
+#'
+#' Separadas de `referencias_reais()` porque não são resumo univariado de
+#' coluna de tabela sintética: são a distribuição da margem do projeto
+#' inteiro, que o gerador não emite como coluna e o bloco II.5 calcula.
+#'
+#' Vêm de `silver.pps`, tabela **completa** e sem teto de extração, última
+#' versão por CRM, 556 projetos. A consulta mediu que tamanho, duração,
+#' margem e desconto são estáveis entre os anos cobertos e não cobertos pelo
+#' truncamento, então esta âncora não sofre do viés que afeta as grandezas
+#' mensais.
+#'
+#' É a régua que faltava ao bloco II.5: antes dela, a plausibilidade da
+#' margem estrutural era julgamento meu.
+#'
+#' @return tibble com `estatistica` e `valor_real`.
+referencias_margem_projeto <- function() {
+  tibble::tribble(
+    ~estatistica, ~valor_real,
+    "p05", 0.175,
+    "p25", 0.272,
+    "mediana", 0.320,
+    "p75", 0.345,
+    "p95", 0.401,
+    "fracao_prejuizo", 0.02
   )
 }
 

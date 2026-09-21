@@ -44,10 +44,14 @@ test_that("datas são coerentes: data_fim nunca antes de data_inicio", {
   expect_true(all(projetos$duracao_dias >= 1))
 })
 
-test_that("duracao_dias aproxima a mediana real calibrada por quantis (Sexta rodada)", {
+test_that("duracao_dias aproxima a mediana real da segunda consulta comercial", {
+  # Recalibrada de 18 para 81 dias: a fonte passou a ser silver.pps, tabela
+  # completa, com mediana de 11,6 semanas. A anterior media outra coisa e
+  # deixava o projeto curto demais para acumular as horas que o contrato
+  # implica.
   projetos <- gerar_projetos(n_projetos = 20000, semente = 3)
 
-  expect_equal(median(projetos$duracao_dias), 18, tolerance = 0.25)
+  expect_equal(median(projetos$duracao_dias), 81, tolerance = 0.25)
   expect_true(max(projetos$duracao_dias) > median(projetos$duracao_dias) * 10)
 })
 

@@ -1,8 +1,8 @@
 Tabela,Variável,Fração zero,P25,Mediana,P75,Média,Desvio,Assimetria
-margem_frente_mes,receita,"16,7%",25911.7,98032.8,267945.5,255586,541829.3,8.28
-margem_frente_mes,custo,"45,6%",0,12649.7,21643.2,12171.8,12858,0.7
-margem_frente_mes,margem,"7,8%",13913.7,86437.9,258492.2,243414.2,541982.3,8.27
-ocupacao_consultor,pct_ocupacao,"0,0%",0.5,0.7,1.1,0.9,0.6,1.74
-ocupacao_consultor,horas_mes,"0,0%",71.2,136,205.5,157.1,123.7,1.83
-margem_estrutural,custo_total,"21,3%",2272.6,21808,167823.9,512844.9,2106686.5,9.35
-margem_estrutural,margem_estrutural,"3,7%",-9470.2,6066.3,82149.6,-62699.6,1934753.6,-4.1
+receita_projeto_mes,receita_total,"16,7%",50853,134690.3,274420.7,211462.8,268897.1,3.76
+receita_projeto_mes,receita_nf,"16,7%",44785.2,120945.2,247751.5,191948.7,246902,3.81
+receita_projeto_mes,receita_interns,"41,1%",0,5288.9,21746.2,19514.1,40383.6,5.58
+ocupacao_consultor,pct_ocupacao,"0,0%",0.5,0.8,1.4,1.1,0.9,1.98
+ocupacao_consultor,horas_mes,"0,0%",82.2,150.1,250.5,194.4,175.2,2.55
+margem_estrutural,custo_total,"21,3%",13900.5,82491.3,272038.1,250723.7,517112.2,5.67
+margem_estrutural,margem_estrutural,"3,7%",25669.2,195958.2,659550.3,700300.5,1641695,6.14

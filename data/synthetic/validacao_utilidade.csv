@@ -1,5 +1,5 @@
 categoria,medida,real,sintetico,diferenca_relativa
-geral,correlação nível x custo_carregado,0.9,0.8429608543396527,-0.063376828511497
+geral,correlação nível x custo_carregado,0.9,0.7846501070942532,-0.12816654767305202
 geral,correlação nível x tempo_casa,0.34,0.38341190654639046,0.12768207807761892
 geral,correlação nível x pct_alocacao,0.52,0.4929644661564256,-0.051991411237643136
 geral,correlação nível x horas_mes,-0.55,-0.5286205156058589,-0.038871789807529394

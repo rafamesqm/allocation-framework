@@ -213,26 +213,31 @@ decompor_variancia_do_escore <- function(avaliacoes, etapa = "gestor_final") {
 #' Peers. Atribuir margem a uma pessoa dentro de um time exigiria regra de
 #' rateio, que seria estimativa e não captura.
 #'
-#' Mede também a fração de linhas com custo zero nas duas fontes de margem,
-#' porque margem igual à receita não é ponderação econômica utilizável. A
-#' distinção entre as duas fontes é o achado: em `margem_frente_mes` o custo
-#' zero é incompletude de apontamento, calibrada contra os 44,7% reais de
-#' `peers_custointerns_vlr`, e aparece independentemente de haver gente
-#' alocada. Em `margem_estrutural` o custo zero só aparece onde não há
-#' ninguém alocado, que é explicável e não atrapalha, porque projeto sem
-#' alocação não é célula de `R`.
+#' **O candidato (c) não cai mais por custo zerado, e sim por não existir.** A
+#' primeira versão deste bloco lia os 44,7% de zeros de
+#' `peers_custointerns_vlr` como incompletude de apontamento de custo, e
+#' concluía que a margem por mês era inutilizável. A segunda consulta às
+#' bases comerciais mostrou que aquela fonte é **receita** decomposta por
+#' origem, e que o zero é ausência de estagiário no mês. Não há custo nem
+#' margem naquela granularidade: a despesa mensal vive em outra tabela, de
+#' cobertura parcial, que o sintético ainda não reproduz.
+#'
+#' Sobra para o candidato (d) a plausibilidade dos valores, que agora tem
+#' régua real: a margem líquida mediana do projeto é 0,320 e cerca de 2% dos
+#' projetos dão prejuízo (`referencias_margem_projeto()`).
 #'
 #' @param dados Lista nomeada de tibbles.
-#' @return Lista com a atribuibilidade e a qualidade das duas fontes.
-medir_atribuibilidade_da_margem <- function(dados) {
+#' @param ancora tibble de `referencias_margem_projeto()`.
+#' @return Lista com a atribuibilidade e a qualidade da margem estrutural.
+medir_atribuibilidade_da_margem <- function(dados,
+                                             ancora = referencias_margem_projeto()) {
   equipe <- dplyr::count(dados$alocacoes, projeto_id, name = "consultores")
 
-  frente_mes <- dados$margem_frente_mes
+  receita_mes <- dados$receita_projeto_mes
   estrutural <- dados$margem_estrutural
   sem_alocacao <- !estrutural$projeto_id %in% dados$alocacoes$projeto_id
 
-  com_receita <- frente_mes$receita > 0
-  margem_relativa <- frente_mes$margem[com_receita] / frente_mes$receita[com_receita]
+  alvo <- function(nome) ancora$valor_real[ancora$estatistica == nome]
 
   # Plausibilidade dos valores, e não só dos zeros. A primeira versão deste
   # bloco declarou o candidato (d) viável olhando só a estrutura dos zeros, e
@@ -242,23 +247,29 @@ medir_atribuibilidade_da_margem <- function(dados) {
     estrutural$valor_contrato[com_contrato]
 
   list(
-    tem_consultor_na_margem = "consultor_id" %in% names(frente_mes),
+    tem_consultor_na_margem = "consultor_id" %in% names(receita_mes),
+    tem_custo_mensal = any(grepl("custo|despesa", names(receita_mes))),
     margem_estrutural_relativa_mediana = stats::median(margem_relativa_estrutural),
     fracao_margem_estrutural_negativa = mean(margem_relativa_estrutural < 0),
     margem_estrutural_relativa_p05 = unname(
       stats::quantile(margem_relativa_estrutural, 0.05)
     ),
+    alvo_mediana = alvo("mediana"),
+    alvo_prejuizo = alvo("fracao_prejuizo"),
+    desvio_da_mediana_alvo = stats::median(margem_relativa_estrutural) - alvo("mediana"),
+    desvio_do_prejuizo_alvo = mean(margem_relativa_estrutural < 0) - alvo("fracao_prejuizo"),
     equipe = equipe,
     mediana_equipe = stats::median(equipe$consultores),
     maior_equipe = max(equipe$consultores),
     fracao_projetos_com_equipe = mean(equipe$consultores > 1),
-    custo_zero_frente_mes = mean(frente_mes$custo == 0),
     custo_zero_estrutural = mean(estrutural$custo_total == 0),
     custo_zero_estrutural_sem_alocacao = all(
       (estrutural$custo_total == 0) == sem_alocacao
     ),
-    margem_relativa_mediana = stats::median(margem_relativa),
-    fracao_margem_relativa_integral = mean(margem_relativa == 1)
+    # Identidade da fonte: a receita total é a soma das duas origens Peers.
+    identidade_receita = max(abs(
+      receita_mes$receita_total - receita_mes$receita_nf - receita_mes$receita_interns
+    ))
   )
 }
 
@@ -274,8 +285,8 @@ medir_atribuibilidade_da_margem <- function(dados) {
 #' @param margem_atribuivel Se a margem existe por alocação individual.
 #' @param fracao_projetos_com_equipe Fração de projetos com mais de uma
 #'   pessoa, que é onde o rateio seria necessário.
-#' @param custo_zero_frente_mes Fração de linhas de margem por frente e mês
-#'   sem custo apontado.
+#' @param tem_custo_mensal Se existe custo na mesma granularidade da receita
+#'   mensal, sem o qual não há margem mensal.
 #' @param custo_zero_explicavel_estrutural Se o custo zero da margem
 #'   estrutural coincide com projeto sem alocação.
 #' @param alfa_cronbach Confiabilidade da escala de itens.
@@ -300,7 +311,7 @@ medir_atribuibilidade_da_margem <- function(dados) {
 #'   `calibrado` e `justificativa`.
 avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
                                           fracao_projetos_com_equipe,
-                                          custo_zero_frente_mes,
+                                          tem_custo_mensal,
                                           custo_zero_explicavel_estrutural,
                                           alfa_cronbach,
                                           fracao_margem_negativa,
@@ -330,14 +341,15 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
       " dos projetos alocados; o rateio é estimativa, não captura"
     ),
 
-    "(c)", "margem como segundo objetivo, na granularidade de frente e mês",
-    "margem utilizável como ponderação econômica na granularidade em que existe",
-    custo_zero_frente_mes < 0.1, TRUE,
+    "(c)", "margem como segundo objetivo, na granularidade de projeto e mês",
+    "custo na mesma granularidade da receita, para haver margem mensal",
+    tem_custo_mensal, FALSE,
     paste0(
-      "a granularidade serve, mas ", formatar_pct(custo_zero_frente_mes),
-      " das linhas não têm custo apontado, e margem igual à receita não pondera ",
-      "nada; o número é âncora real, calibrado contra os 44,7% de ",
-      "`peers_custointerns_vlr`"
+      "a fonte mensal é receita decomposta por origem, não custo: a segunda ",
+      "consulta comercial provou a identidade contábil e derrubou a leitura ",
+      "anterior, que tomava os zeros por incompletude de apontamento. A ",
+      "despesa mensal existe em outra tabela, de cobertura parcial e também ",
+      "truncada, que o sintético ainda não reproduz"
     ),
 
     "(d)", "margem estrutural, de custo carregado por horas contra valor de contrato",
@@ -532,5 +544,50 @@ diagnosticar_escala_da_margem <- function(dados, jornada_mensal = 120) {
     custo_mensal_mais_junior = min(custo_mensal$custo_mensal_implicito),
     custo_mensal_mais_senior = max(custo_mensal$custo_mensal_implicito),
     jornada_mensal = jornada_mensal
+  )
+}
+
+#' Mede o fator de carga máximo compatível com as âncoras reais
+#'
+#' `custo_carregado` é salário base vezes um fator de carga que não existe em
+#' base nenhuma consultada. Esta função não estima o fator: ela mede o **teto**
+#' que as âncoras reais impõem a ele, o que é uma pergunta respondível.
+#'
+#' A aritmética tem três âncoras, todas de `docs/mapeamento_schema.md`. A
+#' receita mensal é cerca de `fator_receita` vezes horas vezes preço. O custo
+#' base é uma fração conhecida do preço, por cargo. E a despesa total do
+#' projeto é o complemento da margem líquida mediana. Se o custo de pessoal
+#' sozinho passa da despesa total, o fator é impossível.
+#'
+#' **O resultado é desconfortável e é para ficar assim.** Encargos,
+#' benefícios, décimo terceiro, férias e FGTS levariam o fator para 1,7 ou
+#' 2,0 no Brasil, e o teto medido fica bem abaixo. Ou a margem que o PP
+#' declara é bruta sobre salário direto, ou alguma das três âncoras não
+#' significa o que o nome diz. Não dá para decidir com o acesso encerrado, e
+#' medir o teto é o que separa a constatação da especulação.
+#'
+#' Nota sobre a companheira `diagnosticar_escala_da_margem()`: ela nasceu
+#' para detectar o sintoma de usar preço como custo, e agora que a fonte foi
+#' trocada ela serve de guarda de regressão. O sintoma era a razão entre
+#' custo e contrato centrar em 1; com custo de verdade ela centra bem abaixo.
+#'
+#' @param razao_custo_preco Razão mediana entre custo base e preço, por cargo.
+#' @param fator_receita Receita sobre horas vezes preço.
+#' @param margem_liquida_mediana Margem líquida mediana do projeto.
+#' @return Lista com o teto do fator, o custo de pessoal sobre a receita com
+#'   fator 1, e a sobra para despesa não pessoal.
+medir_fator_de_carga_implicito <- function(razao_custo_preco = 0.554,
+                                            fator_receita = 0.87,
+                                            margem_liquida_mediana = 0.320) {
+  despesa_sobre_receita <- 1 - margem_liquida_mediana
+  pessoal_sobre_receita <- razao_custo_preco / fator_receita
+
+  list(
+    fator_maximo = despesa_sobre_receita / pessoal_sobre_receita,
+    pessoal_sobre_receita = pessoal_sobre_receita,
+    despesa_sobre_receita = despesa_sobre_receita,
+    sobra_nao_pessoal = despesa_sobre_receita - pessoal_sobre_receita,
+    razao_custo_preco = razao_custo_preco,
+    fator_receita = fator_receita
   )
 }

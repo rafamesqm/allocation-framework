@@ -59,9 +59,9 @@ gerar_projetos <- function(n_projetos = 952,
                             semente = 1,
                             data_referencia = Sys.Date(),
                             janela_inicio_dias = 730,
-                            duracao_mediana_dias = 18,
-                            duracao_p25_dias = 4,
-                            duracao_p75_dias = 81,
+                            duracao_mediana_dias = 81,
+                            duracao_p25_dias = 42,
+                            duracao_p75_dias = 156,
                             duracao_teto_dias = 2368) {
   set.seed(semente)
 
@@ -95,10 +95,16 @@ gerar_projetos <- function(n_projetos = 952,
     projeto_id = sprintf("projeto_%04d", seq_len(n_projetos)),
     setor = sample(segmentos, n_projetos, replace = TRUE, prob = pesos_segmento),
     tipo_projeto = sample(offerings, n_projetos, replace = TRUE, prob = pesos_offering),
+    # Recalibrado pela segunda consulta comercial: `silver.pps`, última
+    # versão por CRM, 556 projetos, tabela completa e sem teto de extração.
+    # A calibração anterior vinha de `actarnet_alocacao_pessoas` e dava
+    # mediana de 108 mil, quatro vezes menor. As duas medem valor de
+    # contrato, mas só a de `pps` é a mesma fonte da âncora de margem, e
+    # misturar fontes era o que fazia a margem estrutural não fechar.
     valor_contrato = gerar_variavel_hurdle_lognormal(
       n_projetos,
-      prob_zero = 0.147, mediana_positivos = 108300,
-      p25_positivos = 34814, p75_positivos = 375054
+      prob_zero = 0.147, mediana_positivos = 457000,
+      p25_positivos = 190000, p75_positivos = 1100000
     ),
     esforco_estimado = gerar_esforco_estimado(n_projetos),
     data_inicio = data_inicio,

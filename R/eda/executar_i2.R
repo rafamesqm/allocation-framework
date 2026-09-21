@@ -17,7 +17,10 @@ executar_i2 <- function(dados, estabilidade = NULL) {
 
   resumo_projetos <- resumir_numericas(dados$projetos)
   resumo_alocacoes <- resumir_numericas(dados$alocacoes)
-  resumo_margem <- resumir_numericas(dados$margem_frente_mes, c("receita", "custo", "margem"))
+  resumo_margem <- resumir_numericas(
+    dados$receita_projeto_mes,
+    c("receita_total", "receita_nf", "receita_interns")
+  )
   resumo_ocupacao <- resumir_numericas(dados$ocupacao_consultor, c("pct_ocupacao", "horas_mes"))
   resumo_estrutural <- resumir_numericas(
     dados$margem_estrutural, c("custo_total", "margem_estrutural")
@@ -25,9 +28,13 @@ executar_i2 <- function(dados, estabilidade = NULL) {
 
   confronto_projetos <- confrontar_com_real(resumo_projetos, "projetos")
   confronto_alocacoes <- confrontar_com_real(resumo_alocacoes, "alocacoes")
-  confronto_margem <- confrontar_com_real(resumo_margem, "margem_frente_mes")
+  confronto_margem <- confrontar_com_real(resumo_margem, "receita_projeto_mes")
   comparacao_nivel <- confrontar_proporcoes(dados$consultores, "consultores", "nivel_senioridade")
 
+  # Devolve vetores vazios quando a estatística não tem âncora, e quem
+  # consome precisa testar com `length()` e não com `nrow()`: a saída é
+  # lista, não data frame, e `nrow(NULL)` devolve NULL, que quebra um `if`
+  # com "argumento tem comprimento zero" em vez de cair no ramo vazio.
   pega <- function(confronto, v, e) {
     linha <- confronto[confronto$variavel == v & confronto$estatistica == e, ]
     list(real = linha$valor_real, sint = linha$valor_sintetico, dif = linha$diferenca_relativa)
@@ -47,7 +54,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
     resumo_projetos = resumo_projetos,
     resumo_alocacoes = resumo_alocacoes,
     resumo_operacao = dplyr::bind_rows(
-      dplyr::mutate(resumo_margem, tabela = "margem_frente_mes"),
+      dplyr::mutate(resumo_margem, tabela = "receita_projeto_mes"),
       dplyr::mutate(resumo_ocupacao, tabela = "ocupacao_consultor"),
       dplyr::mutate(resumo_estrutural, tabela = "margem_estrutural")
     ),
@@ -157,15 +164,31 @@ executar_i2 <- function(dados, estabilidade = NULL) {
     paste0(
       "A calibração por casamento de quantis acerta onde mira e não controla ",
       "o resto. Em valor_contrato a mediana dos positivos sai a ",
-      formatar_diferenca(vc_mediana$dif), " do real, enquanto a assimetria ",
-      "dos positivos fica em ", formatar_decimal(vc_assim$sint), " contra ",
-      formatar_decimal(vc_assim$real), ". Em duracao_dias os três quantis ",
-      "batem e a média sai ", formatar_diferenca(dur_media$dif), "."
+      formatar_diferenca(vc_mediana$dif), " do real",
+      if (length(vc_assim$real) == 0) {
+        "."
+      } else {
+        paste0(
+          ", enquanto a assimetria dos positivos fica em ",
+          formatar_decimal(vc_assim$sint), " contra ",
+          formatar_decimal(vc_assim$real), "."
+        )
+      },
+      " Em duracao_dias os três quantis batem",
+      if (length(dur_media$real) == 0) {
+        ", e não há âncora de média para confrontar."
+      } else {
+        paste0(" e a média sai ", formatar_diferenca(dur_media$dif), ".")
+      }
     ),
     paste0(
       "Análise que dependa de quantil da distribuição sintética é defensável; ",
       "análise que dependa de média, desvio ou de comportamento de cauda ",
-      "extrema não é."
+      "extrema não é. **A ausência de âncora para média e assimetria é ",
+      "informação, e não lacuna a preencher:** a segunda consulta comercial ",
+      "recalibrou contrato e duração pela tabela `pps`, que dá quantis e não ",
+      "momentos. Reportar diferença contra um momento que a fonte nova não ",
+      "publica seria confrontar o sintético com a fonte antiga."
     ),
 
     "I.2.3", "instrumento",

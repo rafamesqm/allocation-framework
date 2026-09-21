@@ -136,9 +136,9 @@ list(
     ),
     "ferias_consultor"
   ), format = "file"),
-  tar_target(margem_frente_mes_arquivo, salvar_synthetic(
-    gerar_margem_frente_mes(projetos_acoplados, semente = parametros$semente),
-    "margem_frente_mes"
+  tar_target(receita_projeto_mes_arquivo, salvar_synthetic(
+    gerar_receita_projeto_mes(projetos_acoplados, semente = parametros$semente),
+    "receita_projeto_mes"
   ), format = "file"),
   tar_target(margem_estrutural_arquivo, salvar_synthetic(
     gerar_margem_estrutural(alocacoes, custo_carregado, projetos_acoplados), "margem_estrutural"
@@ -172,7 +172,7 @@ list(
       idiomas_consultor_arquivo, certificacoes_consultor_arquivo,
       soft_skills_consultor_arquivo, avaliacoes_desempenho_arquivo,
       ocupacao_consultor_arquivo, ferias_consultor_arquivo,
-      margem_frente_mes_arquivo, margem_estrutural_arquivo,
+      receita_projeto_mes_arquivo, margem_estrutural_arquivo,
       pipeline_demandas_arquivo, grafo_coalocacao_arquivo,
       validacao_utilidade_arquivo
     )

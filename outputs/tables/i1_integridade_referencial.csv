@@ -13,7 +13,7 @@ avaliacoes_desempenho,projeto_id,projetos.projeto_id,575,0
 custo_carregado,consultor_id,consultores.consultor_id,285,0
 ocupacao_consultor,consultor_id,consultores.consultor_id,237,0
 ferias_consultor,consultor_id,consultores.consultor_id,285,0
-margem_frente_mes,projeto_id,projetos.projeto_id,952,0
+receita_projeto_mes,projeto_id,projetos.projeto_id,952,0
 margem_estrutural,projeto_id,projetos.projeto_id,952,0
 grafo_coalocacao,consultor_a,consultores.consultor_id,223,0
 grafo_coalocacao,consultor_b,consultores.consultor_id,221,0

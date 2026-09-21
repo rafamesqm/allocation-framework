@@ -1,14 +1,5 @@
 Variável,Estatística,Real,Sintético,Dif. relativa,Rodada
-custo,desvio,"17.980,01","12.857,95","-28,5%",Quinta
-custo,fracao_zero,"0,45","0,46","+2,0%",Quinta
-custo,media,"14.315,61","12.171,78","-15,0%",Quinta
-custo,mediana_pos,"21.000,00","20.787,23","-1,0%",Quinta
-custo,p25_pos,"16.000,00","16.140,86","+0,9%",Quinta
-custo,p75_pos,"26.250,00","26.787,04","+2,0%",Quinta
-receita,assimetria,"1,85","8,28","+347,4%",Quinta
-receita,desvio,"202.058,84","541.829,25","+168,2%",Quinta
-receita,fracao_zero,"0,16","0,17","+5,1%",Quinta
-receita,media,"192.076,84","255.585,98","+33,1%",Quinta
-receita,mediana_pos,"136.901,46","136.838,99","-0,0%",Quinta
-receita,p25_pos,"46.105,50","56.815,82","+23,2%",Quinta
-receita,p75_pos,"268.683,84","322.379,98","+20,0%",Quinta
+receita_total,fracao_zero,"0,16","0,17","+4,8%",Segunda consulta
+receita_total,mediana_pos,"172.000,00","171.598,84","-0,2%",Segunda consulta
+receita_total,p25_pos,"90.000,00","91.781,56","+2,0%",Segunda consulta
+receita_total,p75_pos,"304.000,00","313.690,04","+3,2%",Segunda consulta

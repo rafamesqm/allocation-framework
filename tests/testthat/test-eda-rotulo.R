@@ -98,12 +98,12 @@ test_that("a margem nao e atribuivel a uma alocacao individual", {
 test_that("o veredito dos candidatos de rotulo responde as medidas", {
   medido <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
-    custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
+    tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
     alfa_cronbach = 0.9, fracao_margem_negativa = 0.328
   )
   hipotetico <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = TRUE, fracao_projetos_com_equipe = 0,
-    custo_zero_frente_mes = 0.01, custo_zero_explicavel_estrutural = TRUE,
+    tem_custo_mensal = TRUE, custo_zero_explicavel_estrutural = TRUE,
     alfa_cronbach = 0.9, fracao_margem_negativa = 0.02
   )
 
@@ -119,7 +119,7 @@ test_that("mecanismo e calibracao sao eixos separados no veredito", {
   # que a forma de calcular margem esta errada, que nao e o caso.
   medido <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
-    custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
+    tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
     alfa_cronbach = 0.9, fracao_margem_negativa = 0.328
   )
   d <- medido[medido$candidato == "(d)", ]
@@ -129,7 +129,7 @@ test_that("mecanismo e calibracao sao eixos separados no veredito", {
 
   calibrado <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
-    custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
+    tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
     alfa_cronbach = 0.9, fracao_margem_negativa = 0.02
   )
   expect_true(calibrado$calibrado[calibrado$candidato == "(d)"])
@@ -139,7 +139,7 @@ test_that("escala nao confiavel derruba o candidato (a)", {
   # Era o caso antes da correcao do gerador, e o veredito precisa acompanhar.
   sem_escala <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
-    custo_zero_frente_mes = 0.456, custo_zero_explicavel_estrutural = TRUE,
+    tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
     alfa_cronbach = -0.035, fracao_margem_negativa = 0.328
   )
 
@@ -339,7 +339,10 @@ test_that("o diagnostico de escala da margem mede sem decidir", {
   escala <- diagnosticar_escala_da_margem(dados)
 
   expect_gt(escala$centro_da_razao, 0)
-  expect_true(escala$razao_centra_em_um)
+  # Guarda de regressao: com custo de verdade a razao centra bem abaixo de
+  # 1. Se voltar a centrar em 1, alguem repos o rate card como custo.
+  expect_false(escala$razao_centra_em_um)
+  expect_lt(escala$centro_da_razao, 0.7)
   expect_equal(nrow(escala$custo_mensal), 5)
   expect_gt(escala$custo_mensal_mais_senior, escala$custo_mensal_mais_junior)
   # O custo mensal implicito e a taxa vezes a jornada, sem nada no meio.

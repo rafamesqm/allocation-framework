@@ -92,6 +92,7 @@ especificacao_tabelas <- function() {
 
     # Camada 3: Operação ---------------------------------------------------
     "custo_carregado", "consultor_id", "texto", "chave", "consultores.consultor_id",
+    "custo_carregado", "custo_hora_base", "numerico", "atributo", NA_character_,
     "custo_carregado", "custo_carregado", "numerico", "atributo", NA_character_,
 
     "ocupacao_consultor", "consultor_id", "texto", "chave", "consultores.consultor_id",
@@ -104,11 +105,13 @@ especificacao_tabelas <- function() {
     "ferias_consultor", "inicio_ferias", "data", "atributo", NA_character_,
     "ferias_consultor", "fim_ferias", "data", "atributo", NA_character_,
 
-    "margem_frente_mes", "projeto_id", "texto", "chave", "projetos.projeto_id",
-    "margem_frente_mes", "ano_mes", "texto", "chave", NA_character_,
-    "margem_frente_mes", "receita", "numerico", "atributo", NA_character_,
-    "margem_frente_mes", "custo", "numerico", "atributo", NA_character_,
-    "margem_frente_mes", "margem", "numerico", "atributo", NA_character_,
+    "receita_projeto_mes", "projeto_id", "texto", "chave", "projetos.projeto_id",
+    "receita_projeto_mes", "ano_mes", "texto", "chave", NA_character_,
+    "receita_projeto_mes", "receita_total", "numerico", "atributo", NA_character_,
+    "receita_projeto_mes", "receita_nf", "numerico", "atributo", NA_character_,
+    "receita_projeto_mes", "receita_interns", "numerico", "atributo", NA_character_,
+    "receita_projeto_mes", "receita_subcontratados", "numerico", "atributo", NA_character_,
+    "receita_projeto_mes", "receita_actar", "numerico", "atributo", NA_character_,
 
     "margem_estrutural", "projeto_id", "texto", "chave", "projetos.projeto_id",
     "margem_estrutural", "valor_contrato", "numerico", "atributo", NA_character_,

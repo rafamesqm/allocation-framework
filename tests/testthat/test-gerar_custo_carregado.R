@@ -2,10 +2,35 @@ test_that("custo_carregado fica dentro da faixa real por nível", {
   consultores <- gerar_consultores(n_consultores = 500)
   custo <- gerar_custo_carregado(consultores)
 
-  expect_named(custo, c("consultor_id", "custo_carregado"))
+  expect_named(custo, c("consultor_id", "custo_hora_base", "custo_carregado"))
   expect_equal(nrow(custo), nrow(consultores))
   expect_false(anyNA(custo))
-  expect_true(all(custo$custo_carregado >= 91.45 & custo$custo_carregado <= 2066.00))
+  # Faixa da tabela de custo por cargo, nao do rate card: a fonte de custo
+  # passou a ser bi_tbl_pps_alocacao_custos, salario base por hora.
+  expect_true(all(custo$custo_hora_base >= 70 & custo$custo_hora_base <= 1093))
+})
+
+test_that("custo carregado e a base vezes o fator de carga", {
+  consultores <- gerar_consultores(n_consultores = 200)
+
+  sem_carga <- gerar_custo_carregado(consultores, fator_carga = 1)
+  com_carga <- gerar_custo_carregado(consultores, fator_carga = 1.8)
+
+  expect_equal(sem_carga$custo_carregado, sem_carga$custo_hora_base)
+  expect_equal(com_carga$custo_carregado, com_carga$custo_hora_base * 1.8)
+})
+
+test_that("banda de um valor so devolve aquele valor", {
+  # sample(271, 1) sorteia de 1 a 271 em vez de devolver 271. O nivel N2 tem
+  # banda unitaria e saia com media 136 no lugar de 271.
+  consultores <- tibble::tibble(
+    consultor_id = paste0("c", 1:50),
+    nivel_senioridade = factor(rep("N2", 50), levels = c("N4","N3","N2","N1","N0"), ordered = TRUE)
+  )
+
+  custo <- gerar_custo_carregado(consultores)
+
+  expect_true(all(custo$custo_hora_base == 271))
 })
 
 test_that("nível mais sênior tem custo médio maior que o mais júnior", {

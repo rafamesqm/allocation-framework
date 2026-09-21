@@ -67,7 +67,7 @@ test_that("executar_i1 devolve as quatro partes do bloco", {
 test_that("executar_i2 devolve as quatro partes do bloco", {
   dados <- carregar_dados(tabelas = c(
     "consultores", "custo_carregado", "projetos", "alocacoes",
-    "ocupacao_consultor", "margem_frente_mes", "margem_estrutural"
+    "ocupacao_consultor", "receita_projeto_mes", "margem_estrutural"
   ))
 
   bloco <- executar_i2(dados)

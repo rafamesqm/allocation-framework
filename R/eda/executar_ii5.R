@@ -43,7 +43,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
   candidatos <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = margem$tem_consultor_na_margem,
     fracao_projetos_com_equipe = margem$fracao_projetos_com_equipe,
-    custo_zero_frente_mes = margem$custo_zero_frente_mes,
+    tem_custo_mensal = margem$tem_custo_mensal,
     custo_zero_explicavel_estrutural = margem$custo_zero_estrutural_sem_alocacao,
     alfa_cronbach = dimensionalidade$alfa_ordinal,
     fracao_margem_negativa = margem$fracao_margem_estrutural_negativa
@@ -246,22 +246,25 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
 
     "II.5.4", "âncora real",
     paste0(
-      "As duas fontes de margem têm custo zero por motivos opostos. Em ",
-      "`margem_frente_mes`, ", formatar_pct(margem$custo_zero_frente_mes),
-      " das linhas não têm custo apontado, e ",
-      formatar_pct(margem$fracao_margem_relativa_integral),
-      " das linhas com receita têm margem igual à receita. Em ",
-      "`margem_estrutural`, o custo zero coincide ",
+      "Não existe margem na granularidade mensal. A fonte que parecia ter ",
+      "custo mensal é receita decomposta por origem, e a identidade contábil ",
+      "fecha no sintético com erro máximo de ",
+      formatar_decimal(margem$identidade_receita, 6),
+      ". Em `margem_estrutural`, o custo zero coincide ",
       if (margem$custo_zero_estrutural_sem_alocacao) "exatamente" else "apenas em parte",
       " com projeto sem nenhuma alocação."
     ),
     paste0(
-      "**Separa o candidato (c) do (d).** O custo zero de frente e mês é ",
-      "âncora real, calibrado contra os 44,7% de `peers_custointerns_vlr`, e ",
-      "é incompletude de apontamento: margem igual à receita não pondera ",
-      "nada. O custo zero da margem estrutural é explicável e inofensivo, ",
-      "porque projeto sem alocação não é célula de `R`. A margem estrutural ",
-      "não depende do apontamento, que é a fonte do problema."
+      "**Derruba o candidato (c), mas não pelo motivo que este bloco deu na ",
+      "primeira versão.** Aquela versão lia os 44,7% de zeros de ",
+      "`peers_custointerns_vlr` como incompletude de apontamento de custo, e ",
+      "chamou isso de âncora real. A segunda consulta comercial mostrou que ",
+      "a fonte é receita e que o zero é ausência de estagiário no mês. O ",
+      "candidato (c) cai porque **não há custo mensal**, e não porque o custo ",
+      "mensal seja ruim. A despesa nessa granularidade vive em outra tabela, ",
+      "de cobertura parcial e também truncada, que o sintético ainda não ",
+      "reproduz. O custo zero da margem estrutural segue explicável, porque ",
+      "projeto sem alocação não é célula de `R`."
     ),
 
     "II.5.8", "instrumento",
