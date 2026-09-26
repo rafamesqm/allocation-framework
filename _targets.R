@@ -294,5 +294,12 @@ list(
   tar_target(bloco_ii7_figuras, salvar_figuras_bloco(
     bloco_ii7$figuras, list(ii7_avaliabilidade = c(19, 9))
   ), format = "file"),
-  tar_target(bloco_ii7_achados, salvar_tabela(bloco_ii7$achados, "achados_ii7"), format = "file")
+  tar_target(bloco_ii7_achados, salvar_tabela(bloco_ii7$achados, "achados_ii7"), format = "file"),
+
+  tar_target(bloco_ii8, executar_ii8(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii8_tabelas, salvar_tabelas_bloco(bloco_ii8$tabelas), format = "file"),
+  tar_target(bloco_ii8_figuras, salvar_figuras_bloco(
+    bloco_ii8$figuras, list(ii8_insumos = c(19, 9))
+  ), format = "file"),
+  tar_target(bloco_ii8_achados, salvar_tabela(bloco_ii8$achados, "achados_ii8"), format = "file")
 )

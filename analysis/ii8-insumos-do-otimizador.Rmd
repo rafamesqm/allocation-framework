@@ -1,0 +1,154 @@
+---
+title: "Bloco II.8 Insumos e tratabilidade do otimizador"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii8")
+obj <- bloco$objetos
+cap <- obj$capacidade
+```
+
+## Propósito do bloco
+
+**Propriedade medida.** O porte do problema sob cada formulação, o quanto o
+histórico viola a restrição que a wave 4 pretende impor, e quais insumos
+existem com escala utilizável.
+
+**Decisão que discrimina.** O que a wave 4 pode modelar, e o que ela pode
+prometer.
+
+É o último bloco da Parte II, e o mais ingrato. Os anteriores eliminaram
+famílias de modelo; este conta o que sobrou de insumo. A contagem é
+desconfortável, e o valor dela está em ser feita **antes** de a wave 4
+começar, e não depois de o otimizador estar escrito.
+
+## Expressar capacidade custa porte
+
+```{r porte}
+mostrar_tabela(
+  bloco$tabelas$ii8_porte,
+  "Tabela II.8.1: porte do problema sob cada formulação.",
+  c("l", "r", "r", "c")
+)
+```
+
+A formulação por par de consultor e projeto tem
+`r formatar_inteiro(obj$sem_tempo$variaveis)` variáveis e **não** consegue
+expressar a restrição de capacidade, porque capacidade é por mês e o mês não
+está na variável de decisão. Não é questão de tamanho: é de granularidade.
+
+Acrescentar o mês leva a `r formatar_inteiro(obj$com_tempo$variaveis)`
+variáveis e `r formatar_inteiro(obj$com_tempo$restricoes_capacidade)`
+restrições de capacidade.
+
+Restringindo ao conjunto candidato do filtro de conteúdo, caem para
+`r formatar_inteiro(obj$restrito$variaveis)`, uma redução de
+`r formatar_decimal(obj$reducao, 1)` vezes.
+
+**O filtro do bloco II.6 é o que torna o problema tratável**, e isso amarra
+os dois blocos por um caminho que não era o esperado. Lá ele foi escolhido por
+filtrar e não ordenar; aqui o mesmo corte reduz o espaço de decisão na
+proporção do número de categorias. Com ε-constraint, que resolve um inteiro a
+cada ponto da fronteira, a diferença entre um milhão e setenta mil binárias
+decide se a fronteira é calculável.
+
+O custo do corte está no achado II.6.5, e não some por ser conveniente aqui:
+ele exclui candidatos que na prática seriam alocados.
+
+## O histórico viola a restrição que se pretende impor
+
+```{r capacidade}
+mostrar_tabela(
+  bloco$tabelas$ii8_capacidade,
+  "Tabela II.8.2: violação da capacidade no histórico.",
+  c("l", "r")
+)
+```
+
+`r formatar_pct(cap$fracao_meses_acima)` dos meses de consultor passam de cem
+por cento de ocupação, e
+`r formatar_pct(cap$consultores_com_violacao)` dos consultores têm ao menos um
+mês assim.
+
+Um modelo que imponha capacidade como **limite duro declara infactível boa
+parte do que de fato aconteceu**, o que é um resultado ruim de se descobrir
+com o otimizador já escrito. Três saídas, e a escolha fica para a wave 4:
+
+* capacidade como penalidade, e não como limite;
+* limite acima de cem por cento, calibrado pelo próprio histórico;
+* aceitar a infactibilidade como diagnóstico de sobrealocação.
+
+A terceira é a mais interessante para a monografia e a menos útil para a
+empresa.
+
+Uma ressalva que o número obriga: a ocupação máxima observada é de
+`r formatar_decimal(cap$ocupacao_maxima, 1)` vezes a capacidade. Isso é
+implausível como fato e sugere que a própria medida de ocupação mereça
+revisão antes de virar restrição.
+
+## Dois insumos de oito têm escala utilizável
+
+```{r insumos-figura, fig.width = 7.5, fig.height = 4}
+bloco$figuras$ii8_insumos
+```
+
+```{r insumos-tabela}
+mostrar_tabela(
+  bloco$tabelas$ii8_insumos,
+  "Tabela II.8.3: insumos do otimizador, por existência e escala.",
+  c("l", "l", "c", "c", "l")
+)
+```
+
+Dos `r obj$n_insumos` insumos que o otimizador pediria, `r obj$existem`
+existem e apenas `r obj$dimensionaveis` têm escala utilizável: custo por hora
+e férias.
+
+**Existir e ter escala utilizável são exigências diferentes**, e separá-las é
+o que impede uma contagem otimista. Margem e qualidade da alocação são
+calculáveis e não dimensionáveis, cada uma pelo motivo já registrado: a
+margem porque as âncoras econômicas se sobredeterminam e discordam por 1,45
+vezes (II.5.10), a qualidade porque o acesso à base de avaliação está negado
+(II.5.6).
+
+Três não existem em fonte nenhuma: skills requeridas, pirâmide de senioridade
+e demanda futura.
+
+**A ausência mais grave é a demanda futura.** `pipeline_demandas` traz
+identificador e estágio, sem data, sem tamanho e sem perfil. Sem ela o
+otimizador não aloca para frente: só reavalia o passado.
+
+## O que a wave 4 pode prometer
+
+A wave 4 é viável como **exercício retrospectivo e multiobjetivo parcial**, e
+não como alocador prospectivo. Ela pode rodar sobre os projetos históricos,
+com capacidade e férias como restrições, custo como objetivo dimensionado, e
+o conjunto candidato restrito pelo filtro de conteúdo.
+
+É menos do que a ambição das pré-definições, e o que fica de fora precisa
+ficar escrito:
+
+* sem demanda futura, não há alocação prospectiva;
+* sem margem dimensionada, o objetivo econômico entra como direção e não como
+  magnitude;
+* sem pirâmide, não há restrição de composição;
+* sem skills requeridas, a aderência é a do filtro grosso de categoria.
+
+**Nada disso invalida a monografia**, porque o objeto dela é o método e o
+diagnóstico, não um alocador em produção. Mas a diferença entre as duas
+coisas é exatamente o que a Parte III precisa deixar explícito.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```
