@@ -1,0 +1,158 @@
+---
+title: "Bloco II.7 Protocolo de avaliação"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii7")
+obj <- bloco$objetos
+base <- obj$comparacao_base
+```
+
+## Propósito do bloco
+
+**Âncora na literatura.** Cremonesi, Koren e Turrin (2010) mostram que a
+escolha do protocolo muda a ordem entre algoritmos, e Bellogín, Castells e
+Cantador (2011) que a métrica precisa controlar popularidade para não premiar
+quem apenas a redescobre.
+
+**Propriedade medida.** Quanta observação cada forma de divisão deixa para
+cada componente do híbrido, e quanto ela vaza.
+
+**Decisão que discrimina.** A forma da divisão, a métrica e a linha de base.
+
+**Por que este bloco está na wave 2 e não na 3.** Definir o protocolo antes
+de ver qualquer resultado de modelo é o que impede o autoengano. Com o modelo
+em mãos, a decisão fica suscetível de ser ajustada ao resultado, e a diferença
+entre as duas situações não aparece no texto final: aparece só na honestidade
+de quem escreveu.
+
+## Três restrições que o bloco herda
+
+Este bloco quase não tem liberdade, e isso é bom sinal. Cada peça do
+protocolo responde a um achado anterior.
+
+Do **bloco II.4**, que nenhum estimador não enviesado por propensão
+sobreviveu: a conclusão precisa ser enunciada sobre a população observada, sem
+pretender valer para os pares que nunca tiveram chance de aparecer.
+
+Do **bloco II.6**, que a divisão temporal separa alocações e não pessoas: o
+perfil médio media AUC de 0,62 com vazamento e 0,49 sem, então atributo com
+chave de entidade exige separação por entidade.
+
+Do **bloco II.1**, que a linha de base de popularidade reportada lá era limite
+superior e precisava ser refeita aqui antes de virar critério formal.
+
+## O que cada divisão deixa e o que ela vaza
+
+```{r divisoes, fig.width = 7.5, fig.height = 4}
+bloco$figuras$ii7_avaliabilidade
+```
+
+```{r divisoes-tabela}
+mostrar_tabela(
+  bloco$tabelas$ii7_divisoes,
+  "Tabela II.7.1: observação disponível e vazamento em cada forma de divisão.",
+  c("l", "r", "r", "r", "r", "r")
+)
+```
+
+O número que decide o bloco está na primeira linha. **Sob divisão temporal, o
+colaborativo pontua apenas
+`r formatar_pct(obj$temporal$avaliavel_colaborativo)` dos pares de teste**,
+porque só `r formatar_pct(obj$temporal$vazamento_projeto)` dos projetos do
+teste aparecem no treino.
+
+A divisão aleatória eleva isso para
+`r formatar_pct(obj$aleatoria$avaliavel_colaborativo)`, ou
+`r formatar_decimal(obj$inflacao_aleatoria, 1)` vezes mais. **A diferença
+inteira vem de deixar o mesmo projeto dos dois lados**, o que em produção
+nunca acontece: projeto de consultoria é item efêmero, aparece uma vez e não
+volta.
+
+Avaliar o colaborativo com divisão aleatória reportaria um componente que
+funciona e que não poderia funcionar. Conjugado ao bloco II.2, que mostrou a
+fatoração não ser identificável nesta escala, o colaborativo não é só fraco:
+é **quase inavaliável** sob qualquer protocolo honesto.
+
+## Nenhuma forma serve aos dois componentes
+
+```{r vereditos}
+mostrar_tabela(
+  bloco$tabelas$ii7_vereditos,
+  "Tabela II.7.2: veredito de cada forma por componente.",
+  c("l", "c", "c", "c")
+)
+```
+
+A temporal deixa `r formatar_pct(obj$temporal$vazamento_consultor)` dos
+consultores do teste já vistos no treino, o que invalida avaliação de atributo
+de entidade. A divisão por consultor zera esse vazamento e zera junto a
+avaliabilidade do colaborativo.
+
+A oposição não é defeito da medida, é definição: **separar pessoas para não
+vazar atributo é exatamente criar cold start**, e cold start é o regime em que
+o colaborativo não tem o que dizer.
+
+**A decisão habilitada é adotar dois protocolos, um por componente.** Isso
+casa com o híbrido chaveado do bloco II.3: cada componente é avaliado no
+regime em que de fato atua. Um protocolo único obrigaria a mentir sobre um dos
+dois.
+
+## A linha de base, refeita
+
+```{r linha-base}
+mostrar_tabela(
+  bloco$tabelas$ii7_linha_base,
+  "Tabela II.7.3: acerto da popularidade, sob o protocolo e na versão do bloco II.1.",
+  c("r", "r", "r", "r")
+)
+```
+
+Eram dois vícios, e o segundo é o menos evidente.
+
+O primeiro era **contar popularidade no mesmo dado em que se avalia**. Aqui a
+contagem vem só do treino.
+
+O segundo era **desempatar a favor do consultor avaliado**. Com contagens
+inteiras os empates são grandes, e contar apenas quem está estritamente acima
+põe o focal na melhor posição possível dentro do bloco de empatados. A posição
+esperada sob desempate aleatório é a medida correta.
+
+Em lista de 20 o acerto cai de
+`r formatar_pct(base$recall_otimista[base$n_recomendados == 20])` para
+`r formatar_pct(base$recall_protocolo[base$n_recomendados == 20])`. Nos
+extremos a correção não morde, e a razão é estrutural: em lista muito curta o
+focal fica fora de qualquer jeito, e em lista longa entra de qualquer jeito. O
+empate só decide no meio da faixa.
+
+**Este é o número que a wave 3 precisa bater**, e ele fica fixado agora, antes
+de existir modelo.
+
+## O protocolo declarado
+
+* **Divisão por consultor** para avaliar o componente de conteúdo, porque é a
+  única que não vaza atributo de entidade.
+* **Divisão temporal** para o colaborativo, porque em produção não se prevê o
+  passado, com a ressalva de que ela deixa pouquíssimo par pontuável.
+* **Acerto em lista** como métrica, com a linha de base de popularidade
+  reportada ao lado em toda comparação.
+* **Conclusão enunciada sobre a população observada**, sem pretender valer
+  para os pares que nunca tiveram chance de aparecer.
+
+Nenhuma dessas peças é preferência. Cada uma responde a uma restrição medida
+em outro bloco, e é por isso que o protocolo pôde ser fixado antes do modelo.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```
