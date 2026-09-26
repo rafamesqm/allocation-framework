@@ -131,13 +131,23 @@ comparar_porte_com_referencias <- function(alocacoes, consultores, projetos,
 #' desligados, e não os 285 ativos, e que o código de alocação não é a mesma
 #' coisa que projeto; é a granularidade que o dado real oferece.
 #'
-#' **Ressalva que acompanha o número.** O join que produziu os 4.598 pares
-#' supõe que `ID` em entidades e `Cód. Colaborador` em alocação são a mesma
-#' chave, o que nunca foi confirmado com o time de dados, e o acesso está
-#' encerrado. O número é estimativa de primeira passada. Para o uso que se
-#' faz dele aqui, comparar ordem de grandeza contra conjuntos públicos, a
-#' ressalva não morde: seria preciso errar por mais de uma ordem de grandeza
-#' para a conclusão mudar.
+#' **A ressalva da chave está resolvida, e a favor.** Este bloco registrava
+#' que o join supunha `ID` em entidades e `Cód. Colaborador` em alocação
+#' serem a mesma chave, sem confirmação. A segunda consulta comercial
+#' confirmou que são: `ID` é `cod_id_funcionario`, e o nome completo coincide
+#' em 98,1% dos códigos casados. Duas notas ficam. A cobertura sobe para
+#' cerca de 98% usando `gold.apdata_entidades_globais` em vez da view que
+#' perde cerca de cem códigos, e 6% das linhas de alocação seguem sem casar.
+#' As chaves Starsoft **não** servem para este join, com 18% de coincidência
+#' de nome, que são colisões.
+#'
+#' **A ressalva que resta é outra, e é de extração.** A tabela de alocação
+#' tem 4.999 linhas, e a mesma consulta mostrou que várias tabelas do fluxo
+#' param em números redondos por teto de extração. Os 4.598 pares podem vir
+#' de uma base truncada. Para o uso que se faz deles aqui, comparar ordem de
+#' grandeza contra conjuntos públicos, isso não morde: seria preciso errar
+#' por mais de uma ordem de grandeza para a conclusão mudar, e o truncamento
+#' encurta a base, o que só reforçaria a conclusão de esparsidade.
 #'
 #' @return tibble de uma linha, no mesmo formato de
 #'   `referencias_identificabilidade()`.

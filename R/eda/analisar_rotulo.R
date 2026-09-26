@@ -591,3 +591,79 @@ medir_fator_de_carga_implicito <- function(razao_custo_preco = 0.554,
     fator_receita = fator_receita
   )
 }
+
+#' Mede a sobredeterminação das âncoras econômicas
+#'
+#' Seis agregados reais descrevem a mesma economia por caminhos diferentes, e
+#' juntos ela fica **sobredeterminada**: cinco bastam para calcular o sexto, e
+#' o valor calculado não bate com o medido.
+#'
+#' A relação que os liga é `receita = fator_receita * horas * preco`, com
+#' `horas = equipe * jornada * meses`. Todos os seis têm âncora registrada em
+#' `docs/mapeamento_schema.md`, e nenhum é suposição do gerador.
+#'
+#' **O que a função faz, e o que ela não faz.** Ela não escolhe qual âncora
+#' relaxar, porque essa escolha não é estatística: depende de saber o que cada
+#' número de fato conta, e o acesso ao ambiente está encerrado. O que ela faz é
+#' tornar a inconsistência auditável, reportando para cada âncora o valor que
+#' reconciliaria o sistema se as outras cinco estivessem certas. Isso transforma
+#' "não fecha" em "não fecha por este fator, e é este o ajuste que cada uma
+#' exigiria".
+#'
+#' A suspeita mais provável, e é só suspeita, é o tamanho de equipe: os 2,51
+#' vêm de pares distintos entre colaborador e **código de alocação**, e um
+#' projeto pode ter mais de um código. Se for isso, a equipe real por projeto é
+#' maior e o resto fecha sem mexer em mais nada.
+#'
+#' @param equipe Consultores por projeto.
+#' @param jornada Horas por mês por consultor.
+#' @param semanas Duração do projeto, em semanas.
+#' @param contrato Valor de contrato mediano.
+#' @param preco Preço por hora mediano.
+#' @param fator_receita Receita sobre horas vezes preço.
+#' @return Lista com o desacordo e a tabela de reconciliação por âncora.
+medir_sobredeterminacao_economica <- function(equipe = 2.51,
+                                               jornada = 120,
+                                               semanas = 11.6,
+                                               contrato = 457000,
+                                               preco = 450,
+                                               fator_receita = 0.87) {
+  meses <- semanas * 7 / (365.25 / 12)
+  horas <- equipe * jornada * meses
+  contrato_implicado <- fator_receita * horas * preco
+  desacordo <- contrato / contrato_implicado
+
+  # Para cada âncora, o valor que fecharia o sistema com as outras cinco
+  # fixas. As cinco que entram multiplicando escalam pelo desacordo; a
+  # receita é a que está do outro lado da igualdade.
+  ancoras <- tibble::tibble(
+    ancora = c(
+      "Consultores por projeto", "Horas por mês", "Duração em semanas",
+      "Preço por hora", "Fator de receita", "Valor de contrato"
+    ),
+    medido = c(equipe, jornada, semanas, preco, fator_receita, contrato),
+    reconciliado = c(
+      equipe * desacordo, jornada * desacordo, semanas * desacordo,
+      preco * desacordo, fator_receita * desacordo, contrato_implicado
+    )
+  )
+  ancoras$ajuste <- ancoras$reconciliado / ancoras$medido
+
+  # Duas âncoras não podem absorver a diferença, e dizer isso é o que torna a
+  # tabela decisória em vez de descritiva. O fator de receita não passa de 1
+  # porque preço é a tarifa cobrada e a receita não excede horas vezes tarifa.
+  # A jornada não passa de um mês cheio de trabalho. As duas ficariam acima do
+  # limite, então a diferença está nas outras quatro.
+  limites <- c(NA, 168, NA, NA, 1, NA)
+  ancoras$absorve <- is.na(limites) | ancoras$reconciliado <= limites
+
+  list(
+    contrato_implicado = contrato_implicado,
+    contrato_medido = contrato,
+    desacordo = desacordo,
+    horas_implicadas = horas,
+    ancoras = ancoras,
+    candidatas = ancoras$ancora[ancoras$absorve],
+    descartadas = ancoras$ancora[!ancoras$absorve]
+  )
+}

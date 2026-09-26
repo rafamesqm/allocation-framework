@@ -99,12 +99,20 @@ deste bloco, portanto, não é sobre o sintético.** A figura desenha a curva
 real pelo mesmo motivo: plotar as duas daria duas linhas sobrepostas, que o
 leitor leria como defeito de renderização em vez de concordância.
 
-Uma ressalva que acompanha o número real e não se resolve: o join que
-produziu os `r formatar_inteiro(obj$real$interacoes)` pares supõe que `ID`
-em entidades e `Cód. Colaborador` em alocação são a mesma chave, o que nunca
-foi confirmado com o time de dados, e o acesso está encerrado. Para o uso que
-se faz dele aqui, comparar ordem de grandeza, seria preciso errar por mais de
-uma ordem de grandeza para a conclusão mudar.
+A ressalva da chave, que este bloco carregava desde que foi escrito, **está
+resolvida e a favor**. O join que produziu os
+`r formatar_inteiro(obj$real$interacoes)` pares supunha que `ID` em entidades
+e `Cód. Colaborador` em alocação fossem a mesma chave, sem confirmação. A
+segunda consulta comercial confirmou que são: `ID` é `cod_id_funcionario`, e
+entre os códigos casados o nome completo coincide em 98,1%. A cobertura chega
+a cerca de 98% usando `gold.apdata_entidades_globais`, e 6% das linhas de
+alocação seguem sem casar.
+
+Resta uma ressalva diferente, de extração e não de chave: a tabela de
+alocação tem 4.999 linhas, e a mesma consulta mostrou que várias tabelas do
+fluxo param em números redondos por teto. Os pares podem vir de base
+truncada. Para comparar ordem de grandeza isso não morde, e o truncamento
+encurta a base, o que só reforçaria a conclusão de esparsidade.
 
 O MovieLens 100K merece atenção especial nessa comparação: é o **menor**
 conjunto de uso corrente na literatura, frequentemente criticado por ser

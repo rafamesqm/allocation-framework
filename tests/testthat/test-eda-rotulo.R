@@ -237,7 +237,7 @@ test_that("executar_ii5 devolve as quatro partes do bloco", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_true(all(vapply(bloco$tabelas, is.data.frame, logical(1))))
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
-  expect_equal(nrow(bloco$achados), 9)
+  expect_equal(nrow(bloco$achados), 10)
   expect_true(all(startsWith(bloco$achados$codigo, "II.5.")))
   # A cobertura do rotulo e parametro do gerador, e o achado que a reporta
   # precisa estar etiquetado como tal.

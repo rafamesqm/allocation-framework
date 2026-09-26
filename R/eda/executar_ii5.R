@@ -39,6 +39,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
   margem <- medir_atribuibilidade_da_margem(dados)
   construcoes <- comparar_construcoes_de_rotulo(dados$avaliacoes_desempenho)
   escala_margem <- diagnosticar_escala_da_margem(dados)
+  sobredeterminacao <- medir_sobredeterminacao_economica()
 
   candidatos <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = margem$tem_consultor_na_margem,
@@ -69,6 +70,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     variancia_escore = variancia_escore,
     margem = margem,
     escala_margem = escala_margem,
+    sobredeterminacao = sobredeterminacao,
     construcoes = construcoes,
     bruta = construcoes[construcoes$forma == "Nota bruta", ],
     normalizada = construcoes[construcoes$forma == "Normalizada por avaliador", ],
@@ -137,6 +139,14 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
         formatar_pct(variancia_escore$fracao_entre_consultores)
       )
     ),
+    ii5_sobredeterminacao = sobredeterminacao$ancoras |>
+      dplyr::transmute(
+        `Âncora` = ancora,
+        Medido = formatar_decimal(medido, 2),
+        `Reconciliado` = formatar_decimal(reconciliado, 2),
+        Ajuste = formatar_decimal(ajuste, 2),
+        `Pode absorver` = ifelse(absorve, "sim", "não")
+      ),
     ii5_escala_margem = escala_margem$custo_mensal |>
       dplyr::transmute(
         `Nível` = nivel_senioridade,
@@ -281,41 +291,64 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     ),
     paste0(
       "**É o primeiro caso no capítulo de grandezas individualmente ",
-      "calibradas que não fecham em conjunto.** `valor_contrato`, ",
-      "`horas_mes` e `custo_carregado` têm cada um sua âncora real, e a ",
-      "combinação dos três produz margem implausível. A causa provável está ",
-      "no achado II.5.9, e não em granularidade: a hipótese de que ",
-      "`valor_contrato` teria grão de alocação e pessoa foi levantada aqui e ",
-      "**descartada pelo usuário**, que confirmou que em ",
-      "`actarnet_alocacao_pessoas` o valor é por projeto."
+      "calibradas que não fecham em conjunto**, e o achado II.5.10 mede o ",
+      "tamanho exato do desacordo. Duas hipóteses foram levantadas aqui e ",
+      "fechadas por consulta: a de granularidade do contrato, descartada ",
+      "porque o valor é por projeto, e a de preço usado como custo, ",
+      "confirmada e corrigida. Depois das duas correções a fração de ",
+      "prejuízo caiu para perto da real e a mediana continua alta, porque o ",
+      "projeto sintético acumula cerca de metade das horas que o contrato ",
+      "implica. O resíduo é o da sobredeterminação, não um defeito à parte."
     ),
 
     "II.5.9", "âncora real",
     paste0(
-      "A taxa usada como custo é provavelmente preço. A razão entre custo ",
-      "calculado e valor de contrato centra em ",
-      formatar_decimal(escala_margem$centro_da_razao, 2),
-      ", quando custo contra receita centraria bem abaixo de 1, e a taxa ",
-      "implica custo mensal de ",
-      formatar_inteiro(round(escala_margem$custo_mensal_mais_junior)),
-      " reais para o nível mais júnior e ",
-      formatar_inteiro(round(escala_margem$custo_mensal_mais_senior)),
-      " para o mais sênior, sobre a jornada calibrada de ",
-      escala_margem$jornada_mensal, " horas por mês."
+      "A taxa que o gerador usava como custo era preço, e a segunda consulta ",
+      "comercial confirmou com prova direta: a receita mensal do projeto é ",
+      "0,87 vezes horas planejadas vezes a taxa, e a própria tabela deriva a ",
+      "taxa do estagiário das tarifas cobradas do cliente. A fonte de custo ",
+      "passou a ser a tabela de custo por cargo, que é **salário base por ",
+      "hora, sem encargos**, e a razão entre custo e contrato deixou de ",
+      "centrar em 1: agora fica em ",
+      formatar_decimal(escala_margem$centro_da_razao, 2), "."
     ),
     paste0(
-      "A fonte de `custo_carregado` é `vw_gtac_fin_taxa_hora`, que a Quinta ",
-      "rodada de calibração registrou textualmente como **rate card**, isto ",
-      "é, tabela de preço por cargo. Preço é o que o cliente paga; custo ",
-      "carregado é o que a pessoa custa à empresa. Se a coluna for preço, ",
-      "calcular margem como contrato menos taxa vezes horas subtrai o ",
-      "faturamento dele mesmo, e o resultado fica em torno de zero por ",
-      "construção, com o sinal decidido pelo ruído. É exatamente o padrão ",
-      "observado. **A distinção não é derivável do que ficou registrado** e o ",
-      "acesso encerrou, então o bloco mede e não decide. Se a leitura estiver ",
-      "certa, a Peers não tem custo interno por pessoa em lugar nenhum além ",
-      "de `peers_custointerns_vlr`, que é justamente a fonte incompleta do ",
-      "candidato (c), e **nenhum dos dois caminhos entrega margem utilizável**."
+      "Fecha a hipótese que este bloco levantou. O sintoma era a razão ",
+      "centrar em 1, que é o que se espera de duas medidas da mesma grandeza ",
+      "e não de custo contra receita. `diagnosticar_escala_da_margem()` ",
+      "continua rodando como **guarda de regressão**: se alguém repuser o ",
+      "rate card como custo, a razão volta a centrar em 1 e o teste acusa. ",
+      "Fica a consequência que a confirmação trouxe: como o custo é salário ",
+      "base, o fator de carga é parâmetro declarado, e o achado II.5.10 ",
+      "mostra que as âncoras não comportam um fator realista."
+    ),
+
+    "II.5.10", "âncora real",
+    paste0(
+      "As âncoras econômicas estão **sobredeterminadas e discordam**. Seis ",
+      "agregados reais descrevem a mesma economia, e cinco deles implicam ",
+      "contrato mediano de ",
+      formatar_inteiro(round(sobredeterminacao$contrato_implicado)),
+      " contra os ", formatar_inteiro(sobredeterminacao$contrato_medido),
+      " medidos, um desacordo de ",
+      formatar_decimal(sobredeterminacao$desacordo, 2), " vezes."
+    ),
+    paste0(
+      "**O bloco não escolhe qual âncora relaxar**, porque a escolha não é ",
+      "estatística: depende de saber o que cada número conta, e o acesso ",
+      "encerrou. O que ele faz é reportar, para cada âncora, o valor que ",
+      "reconciliaria o sistema, e descartar as que não podem absorver a ",
+      "diferença: ", paste(sobredeterminacao$descartadas, collapse = " e "),
+      ". A jornada teria de passar de um mês cheio de trabalho, e o fator de ",
+      "receita teria de passar de 1, o que é impossível se o preço é a ",
+      "tarifa cobrada. Sobram ", length(sobredeterminacao$candidatas),
+      " candidatas, e a mais provável é o tamanho de equipe: os 2,51 vêm de ",
+      "pares distintos entre colaborador e **código** de alocação, e um ",
+      "projeto pode ter mais de um código. Se for isso, a equipe real é maior ",
+      "e o resto fecha sem mexer em mais nada. É a explicação do resíduo que ",
+      "o achado II.5.8 media: a margem estrutural sintética tem prejuízo em ",
+      "linha com o real, e mediana alta, porque o projeto acumula cerca de ",
+      "metade das horas que o contrato implica."
     ),
 
     "II.5.5", "instrumento",

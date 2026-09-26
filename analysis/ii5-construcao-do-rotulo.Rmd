@@ -210,27 +210,33 @@ mais de uma pessoa, com mediana de `r margem$mediana_equipe` e máximo de
 time seria estimativa apresentada como captura, no mesmo espírito da decisão
 já registrada sobre `skills_requeridas[]`. Isso mata o candidato (b).
 
-**As duas fontes de margem têm custo zero por motivos opostos, e é isso que
-separa (c) de (d).** Em `margem_frente_mes`,
-`r formatar_pct(margem$custo_zero_frente_mes)` das linhas não têm custo
-apontado, e `r formatar_pct(margem$fracao_margem_relativa_integral)` das
-linhas com receita têm margem **igual** à receita. O número é âncora real,
-calibrado contra os 44,7% de `peers_custointerns_vlr`: é incompletude de
-apontamento no sistema de origem, não defeito do sintético. Uma margem que
-iguala a receita não pondera nada.
+**Não existe margem na granularidade mensal, e isso separa (c) de (d).**
+
+Esta seção dizia outra coisa, e vale registrar o que mudou. Ela lia os 44,7%
+de zeros de `peers_custointerns_vlr` como incompletude de apontamento de
+custo, chamava isso de âncora real e concluía que a margem mensal era
+inutilizável. A segunda consulta comercial mostrou que aquela fonte é
+**receita** do projeto decomposta por mês e origem, provada por identidade
+contábil: a soma dos componentes sobre a receita total fica cravada em 1,000
+do décimo ao nonagésimo percentil. O zero é ausência de estagiário no mês.
+
+Então o candidato (c) cai, mas por não haver **custo** naquela
+granularidade, e não por o custo ser ruim. A despesa mensal existe em outra
+tabela, de cobertura parcial e também truncada, que o sintético ainda não
+reproduz. A identidade é preservada aqui com erro máximo de
+`r formatar_decimal(margem$identidade_receita, 6)`.
 
 Em `margem_estrutural`, o custo zero coincide
 `r if (margem$custo_zero_estrutural_sem_alocacao) "exatamente" else "apenas em parte"`
 com projeto sem nenhuma alocação, o que é explicável e inofensivo: projeto sem
-alocação não é célula de `R`. A margem estrutural não depende do apontamento,
-que é a fonte do problema do candidato (c).
+alocação não é célula de `R`.
 
 ## Que candidato sobrevive
 
 ```{r candidatos}
 mostrar_tabela(
   bloco$tabelas$ii5_candidatos_rotulo,
-  "Tabela II.5.8: os quatro candidatos do dicionário contra o medido.",
+  "Tabela II.5.9: os quatro candidatos do dicionário contra o medido.",
   c("l", "l", "l", "c", "l")
 )
 ```
@@ -260,83 +266,87 @@ não fecham em conjunto.** `valor_contrato`, `horas_mes` e `custo_carregado`
 têm cada um sua âncora real, e a combinação dos três produz margem
 implausível.
 
-A primeira hipótese levantada aqui foi de granularidade: a fonte de
-`valor_contrato` é a tabela `actarnet_alocacao_pessoas`, cujo nome e volume
-sugerem grão de alocação e pessoa, enquanto o dicionário a trata como
-atributo de projeto. **O usuário descartou essa hipótese**: o valor é por
-projeto. Fica registrado em `docs/mapeamento_schema.md`, e a
-implausibilidade continua a ser explicada.
+Duas hipóteses foram levantadas aqui, e a consulta às bases comerciais
+fechou as duas.
 
-A segunda hipótese sobrevive, e é mais séria.
+A **primeira era de granularidade**: `valor_contrato` viria de
+`actarnet_alocacao_pessoas` com grão de alocação e pessoa, enquanto o
+dicionário a trata como atributo de projeto. Descartada: o valor é por
+projeto.
 
-### A taxa usada como custo é provavelmente preço
+A **segunda era que a taxa usada como custo fosse preço**. Confirmada, e com
+prova melhor que os meus indícios: a receita mensal do projeto é 0,87 vezes
+horas planejadas vezes a taxa, e a própria tabela deriva a taxa do estagiário
+das tarifas cobradas do cliente. A fonte de custo passou a ser a tabela de
+custo por cargo, e a razão entre custo e contrato deixou de centrar em 1,
+caindo para
+`r formatar_decimal(obj$escala_margem$centro_da_razao, 2)`.
 
-A fonte de `custo_carregado` é `vw_gtac_fin_taxa_hora`, que a Quinta rodada
-de calibração registrou textualmente como **rate card**, isto é, tabela de
-preço por cargo. Preço é o que o cliente paga; custo carregado é o que a
-pessoa custa à empresa. Se a coluna for preço, calcular margem como contrato
-menos taxa vezes horas subtrai o faturamento dele mesmo, e o resultado fica
-em torno de zero por construção, com o sinal decidido pelo ruído.
+A função que media aquele sintoma continua rodando como **guarda de
+regressão**: se alguém repuser o rate card como custo, a razão volta a
+centrar em 1 e o teste acusa.
 
-Dois indícios, e nenhum deles exige acreditar na hipótese de antemão.
+### O custo é salário base, e as âncoras não comportam encargos
 
-**Onde a razão centra.** A razão entre custo calculado e valor de contrato
-centra em `r formatar_decimal(obj$escala_margem$centro_da_razao, 2)`. Se
-fossem custo e receita, ela centraria bem abaixo de 1, na margem típica do
-setor. Centrar em 1 é o que se espera de duas medidas da mesma grandeza.
+A confirmação trouxe uma consequência. O custo por cargo é **salário base por
+hora, sem encargos**, então `custo_carregado` passa a ser base vezes um fator
+de carga que não existe em base nenhuma. O fator default é 1, e não por
+conveniência: a aritmética das âncoras põe o teto dele em 1,068, porque acima
+disso o custo de pessoal sozinho excederia a despesa total que o projeto
+declara. Encargos, benefícios, décimo terceiro, férias e FGTS levariam o
+fator para 1,7 ou 2,0.
 
-**Quanto a taxa implica de custo mensal.**
+A leitura mais provável é que a margem que o projeto declara seja **bruta
+sobre salário direto**, e não líquida. Para a wave 4 isso muda o que se pode
+prometer: otimizar essa margem é otimizar medida bruta, não lucro.
 
-```{r escala-margem}
+### As âncoras estão sobredeterminadas
+
+```{r sobredeterminacao}
 mostrar_tabela(
-  bloco$tabelas$ii5_escala_margem,
-  "Tabela II.5.7: custo mensal por pessoa implicado pela taxa, sobre a jornada calibrada.",
-  c("l", "r", "r", "r")
+  bloco$tabelas$ii5_sobredeterminacao,
+  "Tabela II.5.7: o que cada âncora precisaria valer para o sistema fechar.",
+  c("l", "r", "r", "r", "c")
 )
 ```
 
-Sobre a jornada calibrada de
-`r obj$escala_margem$jornada_mensal` horas por mês, a taxa implica
-`r formatar_inteiro(round(obj$escala_margem$custo_mensal_mais_junior))`
-reais mensais para o nível mais júnior e
-`r formatar_inteiro(round(obj$escala_margem$custo_mensal_mais_senior))`
-para o mais sênior. São valores plausíveis como faturamento por pessoa, e
-não como salário mais encargos.
+Seis agregados reais descrevem a mesma economia por caminhos diferentes:
+tamanho de equipe, jornada, duração, preço, o fator de receita e o valor de
+contrato. Cinco bastam para calcular o sexto, e o calculado não bate. O
+contrato implicado é
+`r formatar_inteiro(round(obj$sobredeterminacao$contrato_implicado))` contra
+`r formatar_inteiro(obj$sobredeterminacao$contrato_medido)` medidos, um
+desacordo de
+`r formatar_decimal(obj$sobredeterminacao$desacordo, 2)` vezes.
 
-**O bloco mede e não decide.** A distinção entre preço e custo não é
-derivável do que ficou registrado, e o acesso ao ambiente encerrou. Fica
-como questão aberta em `docs/mapeamento_schema.md`.
+**O bloco não escolhe qual âncora relaxar**, porque a escolha não é
+estatística: depende de saber o que cada número conta, e o acesso encerrou. O
+que ele faz é reportar o valor que reconciliaria cada uma, e descartar as que
+não podem absorver a diferença:
+`r paste(obj$sobredeterminacao$descartadas, collapse = " e ")`. A jornada
+teria de passar de um mês cheio de trabalho, e o fator de receita teria de
+passar de 1, o que é impossível se o preço é a tarifa cobrada.
 
-Se a leitura estiver certa, a consequência é pesada: a Peers não teria custo
-interno por pessoa em lugar nenhum além de `peers_custointerns_vlr`, que é
-justamente a fonte incompleta que derruba o candidato (c). **Nenhum dos dois
-caminhos entregaria margem utilizável**, e o objetivo econômico da wave 4
-ficaria sem base de dados defensável. Isso não invalida o modelo de
-alocação, que não depende de margem; muda o que a wave 4 pode prometer.
+Das que sobram, a mais provável é o **tamanho de equipe**: os 2,51 vêm de
+pares distintos entre colaborador e *código* de alocação, e um projeto pode
+ter mais de um código. Se for isso, a equipe real por projeto é maior e o
+resto fecha sem mexer em mais nada.
 
-Duas correções já foram feitas no gerador por causa deste diagnóstico, e
-nenhuma das duas resolveu o resíduo. A primeira foi de unidade:
-`custo_carregado` vezes `horas_mes` dá reais por mês, e estava sendo
-subtraído de um valor total, sem integrar pela duração. A segunda foi de
-acoplamento: contrato, esforço estimado e esforço de fato alocado eram
-sorteados de forma independente, com correlação de 0,05 entre esforço
-estimado e horas alocadas, então um projeto de contrato pequeno podia
-receber uma equipe grande por muito tempo. Depois das duas, a correlação
-entre custo e contrato em log subiu de 0,01 para 0,87 e a cauda encolheu
-duas ordens de grandeza, mas a fração negativa continua alta.
-
-A consequência prática: o candidato (d) é a forma certa de calcular margem,
-e o sintético não calibra a escala dela. A wave 4 pode usá-lo para testar a
-mecânica do otimizador, não para dimensionar o objetivo econômico.
+É essa a explicação do resíduo. Depois de corrigir unidade, acoplamento,
+fonte do custo, fonte do contrato e duração do projeto, a fração de prejuízo
+ficou perto da real e a mediana continua alta, porque o projeto sintético
+acumula cerca de metade das horas que o contrato implica. O resíduo é o da
+sobredeterminação, e não um defeito à parte.
 
 **A decisão que este bloco habilita é (a) para `R` e (d) para `f`.** A célula
 de `R` é o desempenho, normalizado por avaliador e com a etapa declarada. A
 margem sai de `R` e entra como objetivo separado no otimizador, calculada
-estruturalmente de custo carregado por horas contra valor de contrato.
+estruturalmente de custo por horas contra valor de contrato.
 
 O dicionário já suspeitava disso ao registrar que a granularidade da margem
-pesava a favor de (c) ou (d). O que ele não previa era o descarte de (c), que
-não cai por granularidade e sim por incompletude de apontamento.
+pesava a favor de (c) ou (d). O que ele não previa era o motivo do descarte
+de (c): não há custo na granularidade mensal.
+
 
 ## O acoplamento que fica, e o limite do bloco
 
