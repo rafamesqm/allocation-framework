@@ -1,0 +1,248 @@
+#' Executa o bloco II.6 da EDA, poder discriminante do perfil
+#'
+#' **Âncora no projeto, não na literatura.** A pergunta vem do obstáculo de
+#' `skills_requeridas[]` registrado em `docs/predefinicoes.md`: como a Peers
+#' não formaliza o requisito técnico da demanda, `P` precisa ser estimado, e a
+#' decisão de 2026-07-31 deixou o **mecanismo** de estimação em aberto para a
+#' EDA. Os dois candidatos são o one-hot das categorias do projeto e o perfil
+#' médio de skills de quem já atuou em projetos parecidos.
+#'
+#' **Propriedade medida.** A resolução de cada espaço de categorias, a
+#' capacidade de desempate de cada mecanismo, e a separação entre quem foi e
+#' quem não foi alocado, sobre alocações retidas.
+#'
+#' **Decisão que discrimina.** Qual mecanismo estima `P`, e o que ele pode ou
+#' não prometer.
+#'
+#' **O bloco responde à pergunta que o achado II.3.4 deixou aberta**, que era
+#' quanto de sinal o espaço setorial de fato carrega.
+#'
+#' @param dados Lista nomeada de tibbles, de `carregar_dados()`.
+#' @param estabilidade tibble de `resumir_estabilidade()`, opcional.
+#' @param minimo_por_classe Abaixo disto uma classe é tratada como rala.
+#' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
+executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
+  setor <- setor_predominante_observado(dados$experiencia_setorial)
+  rotulo_setor <- setor$segmento[match(dados$consultores$consultor_id, setor$consultor_id)]
+  rotulo_offering <- dados$expertise_funcional$expertise_funcional[
+    match(dados$consultores$consultor_id, dados$expertise_funcional$consultor_id)
+  ]
+  rotulo_cruzado <- ifelse(
+    is.na(rotulo_setor) | is.na(rotulo_offering),
+    NA_character_, paste(rotulo_setor, rotulo_offering)
+  )
+
+  granularidades <- list(
+    "Setor" = rotulo_setor,
+    "Offering" = rotulo_offering,
+    "Setor e offering" = rotulo_cruzado
+  )
+  resolucao <- purrr::imap(granularidades, function(rotulo, nome) {
+    medida <- medir_resolucao_de_categorias(rotulo, minimo_por_classe)
+    tibble::tibble(
+      granularidade = nome,
+      classes = medida$n_classes,
+      mediana_por_classe = medida$mediana_por_classe,
+      empate_medio = medida$empate_medio,
+      classes_ralas = medida$classes_ralas
+    )
+  }) |>
+    purrr::list_rbind()
+
+  comparacao <- comparar_mecanismos_de_p(dados)
+  ponte <- referencias_ponte_frente_offering()
+
+  resultados <- comparacao$resultados
+  pega <- function(nome) resultados[resultados$mecanismo == nome, ]
+  aparente <- pega("perfil_por_alocacao")
+  sem_popularidade <- pega("perfil_medio")
+  sem_vazamento <- pega("perfil_sem_vazamento")
+  one_hot <- pega("one_hot")
+  popularidade <- pega("popularidade")
+
+  vazamento <- sem_popularidade$auc - sem_vazamento$auc
+  contaminacao <- aparente$auc - sem_popularidade$auc
+
+  grossa <- resolucao[resolucao$granularidade == "Setor", ]
+  fina <- resolucao[resolucao$granularidade == "Setor e offering", ]
+
+  objetos <- list(
+    resolucao = resolucao,
+    comparacao = comparacao,
+    resultados = resultados,
+    ponte = ponte,
+    aparente = aparente,
+    sem_popularidade = sem_popularidade,
+    sem_vazamento = sem_vazamento,
+    one_hot = one_hot,
+    popularidade = popularidade,
+    vazamento = vazamento,
+    contaminacao = contaminacao,
+    grossa = grossa,
+    fina = fina,
+    minimo_por_classe = minimo_por_classe
+  )
+
+  tabelas <- list(
+    ii6_resolucao = resolucao |>
+      dplyr::transmute(
+        Granularidade = granularidade,
+        Classes = classes,
+        `Mediana por classe` = mediana_por_classe,
+        `Empate médio` = formatar_pct(empate_medio),
+        `Classes ralas` = formatar_pct(classes_ralas)
+      ),
+    ii6_mecanismos = resultados |>
+      dplyr::transmute(
+        Mecanismo = rotular_mecanismo(mecanismo),
+        AUC = formatar_decimal(auc, 3),
+        `Valores distintos` = formatar_inteiro(valores_distintos),
+        `Fração empatada` = formatar_pct(fracao_empatada)
+      ),
+    ii6_ponte_real = ponte |>
+      dplyr::transmute(
+        `Frente da pessoa` = frente,
+        `Offering do projeto` = offering,
+        `Share das horas` = formatar_pct(share_horas),
+        Lift = formatar_decimal(lift, 2)
+      )
+  )
+
+  figuras <- list(
+    ii6_decomposicao_auc = figura_decomposicao_auc(
+      dplyr::mutate(resultados, mecanismo = rotular_mecanismo(mecanismo)),
+      titulo = "O que sustenta a separação de cada mecanismo",
+      subtitulo = paste0(
+        "Linha tracejada: acaso. O perfil médio cai para o acaso quando ",
+        "vazamento e popularidade saem"
+      )
+    )
+  )
+
+  achados <- registrar_achados("II.6", tibble::tribble(
+    ~codigo, ~etiqueta, ~enunciado, ~implicacao,
+
+    "II.6.1", "instrumento",
+    paste0(
+      "Não existe granularidade boa para o one-hot. Em ",
+      tolower(grossa$granularidade), ", são ", grossa$classes,
+      " classes com mediana de ", grossa$mediana_por_classe,
+      " consultores, e dois consultores sorteados caem na mesma classe em ",
+      formatar_pct(grossa$empate_medio), " das vezes. Cruzando com offering, ",
+      "o empate cai para ", formatar_pct(fina$empate_medio), " mas ",
+      formatar_pct(fina$classes_ralas), " das ", fina$classes,
+      " classes ficam com menos de ", minimo_por_classe, " consultores."
+    ),
+    paste0(
+      "É o compromisso que decide o mecanismo, e ele não tem ponto ótimo: ",
+      "espaço grosso não ordena dentro da classe, que é exatamente o que a ",
+      "alocação precisa fazer, e espaço fino não tem massa para estimar. ",
+      "Responde a pergunta que o achado II.3.4 deixou aberta, e a resposta é ",
+      "que o espaço setorial carrega pouco sinal **por construção do espaço**, ",
+      "antes de qualquer questão sobre o dado."
+    ),
+
+    "II.6.2", "instrumento",
+    paste0(
+      "O one-hot tem a maior separação medida, com AUC de ",
+      formatar_decimal(one_hot$auc, 2), ", e ao mesmo tempo é o que menos ",
+      "serve para ordenar: ele produz ", one_hot$valores_distintos,
+      " valores distintos, então empata ",
+      formatar_pct(one_hot$fracao_empatada), " dos pares avaliados."
+    ),
+    paste0(
+      "AUC alta e capacidade de ordenação são coisas diferentes, e medir só a ",
+      "primeira levaria à escolha errada. Um escore binário separa bem a ",
+      "classe certa da errada e é **indiferente** entre todos os consultores ",
+      "da classe certa. Serve como filtro de conjunto candidato, não como ",
+      "ordenador, que é precisamente o papel que o híbrido chaveado do bloco ",
+      "II.3 reservou para o conteúdo."
+    ),
+
+    "II.6.3", "instrumento",
+    paste0(
+      "**Toda a separação aparente do perfil médio é artefato.** Ele mede AUC ",
+      "de ", formatar_decimal(aparente$auc, 3),
+      " na forma ingênua, cai para ", formatar_decimal(sem_popularidade$auc, 3),
+      " quando a média passa a ponderar pessoas distintas em vez de alocações, ",
+      "e cai para ", formatar_decimal(sem_vazamento$auc, 3),
+      " quando o consultor avaliado sai do perfil da categoria que ele mesmo ",
+      "ajudou a formar. O último valor é indistinguível do acaso."
+    ),
+    paste0(
+      "São dois vícios somados, e nenhum deles é evidente sem medir. ",
+      formatar_decimal(contaminacao, 3),
+      " de AUC vinham de **popularidade disfarçada de conteúdo**: ponderar a ",
+      "média por alocação faz o perfil da categoria tender ao perfil de quem é ",
+      "muito alocado. Outros ", formatar_decimal(vazamento, 3),
+      " vinham de **vazamento**: a divisão temporal separa alocações, não ",
+      "pessoas, então o mesmo consultor aparece dos dois lados e o cosseno ",
+      "dele contra o perfil da categoria mede em parte a semelhança dele ",
+      "consigo mesmo. **A segunda lição é do bloco II.7**: divisão temporal de ",
+      "interações não basta para avaliar atributo de entidade."
+    ),
+
+    "II.6.4", "consequência do gerador",
+    paste0(
+      "O valor limpo de ", formatar_decimal(sem_vazamento$auc, 3),
+      " é o correto neste conjunto, e não um fracasso do mecanismo: o gerador ",
+      "sorteia as skills do consultor por categoria de especialidade, sem ",
+      "nenhum vínculo com a experiência setorial dele, então não há relação ",
+      "entre skill e setor do projeto para ser encontrada."
+    ),
+    paste0(
+      "**O sintético não pode decidir entre os dois mecanismos por separação**, ",
+      "e forçar a decisão por esse critério seria medir o gerador. O que ele ",
+      "decide, e decide bem, é o que não depende de vínculo plantado: a ",
+      "estrutura de empate do achado II.6.1 e a decomposição do artefato do ",
+      "II.6.3, que valem em qualquer conjunto. Plantar o vínculo tornaria a ",
+      "comparação possível e circular ao mesmo tempo, que é o erro que o bloco ",
+      "II.4 existe para não repetir."
+    ),
+
+    "II.6.5", "âncora real",
+    paste0(
+      "No dado real a afinidade entre atributo da pessoa e categoria do ",
+      "projeto **existe e é fraca em volume**. A frente de Data Analytics tem ",
+      "lift de ", formatar_decimal(ponte$lift[ponte$frente == "Data Analytics"], 1),
+      " sobre a base para a offering correspondente, e ainda assim só ",
+      formatar_pct(ponte$share_horas[ponte$frente == "Data Analytics"]),
+      " das horas dela caem lá."
+    ),
+    paste0(
+      "Os dois lados importam. O lift alto diz que o mecanismo de afinidade é ",
+      "real, e não suposição do gerador, o que sustenta usar categoria como ",
+      "filtro. O volume baixo diz que a maior parte das horas de qualquer ",
+      "frente cai nas offerings grandes, então um filtro por categoria **exclui ",
+      "candidatos que na prática seriam alocados**. Modelar como probabilidade ",
+      "condicional com massa dispersa, nunca como pareamento de um para um. ",
+      "Ressalva da fonte: metade das linhas de alocação resolve frente, 42% ",
+      "das horas não têm chave para o RH, e os grupos têm de cinco a nove ",
+      "pessoas."
+    ),
+
+    "II.6.6", "instrumento",
+    paste0(
+      "Contra a linha de base de popularidade, que mede ",
+      formatar_decimal(popularidade$auc, 3),
+      " sem sequer olhar o projeto, nenhum dos dois mecanismos entrega o que ",
+      "se pediria dele. O one-hot supera a linha em AUC, com ",
+      formatar_decimal(one_hot$auc, 3),
+      ", e não ordena dentro da classe. O perfil médio ordena, e limpo fica ",
+      "em ", formatar_decimal(sem_vazamento$auc, 3), ", abaixo da linha."
+    ),
+    paste0(
+      "**A decisão habilitada é estimar `P` por one-hot no nível do setor, ",
+      "como filtro do conjunto candidato, e não adotar o perfil médio.** O ",
+      "perfil médio não é rejeitado por ter ido mal: é rejeitado por não ser ",
+      "avaliável, aqui porque o gerador não planta o vínculo e no real porque ",
+      "não há registro que ligue skill de pessoa a requisito de projeto, que ",
+      "é o próprio obstáculo de `skills_requeridas[]`. Adotá-lo seria escolher ",
+      "sem evidência. A consequência casa com o bloco II.3: o conteúdo filtra ",
+      "e não ordena, e a ordenação dentro do conjunto candidato precisa vir de ",
+      "outra fonte, que os blocos II.7 e II.8 têm de resolver."
+    )
+  ))
+
+  list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
+}

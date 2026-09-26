@@ -280,5 +280,12 @@ list(
       ii5_dimensionalidade_itens = c(17, 9)
     )
   ), format = "file"),
-  tar_target(bloco_ii5_achados, salvar_tabela(bloco_ii5$achados, "achados_ii5"), format = "file")
+  tar_target(bloco_ii5_achados, salvar_tabela(bloco_ii5$achados, "achados_ii5"), format = "file"),
+
+  tar_target(bloco_ii6, executar_ii6(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii6_tabelas, salvar_tabelas_bloco(bloco_ii6$tabelas), format = "file"),
+  tar_target(bloco_ii6_figuras, salvar_figuras_bloco(
+    bloco_ii6$figuras, list(ii6_decomposicao_auc = c(19, 9))
+  ), format = "file"),
+  tar_target(bloco_ii6_achados, salvar_tabela(bloco_ii6$achados, "achados_ii6"), format = "file")
 )
