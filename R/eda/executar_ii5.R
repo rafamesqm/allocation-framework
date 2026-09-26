@@ -186,7 +186,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     )
   )
 
-  achados <- registrar_achados("II.5", tibble::tribble(
+  achados <- registrar_achados("II.5", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.5.1", "instrumento",
@@ -436,7 +436,103 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "implícito (Hu, Koren e Volinsky, 2008), que o bloco II.4 mostrou ",
       "carregar viés de seleção não corrigível."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.5.1",
+    paste0(
+      "A etapa da avaliação é parte da definição do rótulo e fica declarada, ",
+      "não é detalhe de implementação: a autoavaliação daria um rótulo em que ",
+      "quase tudo é ACIMA, com pouco a discriminar."
+    ),
+    NA,
+    "fato real",
+
+    "II.5.2",
+    paste0(
+      "O rótulo escalar é autorizado: colapsar os catorze itens numa média não ",
+      "destrói estrutura, porque a estrutura é comum."
+    ),
+    paste0(
+      "A unidimensionalidade é imposta pelo gerador, que faz os itens ",
+      "compartilharem uma qualidade latente, e não há medida real de ",
+      "consistência interna do formulário para confrontar."
+    ),
+    "depende do gerador",
+
+    "II.5.3",
+    paste0(
+      "O candidato (b) está morto: a margem não multiplica o desempenho na ",
+      "célula de `R`, porque não é atribuível a uma alocação individual."
+    ),
+    NA,
+    "fato real",
+
+    "II.5.4",
+    paste0(
+      "O candidato (c) está descartado: não existe margem na granularidade ",
+      "mensal, porque a fonte que parecia ter custo mensal é receita ",
+      "decomposta por origem."
+    ),
+    NA,
+    "fato real",
+
+    "II.5.5",
+    paste0(
+      "A célula de `R` é o desempenho pelo candidato (a), normalizado por ",
+      "avaliador e com a etapa declarada, e a margem sai de `R` e entra como ",
+      "objetivo separado do otimizador pelo candidato (d)."
+    ),
+    NA,
+    "fato real",
+
+    "II.5.6", NA,
+    paste0(
+      "Distribuição, cobertura e magnitude da estrutura de dependência do ",
+      "rótulo são limitação permanente e não pendência: a consulta ao dono do ",
+      "dado de RH negou o acesso até a estatísticas agregadas sem dado ",
+      "individual."
+    ),
+    "fato real",
+
+    "II.5.7",
+    paste0(
+      "A normalização do rótulo é padronização dentro de cada avaliador, que ",
+      "tira o nível e preserva a ordem: ela remove variação espúria e ganha ",
+      "sinal, então não há troca a ponderar."
+    ),
+    paste0(
+      "Que o avaliador contamine a nota é fato real, porque `avaliador_id` ",
+      "existe e mais de um gestor assina por projeto, mas a magnitude da ",
+      "contaminação é medida sobre o sintético."
+    ),
+    "fato real",
+
+    "II.5.8", NA,
+    paste0(
+      "A margem estrutural tem mecanismo correto e escala não calibrada: a ",
+      "mediana é plausível e a cauda não, e o resíduo é o da sobredeterminação ",
+      "das âncoras, não um defeito à parte."
+    ),
+    "fato real",
+
+    "II.5.9",
+    paste0(
+      "A fonte de custo é a tabela de salário base por cargo, e não o rate ",
+      "card, que é preço cobrado do cliente; o fator de carga fica como ",
+      "parâmetro declarado."
+    ),
+    NA,
+    "fato real",
+
+    "II.5.10", NA,
+    paste0(
+      "A margem entra no otimizador como direção e não como magnitude, porque ",
+      "seis agregados reais descrevem a mesma economia e discordam por 1,45 ",
+      "vezes, e escolher qual âncora relaxar exigiria um acesso que encerrou."
+    ),
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

@@ -24,7 +24,7 @@
 
 blocos <- sort(list.files(
   here::here("analysis"),
-  pattern = "^i+[0-9]+.*[.]Rmd$",
+  pattern = "^i{1,3}[0-9-].*[.]Rmd$",
   full.names = TRUE
 ))
 

@@ -119,7 +119,7 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
     )
   )
 
-  achados <- registrar_achados("II.6", tibble::tribble(
+  achados <- registrar_achados("II.6", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.6.1", "instrumento",
@@ -242,7 +242,64 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
       "e não ordena, e a ordenação dentro do conjunto candidato precisa vir de ",
       "outra fonte, que os blocos II.7 e II.8 têm de resolver."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.6.1", NA,
+    paste0(
+      "O espaço setorial carrega pouco sinal por construção do espaço, antes de ",
+      "qualquer questão sobre qualidade do dado: espaço grosso não ordena ",
+      "dentro da classe e espaço fino não tem massa para estimar."
+    ),
+    "estrutural",
+
+    "II.6.2",
+    paste0(
+      "O one-hot serve como filtro do conjunto candidato e não como ordenador, ",
+      "que é o papel que o híbrido chaveado do bloco II.3 já lhe reservava."
+    ),
+    NA,
+    "estrutural",
+
+    "II.6.3",
+    paste0(
+      "Avaliação de atributo com chave de entidade exige separação por ",
+      "entidade, e não divisão temporal de interações, que separa alocações e ",
+      "deixa a mesma pessoa dos dois lados."
+    ),
+    paste0(
+      "Média de perfil ponderada por alocação injeta popularidade disfarçada de ",
+      "conteúdo, então todo perfil de categoria pondera pessoas distintas e ",
+      "exclui o avaliado."
+    ),
+    "estrutural",
+
+    "II.6.4", NA,
+    paste0(
+      "O sintético não pode decidir entre os dois mecanismos por separação, ",
+      "porque o gerador não planta vínculo entre skill e setor, e forçar a ",
+      "decisão por esse critério seria medir o gerador."
+    ),
+    "depende do gerador",
+
+    "II.6.5", NA,
+    paste0(
+      "O filtro por categoria exclui candidatos que na prática seriam alocados, ",
+      "porque no dado real a afinidade tem lift alto e volume baixo: a maior ",
+      "parte das horas de qualquer frente cai nas offerings grandes."
+    ),
+    "fato real",
+
+    "II.6.6",
+    paste0(
+      "`P` é estimado por one-hot no nível do setor, como filtro do conjunto ",
+      "candidato, e o perfil médio não é adotado, por não ser avaliável: no ",
+      "real não existe registro que ligue skill de pessoa a requisito de ",
+      "projeto."
+    ),
+    NA,
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

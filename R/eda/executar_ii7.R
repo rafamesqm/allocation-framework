@@ -116,7 +116,7 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     )
   )
 
-  achados <- registrar_achados("II.7", tibble::tribble(
+  achados <- registrar_achados("II.7", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.7.1", "instrumento",
@@ -210,7 +210,49 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       "estimador não enviesado sobreviveu: o modelo não fala sobre os pares ",
       "que nunca tiveram chance de aparecer."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.7.1", NA,
+    paste0(
+      "O colaborativo é quase inavaliável sob qualquer protocolo honesto, ",
+      "porque projeto de consultoria é item efêmero: aparece uma vez e não ",
+      "volta, então quase nenhum projeto do teste existe no treino."
+    ),
+    "fato real",
+
+    "II.7.2",
+    paste0(
+      "São adotados dois protocolos, um por componente, cada um avaliado no ",
+      "regime em que de fato atua: um protocolo único obrigaria a mentir sobre ",
+      "um dos dois."
+    ),
+    NA,
+    "estrutural",
+
+    "II.7.3",
+    paste0(
+      "A linha de base de popularidade é contada só no treino e desempatada ",
+      "pela posição esperada, e o valor resultante fica fixado agora, antes de ",
+      "existir modelo, como o número que a wave 3 precisa bater."
+    ),
+    paste0(
+      "O patamar numérico é o do sintético: a forma de calculá-lo transfere, ",
+      "mas no dado real ele precisa ser recomputado sob o mesmo protocolo antes ",
+      "de servir de critério."
+    ),
+    "depende do gerador",
+
+    "II.7.4",
+    paste0(
+      "O protocolo fica declarado: divisão por consultor para o conteúdo, ",
+      "divisão temporal para o colaborativo, acerto em lista como métrica com a ",
+      "linha de base ao lado, e conclusão enunciada sobre a população ",
+      "observada."
+    ),
+    NA,
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

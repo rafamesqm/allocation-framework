@@ -186,7 +186,7 @@ executar_ii4 <- function(dados, estabilidade = NULL, limite_ess = 0.5) {
     )
   )
 
-  achados <- registrar_achados("II.4", tibble::tribble(
+  achados <- registrar_achados("II.4", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.4.1", "consequência do gerador",
@@ -315,7 +315,52 @@ executar_ii4 <- function(dados, estabilidade = NULL, limite_ess = 0.5) {
       "dessa falha de positividade é âncora real: 48 dos 285 ativos não ",
       "aparecem em nenhuma linha de alocação no dado da Peers."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.4.1", NA,
+    paste0(
+      "A magnitude do viés de afinidade setorial não diz nada sobre a Peers, ",
+      "porque foi plantada no gerador: o número entra para tornar auditável a ",
+      "circularidade, e o que os achados seguintes usam dele é apenas que ",
+      "existe um mecanismo de seleção por atributo."
+    ),
+    "depende do gerador",
+
+    "II.4.2", NA,
+    paste0(
+      "Propensão que só usa popularidade não pode, por construção, capturar ",
+      "afinidade entre atributos, qualquer que seja a força dela: reponderar ",
+      "por `1 / propensão` corrigiria a concentração em quem é muito alocado e ",
+      "deixaria intacta a dimensão que decide."
+    ),
+    "estrutural",
+
+    "II.4.3", NA,
+    paste0(
+      "Um modelo de propensão com covariável não tem entrada para mais da ",
+      "metade da matriz, porque o setor predominante vem de um sinal que cobre ",
+      "48,4% dos consultores."
+    ),
+    "fato real",
+
+    "II.4.4", NA,
+    paste0(
+      "Sem amostra de exposição aleatória nem política de registro conhecida, ",
+      "a propensão não é falsificável nesta base: um modelo de ausência ",
+      "correto e um errado explicam igualmente bem o que foi observado."
+    ),
+    "fato real",
+
+    "II.4.5",
+    paste0(
+      "A wave 3 declara o viés em vez de corrigi-lo: a métrica é calculada ",
+      "sobre a população observada e a conclusão é enunciada sobre ela, sem a ",
+      "pretensão de valer para os pares que nunca tiveram chance de aparecer."
+    ),
+    NA,
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

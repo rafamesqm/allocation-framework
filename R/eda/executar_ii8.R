@@ -94,7 +94,7 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
     )
   )
 
-  achados <- registrar_achados("II.8", tibble::tribble(
+  achados <- registrar_achados("II.8", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.8.1", "instrumento",
@@ -183,7 +183,45 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "alocador em produção. Mas a diferença entre as duas coisas é ",
       "exatamente o que a Parte III precisa deixar explícito."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.8.1",
+    paste0(
+      "A formulação do otimizador é o trio de consultor, projeto e mês, porque ",
+      "o par não expressa capacidade, restrita ao conjunto candidato do filtro ",
+      "de conteúdo, que é o que a torna tratável."
+    ),
+    NA,
+    "estrutural",
+
+    "II.8.2", NA,
+    paste0(
+      "A capacidade não pode entrar como limite duro sem calibração, sob pena ",
+      "de declarar infactível boa parte do que aconteceu, e a própria medida de ",
+      "ocupação merece revisão antes de virar restrição: a magnitude da ",
+      "violação é do gerador e o máximo observado é implausível como fato."
+    ),
+    "depende do gerador",
+
+    "II.8.3", NA,
+    paste0(
+      "Dos oito insumos que o otimizador pediria, só custo por hora e férias ",
+      "têm escala utilizável, e três não existem em fonte nenhuma: skills ",
+      "requeridas, pirâmide de senioridade e demanda futura."
+    ),
+    "fato real",
+
+    "II.8.4",
+    paste0(
+      "A wave 4 é exercício retrospectivo e multiobjetivo parcial, e não ",
+      "alocador prospectivo: roda sobre os projetos históricos, com capacidade ",
+      "e férias como restrições, custo como objetivo dimensionado e o conjunto ",
+      "candidato restrito pelo filtro de conteúdo."
+    ),
+    NA,
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

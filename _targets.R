@@ -301,5 +301,19 @@ list(
   tar_target(bloco_ii8_figuras, salvar_figuras_bloco(
     bloco_ii8$figuras, list(ii8_insumos = c(19, 9))
   ), format = "file"),
-  tar_target(bloco_ii8_achados, salvar_tabela(bloco_ii8$achados, "achados_ii8"), format = "file")
+  tar_target(bloco_ii8_achados, salvar_tabela(bloco_ii8$achados, "achados_ii8"), format = "file"),
+
+  # Parte III, síntese. Não recalcula nada: consome os achados que cada bloco
+  # declarou, o que faz a tabela de síntese ser derivada e não transcrita.
+  tar_target(bloco_iii, executar_iii(list(
+    bloco_i0$achados, bloco_i1$achados, bloco_i2$achados, bloco_i3$achados,
+    bloco_i4$achados, bloco_i5$achados, bloco_ii1$achados, bloco_ii2$achados,
+    bloco_ii3$achados, bloco_ii4$achados, bloco_ii5$achados, bloco_ii6$achados,
+    bloco_ii7$achados, bloco_ii8$achados
+  ))),
+  tar_target(bloco_iii_tabelas, salvar_tabelas_bloco(bloco_iii$tabelas), format = "file"),
+  tar_target(bloco_iii_figuras, salvar_figuras_bloco(
+    bloco_iii$figuras, list(iii_proveniencia = c(19, 10))
+  ), format = "file"),
+  tar_target(bloco_iii_achados, salvar_tabela(bloco_iii$achados, "achados_iii"), format = "file")
 )

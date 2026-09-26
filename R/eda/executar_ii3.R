@@ -132,7 +132,7 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
     )
   )
 
-  achados <- registrar_achados("II.3", tibble::tribble(
+  achados <- registrar_achados("II.3", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.3.1", "âncora real",
@@ -243,7 +243,53 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
       "identificável e o identificável é o estreito, o que explica por que ",
       "nenhuma forma de composição contínua sobrevive e sobra o chaveamento."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.3.1", NA,
+    paste0(
+      "A cobertura do conteúdo é a da campanha de formulários, 48,4%, e não a ",
+      "união de vários sinais: trocar um sinal por outro não recupera ",
+      "consultor nenhum."
+    ),
+    "fato real",
+
+    "II.3.2",
+    paste0(
+      "A zona morta, de quem não tem histórico nem atributo declarado, recebe ",
+      "uma terceira resposta declarada, a linha de base de popularidade do ",
+      "bloco II.1, porque é a única que não exige nem um nem outro."
+    ),
+    NA,
+    "fato real",
+
+    "II.3.3",
+    paste0(
+      "A forma do híbrido é a chaveada, tendo como critério o quadrante ",
+      "observado de ter histórico e ter respondido o formulário. A cascata e a ",
+      "forma ponderada ficam descartadas."
+    ),
+    NA,
+    "fato real",
+
+    "II.3.4", NA,
+    paste0(
+      "Não adianta apoiar a cascata no sinal de cobertura universal, porque ",
+      "casamento que não separa pessoas dentro da classe majoritária não ",
+      "ordena candidato nenhum; a medida de quão pouco idiomas discrimina, ",
+      "porém, é sobre o sintético."
+    ),
+    "depende do gerador",
+
+    "II.3.5", NA,
+    paste0(
+      "O enquadramento usual do cold start se inverte aqui, porque o atributo ",
+      "depende de resposta voluntária a formulário e a interação é registro ",
+      "administrativo, então resultado da literatura que supõe o conteúdo como ",
+      "componente amplo não transporta direto."
+    ),
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

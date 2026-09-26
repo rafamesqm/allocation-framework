@@ -120,7 +120,7 @@ executar_i4 <- function(dados,
     )
   )
 
-  achados <- registrar_achados("I.4", tibble::tribble(
+  achados <- registrar_achados("I.4", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "I.4.1", "consequência do gerador",
@@ -193,7 +193,48 @@ executar_i4 <- function(dados,
       "capacidade da wave 4. Não existia antes de a alocação ganhar eixo ",
       "temporal."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "I.4.1",
+    paste0(
+      "A janela de análise fica declarada entre 2024-09-01 e 2026-09-01, e ",
+      "toda leitura temporal do capítulo a respeita."
+    ),
+    paste0(
+      "A janela existe para conter uma cauda que o gerador estica além do que ",
+      "a fonte comporta, e não é corrigível: os quantis reais são ",
+      "log-simétricos, a distribuição real não é log-normal, e não há mais ",
+      "dado para descobrir qual é."
+    ),
+    "depende do gerador",
+
+    "I.4.2", NA,
+    paste0(
+      "A ausência de sazonalidade é esperada por construção, já que o gerador ",
+      "sorteia a data de início de forma uniforme, e não é achado sobre a ",
+      "Peers."
+    ),
+    "depende do gerador",
+
+    "I.4.3", NA,
+    paste0(
+      "A estrutura de ondas é real, porque na fonte as skills de uma pessoa ",
+      "vêm de uma única resposta de formulário, mas as datas das ondas são ",
+      "suposição declarada e nenhuma análise de recência pode tratá-las como ",
+      "medida."
+    ),
+    "depende do gerador",
+
+    "I.4.4",
+    paste0(
+      "A carga de trabalho é medida por vigência mensal e não por evento ",
+      "pontual, e é essa medida que serve de base à restrição de capacidade ",
+      "da wave 4."
+    ),
+    NA,
+    "estrutural"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

@@ -160,7 +160,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     )
   )
 
-  achados <- registrar_achados("I.0", tibble::tribble(
+  achados <- registrar_achados("I.0", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "I.0.1", "instrumento",
@@ -252,7 +252,43 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
       "conclusão, e a diferença relativa reportada na validação de utilidade ",
       "é métrica enganosa nessa escala."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "I.0.1", NA,
+    paste0(
+      "Nenhum número da Parte I vale como propriedade fixa do modelo: ",
+      "grandeza que sustenta achado vem acompanhada do intervalo entre ",
+      "realizações, e comparação pontual contra alvo real não decide nada ",
+      "onde a amplitude é larga."
+    ),
+    "estrutural",
+
+    "I.0.2", NA,
+    paste0(
+      "A fração sem atributo de conteúdo não é estimada pelo sintético, é ",
+      "imposta a ele como complemento da cobertura real de 48,4%, e a ",
+      "ausência de variação entre realizações não pode ser lida como ",
+      "robustez do achado."
+    ),
+    "fato real",
+
+    "I.0.3", NA,
+    paste0(
+      "Grandeza invariante entre realizações é parâmetro do gerador devolvido ",
+      "em forma de resultado, e nenhuma delas sustenta conclusão sobre a ",
+      "Peers."
+    ),
+    "depende do gerador",
+
+    "I.0.4", NA,
+    paste0(
+      "A correlação entre nível e tempo de casa é ruído na escala de 285 ",
+      "pessoas, e a diferença relativa contra o alvo real é métrica enganosa ",
+      "nessa faixa."
+    ),
+    "estrutural"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

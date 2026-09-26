@@ -112,7 +112,7 @@ executar_ii2 <- function(dados, estabilidade = NULL,
     )
   )
 
-  achados <- registrar_achados("II.2", tibble::tribble(
+  achados <- registrar_achados("II.2", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.2.1", "instrumento",
@@ -199,7 +199,44 @@ executar_ii2 <- function(dados, estabilidade = NULL,
       "colaborativo, e transferir o peso para ele não resolve o caso de quem ",
       "não tem nenhum dos dois. A forma do híbrido é decisão do bloco II.3."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.2.1", NA,
+    paste0(
+      "A fatoração latente pura não é estimável nesta escala sem que a ",
+      "regularização faça o trabalho, e a conta não depende do gerador: ",
+      "refeita direto sobre os agregados reais, 4.598 pares distintos entre ",
+      "511 colaboradores e 1.833 códigos de alocação, a razão com dez fatores ",
+      "dá o mesmo valor que no sintético."
+    ),
+    "fato real",
+
+    "II.2.2", NA,
+    paste0(
+      "Transportar para cá, sem ressalva, resultado obtido na escala do ",
+      "MovieLens ou do Netflix Prize é erro de leitura: há entre 19 e 103 ",
+      "vezes menos evidência por parâmetro."
+    ),
+    "fato real",
+
+    "II.2.3", NA,
+    paste0(
+      "O lado do projeto é estruturalmente hostil a representação latente, e ",
+      "isso é característica do problema e não artefato do gerador: projeto de ",
+      "consultoria com equipe pequena é a norma."
+    ),
+    "fato real",
+
+    "II.2.4",
+    paste0(
+      "O colaborativo não pode ser o componente principal do híbrido, e o peso ",
+      "precisa recair sobre conteúdo e restrição, não sobre o histórico de ",
+      "interação."
+    ),
+    NA,
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

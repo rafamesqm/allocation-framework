@@ -18,6 +18,31 @@ etiquetas_achado <- function() {
   c("âncora real", "consequência do gerador", "instrumento")
 }
 
+#' Proveniências admitidas para a decisão ou a limitação de um achado
+#'
+#' Eixo diferente do da etiqueta, e a distinção é o que dá sentido aos dois.
+#' A **etiqueta** diz sobre o que o número fala. A **proveniência** diz se a
+#' decisão que ele habilita continua de pé caso o gerador fosse outro.
+#'
+#' São ortogonais de propósito: um achado pode ser `instrumento`, porque o
+#' valor está no diagnóstico e não na medida, e ainda assim ter proveniência
+#' `fato real`, porque a decisão se apoia num agregado da Peers e não no
+#' sorteio do gerador. É exatamente esse cruzamento que a síntese da Parte III
+#' precisa exibir, e que a etiqueta sozinha não expressa.
+#'
+#' * `fato real`: a decisão se apoia em agregado documentado em
+#'   `docs/mapeamento_schema.md` ou em confirmação do dono do dado. Sobrevive
+#'   a qualquer gerador.
+#' * `estrutural`: apoia-se em propriedade matemática ou definicional, que
+#'   vale em qualquer conjunto de dados com este esquema.
+#' * `depende do gerador`: mudaria se o gerador mudasse. Precisa ficar
+#'   declarada como ressalva, não escondida.
+#'
+#' @return Vetor de texto com as três proveniências.
+proveniencias_achado <- function() {
+  c("fato real", "estrutural", "depende do gerador")
+}
+
 #' Valida e registra os achados numerados de um bloco da EDA
 #'
 #' Cada bloco declara seus achados como dado, ao lado do código que os
@@ -30,15 +55,40 @@ etiquetas_achado <- function() {
 #' capítulo. Com um documento por bloco, numeração global exigiria estado
 #' compartilhado entre arquivos e quebraria a cada reordenação.
 #'
+#' **Os campos `decisao`, `limitacao` e `proveniencia` existem para a Parte
+#' III ser derivada e não redigida.** Antes deles, a decisão que um achado
+#' habilita vivia em negrito dentro da prosa de `implicacao`, e montar a
+#' síntese exigiria varrer texto ou transcrever à mão, que é o que o
+#' parágrafo acima diz para não fazer. Os três são opcionais porque a maior
+#' parte dos achados caracteriza sem decidir.
+#'
+#' Duas regras de preenchimento, sem as quais os campos ficam ambíguos:
+#'
+#' * **`decisao` é reservada a decisão que amarra a wave 3 ou a wave 4.**
+#'   Escolha interna do instrumento, como qual nulo usar na comparação de
+#'   grafo, fica na prosa de `implicacao`. Sem esse corte, a síntese
+#'   misturaria compromisso de modelagem com detalhe de implementação, e a
+#'   contagem de decisões perderia sentido.
+#' * **Onde o achado tem decisão e limitação, a proveniência se refere à
+#'   decisão**, porque é a decisão que a síntese existe para defender. A
+#'   ressalva própria da limitação, quando divergir, fica dita no texto dela.
+#'   O caso típico é decisão apoiada em fato real cuja magnitude de apoio é
+#'   sintética, como em II.5.7.
+#'
 #' A validação é deliberadamente rígida. Achado sem etiqueta epistêmica ou
 #' sem implicação declarada é exatamente o tipo de conclusão solta que este
 #' capítulo não deve produzir, e é mais barato falhar aqui do que descobrir
-#' na revisão do texto.
+#' na revisão do texto. Pelo mesmo motivo, **achado que declara decisão ou
+#' limitação é obrigado a declarar a proveniência**: é a pergunta que a banca
+#' faz, e deixá-la opcional seria deixá-la sem resposta justamente onde ela
+#' importa.
 #'
 #' @param bloco Identificador do bloco, como `"I.1"`.
 #' @param achados Data frame com as colunas `codigo`, `etiqueta`,
-#'   `enunciado` e `implicacao`.
-#' @return O próprio `achados`, validado, com a coluna `bloco` à frente.
+#'   `enunciado` e `implicacao`, e opcionalmente `decisao`, `limitacao` e
+#'   `proveniencia`.
+#' @return O próprio `achados`, validado, com a coluna `bloco` à frente e as
+#'   três colunas opcionais presentes, preenchidas com `NA` onde ausentes.
 registrar_achados <- function(bloco, achados) {
   obrigatorias <- c("codigo", "etiqueta", "enunciado", "implicacao")
   faltantes <- setdiff(obrigatorias, names(achados))
@@ -78,7 +128,102 @@ registrar_achados <- function(bloco, achados) {
     )
   }
 
-  tibble::as_tibble(achados) |>
-    dplyr::mutate(bloco = bloco, .before = 1) |>
-    dplyr::arrange(codigo)
+  achados <- tibble::as_tibble(achados) |>
+    dplyr::mutate(bloco = bloco, .before = 1)
+
+  for (coluna in c("decisao", "limitacao", "proveniencia")) {
+    if (!coluna %in% names(achados)) {
+      achados[[coluna]] <- NA_character_
+    }
+  }
+
+  # A conversão para texto antes do teste importa: num bloco que não declara
+  # nenhuma decisão, a coluna chega inteiramente `NA` e portanto lógica, e
+  # `coalesce` recusaria a mistura com texto.
+  achados <- dplyr::mutate(
+    achados,
+    dplyr::across(
+      c("decisao", "limitacao", "proveniencia"),
+      ~ dplyr::if_else(
+        nzchar(trimws(dplyr::coalesce(as.character(.x), ""))),
+        as.character(.x), NA_character_
+      )
+    )
+  )
+
+  proveniencias_invalidas <- setdiff(
+    stats::na.omit(achados$proveniencia), proveniencias_achado()
+  )
+  if (length(proveniencias_invalidas) > 0) {
+    stop(
+      "Proveniência de achado não reconhecida: ",
+      paste(unique(proveniencias_invalidas), collapse = ", "),
+      ". Use uma de: ", paste(proveniencias_achado(), collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  # Decisão ou limitação sem proveniência é a lacuna que estes campos existem
+  # para fechar: é onde a banca pergunta se a conclusão é da Peers ou do
+  # gerador, e onde a omissão passaria despercebida.
+  sem_proveniencia <- achados$codigo[
+    (!is.na(achados$decisao) | !is.na(achados$limitacao)) &
+      is.na(achados$proveniencia)
+  ]
+  if (length(sem_proveniencia) > 0) {
+    stop(
+      "Achado com decisão ou limitação e sem proveniência declarada: ",
+      paste(sem_proveniencia, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  orfas <- achados$codigo[
+    !is.na(achados$proveniencia) &
+      is.na(achados$decisao) & is.na(achados$limitacao)
+  ]
+  if (length(orfas) > 0) {
+    stop(
+      "Achado com proveniência e sem decisão nem limitação a que ela se refira: ",
+      paste(orfas, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  # Ordem numérica e não alfabética: `arrange(codigo)` punha `II.5.10` antes
+  # de `II.5.2`, o que já aparecia na lista de achados do bloco II.5.
+  achados[ordem_de_leitura(achados$codigo), ]
+}
+
+#' Acopla a síntese de decisão e limitação aos achados de um bloco
+#'
+#' Os achados narrativos têm `enunciado` e `implicacao` montados por `paste0`
+#' de muitas linhas, e acrescentar três colunas dentro daquele tribble
+#' tornaria cada linha ilegível. Aqui a síntese vive num tribble próprio, e o
+#' efeito colateral é bom: as decisões e limitações do bloco ficam visíveis
+#' juntas, numa tabela curta, que é a forma em que se revisa se o bloco
+#' concluiu o que devia.
+#'
+#' **O guarda contra código inexistente é o motivo de isto ser uma função.**
+#' Num `left_join` solto, errar `"II.8.1"` por `"II.8.10"` produziria `NA`
+#' silencioso, e a Parte III perderia a linha sem ninguém notar.
+#'
+#' @param achados Tribble narrativo do bloco, com `codigo`.
+#' @param sintese Tribble com `codigo` e as colunas de síntese a acoplar.
+#' @return `achados` com as colunas de `sintese` acopladas por `codigo`.
+com_sintese <- function(achados, sintese) {
+  desconhecidos <- setdiff(sintese$codigo, achados$codigo)
+  if (length(desconhecidos) > 0) {
+    stop(
+      "A síntese refere achado que o bloco não declara: ",
+      paste(desconhecidos, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  if (any(duplicated(sintese$codigo))) {
+    stop("Código repetido na síntese do bloco.", call. = FALSE)
+  }
+
+  dplyr::left_join(achados, sintese, by = "codigo")
 }

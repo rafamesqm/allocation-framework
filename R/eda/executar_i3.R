@@ -117,7 +117,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     )
   )
 
-  achados <- registrar_achados("I.3", tibble::tribble(
+  achados <- registrar_achados("I.3", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "I.3.1", "âncora real",
@@ -230,7 +230,41 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
       "marginal calibrada, então a magnitude 0,291 é propriedade do código e ",
       "não medida da Peers."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "I.3.1", NA,
+    paste0(
+      "Reproduzir correlação que calibrou o gerador não é descoberta sobre a ",
+      "Peers, e a comparação pontual contra o alvo só vale onde a estabilidade ",
+      "entre realizações é alta."
+    ),
+    "depende do gerador",
+
+    "I.3.2", NA,
+    paste0(
+      "A associação induzida mais forte fora das calibradas é propriedade do ",
+      "código, e não pode ser citada como característica da Peers nem usada ",
+      "para justificar escolha de modelagem."
+    ),
+    "depende do gerador",
+
+    "I.3.3", NA,
+    paste0(
+      "Com a categoria de pares sem mecanismo vazia, a verificação passa a não ",
+      "vigiar nada, e o silêncio dela não pode ser lido como aprovação."
+    ),
+    "depende do gerador",
+
+    "I.3.4", NA,
+    paste0(
+      "A âncora real determina apenas a base da pirâmide, porque os 90 não ",
+      "empregados reais não cabem nos 63 postos de N0 e N1; acima da base o ",
+      "contrato é marginal calibrada, então a magnitude da dependência é ",
+      "propriedade do código."
+    ),
+    "depende do gerador"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

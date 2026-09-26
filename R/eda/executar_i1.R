@@ -88,7 +88,7 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
     i1_cobertura_entidades = figura_cobertura_entidades(cobertura)
   )
 
-  achados <- registrar_achados("I.1", tibble::tribble(
+  achados <- registrar_achados("I.1", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "I.1.1", "instrumento",
@@ -184,7 +184,41 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
       "base corporativa sem nulo entre os 285 ativos: ali a cobertura ",
       "integral é âncora real, não construção."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "I.1.2", NA,
+    paste0(
+      "Integridade referencial completa é artefato de construção e não ",
+      "propriedade do domínio: no dado real o join entre entidades e ",
+      "alocação cobre 64% dos colaboradores."
+    ),
+    "fato real",
+
+    "I.1.3", NA,
+    paste0(
+      "O componente baseado em conteúdo opera sobre aproximadamente metade da ",
+      "população, e isso o limita antes de qualquer escolha de algoritmo."
+    ),
+    "fato real",
+
+    "I.1.4", NA,
+    paste0(
+      "Seis referências têm cobertura integral por construção e nenhuma ",
+      "calibração real, então nenhuma análise posterior pode tratá-las como ",
+      "universais no dado real sem dizer que a universalidade é artefato."
+    ),
+    "depende do gerador",
+
+    "I.1.5", NA,
+    paste0(
+      "O cold start do lado do conteúdo é um bloco único de consultores sem ",
+      "nenhum atributo declarado, e não ausências independentes por sinal que ",
+      "se compensariam: trocar um sinal de conteúdo por outro não recupera ",
+      "ninguém."
+    ),
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

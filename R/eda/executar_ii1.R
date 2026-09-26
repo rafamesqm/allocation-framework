@@ -122,7 +122,7 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
     )
   )
 
-  achados <- registrar_achados("II.1", tibble::tribble(
+  achados <- registrar_achados("II.1", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "II.1.1", "âncora real",
@@ -199,7 +199,47 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
       "precisa ser refeito sob o protocolo do bloco II.7 antes de virar ",
       "critério formal."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "II.1.1",
+    paste0(
+      "O método de vizinhança fica descartado em favor de fator latente: ",
+      "neste nível de esparsidade não há sobreposição para estimar ",
+      "similaridade entre pares."
+    ),
+    NA,
+    "fato real",
+
+    "II.1.2", NA,
+    paste0(
+      "O gerador foi calibrado com Binomial Negativa, então reproduzir a ",
+      "sobredispersão é conferência e não descoberta, e a magnitude do índice ",
+      "não fala sobre a Peers."
+    ),
+    "depende do gerador",
+
+    "II.1.3",
+    paste0(
+      "A métrica da wave 3 controla popularidade, sob pena de premiar um ",
+      "modelo que apenas aprendeu a devolver quem já é muito alocado."
+    ),
+    NA,
+    "estrutural",
+
+    "II.1.4",
+    paste0(
+      "A linha de base de popularidade é reportada ao lado de toda comparação ",
+      "da wave 3, como piso que o recomendador precisa superar para justificar ",
+      "sua existência."
+    ),
+    paste0(
+      "O número medido aqui é limite superior, por desempate favorável ao ",
+      "consultor avaliado, e só vira critério formal depois de refeito sob o ",
+      "protocolo do bloco II.7."
+    ),
+    "estrutural"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

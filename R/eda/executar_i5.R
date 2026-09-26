@@ -106,7 +106,7 @@ executar_i5 <- function(dados, n_replicas = 20, semente = 1) {
     )
   )
 
-  achados <- registrar_achados("I.5", tibble::tribble(
+  achados <- registrar_achados("I.5", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "I.5.1", "instrumento",
@@ -170,7 +170,42 @@ executar_i5 <- function(dados, n_replicas = 20, semente = 1) {
       "perderia justamente os vértices de grau zero. Formação de time por ",
       "afinidade de grafo não tem o que dizer sobre esses consultores."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "I.5.1", NA,
+    paste0(
+      "O agrupamento do grafo vem quase todo da projeção bipartida, porque ",
+      "cada projeto vira uma clique e clique tem transitividade 1 por ",
+      "definição, então ele não sustenta conclusão sobre química de time."
+    ),
+    "estrutural",
+
+    "I.5.2", NA,
+    paste0(
+      "Peso de aresta baseado em contagem de projetos em comum mede em boa ",
+      "parte o viés de alocação e não afinidade de time; a magnitude do ",
+      "excesso de parceria repetida é do gerador, ainda que a cautela seja ",
+      "geral."
+    ),
+    "depende do gerador",
+
+    "I.5.3", NA,
+    paste0(
+      "O gerador cabla por setor e ignora nível, então a ausência de ",
+      "assortatividade por senioridade é premissa do código e limita o que a ",
+      "wave 4 pode validar sobre restrição de pirâmide."
+    ),
+    "depende do gerador",
+
+    "I.5.4", NA,
+    paste0(
+      "Formação de time por afinidade de grafo não tem o que dizer sobre os ",
+      "consultores isolados, e o fenômeno é real: 48 dos 285 ativos não ",
+      "aparecem em nenhuma linha de alocação no dado da Peers."
+    ),
+    "fato real"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }

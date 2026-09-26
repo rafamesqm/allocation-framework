@@ -144,7 +144,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
     )
   )
 
-  achados <- registrar_achados("I.2", tibble::tribble(
+  achados <- registrar_achados("I.2", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
 
     "I.2.1", "consequência do gerador",
@@ -229,7 +229,38 @@ executar_i2 <- function(dados, estabilidade = NULL) {
       "pretende impor. Sem agregado real para confrontar, o valor está no ",
       "diagnóstico existir, não na magnitude sintética."
     )
-  ))
+  ), tibble::tribble(
+    ~codigo, ~decisao, ~limitacao, ~proveniencia,
+
+    "I.2.1",
+    paste0(
+      "`fuso` não ocupa coluna na matriz de atributos, por não ter poder ",
+      "discriminante, e a cauda de estados raros de `localizacao` é agrupada ",
+      "antes da codificação one-hot."
+    ),
+    paste0(
+      "Que `fuso` seja constante e que `localizacao` se concentre na moda são ",
+      "medidas sobre o sintético sem âncora real, então a verificação de ",
+      "variância precisa ser repetida se o acesso ao dado real voltar."
+    ),
+    "depende do gerador",
+
+    "I.2.2", NA,
+    paste0(
+      "Análise que dependa de quantil da distribuição sintética é defensável; ",
+      "análise que dependa de média, desvio ou de comportamento de cauda ",
+      "extrema não é, porque a fonte real dá quantis e não momentos."
+    ),
+    "fato real",
+
+    "I.2.4", NA,
+    paste0(
+      "O histórico viola a restrição de capacidade que a wave 4 pretende ",
+      "impor, mas sem agregado real para confrontar o valor está no ",
+      "diagnóstico existir e não na magnitude sintética."
+    ),
+    "depende do gerador"
+  )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }
