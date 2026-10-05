@@ -18,9 +18,15 @@
 #' assimetria forte (3,6). Substitui a estimativa anterior (Exponencial de
 #' média 177,6 dias), que vinha de um campo de auditoria
 #' (`dt_alteracao`) sem confirmação como data de fim real. Log-normal
-#' calibrada por casamento de quantis, mesma técnica de
-#' `gerar_variavel_hurdle_lognormal()`, sem massa em zero (duração de
-#' projeto nunca é zero).
+#' calibrada por casamento de quantis (`calibrar_lognormal_por_quantis()`),
+#' sem massa em zero.
+#'
+#' **Piso de 1 dia na duração.** O arredondamento da log-normal produzia
+#' duração exata de zero em cerca de 6% dos projetos (`data_fim` igual a
+#' `data_inicio`), artefato de `round()` sobre a cauda inferior, não
+#' calibração: um projeto de duração zero não existe, e deixava sem janela
+#' as alocações que precisam caber dentro dele
+#' (`gerar_periodo_alocacao()`).
 #'
 #' **Decisão de modelagem: teto em `duracao_teto_dias`.** Os três quantis
 #' reais (4/18/81 dias), batidos exatamente por uma log-normal, implicam uma
@@ -53,9 +59,9 @@ gerar_projetos <- function(n_projetos = 952,
                             semente = 1,
                             data_referencia = Sys.Date(),
                             janela_inicio_dias = 730,
-                            duracao_mediana_dias = 18,
-                            duracao_p25_dias = 4,
-                            duracao_p75_dias = 81,
+                            duracao_mediana_dias = 81,
+                            duracao_p25_dias = 42,
+                            duracao_p75_dias = 156,
                             duracao_teto_dias = 2368) {
   set.seed(semente)
 
@@ -74,25 +80,31 @@ gerar_projetos <- function(n_projetos = 952,
   )
   pesos_offering <- c(991, 642, 530, 524, 427, 424, 192, 155, 119, 114, 49, 47)
 
-  meanlog_duracao <- log(duracao_mediana_dias)
-  sdlog_superior <- log(duracao_p75_dias / duracao_mediana_dias) / stats::qnorm(0.75)
-  sdlog_inferior <- log(duracao_mediana_dias / duracao_p25_dias) / stats::qnorm(0.75)
-  sdlog_duracao <- mean(c(sdlog_superior, sdlog_inferior))
-
-  duracao_dias <- pmin(
-    round(stats::rlnorm(n_projetos, meanlog = meanlog_duracao, sdlog = sdlog_duracao)),
-    duracao_teto_dias
+  parametros_duracao <- calibrar_lognormal_por_quantis(
+    duracao_mediana_dias, duracao_p25_dias, duracao_p75_dias
   )
+
+  duracao_sorteada <- round(stats::rlnorm(
+    n_projetos,
+    meanlog = parametros_duracao$meanlog, sdlog = parametros_duracao$sdlog
+  ))
+  duracao_dias <- pmin(pmax(duracao_sorteada, 1), duracao_teto_dias)
   data_inicio <- data_referencia - sample.int(janela_inicio_dias, n_projetos, replace = TRUE)
 
   tibble::tibble(
     projeto_id = sprintf("projeto_%04d", seq_len(n_projetos)),
     setor = sample(segmentos, n_projetos, replace = TRUE, prob = pesos_segmento),
     tipo_projeto = sample(offerings, n_projetos, replace = TRUE, prob = pesos_offering),
+    # Recalibrado pela segunda consulta comercial: `silver.pps`, última
+    # versão por CRM, 556 projetos, tabela completa e sem teto de extração.
+    # A calibração anterior vinha de `actarnet_alocacao_pessoas` e dava
+    # mediana de 108 mil, quatro vezes menor. As duas medem valor de
+    # contrato, mas só a de `pps` é a mesma fonte da âncora de margem, e
+    # misturar fontes era o que fazia a margem estrutural não fechar.
     valor_contrato = gerar_variavel_hurdle_lognormal(
       n_projetos,
-      prob_zero = 0.147, mediana_positivos = 108300,
-      p25_positivos = 34814, p75_positivos = 375054
+      prob_zero = 0.147, mediana_positivos = 457000,
+      p25_positivos = 190000, p75_positivos = 1100000
     ),
     esforco_estimado = gerar_esforco_estimado(n_projetos),
     data_inicio = data_inicio,

@@ -14,6 +14,11 @@
 #' taxonomia separada (ver docs/mapeamento_schema.md, Camada 2), por isso é
 #' herdado do consultor em vez de fabricado sem lastro.
 #'
+#' Cada aresta também recebe sua própria janela de datas, aninhada na do
+#' projeto (ver `gerar_periodo_alocacao()`). Sem ela não há `k` (capacidade
+#' por pessoa e período) nem decaimento temporal, e a ocupação por consultor
+#' fica sem denominador.
+#'
 #' O grupo assortativo do consultor é o setor de maior `intensidade` em
 #' `experiencia_setorial` (empate resolvido por ordem arbitrária). Consultor
 #' sem nenhuma linha em `experiencia_setorial` cai no grupo `"sem_setor"`,
@@ -29,7 +34,7 @@
 #' @param prob_vies Probabilidade de a cablagem preferir o mesmo setor (ver
 #'   `gerar_pares_configuration_model()`).
 #' @return tibble de arestas: `consultor_id`, `projeto_id`, `papel`,
-#'   `pct_alocacao`, `horas_mes`.
+#'   `pct_alocacao`, `horas_mes`, `data_inicio`, `duracao_dias`, `data_fim`.
 gerar_alocacoes <- function(consultores, projetos, experiencia_setorial,
                              semente = 1,
                              fracao_cold_start_consultor = 0.17,
@@ -64,6 +69,12 @@ gerar_alocacoes <- function(consultores, projetos, experiencia_setorial,
   )
 
   nivel_do_consultor <- consultores$nivel_senioridade[match(arestas$consultor_id, consultores$consultor_id)]
+  projeto_da_aresta <- match(arestas$projeto_id, projetos$projeto_id)
+
+  periodo <- gerar_periodo_alocacao(
+    data_inicio_projeto = projetos$data_inicio[projeto_da_aresta],
+    duracao_projeto_dias = projetos$duracao_dias[projeto_da_aresta]
+  )
 
   arestas |>
     dplyr::mutate(
@@ -77,6 +88,9 @@ gerar_alocacoes <- function(consultores, projetos, experiencia_setorial,
         nivel_do_consultor,
         correlacao_alvo = -0.55, media = 120, desvio_variavel = 66.90,
         minimo = 0
-      )
+      ),
+      data_inicio = periodo$data_inicio,
+      duracao_dias = periodo$duracao_dias,
+      data_fim = periodo$data_fim
     )
 }

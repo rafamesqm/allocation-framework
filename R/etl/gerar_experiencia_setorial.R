@@ -6,6 +6,16 @@
 #' de categorias e seus pesos relativos são reais; a intensidade por pessoa
 #' não tem calibração agregada nesta rodada, é suposição documentada.
 #'
+#' Gera o atributo para **todos** os consultores de propósito. A experiência
+#' setorial existe na realidade independentemente de ter sido declarada, e é
+#' a ela que a alocação responde: `gerar_alocacoes()` consome esta tabela
+#' como o mecanismo latente do viés de afinidade. O que o modelo enxerga é
+#' outra coisa, a parte observada pelo Formulário de Skills 2.1, e é essa que
+#' `_targets.R` salva em `data/synthetic/`, aplicando
+#' `restringir_a_respondentes()`. Separar as duas é o que torna o cold start
+#' de conteúdo um problema de dado faltante, que é o que ele é, e não de
+#' inexistência do atributo.
+#'
 #' @param consultores tibble de `gerar_consultores()`.
 #' @param max_setores Número máximo de segmentos distintos por consultor.
 #' @return tibble longo: `consultor_id`, `segmento`, `intensidade` (0 a 1).

@@ -1,25 +1,40 @@
-#' Agrega ocupação de cada consultor a partir das alocações (Camada 3)
+#' Agrega ocupação de cada consultor por mês, a partir das alocações (Camada 3)
 #'
 #' `calendario_alocacao`/`pct_ocupacao` não são sorteados de forma
-#' independente: são derivados da matriz `R` já gerada por
-#' `gerar_alocacoes()`. Como `alocacoes` não carrega uma dimensão temporal
-#' (não há calendário por aresta neste gerador), a agregação é um retrato
-#' agregado por consultor, soma de `pct_alocacao` e de `horas_mes` entre
-#' todas as alocações, não uma série temporal mês a mês.
+#' independente: derivam da matriz `R` já gerada por `gerar_alocacoes()`.
+#' Como cada alocação carrega sua própria janela de datas, a agregação é uma
+#' série temporal por consultor e mês, que é a granularidade que o vetor `k`
+#' (capacidade por pessoa e período) exige no dicionário.
 #'
-#' Consultor sem nenhuma alocação (cold start) fica de fora do resultado,
-#' não aparece com zero: quem consome o resultado deve tratar ausência como
-#' zero explicitamente, se for o caso.
+#' **Mês parcial entra ponderado pelos dias cobertos**, não inteiro. Com
+#' mediana de alocação de 18 dias, contar cada mês tocado como mês cheio
+#' superestimaria a ocupação de forma sistemática. `pct_ocupacao` fica então
+#' interpretável como fração de capacidade usada naquele mês, e valor acima
+#' de 1 passa a significar superalocação de verdade, não artefato de soma.
 #'
-#' @param alocacoes tibble de `gerar_alocacoes()`.
-#' @return tibble com `consultor_id`, `pct_alocacao_total`,
-#'   `horas_mes_total`, `n_alocacoes`.
+#' Consultor sem nenhuma alocação (cold start) fica de fora do resultado, e
+#' mês sem nenhuma alocação não vira linha de zero: quem consome deve tratar
+#' ausência como zero explicitamente, se for o caso.
+#'
+#' @param alocacoes tibble de `gerar_alocacoes()`, com `data_inicio` e
+#'   `data_fim` por alocação.
+#' @return tibble com `consultor_id`, `ano_mes`, `pct_ocupacao`,
+#'   `horas_mes`, `n_alocacoes`, ordenado por consultor e mês.
 agregar_ocupacao_consultor <- function(alocacoes) {
-  alocacoes |>
+  meses <- expandir_para_meses(alocacoes$data_inicio, alocacoes$data_fim)
+
+  meses |>
+    dplyr::mutate(
+      consultor_id = alocacoes$consultor_id[linha],
+      fracao_do_mes = dias_ativos / dias_no_mes,
+      pct_ocupacao = alocacoes$pct_alocacao[linha] * fracao_do_mes,
+      horas_mes = alocacoes$horas_mes[linha] * fracao_do_mes
+    ) |>
     dplyr::summarise(
-      pct_alocacao_total = sum(pct_alocacao),
-      horas_mes_total = sum(horas_mes),
+      pct_ocupacao = sum(pct_ocupacao),
+      horas_mes = sum(horas_mes),
       n_alocacoes = dplyr::n(),
-      .by = consultor_id
-    )
+      .by = c(consultor_id, ano_mes)
+    ) |>
+    dplyr::arrange(consultor_id, ano_mes)
 }

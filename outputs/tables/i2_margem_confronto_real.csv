@@ -1,0 +1,5 @@
+Variável,Estatística,Real,Sintético,Dif. relativa,Rodada
+receita_total,fracao_zero,"0,16","0,17","+4,8%",Segunda consulta
+receita_total,mediana_pos,"172.000,00","171.598,84","-0,2%",Segunda consulta
+receita_total,p25_pos,"90.000,00","91.781,56","+2,0%",Segunda consulta
+receita_total,p75_pos,"304.000,00","313.690,04","+3,2%",Segunda consulta

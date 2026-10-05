@@ -1,0 +1,219 @@
+---
+title: "Bloco II.3 Cold start e forma do híbrido"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii3")
+obj <- bloco$objetos
+```
+
+## Propósito do bloco
+
+**Âncora na literatura.** Burke (2002) organiza os híbridos de recomendação
+em formas com exigências distintas sobre os componentes. Schein, Popescul,
+Ungar e Pennock (2002) formalizam o cold start como o regime em que o
+colaborativo não tem o que dizer e o conteúdo precisa responder sozinho.
+
+**Propriedade medida.** Cobertura de cada sinal, separadamente; se os sinais
+de conteúdo cobrem as mesmas pessoas ou pessoas diferentes; e o cruzamento
+entre ausência de histórico e ausência de atributo.
+
+**Decisão que discrimina.** Qual forma de híbrido é viável. A resposta não
+vem de preferência, vem do padrão de cobertura: forma que exige escore dos
+dois componentes para todo par é inviável quando nenhum dos dois cobre todo
+par.
+
+## Uma correção antes de tudo
+
+Este bloco já foi escrito uma vez, e a versão anterior estava errada. Ela
+concluiu que experiência setorial, expertise funcional e soft skills cobriam
+todos os consultores, que a zona morta desaparecia ao adotar um desses sinais
+no lugar de skills, e que a arquitetura habilitada era uma cascata com o
+conteúdo à frente.
+
+As três conclusões mediam um defeito do gerador. Cada um desses sinais
+sorteava sua própria cobertura populacional, de forma independente dos
+demais, quando na fonte real os quatro saem da **mesma** campanha de
+formulários de skills (`docs/mapeamento_schema.md`) e quem não respondeu não
+tem nenhum deles. O achado I.1.4 já registrava que aquelas coberturas
+integrais eram artefato do gerador e que nenhuma análise posterior deveria
+tratá-las como universais. A primeira versão deste bloco construiu uma
+decisão de arquitetura sobre elas assim mesmo.
+
+A correção foi feita no gerador, não no texto: existe agora um único conjunto
+de respondentes, compartilhado por todos os sinais derivados de formulário,
+calibrado nos 48,4% documentados. O registro do erro fica porque ele é
+exatamente o tipo de conclusão que a etiqueta epistêmica de cada achado
+existe para interceptar.
+
+## A cobertura acompanha a fonte, não o sinal
+
+```{r cobertura, fig.width = 7.5, fig.height = 5}
+bloco$figuras$ii3_cobertura_sinais
+```
+
+```{r cobertura-tabela}
+mostrar_tabela(
+  bloco$tabelas$ii3_cobertura_sinais,
+  "Tabela II.3.1: cobertura de cada sinal, por lado da matriz.",
+  c("l", "l", "l", "r", "r", "r")
+)
+```
+
+Os `r nrow(obj$sinais_formulario)` sinais que a fonte real deriva da campanha
+de formulários cobrem `r formatar_pct(obj$cobertura_formulario)` dos
+consultores, e a verificação no dado confirma que são **exatamente as mesmas
+pessoas** em todos eles: a união dos conjuntos cobertos tem o mesmo tamanho
+da interseção. Trocar um sinal de conteúdo por outro não recupera ninguém.
+
+Certificações fica abaixo, em
+`r formatar_pct(obj$cobertura$cobertura[obj$cobertura$sinal == "certificações"])`,
+por ser um campo opcional dentro do mesmo formulário: é um subconjunto dos
+respondentes, não um grupo à parte.
+
+Idiomas cobre `r formatar_pct(obj$cobertura_idiomas)` dos consultores, e essa
+é a única cobertura integral do lado do consultor que **não** é artefato: a
+fonte é `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os
+285 ativos. Do lado do projeto, setor e offering cobrem 100% por construção
+do proxy de `P`.
+
+## A zona morta, e o que ela não depende
+
+```{r quadrantes}
+mostrar_tabela(
+  bloco$tabelas$ii3_quadrantes_conteudo,
+  "Tabela II.3.2: quadrantes de viabilidade, tomando um sinal de formulário como conteúdo.",
+  c("l", "r", "r")
+)
+```
+
+`r obj$cruzamento_setor$zona_morta` consultores
+(`r formatar_pct(obj$zona_morta_fracao)`) não têm histórico nem atributo
+declarado. O número é **idêntico** com skills ou com experiência setorial
+como sinal de conteúdo, porque são as mesmas pessoas que responderam.
+
+Nenhum componente do híbrido tem o que dizer sobre eles, e nenhuma escolha de
+sinal os resgata. **Nem a popularidade**, que uma versão anterior deste bloco
+indicava como terceira resposta: a popularidade de quem nunca foi alocado é
+zero, e o bloco II.7 mede exatamente isso, um consultor sem histórico nunca
+entra numa lista ordenada por ela.
+
+**A zona morta não é recomendável pelo modelo.** O que a põe no conjunto
+candidato tem de ser uma regra de exposição declarada fora dele, como rodízio
+ou inclusão explícita, e essa regra é decisão de negócio, não estatística. O
+fenômeno é real: 48 dos 285 ativos não aparecem em nenhuma linha de alocação
+no dado da Peers.
+
+Duas ressalvas sobre este número. A primeira é de realização: o gerador
+sorteia a ausência de histórico independentemente da ausência de resposta, e
+o esperado sob independência é
+`r formatar_decimal(obj$cruzamento_setor$zona_morta_esperada, 1)`, contra
+`r obj$cruzamento_setor$zona_morta` observados. O excesso é ruído amostral, e
+o bloco I.0 acompanha a grandeza. Vale registrar que
+`r formatar_pct(obj$zona_morta_fracao)` é o **extremo superior** do intervalo
+de 90% sobre as realizações, e não o centro dele: o conjunto versionado
+calhou de ser uma realização pessimista nesta grandeza, e a mediana está mais
+perto de 8,8%. A conclusão qualitativa não depende disso, porque o intervalo
+inteiro fica longe de zero, mas citar o ponto sem o intervalo exageraria o
+tamanho da zona morta.
+
+A segunda é mais séria e não tem como ser resolvida: **que a resposta ao
+formulário seja independente de estar alocado é suposição, não medida**. Se
+quem está em projeto responde menos formulário, ou mais, a zona morta real
+não é a que está aqui. O acesso que permitiria verificar está encerrado, e
+isso fica como limitação declarada, não como pendência.
+
+## Quais formas de híbrido sobrevivem
+
+```{r formas}
+mostrar_tabela(
+  bloco$tabelas$ii3_formas_hibrido,
+  "Tabela II.3.3: formas de híbrido de Burke (2002) contra o padrão de cobertura medido.",
+  c("l", "l", "c", "l")
+)
+```
+
+Das cinco formas, `r nrow(obj$formas_viaveis)` sobrevive:
+**`r paste(obj$formas_viaveis$forma, collapse = " e ")`**.
+
+A cascata cai pelos dois lados, cada um por um motivo diferente, e vale
+separar os dois porque é a diferença entre eles que sustenta a decisão. Com o
+conteúdo à frente, ela nunca colocaria
+`r formatar_pct(1 - obj$cobertura_formulario)` dos consultores no conjunto
+candidato: quem não respondeu o formulário não seria sequer considerado. Com
+o colaborativo à frente, a cobertura seria maior,
+`r formatar_pct(obj$interacao_consultor$cobertura)`, mas o bloco II.2 mostrou
+que a ordenação não é identificável nesta escala, e uma cascata sobre uma
+ordenação que os dados não determinam propaga ruído em vez de filtrar.
+
+A forma ponderada, que a arquitetura conceitual das pré-definições sugeria ao
+falar em combinar sinais, segue descartada, agora por um motivo mais forte do
+que antes: não é só o colaborativo que falta em parte dos casos, é que
+nenhum dos dois cobre todo par.
+
+**A decisão que este bloco habilita é o híbrido chaveado**, e o critério de
+chaveamento é o próprio quadrante da Tabela II.3.2, que é observável no dado
+sem nenhuma estimação: ter histórico e ter respondido o formulário.
+
+## O enquadramento usual se inverte
+
+A literatura de cold start supõe o conteúdo como o componente de cobertura
+ampla e o colaborativo como o escasso, e é dessa assimetria que vem a receita
+usual de usar conteúdo para cobrir o que o colaborativo não alcança.
+
+Aqui é o contrário. O colaborativo cobre
+`r formatar_pct(obj$interacao_consultor$cobertura)` dos consultores e o
+conteúdo, `r formatar_pct(obj$cobertura_formulario)`. O quadrante mais
+populoso depois do completo é o de quem tem histórico e **não** tem atributo,
+com `r formatar_pct(obj$so_colaborativo)` dos consultores.
+
+A razão é estrutural e vale a pena nomear: o atributo depende de resposta
+voluntária a um formulário, e a interação é registro administrativo do qual
+ninguém escapa. O componente de cobertura ampla é o não identificável, e o
+identificável é o estreito. É essa inversão que fecha a porta para qualquer
+composição contínua dos dois e deixa o chaveamento como única forma de pé.
+
+## Cobertura não é poder discriminante
+
+Resta a tentação de apoiar o modelo no sinal que cobre todo mundo. Ela não
+se sustenta, e dá para mostrar isso com número em vez de argumento.
+
+```{r perfis-idioma}
+mostrar_tabela(
+  bloco$tabelas$ii3_perfis_idioma,
+  "Tabela II.3.4: perfis distintos de idioma entre os consultores.",
+  c("l", "r", "r")
+)
+```
+
+Idiomas cobre os `r obj$n_consultores` consultores e os separa em apenas
+`r obj$discriminacao_idiomas$n_perfis` perfis distintos, com
+`r formatar_pct(obj$discriminacao_idiomas$fracao_maior_classe)` deles no
+mesmo perfil. Um casamento que não separa pessoas dentro da classe
+majoritária não ordena candidato nenhum.
+
+O espaço setorial é grosso pelo mesmo motivo: `r obj$segmentos` segmentos e
+`r obj$combinacoes_setoriais` combinações de segmento e offering observadas
+entre os projetos, o que dá em média
+`r formatar_decimal(obj$consultores_por_segmento, 0)` consultores por
+segmento. É justamente a discriminação **dentro** do segmento que a alocação
+precisa fazer.
+
+O gargalo do conteúdo, portanto, é duplo: cobertura pela metade e resolução
+grossa onde há cobertura. Quanto de sinal o espaço setorial de fato carrega é
+a pergunta do bloco II.6.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

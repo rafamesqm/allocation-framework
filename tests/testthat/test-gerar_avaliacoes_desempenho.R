@@ -6,7 +6,7 @@ test_that("gerar_avaliacoes_desempenho produz a estrutura de 3 etapas x 14 itens
 
   avaliacoes <- gerar_avaliacoes_desempenho(alocacoes, fracao_com_avaliacao = 0.5, semente = 1)
 
-  expect_named(avaliacoes, c("consultor_id", "projeto_id", "item", "categoria_item", "etapa", "nota", "comentario"))
+  expect_named(avaliacoes, c("consultor_id", "projeto_id", "item", "categoria_item", "etapa", "nota", "avaliador_id", "comentario"))
   expect_false(anyNA(avaliacoes))
   expect_setequal(avaliacoes$etapa, c("individual", "gestor_cegas", "gestor_final"))
   expect_equal(dplyr::n_distinct(avaliacoes$item), 14)

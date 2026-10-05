@@ -406,6 +406,33 @@ mín/média/máx por nível para amostrar `custo_carregado` no sintético.
 média ~431.862, máximo ~38.816.467. Distribuição muito assimétrica à direita,
 não normal, não amostrar como normal no sintético.
 
+**Granularidade confirmada pelo usuário (2026-09-19): `valor_contrato` em
+`actarnet_alocacao_pessoas` é por projeto, não por alocação e pessoa.** O
+bloco II.5 da EDA levantou a hipótese contrária, a partir do nome da tabela
+e do volume de linhas, ao encontrar margem estrutural implausível. A
+hipótese está descartada, e a implausibilidade continua a ser explicada.
+Ver a questão aberta sobre `vw_gtac_fin_taxa_hora` abaixo.
+
+**Questão aberta (levantada pelo bloco II.5 da EDA, 2026-09-19): `Taxa` em
+`vw_gtac_fin_taxa_hora` é preço ou custo?** A Quinta rodada registrou a
+tabela como *rate card*, termo que designa tabela de preço. O dicionário e o
+gerador a tratam como `custo_carregado`, isto é, custo da pessoa para a
+empresa. As duas leituras não são compatíveis, e a EDA achou dois indícios
+de que a coluna é preço:
+
+* a razão entre custo calculado e valor de contrato centra em torno de 1,
+  quando custo contra receita centraria bem abaixo disso;
+* sobre a jornada calibrada de 120 h/mês, a taxa implica custo mensal da
+  ordem de 32 mil reais para o nível mais júnior e 144 mil para o mais
+  sênior, valores plausíveis como faturamento e não como salário mais
+  encargos.
+
+Se a coluna for preço, a Peers não tem custo interno por pessoa em lugar
+nenhum além de `peers_custointerns_vlr` (frente/mês, 44,7% zerado), e o
+objetivo econômico da wave 4 fica sem base de dados defensável. O acesso ao
+ambiente está encerrado e a distinção não é derivável do que ficou
+registrado, então fica como questão aberta e não como achado.
+
 **Cold start e densidade (join de checagem, não validado a fundo):** 48 dos
 285 consultores ativos não aparecem em nenhuma linha de `vw_gtac_cltv_alocacao`
 (~17%, primeira estimativa de cold start do lado consultor). 4598 pares
@@ -777,6 +804,345 @@ por arquivo para confirmar se a diferença é por turnover ou por
 defasagem temporal da coleta, então a explicação exata fica como
 limitação, não um número fechado. Fecha o item de cobertura de skills da
 definição de pronto da wave 2 (EDA).
+
+## Consulta ao data owner de RH (2026-09-19)
+
+Respostas obtidas por consulta direta, durante a wave 2. Não vêm de query:
+são declarações do dono do dado sobre semântica e processo, e é isso que
+as torna úteis, porque semântica não é derivável de agregado. Cada item
+abaixo diz o que muda no projeto.
+
+**Agregados da base de avaliação de desempenho: NÃO haverá acesso.** Nem
+mesmo estatísticas agregadas sem dado individual. O dicionário registrava o
+acesso a essa base como "a alavanca de maior retorno do projeto"; a alavanca
+está fechada. Distribuição, cobertura e estrutura de dependência de
+`avaliacao_desempenho` passam de "sem calibração por ora" a **limitação
+permanente**. O bloco II.5 já operava assim, e agora é definitivo.
+
+**`avaliador_id` existe, e a estrutura é mais rica do que o dicionário
+supunha.** A avaliação é **por projeto**: num mesmo ciclo um colaborador
+pode ter várias avaliações, uma por projeto, e **cada uma pode ter um ou
+mais gestores**. Duas consequências:
+
+* o grão (consultor, projeto) que o gerador já usa está certo;
+* o confronto entre avaliadores deixa de ser hipotético. O bloco II.5.7
+  simulava, como cenário declarado, o regime em que cada alocação é avaliada
+  por um avaliador diferente, para mostrar que a normalização por avaliador
+  é obrigatória. **Esse regime é o real.** A severidade de cada gestor entra
+  de fato como variação espúria entre pessoas, e o eixo "papel" (individual,
+  gestor às cegas, gestor final) não é o mesmo eixo que "qual gestor".
+
+**A distribuição de nota muda por nível de senioridade, não só a rubrica.**
+Contradiz suposição documentada em `gerar_avaliacoes_desempenho()`, que
+dizia não haver evidência de que a distribuição (e não só o texto da
+rubrica) variasse por nível. Há: o dono do dado confirma que "tende a
+mudar". **A direção e a magnitude não foram informadas**, então o gerador
+reproduz a existência do efeito e declara o resto como suposição.
+
+**Cobertura do Formulário de Skills 2.1 isolado: pode assumir 48,4%.**
+Confirma a escolha que `sortear_respondentes_formulario()` já fazia. Deixa
+de ser teto conservador adotado por falta de número e passa a ser
+aproximação sancionada pelo dono do dado.
+
+**Os três formulários tiveram públicos diferentes, e isso contraria o
+gerador.** Um foi geral, um só para ACTAR e um só para pessoas de Digital.
+O gerador hoje usa **um único** conjunto de respondentes compartilhado por
+todos os sinais de formulário, o que o bloco II.3 adotou justamente para
+corrigir o defeito oposto (cobertura sorteada de forma independente por
+sinal). A verdade está no meio: os sinais do 2.1 (experiência setorial,
+expertise funcional, soft skills) compartilham um público, e `skills_hard`,
+que vem de Digital e ACTAR, tem **outro**, com sobreposição parcial (19 dos
+137 respondentes do 2.1 também responderam o Digital Skills, 0 responderam o
+de Tecnologia). **Fica como questão aberta** a cobertura de cada formulário
+entre os 285 ativos, sem a qual não dá para dimensionar os três públicos.
+
+**O formulário virou processo recorrente, anual, com rodada até o fim de
+2026.** Muda o que o modelo pode propor sobre atualização de perfil: a
+recência de skill deixa de ser um artefato de campanha única e passa a ter
+cadência conhecida. Reforça a modelagem em ondas de
+`gerar_skills_consultor()`, que era suposição de forma.
+
+**`skills_requeridas[]` não existe: confirmado pelo dono do dado.** Sobe de
+"nenhuma fonte encontrada" para confirmação explícita. O achado de pesquisa
+registrado em `predefinicoes.md` fica fechado.
+
+**Candidatos cogitados e preteridos não são registrados: confirmado.**
+Confirma a terceira linha de `verificar_amostra_de_exposicao_aleatoria()`,
+que o bloco II.4 tratava como leitura própria. A ausência de contrafactual
+é fato sobre a Peers, não suposição.
+
+**"Frente" é termo sobrecarregado, e nenhum dos sentidos é "projeto".**
+São ao menos dois conceitos distintos, e a diferença importa:
+
+* **frente interna**: iniciativa da casa, muitas vezes desassociada de
+  projeto, com participação **voluntária**. Uma pessoa pode ser da frente
+  interna de RH enquanto atua em projetos de cliente.
+* **frente ou capability dentro da vertical de Digital**: Data Science,
+  Data Analytics, Tech Strategy, Solutions, Cyber Security, Digital Products
+  & Platforms.
+
+Consequências. A simplificação de `gerar_margem_frente_mes()`, que colapsa
+frente em projeto, fica registrada como **provavelmente incorreta** e não só
+como falta de número: se frente interna é voluntária e desassociada de
+projeto, custo de frente e custo de projeto não são a mesma coisa. E a qual
+dos sentidos `vw_bi_custo_frente_mensal` se refere passa a ser questão
+aberta, porque a resposta muda a interpretação da margem.
+
+**A afinidade entre atributo do consultor e offering do projeto é mecanismo
+real.** "A tendência é que pessoas dessas capabilities sejam alocadas em
+projetos específicos dessas offerings." É âncora para o bloco II.6, e muda o
+estatuto do viés de seleção do bloco II.4: a **magnitude** plantada no
+gerador segue sendo propriedade do código, mas a **existência** de
+pareamento por afinidade deixa de ser suposição e passa a ser confirmada
+pelo dono do processo.
+
+## Segunda consulta ao data owner, bases comerciais (2026-09-20)
+
+Rodada de consultas agregadas sobre `databricks_comercial`, feita a pedido
+depois que o bloco II.5 encontrou margem estrutural implausível. Traz
+**errata da consulta anterior**: três leituras daquela rodada estavam
+erradas e são corrigidas aqui. Nada identificável foi transcrito.
+
+### Errata da consulta de 2026-09-19
+
+| Antes | Agora | Prova |
+|---|---|---|
+| `vw_bi_custo_frente_mensal` seria custo mensal | É a **receita** do PP distribuída por mês e origem | Σ(`peers_total` + `subcontratados_total` + `actar_total`) / `vlr_receita_total` = **1,000 de p10 a p90** em 724 versões de PP |
+| Fator 1,65 seria conflito de escala | É **receita sobre despesa**, `1/(1 − 0,394)` | CRMs com uma versão dão 1,654 e com várias dão 1,629; dupla contagem daria 1,0 contra 2,0 |
+| Truncamento seria prefixo por ID | É **corte cronológico** por data de criação do PP | IDs têm buracos em toda lista, inclusive nas sem teto |
+| Actar e subcontratados seriam repasse de custo | São **componentes de receita** | Decorre da primeira linha |
+
+Uma razão que fica exatamente em 1,000 do décimo ao nonagésimo percentil é
+identidade contábil, não correlação. A leitura de receita está fechada.
+
+### Q1. `Taxa` é preço de venda (confirmado, e agora com prova direta)
+
+Além dos indícios já registrados, a rodada mediu que a receita mensal do PP
+é **0,87 vezes horas planejadas vezes `Taxa`**, com valor implícito por hora
+entre R$255 e R$426. A `Taxa` é o preço pelo qual a receita é apurada, não
+custo. O achado II.5.9 da EDA fica fechado.
+
+O que o 0,87 representa, se desconto comercial ou outra convenção, não foi
+verificado.
+
+### Q2. Custo por cargo existe, e é **salário base por hora**
+
+`silver.bi_tbl_pps_alocacao_custos`, grão sigla de cargo por ano, 26.000
+linhas, 1.137 PPs, 30 siglas, 2023 a 2027. Mediana de 2025 em R$/h:
+
+| Sigla | R$/h | Sigla | R$/h | Sigla | R$/h |
+|---|---|---|---|---|---|
+| INT | 70 | SCT | 248 | SMG | 405 |
+| TR | 119 | TL | 271 | PRI | 474 |
+| AN | 163 | MG | 327 | MD1 | 745 |
+| SAN | 183 | EMG | 334 | MD4 | 1.093 |
+| CT | 218 | | | | |
+
+Razão custo sobre `Taxa` entre 0,40 e 0,72, crescente com a senioridade.
+Reajuste de cerca de 7% ao ano.
+
+**Confirmado pelo usuário em 2026-09-20: é por hora e não inclui encargos, é
+salário base.** Isso importa para o gerador: o campo do dicionário chamado
+`custo_carregado` **não** corresponde a esta coluna. Custo carregado real é
+salário base mais encargos, benefícios, décimo terceiro, férias e FGTS, e o
+multiplicador não está em lugar nenhum das bases consultadas. A calibração
+possível é: base por hora com âncora real, fator de carga como suposição
+declarada.
+
+**Corrupção de ingestão:** ao menos 275 linhas de 2025 com o valor sem o
+ponto decimal (163,2975283 vira 1.632.975.283), afetando AN, CT, INT, MG,
+MD2 entre outras. Média simples fica inutilizável. Usar mediana ou filtrar
+`custo <= 3 * Taxa`.
+
+Custo por pessoa não existe no catálogo comercial. Ficaria em
+`databricks_payroll`, que não foi aberto e não é necessário: por cargo é a
+granularidade que o modelo usa.
+
+### Q3. Zero em `peers_custointerns_vlr` é ausência estrutural de estagiário
+
+44,7% de zeros e 0% de nulos, com `peers_total_vlr = peers_nf_vlr +
+peers_custointerns_vlr` valendo em 100% das linhas. Em 294 pares de PP e mês
+cruzados com horas planejadas, 112 de 112 zeros não têm nenhuma hora de
+estagiário e nenhum zero aparece onde há hora de estagiário.
+
+Como o campo é receita, zero significa mês sem **receita** de estagiário.
+Persistência por PP, em 597 PPs com três ou mais meses ativos: 29% nunca,
+47% sempre, 24% mista.
+
+**Isto derruba o achado II.5.4 da EDA**, que lia os 44,7% como incompletude
+de apontamento de custo e concluía que a margem por frente e mês era
+inutilizável. Não é incompletude, e não é custo.
+
+### Q4. `ID` e `Cód. Colaborador` são a mesma chave
+
+`ID` da view gold é `cod_id_funcionario`. Em `silver.bi_peers_entidades_globais`
+casam 432 de 511 códigos, e nos casados o primeiro nome coincide em 100% e o
+nome completo em 98,1%. A view gold perde cerca de 100 códigos; usar
+`gold.apdata_entidades_globais` eleva a cobertura para cerca de 98%.
+
+Duas ressalvas. As chaves Starsoft não servem para este join, com 18% de
+coincidência, que são colisões. E a cadeia NetSuite faz o oposto:
+`get_funcionarios.custentity_bit_id_externo` casa com `cod_id_starsoft`, não
+com `cod_id_funcionario`.
+
+Fecha a ressalva do bloco II.2, que registrava o join como suposto e nunca
+confirmado.
+
+### Q5. "Frente" em `vw_bi_custo_frente_mensal` é nome enganoso
+
+O grão é **PP por mês**, com `id_pp` igual a `pps.cod_pp`. Nenhuma coluna
+nomeia frente; o nome é herdado do SharePoint. `dsc_frente` só existe do
+lado das pessoas.
+
+**Valida a simplificação do gerador** que colapsa frente em projeto, que a
+rodada anterior tinha levado a marcar como provavelmente incorreta. Está
+correta.
+
+### Q6. Teto de 5.000 linhas: da extração, com corte cronológico
+
+O limite é da extração e não da tabela. Nas 199 versões do histórico Delta
+toda escrita foi sobrescrita com exatamente 5.000 linhas. Tabelas com teto
+aparente: `bi_custo_frente_mensal`, `bi_tbl_pp_despesas_mensais`,
+`bi_tbl_pps_comissao_distribuicao`, `bi_tbl_pps_comissao_parcelas` e
+`bi_tbl_projetos_infos` em 5.000; `bi_gtac_cltv_alocacao` em 4.999. Sem teto:
+`bi_tbl_pps_alocacao_pessoas` com 30.948, `bi_tbl_pps_alocacao_custos` com
+26.000 e `bi_tbl_pps_faturamento_parcelas` com 10.878.
+
+O corte é por data de criação da versão do PP: a cobertura da view mensal cai
+a zero para PPs criados a partir do terceiro trimestre de 2025, e **nenhum
+dos 772 PPs de 2026 tem valor mensal**.
+
+**O viés foi medido, e a conclusão é mista.** Nível de PP não é enviesado:
+receita mediana, semanas, margem líquida e desconto ficam estáveis entre
+coberto e não coberto, em 2024, 2025 e 2026, e a tabela `pps` é completa com
+2.330 linhas. Mas o **mix de offerings muda**: DATA ANALYTICS & AI passa de
+cerca de 3% em 2024 para 10,5% em 2026. Tudo que depende da view mensal, isto
+é, forma da distribuição mensal, participação de estagiários, subcontratados
+e Actar, e meses por PP, representa PPs de 2023 a meados de 2025 e
+subrepresenta a offering que mais cresce.
+
+### Q7. O fator 1,65 é receita sobre despesa
+
+Não é dupla contagem nem diferença de escopo. A soma mensal é a própria
+receita do PP, e a razão contra a despesa sem imposto é `1/(1 − 0,394)`, com
+0,394 sendo a margem mediana antes de imposto.
+
+**Risco real e separado:** 193 de 227 CRMs têm mais de uma versão de PP na
+view, somando 696 versões. Agregar por projeto sem escolher uma versão
+duplica receita. Não era a causa do 1,65, mas vale para qualquer agregação
+por `cod_crm`.
+
+### Q8. Ponte entre frente e offering: existe como afinidade, é fraca em volume
+
+**Não há de-para documentado.** Há quatro taxonomias de offering em
+circulação, com grafias divergentes, e a do PP carrega rótulos legados como
+"DIGITAL" genérico e "IT STRATEGY". O Pilar Digital de
+`gold.comercial_digital_*` é o mais próximo de um de-para informal.
+
+**A offering do PP não é a mesma do CRM.** Em 568 projetos casados, a
+igualdade exata de rótulo é de 24,1%, e sobe a 72,0% depois de normalizar
+seis grafias. O restante são reclassificações reais, não erro de escrita.
+
+**A ponte empírica, ponderada por horas:**
+
+| Frente da pessoa | Offering do PP com maior afinidade | Share das horas | Lift |
+|---|---|---|---|
+| DATA ANALYTICS | DATA ANALYTICS & AI | 15,9% | 9,94 |
+| TECH CONSULTING | TECH CONSULTING | 42,9% | 4,50 |
+| DIGITAL PRODUCTS & PLATFORMS | DIGITAL | 18,2% | 3,27 |
+| DATA SCIENCE | TECH CONSULTING | 16,6% | 1,75 |
+
+Nos dois sentidos, para Data Analytics e Data Science juntas: só **11,6%**
+das horas dessas frentes caem em PPs de DATA ANALYTICS & AI, e das horas de
+PPs dessa offering elas respondem por 21,2% do total.
+
+**Leitura para o bloco II.6.** A tendência que o dono do dado de RH descreveu
+existe, e o lift confirma: quase dez vezes a base para Data Analytics. Mas a
+maior parte das horas de qualquer frente cai nas offerings grandes, E&E e
+Strategy & M&A. O mecanismo é `P(offering | frente)` com massa dispersa, e
+**não** pareamento de um para um. Isso é calibração direta para o viés de
+seleção que o bloco II.4 hoje planta com `prob_vies = 0,7`, que
+provavelmente superestima a concentração.
+
+Ressalvas de cobertura que limitam esses números: apenas cerca de 50% das
+linhas de alocação resolvem frente, 42% das horas não têm chave para o RH, e
+os grupos das frentes Digital têm de 5 a 9 pessoas. Frente é vazia para a
+vertical Consulting, e o valor "NENHUMA" cobre 200 pessoas e 47% das horas.
+
+### Calibração de nível de PP, com âncora real
+
+Da tabela `pps`, completa e sem teto, última versão por CRM, 556 projetos:
+
+| Grandeza | Calibração |
+|---|---|
+| Receita total | lognormal, mu 13,032, sigma 1,177; p10/50/90 = 88k/457k/1,81M |
+| Semanas | lognormal, mu 2,451, sigma 0,973; p10/50/90 = 3,6/11,6/43,6 |
+| Imposto | 7% em 90% dos PPs, 14% nos 10% restantes; média efetiva 8% da receita |
+| Desconto | quantis 8/23/37 em pontos |
+| **Margem líquida** | p05 0,175 · p25 0,272 · **p50 0,320** · p75 0,345 · p95 0,401 |
+| Prejuízo | cerca de **2%** dos PPs |
+| Margem antes de imposto | p25/50/75 = 0,344/0,394/0,432 |
+| Por offering | mediana entre 0,28 e 0,34, sem diferença material; não segmentar |
+
+**Esta é a âncora de margem que faltava.** O bloco II.5 media plausibilidade
+contra julgamento; agora há referência. E o contraste é duro: o sintético
+produz 32,8% de projetos com margem negativa contra 2% reais.
+
+Convenção de sinal a respeitar: em `pps`, `vlr_despesa_total`,
+`vlr_despesa_impostos` e `perc_impostos` são **negativos**, e descontos e
+gestão vêm em pontos percentuais inteiros. A margem é
+`(receita + despesa) / receita` com despesa negativa.
+
+### Calibração mensal, com ressalva de truncamento
+
+Sobre a view truncada, meses com receita positiva, n = 4.205: lognormal com
+mu 11,856 e sigma 1,377; p05/25/50/75/95 = 19k/90k/172k/304k/589k. A
+decomposição dá sigma entre PPs de cerca de 1,32 e intra PP de 0,39.
+
+Forma intra PP, como desvio em log do nível médio do projeto: primeiro mês
+−0,38, segundo +0,19, meio +0,15, último −0,44. Sem sazonalidade de
+calendário. Meses por PP guiados pela duração, com mediana 4, p10 de 1 e p90
+de 12. Semanas no mês derivadas do calendário, não sorteadas.
+
+Componentes de receita: subcontratados com Bernoulli 0,065 e lognormal mu
+10,648 sigma 1,185; Actar com Bernoulli 0,05 e lognormal mu 8,987 sigma
+1,225; em ambos o campo de faturamento iguala o total em 100% das linhas.
+Estagiários entram por persistência de PP, com 29% nunca, 47,2% sempre e
+23,8% mista, e participação lognormal mu −2,263 sigma 0,683.
+
+Linhas totalmente zeradas somam 15,9%, crescendo de 0,5% em 2023 para 27,8%
+em 2025, e são provável artefato de PPs sem par em `pps`.
+
+### Alertas de qualidade que afetam a tese
+
+1. Teto de extração em várias tabelas, com corte cronológico. Elevar o limite
+   depende do responsável pelo job de atualização.
+2. `bi_gtac_cltv_alocacao` com 4.999 linhas: a cobertura de chave da Q4 foi
+   medida em base possivelmente truncada.
+3. Corrupção de ponto decimal em `bi_tbl_pps_alocacao_custos`.
+4. Sinais negativos em `pps` para despesa e imposto.
+5. Nome `vw_bi_custo_frente_mensal` engana: é receita.
+6. Múltiplas versões de PP por CRM na view.
+7. `information_schema` defasado para algumas tabelas; usar `DESCRIBE`.
+8. Grafias divergentes de offering entre PP, CRM e NetSuite.
+9. Frente vazia na vertical Consulting e valor "NENHUMA".
+10. Taxas "Solutions" são cópia das de IT, e há taxas de 2027 que são
+    projeção e não série observada.
+
+### Não verificado nesta rodada
+
+O significado exato de `peers_nf_vlr` e se o fator 0,87 é desconto
+comercial. Se o teto está no conector ou em um `limit` no notebook. Custo por
+pessoa. Cronograma real de receita por mês, já que as parcelas de
+faturamento são emissão e vencimento, não alocação por origem. E o gerador
+proposto pela consulta nunca foi executado, por indisponibilidade de
+ambiente do lado de lá.
+
+**Acrescentado em 2026-10-03, a partir do achado II.6.7.** Quando o `setor`
+do projeto é preenchido: na abertura da oportunidade, na assinatura do
+contrato ou já com o projeto em andamento. O dicionário registra o campo como
+disponível sem dizer quando, e a resposta decide se o filtro de conteúdo serve
+a um alocador prospectivo ou apenas à reavaliação retrospectiva da wave 4.
 
 ## Fechamento da wave 1 (2026-09-16)
 

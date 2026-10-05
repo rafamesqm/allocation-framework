@@ -35,13 +35,15 @@ gerar_consultores <- function(n_consultores = 285, semente = 1) {
 
   prob_viagem_nacional <- 175 / 285
   prob_viagem_internacional <- 185 / 285
-  prob_pj <- 0.316 # calibrado por "Modelo" real, Sexta rodada (ver acima)
+  fracao_clt <- 0.684 # calibrado por "Modelo" real, Sexta rodada (ver acima)
 
   nivel_senioridade <- factor(
     sample(niveis_ordenados, size = n_consultores, replace = TRUE, prob = pesos_nivel),
     levels = niveis_ordenados,
     ordered = TRUE
   )
+
+  tipo_contrato <- gerar_tipo_contrato(nivel_senioridade, fracao_clt)
 
   tempo_casa <- gerar_tempo_casa(nivel_senioridade)
   proporcao_no_nivel_atual <- stats::runif(n_consultores, min = 0.3, max = 1)
@@ -51,7 +53,7 @@ gerar_consultores <- function(n_consultores = 285, semente = 1) {
     nivel_senioridade = nivel_senioridade,
     tempo_casa = tempo_casa,
     tempo_nivel = tempo_casa * proporcao_no_nivel_atual,
-    tipo_contrato = sample(c("CLT", "PJ"), n_consultores, replace = TRUE, prob = c(1 - prob_pj, prob_pj)),
+    tipo_contrato = tipo_contrato,
     localizacao = sample(estados, n_consultores, replace = TRUE, prob = pesos_estado),
     fuso = "America/Sao_Paulo",
     disposicao_viagem_nacional = stats::rbinom(n_consultores, size = 1, prob = prob_viagem_nacional) == 1,

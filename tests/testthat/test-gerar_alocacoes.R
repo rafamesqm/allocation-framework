@@ -5,9 +5,25 @@ test_that("gerar_alocacoes produz as colunas esperadas, sem NA", {
 
   alocacoes <- gerar_alocacoes(consultores, projetos, experiencia, semente = 1)
 
-  expect_named(alocacoes, c("consultor_id", "projeto_id", "papel", "pct_alocacao", "horas_mes"))
+  expect_named(alocacoes, c(
+    "consultor_id", "projeto_id", "papel", "pct_alocacao", "horas_mes",
+    "data_inicio", "duracao_dias", "data_fim"
+  ))
   expect_false(anyNA(alocacoes))
   expect_true(nrow(alocacoes) > 0)
+})
+
+test_that("a janela de cada alocação cabe dentro da janela do seu projeto", {
+  consultores <- gerar_consultores(n_consultores = 150)
+  projetos <- gerar_projetos(n_projetos = 150, data_referencia = as.Date("2026-01-01"))
+  experiencia <- gerar_experiencia_setorial(consultores)
+
+  alocacoes <- gerar_alocacoes(consultores, projetos, experiencia, semente = 6)
+  do_projeto <- match(alocacoes$projeto_id, projetos$projeto_id)
+
+  expect_true(all(alocacoes$data_inicio >= projetos$data_inicio[do_projeto]))
+  expect_true(all(alocacoes$data_fim <= projetos$data_fim[do_projeto]))
+  expect_true(all(alocacoes$duracao_dias >= 1))
 })
 
 test_that("não há par (consultor, projeto) repetido", {

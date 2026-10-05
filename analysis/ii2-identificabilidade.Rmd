@@ -1,0 +1,173 @@
+---
+title: "Bloco II.2 Identificabilidade da fatoração latente"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii2")
+obj <- bloco$objetos
+este <- obj$comparacao_k10[1, ]
+netflix <- obj$comparacao_k10[obj$comparacao_k10$conjunto == "Netflix Prize", ]
+movielens <- obj$comparacao_k10[obj$comparacao_k10$conjunto == "MovieLens 100K", ]
+```
+
+## Propósito do bloco
+
+**Âncora na literatura.** Koren, Bell e Volinsky (2009) consolidam a
+fatoração latente como método de referência para recomendação, sobre o
+Netflix Prize. É contra o porte daquele problema, e dos conjuntos MovieLens
+sobre os quais a literatura foi validada, que o porte deste precisa ser
+lido.
+
+**Propriedade medida.** Quantidade de evidência disponível por parâmetro
+livre, na razão global e no corte por entidade.
+
+**Decisão que discrimina.** Se a fatoração latente é estimável nesta escala.
+É o bloco de maior consequência da Parte II, porque pode eliminar uma
+família inteira antes de qualquer experimento. E o argumento vale igualmente
+para o dado real, cuja escala é a mesma: 285 consultores ativos e 952
+projetos em execução.
+
+## O contorno do problema
+
+Fatoração latente de posto `k` atribui um vetor de `k` números a cada
+consultor e a cada projeto. São, portanto,
+`(285 + 952) × k` parâmetros livres para explicar
+`r formatar_inteiro(obj$k2$observacoes)` alocações observadas.
+
+```{r identificabilidade}
+mostrar_tabela(
+  bloco$tabelas$ii2_identificabilidade,
+  "Tabela II.2.1: evidência disponível por número de fatores.",
+  c("r", "r", "r", "r", "r", "r")
+)
+```
+
+Já com dois fatores há `r formatar_inteiro(obj$k2$parametros)` parâmetros
+para `r formatar_inteiro(obj$k2$observacoes)` observações, ou
+`r formatar_decimal(obj$k2$obs_por_parametro, 2)` observação por parâmetro.
+Com cinco fatores, `r formatar_decimal(obj$k5$obs_por_parametro, 2)`.
+
+## A régua: conjuntos públicos de referência
+
+Um número isolado não diz se é pouco. A comparação é com os conjuntos sobre
+os quais a fatoração latente foi construída e validada.
+
+A tabela traz também a **escala real** da matriz de alocação, e não apenas a
+sintética. Os três números estão documentados em
+`docs/mapeamento_schema.md`: `r formatar_inteiro(obj$real$interacoes)` pares
+distintos entre `r formatar_inteiro(obj$real$usuarios)` colaboradores e
+`r formatar_inteiro(obj$real$itens)` códigos de alocação, levantados no
+último acesso ao Unity Catalog. Isso muda o estatuto da conclusão deste
+bloco: ela deixa de depender de o gerador ter acertado a escala e passa a ser
+calculável direto sobre agregados reais.
+
+```{r comparacao}
+mostrar_tabela(
+  bloco$tabelas$ii2_comparacao_porte,
+  "Tabela II.2.2: porte deste problema contra conjuntos públicos, com dez fatores.",
+  c("l", "r", "r", "r", "r", "r")
+)
+```
+
+```{r figura-evidencia, fig.width = 7.5, fig.height = 4.5}
+bloco$figuras$ii2_evidencia
+```
+
+Com dez fatores, este problema tem
+`r formatar_decimal(este$obs_por_parametro, 2)` observação por parâmetro,
+contra `r formatar_decimal(movielens$obs_por_parametro, 1)` do MovieLens
+100K e `r formatar_decimal(netflix$obs_por_parametro, 1)` do Netflix Prize.
+São `r formatar_decimal(obj$razao_movielens, 0)` e
+`r formatar_decimal(obj$razao_netflix, 0)` vezes menos evidência,
+respectivamente.
+
+A escala real dá `r formatar_decimal(obj$real$obs_por_parametro, 3)` contra
+`r formatar_decimal(obj$este$obs_por_parametro, 3)` do sintético, uma
+diferença de `r formatar_pct(obj$desvio_real)`. As duas coincidem porque o
+que a razão mede é a proporção entre pares observados e soma das dimensões,
+e o gerador foi calibrado justamente sobre a densidade real. **A conclusão
+deste bloco, portanto, não é sobre o sintético.** A figura desenha a curva
+real pelo mesmo motivo: plotar as duas daria duas linhas sobrepostas, que o
+leitor leria como defeito de renderização em vez de concordância.
+
+A ressalva da chave, que este bloco carregava desde que foi escrito, **está
+resolvida e a favor**. O join que produziu os
+`r formatar_inteiro(obj$real$interacoes)` pares supunha que `ID` em entidades
+e `Cód. Colaborador` em alocação fossem a mesma chave, sem confirmação. A
+segunda consulta comercial confirmou que são: `ID` é `cod_id_funcionario`, e
+entre os códigos casados o nome completo coincide em 98,1%. A cobertura chega
+a cerca de 98% usando `gold.apdata_entidades_globais`, e 6% das linhas de
+alocação seguem sem casar.
+
+Resta uma ressalva diferente, de extração e não de chave: a tabela de
+alocação tem 4.999 linhas, e a mesma consulta mostrou que várias tabelas do
+fluxo param em números redondos por teto. Os pares podem vir de base
+truncada. Para comparar ordem de grandeza isso não morde, e o truncamento
+encurta a base, o que só reforçaria a conclusão de esparsidade.
+
+O MovieLens 100K merece atenção especial nessa comparação: é o **menor**
+conjunto de uso corrente na literatura, frequentemente criticado por ser
+pequeno demais para conclusões robustas. Ainda assim tem uma ordem de
+grandeza mais de evidência por parâmetro que este problema.
+
+## O corte por entidade, que é mais severo
+
+A razão global é uma média, e média esconde o que importa aqui. O vetor
+latente de um consultor é estimado a partir das interações **dele**, não das
+do conjunto. Consultor com menos interações que fatores tem vetor que os
+dados simplesmente não determinam, por melhor que seja a razão agregada.
+
+```{r figura-subdeterminacao, fig.width = 7, fig.height = 4.5}
+bloco$figuras$ii2_subdeterminacao
+```
+
+Já em dois fatores,
+`r formatar_pct(obj$k2$fracao_projetos_subdeterminados)` dos projetos e
+`r formatar_pct(obj$k2$fracao_consultores_subdeterminados)` dos consultores
+estão nessa situação. Em cinco fatores, os projetos sem evidência chegam a
+`r formatar_pct(obj$k5$fracao_projetos_subdeterminados)`.
+
+Mesmo em **um único fator**, `r formatar_pct(obj$k1$fracao_projetos_subdeterminados)`
+dos projetos já não têm interação nenhuma, o que é o cold start medido na
+Parte I reaparecendo aqui com outra consequência.
+
+Vale distinguir o que nisso é característica do problema e o que é do
+gerador. A esparsidade extrema do lado do projeto, com boa parte deles tendo
+uma única pessoa alocada, é característica do domínio: projeto de
+consultoria com equipe pequena é a norma, e o dado real tem grau médio de
+2,51 pessoas por código de alocação. O lado do projeto é estruturalmente
+hostil a representação latente, e isso não é artefato.
+
+## O que a regularização faz, e o que não faz
+
+Uma objeção previsível é que a regularização resolve a subdeterminação. Ela
+resolve a **unicidade** da solução, não a falta de evidência. O que a
+regularização faz é encolher a estimativa em direção ao valor a priori, e no
+limite em que a entidade não tem dados próprios, a predição tende aos termos
+de viés do modelo.
+
+E os termos de viés são, em essência, popularidade.
+
+É aqui que este bloco encontra o anterior. O bloco II.1 mediu que recomendar
+apenas por popularidade acerta 24,6% com lista de 20. Este bloco mostra que,
+para a maioria das entidades, uma fatoração latente suficientemente
+regularizada para ser estimável entrega aproximadamente aquilo.
+
+**A família não é descartada por não funcionar. Ela é descartada porque, nesta
+escala, ou não é identificável, ou degenera na linha de base que precisava
+superar.**
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

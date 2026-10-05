@@ -1,210 +1,91 @@
 consultor_id,certificacao
-consultor_0002,Scrum Master
-consultor_0005,ITIL
 consultor_0006,Scrum Master
-consultor_0006,SAFe
-consultor_0008,Scrum Master
-consultor_0008,Six Sigma
-consultor_0012,Prince2
-consultor_0012,ITIL
+consultor_0010,ITIL
+consultor_0013,Scrum Master
+consultor_0013,SAFe
+consultor_0016,Scrum Master
 consultor_0016,Six Sigma
-consultor_0016,Prince2
-consultor_0016,AWS Certified
-consultor_0017,Scrum Master
-consultor_0019,Six Sigma
-consultor_0027,Scrum Master
-consultor_0028,SAFe
-consultor_0028,Six Sigma
-consultor_0034,Six Sigma
-consultor_0034,Scrum Master
-consultor_0036,ITIL
-consultor_0040,SAFe
+consultor_0026,Prince2
+consultor_0026,ITIL
+consultor_0035,Six Sigma
+consultor_0035,Prince2
+consultor_0035,AWS Certified
+consultor_0037,Scrum Master
 consultor_0040,Six Sigma
-consultor_0041,PMP
-consultor_0041,AWS Certified
-consultor_0041,Scrum Master
-consultor_0048,AWS Certified
-consultor_0048,Scrum Master
-consultor_0051,Six Sigma
-consultor_0052,PMP
-consultor_0052,Prince2
-consultor_0054,ITIL
-consultor_0054,SAFe
-consultor_0057,AWS Certified
-consultor_0061,ITIL
-consultor_0061,SAFe
-consultor_0063,SAFe
-consultor_0063,Prince2
-consultor_0071,ITIL
-consultor_0071,Scrum Master
-consultor_0071,Six Sigma
-consultor_0073,Scrum Master
-consultor_0073,Six Sigma
-consultor_0076,PMP
-consultor_0076,Prince2
-consultor_0077,AWS Certified
-consultor_0077,Prince2
-consultor_0078,PMP
-consultor_0078,Prince2
-consultor_0080,Prince2
-consultor_0081,AWS Certified
-consultor_0083,ITIL
-consultor_0085,Scrum Master
-consultor_0085,ITIL
-consultor_0085,SAFe
-consultor_0091,PMP
-consultor_0096,Scrum Master
-consultor_0096,AWS Certified
-consultor_0096,PMP
-consultor_0098,SAFe
-consultor_0098,Scrum Master
-consultor_0098,Six Sigma
-consultor_0099,Scrum Master
-consultor_0102,ITIL
-consultor_0102,SAFe
-consultor_0105,PMP
-consultor_0105,Prince2
-consultor_0108,PMP
-consultor_0108,ITIL
-consultor_0109,AWS Certified
-consultor_0109,Scrum Master
-consultor_0112,Six Sigma
-consultor_0113,Six Sigma
-consultor_0113,Prince2
-consultor_0115,Scrum Master
-consultor_0115,Prince2
-consultor_0116,SAFe
-consultor_0116,Prince2
-consultor_0116,PMP
-consultor_0119,PMP
-consultor_0119,ITIL
-consultor_0123,Prince2
-consultor_0128,ITIL
-consultor_0130,ITIL
+consultor_0068,Scrum Master
+consultor_0069,SAFe
+consultor_0069,Six Sigma
+consultor_0088,Six Sigma
+consultor_0088,Scrum Master
+consultor_0090,ITIL
+consultor_0099,SAFe
+consultor_0099,Six Sigma
+consultor_0100,PMP
+consultor_0100,AWS Certified
+consultor_0100,Scrum Master
+consultor_0116,AWS Certified
+consultor_0116,Scrum Master
+consultor_0124,Six Sigma
+consultor_0125,PMP
+consultor_0125,Prince2
+consultor_0127,ITIL
+consultor_0127,SAFe
 consultor_0130,AWS Certified
-consultor_0132,Six Sigma
-consultor_0132,AWS Certified
-consultor_0132,PMP
-consultor_0136,Scrum Master
-consultor_0136,ITIL
-consultor_0136,PMP
-consultor_0137,SAFe
-consultor_0143,PMP
-consultor_0146,AWS Certified
-consultor_0148,AWS Certified
-consultor_0148,ITIL
-consultor_0151,Six Sigma
-consultor_0151,Prince2
-consultor_0151,AWS Certified
-consultor_0153,PMP
-consultor_0154,SAFe
-consultor_0154,Six Sigma
-consultor_0154,Scrum Master
-consultor_0156,AWS Certified
-consultor_0156,Prince2
-consultor_0156,SAFe
-consultor_0159,Six Sigma
-consultor_0159,PMP
-consultor_0159,AWS Certified
-consultor_0160,PMP
-consultor_0161,Prince2
-consultor_0164,AWS Certified
-consultor_0164,SAFe
-consultor_0165,Prince2
-consultor_0165,ITIL
+consultor_0138,ITIL
+consultor_0138,SAFe
+consultor_0141,SAFe
+consultor_0141,Prince2
+consultor_0158,ITIL
+consultor_0158,Scrum Master
+consultor_0158,Six Sigma
+consultor_0161,Scrum Master
+consultor_0161,Six Sigma
 consultor_0165,PMP
-consultor_0168,Six Sigma
-consultor_0168,PMP
-consultor_0168,SAFe
-consultor_0169,AWS Certified
-consultor_0170,Six Sigma
-consultor_0170,AWS Certified
-consultor_0170,SAFe
-consultor_0172,SAFe
-consultor_0172,Six Sigma
-consultor_0172,PMP
-consultor_0173,SAFe
-consultor_0174,Six Sigma
-consultor_0176,Scrum Master
-consultor_0176,Prince2
+consultor_0165,Prince2
+consultor_0168,AWS Certified
+consultor_0168,Prince2
+consultor_0169,PMP
+consultor_0169,Prince2
+consultor_0172,Prince2
+consultor_0175,AWS Certified
+consultor_0180,ITIL
+consultor_0182,Scrum Master
+consultor_0182,ITIL
 consultor_0182,SAFe
-consultor_0182,AWS Certified
-consultor_0185,AWS Certified
-consultor_0185,Prince2
-consultor_0185,ITIL
-consultor_0186,Prince2
-consultor_0186,AWS Certified
-consultor_0187,PMP
-consultor_0191,SAFe
-consultor_0191,Scrum Master
-consultor_0198,AWS Certified
-consultor_0203,SAFe
-consultor_0203,Scrum Master
-consultor_0206,PMP
-consultor_0206,ITIL
-consultor_0206,SAFe
-consultor_0209,Scrum Master
-consultor_0209,PMP
-consultor_0213,ITIL
-consultor_0213,Prince2
-consultor_0215,Six Sigma
-consultor_0215,Prince2
-consultor_0217,Six Sigma
-consultor_0220,Prince2
-consultor_0220,SAFe
-consultor_0221,SAFe
-consultor_0221,Prince2
+consultor_0190,PMP
+consultor_0202,Scrum Master
+consultor_0202,AWS Certified
+consultor_0202,PMP
+consultor_0204,SAFe
+consultor_0204,Scrum Master
+consultor_0204,Six Sigma
+consultor_0205,Scrum Master
+consultor_0217,ITIL
+consultor_0217,SAFe
 consultor_0221,PMP
-consultor_0225,Six Sigma
-consultor_0225,ITIL
-consultor_0225,AWS Certified
+consultor_0221,Prince2
+consultor_0230,PMP
 consultor_0230,ITIL
-consultor_0233,Prince2
-consultor_0233,SAFe
-consultor_0233,Six Sigma
-consultor_0234,ITIL
-consultor_0234,Prince2
-consultor_0235,AWS Certified
-consultor_0235,ITIL
-consultor_0235,Six Sigma
-consultor_0236,SAFe
-consultor_0236,ITIL
-consultor_0237,ITIL
-consultor_0237,AWS Certified
-consultor_0237,PMP
-consultor_0238,AWS Certified
-consultor_0238,Six Sigma
-consultor_0239,AWS Certified
-consultor_0239,SAFe
-consultor_0239,ITIL
-consultor_0245,SAFe
-consultor_0245,ITIL
-consultor_0245,AWS Certified
-consultor_0247,Six Sigma
-consultor_0247,ITIL
-consultor_0248,Six Sigma
+consultor_0232,AWS Certified
+consultor_0232,Scrum Master
+consultor_0239,Six Sigma
+consultor_0241,Six Sigma
+consultor_0241,Prince2
+consultor_0245,Scrum Master
+consultor_0245,Prince2
+consultor_0248,SAFe
 consultor_0248,Prince2
-consultor_0250,Scrum Master
-consultor_0251,Prince2
-consultor_0251,ITIL
-consultor_0252,SAFe
-consultor_0256,Six Sigma
-consultor_0258,Six Sigma
-consultor_0259,Scrum Master
-consultor_0259,Six Sigma
-consultor_0259,PMP
-consultor_0264,SAFe
-consultor_0264,Prince2
-consultor_0266,PMP
-consultor_0266,AWS Certified
-consultor_0273,PMP
-consultor_0279,Six Sigma
-consultor_0279,AWS Certified
-consultor_0279,Scrum Master
-consultor_0281,AWS Certified
+consultor_0248,PMP
+consultor_0254,PMP
+consultor_0254,ITIL
+consultor_0259,Prince2
+consultor_0268,ITIL
+consultor_0272,ITIL
+consultor_0272,AWS Certified
+consultor_0275,Six Sigma
+consultor_0275,AWS Certified
+consultor_0275,PMP
+consultor_0281,Scrum Master
+consultor_0281,ITIL
 consultor_0281,PMP
-consultor_0282,Prince2
-consultor_0282,Scrum Master
-consultor_0283,ITIL
-consultor_0283,PMP
-consultor_0283,Prince2
+consultor_0282,SAFe

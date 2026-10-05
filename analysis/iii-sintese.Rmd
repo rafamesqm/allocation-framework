@@ -1,0 +1,296 @@
+---
+title: "Parte III Síntese do capítulo"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_iii")
+obj <- bloco$objetos
+r <- obj$resumo
+```
+
+## Propósito
+
+**Propriedade medida.** Quais achados do capítulo sustentam peso, que decisão
+cada um habilita, que limitação cada um impõe, e de onde vem o apoio de cada
+decisão.
+
+**Decisão que discrimina.** Nenhuma nova. Esta parte não conclui nada que os
+blocos não tenham concluído: ela consolida, ordena e torna auditável. Achado
+novo aqui seria decisão tomada sem bloco que a sustente.
+
+**Por que a síntese é derivada e não redigida.** Cada bloco declara a decisão
+que habilita e a limitação que impõe ao lado do código que produziu o número.
+Esta parte só empilha. Transcrever catorze documentos à mão sairia de
+sincronia na primeira revisão de texto, e o leitor não teria como saber qual
+versão está velha.
+
+## O que a EDA eliminou, e o que deixou em aberto
+
+Vale ler a cadeia antes das tabelas, porque é ela que dá sentido a elas. Cada
+elo fecha uma porta, e as portas fechadas não são preferência de quem
+escreveu. O que sobra aberto no fim é dito no fim, e não escondido.
+
+O bloco **II.1** mede esparsidade abaixo de um por cento e conclui que
+vizinhança não tem sobreposição para estimar similaridade. O **II.2** mostra
+que a alternativa, fatoração latente, tem menos de uma observação por
+parâmetro, e que onde a regularização a torna estimável ela degenera em
+popularidade. **Os dois juntos derrubam o colaborativo como componente
+principal**, e não sobra terceira família de método de interação.
+
+O peso teria de ir para o conteúdo, e o **II.3** mostra que o conteúdo cobre
+menos gente que o colaborativo: 48,4% contra 83,2%. O enquadramento usual do
+cold start se inverte. Das cinco formas de híbrido de Burke (2002) sobra uma,
+**a chaveada**. A zona morta, de quem não tem nem histórico nem atributo, não
+é ordenável por componente nenhum, nem pela popularidade, que é zero para
+quem nunca foi alocado: entra no conjunto candidato por regra de exposição
+declarada fora do modelo.
+
+O **II.6** pergunta quanto de sinal o conteúdo carrega e responde que o
+one-hot separa mas não ordena, por ter dois valores distintos. **O conteúdo
+filtra e não ordena**, e a ordenação tem de vir de outro lugar. E separa
+menos do que parecia: a vantagem do one-hot sobre a popularidade não se
+sustenta entre realizações, então ele entra como filtro pelo que é, binário e
+apoiado em afinidade real, e não por ganhar da linha de base.
+
+O **II.4** fecha a saída de corrigir o viés de seleção: sem amostra de
+exposição aleatória, a propensão não é falsificável. **A wave 3 declara o
+viés em vez de corrigi-lo.** O **II.7** herda isso e mais duas restrições, e
+descobre que nenhuma forma de divisão serve aos dois componentes: separar
+pessoas para não vazar atributo é exatamente criar cold start. **Dois
+protocolos, um por componente**, e dois níveis de avaliação: o acerto contra as
+alocações mede aderência à prática, e só a relação com o desempenho, que o
+**II.5** pôs na célula de `R`, mede qualidade.
+
+O **II.8** conta o que sobrou de insumo para o otimizador: dois de oito com
+escala utilizável. **A wave 4 é exercício retrospectivo, não alocador
+prospectivo**, e o filtro de setor, aplicado a quem o declarou como o
+chaveado manda, não basta para torná-la tratável.
+
+Nenhum desses elos foi escolhido. Cada um é o que restou depois de o anterior
+eliminar as alternativas.
+
+**O que a cadeia não determina é o que ordena dentro do filtro.** Para quem
+tem histórico, o que resta é a popularidade: a fatoração degenera nela, e o
+projeto novo nunca foi visto. Para quem não tem, a popularidade é zero, e o
+único sinal restante é o perfil de skills, que o II.6 mostrou não ser
+avaliável. Por isso `ŝ`, a afinidade que liga a recomendação ao otimizador,
+não está determinado pela EDA. É a pergunta que a wave 3 responde, e um
+resultado possível, que a monografia precisa estar pronta para relatar, é o
+híbrido degenerar em popularidade filtrada por setor. Não seria fracasso do
+método: seria a medida de quanto sinal estes dados carregam (achado III.4).
+
+## As decisões
+
+```{r decisoes}
+mostrar_tabela(
+  bloco$tabelas$iii_decisoes,
+  "Tabela III.1: as decisões do capítulo, com a ressalva e a proveniência de cada uma.",
+  c("l", "l", "l", "l")
+)
+```
+
+São `r r$n_decisoes` decisões, vindas de `r obj$blocos_com_decisao` dos
+catorze blocos. **Os oito blocos da Parte II decidem, e dois dos seis da
+Parte I também**, que é a divisão esperada: a parte não direcionada descreve,
+e as duas exceções dela são decisões de preparo, não de modelagem, uma sobre
+quais colunas entram na matriz de atributos e outra sobre a janela temporal
+da análise.
+
+## As limitações
+
+```{r limitacoes}
+mostrar_tabela(
+  bloco$tabelas$iii_limitacoes,
+  "Tabela III.2: as limitações que o capítulo impõe ao que se pode concluir.",
+  c("l", "l", "l")
+)
+```
+
+Dos `r r$n_achados` achados, `r nrow(obj$sintese)` carregam decisão ou
+limitação e apenas `r obj$so_caracterizam` não carregam nenhuma das duas. O
+filtro quase não filtra, e é isso que ele informa: os dois que sobram são a
+verificação de conformidade ao dicionário e o guarda de regressão da massa
+nos limites das faixas, ambos precondições e não conclusões.
+
+## De onde vem o apoio de cada decisão
+
+Esta seção existe por uma pergunta concreta: se o modelo que a wave 4 pode
+prometer é menor do que a ambição das pré-definições, **isso é limitação do
+dado real da Peers ou defeito da sintetização feita neste projeto?**
+
+A pergunta é legítima e a resposta não pode ser retórica. Por isso cada
+decisão declara a proveniência do que a apoia, num eixo separado da etiqueta
+epistêmica.
+
+```{r proveniencia-figura, fig.width = 7.5, fig.height = 4.5}
+bloco$figuras$iii_proveniencia
+```
+
+```{r proveniencia-tabela}
+mostrar_tabela(
+  bloco$tabelas$iii_proveniencia,
+  "Tabela III.3: proveniência das decisões e das limitações.",
+  c("l", "r", "r")
+)
+```
+
+Das `r r$n_decisoes` decisões, `r r$fato_real` se apoiam em agregado
+documentado da Peers ou em confirmação do dono do dado, `r r$estrutural` em
+propriedade matemática ou definicional que vale em qualquer conjunto, e
+`r r$depende_do_gerador` dependem do gerador.
+
+**As quatro exclusões que tornam a wave 4 menor são todas de proveniência
+real**, e é o ponto que a pergunta pedia: sem demanda futura não há alocação
+prospectiva, porque `pipeline_demandas` traz identificador e estágio e nada
+mais; sem margem dimensionada o objetivo econômico entra como direção,
+porque seis agregados reais discordam por 1,45 vezes; sem pirâmide não há
+restrição de composição, porque a regra não está em tabela nenhuma; e sem
+skills requeridas a aderência é grossa, porque o dono do dado confirmou que o
+processo não existe na Peers. Nenhuma delas mudaria se o gerador fosse outro.
+
+### As quatro que dependem do gerador
+
+```{r dependentes}
+mostrar_tabela(
+  bloco$tabelas$iii_dependentes,
+  "Tabela III.4: as decisões que cairiam se o gerador fosse outro.",
+  c("l", "l", "l")
+)
+```
+
+Ficam declaradas, e não escondidas. **A de maior consequência é a do achado
+II.5.2**, que autoriza o rótulo escalar: a unidimensionalidade dos
+catorze itens é imposta pelo gerador, que os faz compartilhar uma qualidade
+latente, e a consulta ao dono do dado negou o acesso à base de avaliação até
+em forma agregada. Se o formulário real não for unidimensional, a média dos
+itens não é a escala certa, e não há como saber daqui.
+
+As outras três são de segunda ordem. Descartar uma coluna constante da matriz
+de atributos é verificação a repetir, não compromisso de modelagem. A janela
+de análise contém uma cauda que a log-normal estica além do que a fonte
+comporta. E o patamar da linha de base tem forma transferível e valor
+sintético: no dado real ele precisa ser recomputado sob o mesmo protocolo
+antes de servir de critério.
+
+**Nenhuma das quatro é a forma do híbrido, o mecanismo de `P`, o protocolo de
+avaliação ou o alcance do otimizador.**
+
+### Por que os dois eixos são separados
+
+```{r cruzamento}
+mostrar_tabela(
+  bloco$tabelas$iii_cruzamento,
+  "Tabela III.5: etiqueta epistêmica contra proveniência.",
+  c("l", "r", "r", "r")
+)
+```
+
+A etiqueta diz sobre o que **o número** fala. A proveniência diz se **a
+decisão** sobrevive fora deste conjunto. A célula que explica o capítulo é a
+de `instrumento` com `fato real`, com `r obj$instrumento_com_fato_real`
+achados: o valor está no diagnóstico ter sido construído, e a decisão que ele
+habilita se apoia em fato da empresa.
+
+Confundir os dois eixos levaria a descartar o capítulo inteiro por ele rodar
+sobre sintético, ou a aceitá-lo inteiro por ele citar âncoras reais. Nenhuma
+das duas leituras é correta, e é a separação que permite dizer qual parte é
+qual.
+
+Há uma linha da tabela que merece atenção por não ser degenerada: existe
+achado de etiqueta `âncora real` com proveniência `depende do gerador`. É o
+caso da dependência entre senioridade e tipo de contrato, em que a âncora
+real determina a base da pirâmide e a magnitude acima dela é do código.
+
+## O que a wave 3 herda
+
+* **Forma do híbrido**: chaveada, com critério no quadrante observado de ter
+  histórico e ter respondido o formulário (II.3.3).
+* **Papel de cada componente**: o conteúdo filtra o conjunto candidato por
+  one-hot de setor e não ordena (II.6.2, II.6.6); o colaborativo não é o
+  componente principal (II.2.4); a zona morta não é recomendável pelo modelo
+  e entra por regra de exposição declarada fora dele (II.3.2).
+* **O que fica em aberto**: o que ordena dentro do filtro, e portanto `ŝ`.
+  Para quem tem histórico sobra a popularidade; para quem não tem, só o
+  perfil de skills, que não pôde ser avaliado (III.4).
+* **Rótulo**: desempenho pelo candidato (a), padronizado dentro de cada
+  avaliador, com a etapa declarada (II.5.1, II.5.5, II.5.7).
+* **Protocolo**: dois, um por componente, com divisão por consultor para o
+  conteúdo e temporal para o colaborativo (II.7.2, II.7.4).
+* **Métrica e piso**: acerto em lista, com o piso de cada componente ao lado
+  em toda comparação: popularidade no treino para o colaborativo (II.7.3) e
+  filtro de setor com acaso para o conteúdo, porque sob divisão por consultor a
+  popularidade é zero (II.7.5).
+* **Critério de sucesso**: para o conteúdo, o teste pareado de McNemar a 5%
+  contra o filtro com acaso, fixado como teste e não como número (II.7.7). O
+  colaborativo não é validável e entra de forma descritiva (II.7.6).
+* **Dois níveis de avaliação**: o acerto contra as alocações mede aderência à
+  prática atual; entre os pares com rótulo, a relação de `ŝ` com o desempenho
+  padronizado por avaliador mede qualidade. O critério acima é de primeiro
+  nível (II.7.8).
+* **Enunciado**: a conclusão vale sobre a população observada, com o viés
+  declarado (II.4.5), e supõe o setor do projeto conhecido no momento da
+  alocação, premissa que o esquema real não permite verificar (II.6.7).
+
+## O que a wave 4 herda
+
+* **Formulação**: trio de consultor, projeto e mês, porque o par não expressa
+  capacidade, com o filtro de setor aplicado só a quem o declarou (II.8.1).
+  O filtro não torna o problema tratável, e a tratabilidade é a primeira
+  pergunta da wave 4.
+* **Objetivos**: custo como magnitude dimensionada, a partir de salário base
+  por cargo com fator de carga declarado (II.5.9); margem como direção e não
+  como magnitude (II.5.10); afinidade `ŝ`, produzida pela wave 3, como
+  coeficiente do objetivo de desempenho, com o rótulo de `R` servindo para
+  treiná-la e avaliá-la (II.5.5, II.8.4).
+* **Restrições**: férias sem ambiguidade de escala; capacidade **não** como
+  limite duro, com a escolha entre penalidade, limite calibrado e
+  infactibilidade como diagnóstico ainda aberta (II.8.2).
+* **Alcance**: exercício retrospectivo e multiobjetivo parcial, não alocador
+  prospectivo (II.8.4).
+
+## As limitações que a monografia declara
+
+Consolidadas, e separadas pela única distinção que muda o que se pode fazer a
+respeito.
+
+**Permanentes, porque são do dado real.** O acesso à base de avaliação de
+desempenho está negado até em forma agregada, então distribuição e cobertura
+do rótulo são suposição (II.5.6). Não existe processo que registre requisito
+de skill de projeto, então a aderência é filtro grosso de categoria (II.6.6,
+II.8.3). `pipeline_demandas` não alimenta o otimizador (II.8.3). As âncoras
+econômicas se sobredeterminam e o acesso que decidiria qual relaxar encerrou
+(II.5.10). Não há amostra de exposição aleatória, então a propensão não é
+falsificável (II.4.4). O conteúdo alcança 48,4% dos consultores (I.1.3,
+II.3.1). Quem nunca foi alocado não é ordenável por nada (II.3.2). Nada ordena
+dentro do filtro com sinal avaliado (III.4).
+
+**Do instrumento, e removíveis se o acesso voltar.** As `r r$depende_do_gerador`
+decisões da Tabela III.4, com destaque para a unidimensionalidade do rótulo.
+As magnitudes de viés, de concentração e de violação de capacidade, que são
+do gerador e não da empresa (II.4.1, II.8.2, I.2.4). A ausência de
+assortatividade por senioridade, que é premissa do código (I.5.3).
+
+A diferença importa: a primeira lista define o que a monografia não pode
+prometer, a segunda o que ela não pôde verificar.
+
+## Achados desta parte
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```
+
+## A tabela integral
+
+A Tabela III.1 e a Tabela III.2 partem a síntese para ser legível. A versão
+integral, com decisão e limitação na mesma linha, está em
+`outputs/tables/iii_sintese.csv`, e é a que o roadmap especifica como
+entregável desta parte.

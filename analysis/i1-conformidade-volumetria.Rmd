@@ -1,0 +1,171 @@
+---
+title: "Bloco I.1 Conformidade e volumetria"
+subtitle: "EDA não direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("analysis", "_comum.R"))
+
+bloco <- ler_bloco("bloco_i1")
+obj <- bloco$objetos
+```
+
+## Propósito do bloco
+
+Primeiro bloco da frente não direcionada. Antes de descrever qualquer
+distribuição é preciso estabelecer o que existe, com que granularidade, e se
+o dado honra o contrato de esquema que o resto do trabalho assume. Um erro
+aqui não aparece como erro adiante, aparece como resultado plausível e
+errado: chave que se repete infla contagem, chave órfã some no join e fecha
+a conta a menos.
+
+O contrato está em `docs/dicionario_de_dados.md`, em prosa, e transcrito em
+forma verificável por `especificacao_tabelas()`, com
+`r nrow(obj$especificacao)` colunas declaradas em
+`r dplyr::n_distinct(obj$especificacao$tabela)` tabelas. É essa transcrição
+que permite conferir conformidade em vez de afirmá-la.
+
+## Inventário e granularidade
+
+```{r inventario}
+mostrar_tabela(
+  bloco$tabelas$i1_inventario,
+  "Tabela I.1.1: porte e granularidade das tabelas versionadas.",
+  c("l", "r", "r", "l", "c")
+)
+```
+
+A coluna que carrega conteúdo analítico não é a contagem de linhas, é a
+última: ela confronta a granularidade declarada no contrato com a que o dado
+de fato tem. Chave declarada que se repete significaria que a tabela não é o
+que o dicionário diz que é.
+
+As três maiores tabelas concentram o volume por razões distintas, e vale
+separá-las. `avaliacoes_desempenho` tem
+`r formatar_inteiro(obj$inventario$linhas[obj$inventario$tabela == "avaliacoes_desempenho"])`
+linhas porque a granularidade real da avaliação é item por etapa, não
+avaliação por alocação: são 14 itens em 3 etapas para cada alocação
+avaliada. `ocupacao_consultor` e `receita_projeto_mes` são grandes porque
+expandem entidade por mês de vigência, que é a granularidade que a Camada 3
+exige para sustentar a restrição de capacidade.
+
+## Conformidade ao contrato
+
+```{r conformidade}
+if (nrow(obj$divergencias) == 0) {
+  cat("Nenhuma divergência entre o contrato e o dado carregado.\n")
+} else {
+  mostrar_tabela(
+    bloco$tabelas$i1_divergencias_contrato,
+    "Tabela I.1.2: divergências entre contrato e fonte."
+  )
+}
+```
+
+A verificação cobre quatro formas de divergência: tabela declarada e não
+encontrada, coluna declarada e ausente, coluna presente e não declarada, e
+coluna com tipo diferente do contratado. Coluna extra conta como divergência
+de pleno direito: campo que ninguém declarou é campo que ninguém decidiu, e
+que acabaria virando insumo de modelo sem ter passado por decisão alguma.
+
+## Integridade referencial
+
+```{r integridade}
+mostrar_tabela(
+  bloco$tabelas$i1_integridade_referencial,
+  "Tabela I.1.3: chaves estrangeiras e contagem de órfãos.",
+  c("l", "l", "l", "r", "r")
+)
+```
+
+São `r nrow(obj$integridade)` referências declaradas, com
+`r sum(obj$integridade$orfaos)` chaves órfãs. Integridade completa aqui não é
+mérito da modelagem e não deve ser lida como tal: o gerador constrói as
+tabelas satélite a partir das entidades, então órfão só apareceria por
+defeito de código. O valor da verificação é ser uma salvaguarda que roda a
+cada execução da pipeline, não uma descoberta sobre os dados.
+
+## Cobertura, no lugar de completude
+
+Análise de dados faltantes é vácua neste conjunto: o gerador preenche o que
+gera, e um mapa de completude cheio de zeros daria aparência de rigor sem
+dizer nada sobre o problema. O que de fato falta aqui não é célula, é linha.
+O consultor que não tem nenhuma skill registrada não tem uma célula vazia
+num formulário, ele simplesmente não existe na tabela de skills.
+
+Essa é a forma de ausência que o modelo vai enfrentar, é ela que produz cold
+start, e uma delas é calibrada contra a realidade.
+
+```{r cobertura-tabela}
+mostrar_tabela(
+  bloco$tabelas$i1_cobertura_entidades,
+  "Tabela I.1.4: cobertura das tabelas satélite sobre as entidades.",
+  c("l", "l", "r", "r", "r", "r")
+)
+```
+
+```{r cobertura-figura, fig.width = 7.5, fig.height = 5.5}
+bloco$figuras$i1_cobertura_entidades
+```
+
+```{r cobertura-numeros}
+pega <- function(tab, col) {
+  linha <- obj$cobertura[obj$cobertura$tabela == tab & obj$cobertura$coluna == col, ]
+  list(cobertura = linha$cobertura, sem = linha$sem_registro, total = linha$total)
+}
+skills <- pega("skills_consultor", "consultor_id")
+aloc_consultor <- pega("alocacoes", "consultor_id")
+aloc_projeto <- pega("alocacoes", "projeto_id")
+```
+
+Três leituras, com status epistêmico diferente entre si.
+
+A cobertura de skills, `r formatar_pct(skills$cobertura)`, tem âncora
+empírica: reproduz a medida real de 48,4% dos consultores ativos com ao
+menos uma resposta de formulário, levantada por interseção de hashes no
+último acesso ao ambiente.
+
+O ponto que importa, porém, não é o de skills isoladamente. Os
+`r length(obj$sinais_de_formulario)` sinais que a fonte real deriva da mesma
+campanha de formulários
+(`r paste(obj$sinais_de_formulario, collapse = ", ")`) cobrem exatamente as
+mesmas pessoas, e o achado I.1.5 registra a verificação. Quem não respondeu
+não tem nenhum deles, e por isso **mais da metade dos consultores não tem
+atributo de conteúdo algum derivado de formulário**, e não apenas uma lacuna
+em skills que outro sinal preencheria. É um bloco único de pessoas, o que
+limita o content-based antes de qualquer decisão de algoritmo e decide a
+forma do híbrido no bloco II.3.
+
+A cobertura de alocação, `r formatar_pct(aloc_consultor$cobertura)` do lado
+do consultor e `r formatar_pct(aloc_projeto$cobertura)` do lado do projeto,
+é consequência direta da fração de cold start parametrizada no gerador,
+calibrada em 17% contra o dado real, com a ressalva de cobertura de join já
+registrada em `docs/mapeamento_schema.md`. A caracterização propriamente
+dita fica para o bloco II.3.
+
+As tabelas com cobertura total são, em geral, consequência do gerador e não
+observação: ele produz uma linha por entidade por construção, e no dado real
+não há razão para esperar cobertura integral. Tratar qualquer uma delas como
+universal seria erro de leitura, e foi exatamente esse erro que a primeira
+versão do bloco II.3 cometeu, ao concluir sobre a arquitetura do híbrido
+apoiada em coberturas integrais que este achado já classificava como
+artefato.
+
+A exceção é `idiomas_consultor`. A fonte é
+`vw_apdata_bi_entidades_globais`, base corporativa que não tem nulo entre os
+285 ativos, então ali a cobertura integral é âncora real. É o único sinal de
+conteúdo do lado do consultor sobre o qual se pode afirmar cobertura
+universal no dado real, e o bloco II.3 mostra que ele é também o que menos
+discrimina.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

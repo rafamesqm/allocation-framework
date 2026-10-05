@@ -1,0 +1,20 @@
+Tabela,Linhas,Colunas,Chave declarada,Chave única
+avaliacoes_desempenho,50.946,8,"consultor_id, projeto_id, item, etapa",sim
+receita_projeto_mes,5.107,7,"projeto_id, ano_mes",sim
+ocupacao_consultor,5.050,5,"consultor_id, ano_mes",sim
+pipeline_demandas,4.302,2,oportunidade_id,sim
+grafo_coalocacao,4.231,3,"consultor_a, consultor_b",sim
+skills_consultor,3.128,4,"consultor_id, skill_id",sim
+alocacoes,2.426,8,"consultor_id, projeto_id",sim
+soft_skills_consultor,1.242,3,"consultor_id, competencia",sim
+margem_estrutural,952,4,projeto_id,sim
+projetos,952,8,projeto_id,sim
+idiomas_consultor,536,3,"consultor_id, idioma",sim
+consultores,285,9,consultor_id,sim
+custo_carregado,285,3,consultor_id,sim
+ferias_consultor,285,3,consultor_id,sim
+experiencia_setorial,266,3,"consultor_id, segmento",sim
+espaco_skills,140,3,skill_id,sim
+expertise_funcional,138,2,consultor_id,sim
+certificacoes_consultor,90,2,"consultor_id, certificacao",sim
+validacao_utilidade,11,5,medida,sim

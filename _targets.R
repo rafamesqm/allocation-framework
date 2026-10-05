@@ -28,8 +28,8 @@ parametros <- list(
   fracao_com_avaliacao = 0.5,
   dias_ferias = 30,
   ano_ferias = 2026,
-  n_frentes_mes = 5000, # escala real, ver mapeamento_schema.md
-  n_oportunidades = 4302 # soma do censo real por situação, idem
+  n_oportunidades = 4302, # soma do censo real por situação, ver mapeamento_schema.md
+  n_replicas_estabilidade = 100 # realizações para o intervalo de Monte Carlo do bloco I.0
 )
 
 list(
@@ -42,30 +42,57 @@ list(
   )),
   tar_target(consultores_arquivo, salvar_synthetic(consultores, "consultores"), format = "file"),
 
-  tar_target(skills_consultor, gerar_skills_consultor(consultores, espaco_skills)),
+  # Os sinais de conteúdo derivados de formulário compartilham um único
+  # conjunto de respondentes, porque na fonte real vêm da mesma campanha de
+  # três planilhas (docs/mapeamento_schema.md). Quem não respondeu não tem
+  # nenhum deles. Ver sortear_respondentes_formulario() para a consequência
+  # estrutural de sortear cobertura por sinal, que é o que se fazia antes.
+  #
+  # `idiomas_consultor` fica de fora da restrição de propósito: sua fonte é
+  # `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os 285
+  # ativos, e não o formulário. É o único sinal de conteúdo genuinamente
+  # universal, e tratá-lo como os demais apagaria a única cobertura completa
+  # que os dados reais oferecem.
+  tar_target(respondentes_formulario, sortear_respondentes_formulario(consultores)),
+
+  tar_target(skills_consultor, gerar_skills_consultor(
+    consultores, espaco_skills, respondentes = respondentes_formulario
+  )),
   tar_target(skills_consultor_arquivo, salvar_synthetic(skills_consultor, "skills_consultor"), format = "file"),
 
+  # Latente: a experiência setorial existe tenha ou não sido declarada, e é a
+  # ela que `gerar_alocacoes()` responde. Só a parte observada é salva.
   tar_target(experiencia_setorial, gerar_experiencia_setorial(consultores)),
-  tar_target(experiencia_setorial_arquivo, salvar_synthetic(experiencia_setorial, "experiencia_setorial"), format = "file"),
+  tar_target(experiencia_setorial_observada, restringir_a_respondentes(
+    experiencia_setorial, respondentes_formulario
+  )),
+  tar_target(experiencia_setorial_arquivo, salvar_synthetic(
+    experiencia_setorial_observada, "experiencia_setorial"
+  ), format = "file"),
 
   tar_target(expertise_funcional_arquivo, salvar_synthetic(
-    gerar_expertise_funcional(consultores), "expertise_funcional"
+    restringir_a_respondentes(
+      gerar_expertise_funcional(consultores), respondentes_formulario
+    ), "expertise_funcional"
   ), format = "file"),
   tar_target(idiomas_consultor_arquivo, salvar_synthetic(
     gerar_idiomas_consultor(consultores), "idiomas_consultor"
   ), format = "file"),
   tar_target(certificacoes_consultor_arquivo, salvar_synthetic(
-    gerar_certificacoes_consultor(consultores), "certificacoes_consultor"
+    gerar_certificacoes_consultor(
+      consultores, respondentes = respondentes_formulario
+    ), "certificacoes_consultor"
   ), format = "file"),
   tar_target(soft_skills_consultor_arquivo, salvar_synthetic(
-    gerar_soft_skills_consultor(consultores), "soft_skills_consultor"
+    restringir_a_respondentes(
+      gerar_soft_skills_consultor(consultores), respondentes_formulario
+    ), "soft_skills_consultor"
   ), format = "file"),
 
   tar_target(projetos, gerar_projetos(
     n_projetos = parametros$n_projetos, semente = parametros$semente,
     data_referencia = parametros$data_referencia
   )),
-  tar_target(projetos_arquivo, salvar_synthetic(projetos, "projetos"), format = "file"),
 
   # Camada 2: Interações --------------------------------------------------
   tar_target(alocacoes, gerar_alocacoes(
@@ -77,10 +104,18 @@ list(
   )),
   tar_target(alocacoes_arquivo, salvar_synthetic(alocacoes, "alocacoes"), format = "file"),
 
+  # Acopla contrato e esforço estimado ao esforço de fato alocado. Roda
+  # depois da alocação porque é dela que sai o esforço, e não há ciclo:
+  # `gerar_alocacoes()` usa do projeto só setor e janela de datas. Ver
+  # `acoplar_projetos_ao_esforco()` para o defeito de Camada 3 que motivou.
+  tar_target(projetos_acoplados, acoplar_projetos_ao_esforco(projetos, alocacoes)),
+  tar_target(projetos_arquivo, salvar_synthetic(projetos_acoplados, "projetos"), format = "file"),
+
   tar_target(avaliacoes_desempenho_arquivo, salvar_synthetic(
     gerar_avaliacoes_desempenho(
       alocacoes,
       fracao_com_avaliacao = parametros$fracao_com_avaliacao,
+      consultores = consultores,
       semente = parametros$semente
     ),
     "avaliacoes_desempenho"
@@ -101,12 +136,12 @@ list(
     ),
     "ferias_consultor"
   ), format = "file"),
-  tar_target(margem_frente_mes_arquivo, salvar_synthetic(
-    gerar_margem_frente_mes(parametros$n_frentes_mes, semente = parametros$semente),
-    "margem_frente_mes"
+  tar_target(receita_projeto_mes_arquivo, salvar_synthetic(
+    gerar_receita_projeto_mes(projetos_acoplados, semente = parametros$semente),
+    "receita_projeto_mes"
   ), format = "file"),
   tar_target(margem_estrutural_arquivo, salvar_synthetic(
-    gerar_margem_estrutural(alocacoes, custo_carregado, projetos), "margem_estrutural"
+    gerar_margem_estrutural(alocacoes, custo_carregado, projetos_acoplados), "margem_estrutural"
   ), format = "file"),
   tar_target(pipeline_demandas_arquivo, salvar_synthetic(
     gerar_pipeline_demandas(parametros$n_oportunidades, semente = parametros$semente),
@@ -121,5 +156,167 @@ list(
   # Validação -------------------------------------------------------------
   tar_target(validacao_utilidade_arquivo, salvar_synthetic(
     validar_utilidade_sintetico(semente = parametros$semente), "validacao_utilidade"
-  ), format = "file")
+  ), format = "file"),
+
+  # EDA, wave 2 -------------------------------------------------------------
+  # Os blocos leem do disco, e não dos alvos em memória acima, de propósito:
+  # é exatamente o que o auditor faz, e é o que garante que a análise rode
+  # sobre os CSV versionados e não sobre um estado intermediário da sessão.
+  # A dependência dos arquivos é declarada para o targets saber invalidar os
+  # blocos quando o gerador mudar.
+  tar_target(dados_eda, {
+    c(
+      alocacoes_arquivo, consultores_arquivo, projetos_arquivo,
+      custo_carregado_arquivo, espaco_skills_arquivo, skills_consultor_arquivo,
+      experiencia_setorial_arquivo, expertise_funcional_arquivo,
+      idiomas_consultor_arquivo, certificacoes_consultor_arquivo,
+      soft_skills_consultor_arquivo, avaliacoes_desempenho_arquivo,
+      ocupacao_consultor_arquivo, ferias_consultor_arquivo,
+      receita_projeto_mes_arquivo, margem_estrutural_arquivo,
+      pipeline_demandas_arquivo, grafo_coalocacao_arquivo,
+      validacao_utilidade_arquivo
+    )
+    carregar_dados()
+  }),
+
+  # Estabilidade de Monte Carlo: repete a geração inteira sobre várias
+  # sementes, para os blocos poderem reportar intervalo em vez de ponto. Não
+  # lê de dados_eda de propósito, porque precisa variar a semente e o dado
+  # versionado é de uma semente só.
+  tar_target(replicas_estabilidade, simular_estabilidade(
+    sementes = seq_len(parametros$n_replicas_estabilidade),
+    n_consultores = parametros$n_consultores,
+    n_projetos = parametros$n_projetos,
+    data_referencia = parametros$data_referencia
+  )),
+  # As grandezas do conjunto versionado, pela mesma função que mede as
+  # réplicas. É o que permite ao bloco I.0 dizer se ele é um sorteio típico.
+  tar_target(grandezas_versionadas, medir_grandezas(dados_eda)),
+  tar_target(bloco_i0, executar_i0(replicas_estabilidade, versionado = grandezas_versionadas)),
+  tar_target(bloco_i0_tabelas, salvar_tabelas_bloco(bloco_i0$tabelas), format = "file"),
+  tar_target(bloco_i0_figuras, salvar_figuras_bloco(
+    bloco_i0$figuras, list(i0_estabilidade = c(17, 14), i0_tipicidade = c(17, 9))
+  ), format = "file"),
+  tar_target(bloco_i0_achados, salvar_tabela(bloco_i0$achados, "achados_i0"), format = "file"),
+  tar_target(estabilidade, bloco_i0$objetos$estabilidade),
+
+  tar_target(bloco_i1, executar_i1(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_i1_tabelas, salvar_tabelas_bloco(bloco_i1$tabelas), format = "file"),
+  tar_target(bloco_i1_figuras, salvar_figuras_bloco(
+    bloco_i1$figuras, list(i1_cobertura_entidades = c(18, 13))
+  ), format = "file"),
+  tar_target(bloco_i1_achados, salvar_tabela(bloco_i1$achados, "achados_i1"), format = "file"),
+
+  tar_target(bloco_i2, executar_i2(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_i2_tabelas, salvar_tabelas_bloco(bloco_i2$tabelas), format = "file"),
+  tar_target(bloco_i2_figuras, salvar_figuras_bloco(
+    bloco_i2$figuras,
+    list(i2_piramide_senioridade = c(16, 9), i2_projetos_distribuicoes = c(18, 8))
+  ), format = "file"),
+  tar_target(bloco_i2_achados, salvar_tabela(bloco_i2$achados, "achados_i2"), format = "file"),
+
+  tar_target(bloco_i3, executar_i3(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_i3_tabelas, salvar_tabelas_bloco(bloco_i3$tabelas), format = "file"),
+  tar_target(bloco_i3_figuras, salvar_figuras_bloco(
+    bloco_i3$figuras, list(i3_associacoes_procedencia = c(17, 16))
+  ), format = "file"),
+  tar_target(bloco_i3_achados, salvar_tabela(bloco_i3$achados, "achados_i3"), format = "file"),
+
+  tar_target(bloco_i4, executar_i4(dados_eda, data_referencia = parametros$data_referencia)),
+  tar_target(bloco_i4_tabelas, salvar_tabelas_bloco(bloco_i4$tabelas), format = "file"),
+  tar_target(bloco_i4_figuras, salvar_figuras_bloco(
+    bloco_i4$figuras,
+    list(
+      i4_serie_mensal = c(18, 10), i4_sazonalidade = c(17, 9),
+      i4_ocupacao_mensal = c(18, 9)
+    )
+  ), format = "file"),
+  tar_target(bloco_i4_achados, salvar_tabela(bloco_i4$achados, "achados_i4"), format = "file"),
+
+  tar_target(bloco_i5, executar_i5(dados_eda, semente = parametros$semente)),
+  tar_target(bloco_i5_tabelas, salvar_tabelas_bloco(bloco_i5$tabelas), format = "file"),
+  tar_target(bloco_i5_figuras, salvar_figuras_bloco(
+    bloco_i5$figuras,
+    list(i5_distribuicao_grau = c(17, 9), i5_tamanho_time = c(17, 9))
+  ), format = "file"),
+  tar_target(bloco_i5_achados, salvar_tabela(bloco_i5$achados, "achados_i5"), format = "file"),
+
+  # Parte II, direcionada ---------------------------------------------------
+  tar_target(bloco_ii1, executar_ii1(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii1_tabelas, salvar_tabelas_bloco(bloco_ii1$tabelas), format = "file"),
+  tar_target(bloco_ii1_figuras, salvar_figuras_bloco(
+    bloco_ii1$figuras, list(ii1_lorenz = c(16, 10), ii1_linha_base = c(16, 10))
+  ), format = "file"),
+  tar_target(bloco_ii1_achados, salvar_tabela(bloco_ii1$achados, "achados_ii1"), format = "file"),
+
+  tar_target(bloco_ii2, executar_ii2(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii2_tabelas, salvar_tabelas_bloco(bloco_ii2$tabelas), format = "file"),
+  tar_target(bloco_ii2_figuras, salvar_figuras_bloco(
+    bloco_ii2$figuras, list(ii2_evidencia = c(17, 10), ii2_subdeterminacao = c(16, 9))
+  ), format = "file"),
+  tar_target(bloco_ii2_achados, salvar_tabela(bloco_ii2$achados, "achados_ii2"), format = "file"),
+
+  tar_target(bloco_ii3, executar_ii3(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii3_tabelas, salvar_tabelas_bloco(bloco_ii3$tabelas), format = "file"),
+  tar_target(bloco_ii3_figuras, salvar_figuras_bloco(
+    bloco_ii3$figuras, list(ii3_cobertura_sinais = c(17, 11))
+  ), format = "file"),
+  tar_target(bloco_ii3_achados, salvar_tabela(bloco_ii3$achados, "achados_ii3"), format = "file"),
+
+  tar_target(bloco_ii4, executar_ii4(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii4_tabelas, salvar_tabelas_bloco(bloco_ii4$tabelas), format = "file"),
+  tar_target(bloco_ii4_figuras, salvar_figuras_bloco(
+    bloco_ii4$figuras,
+    list(
+      ii4_distribuicao_propensao = c(17, 10),
+      ii4_cegueira_propensao = c(19, 10)
+    )
+  ), format = "file"),
+  tar_target(bloco_ii4_achados, salvar_tabela(bloco_ii4$achados, "achados_ii4"), format = "file"),
+
+  tar_target(bloco_ii5, executar_ii5(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii5_tabelas, salvar_tabelas_bloco(bloco_ii5$tabelas), format = "file"),
+  tar_target(bloco_ii5_figuras, salvar_figuras_bloco(
+    bloco_ii5$figuras,
+    list(
+      ii5_divergencia_etapas = c(17, 8),
+      ii5_dimensionalidade_itens = c(17, 9)
+    )
+  ), format = "file"),
+  tar_target(bloco_ii5_achados, salvar_tabela(bloco_ii5$achados, "achados_ii5"), format = "file"),
+
+  tar_target(bloco_ii6, executar_ii6(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii6_tabelas, salvar_tabelas_bloco(bloco_ii6$tabelas), format = "file"),
+  tar_target(bloco_ii6_figuras, salvar_figuras_bloco(
+    bloco_ii6$figuras, list(ii6_decomposicao_auc = c(19, 9))
+  ), format = "file"),
+  tar_target(bloco_ii6_achados, salvar_tabela(bloco_ii6$achados, "achados_ii6"), format = "file"),
+
+  tar_target(bloco_ii7, executar_ii7(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii7_tabelas, salvar_tabelas_bloco(bloco_ii7$tabelas), format = "file"),
+  tar_target(bloco_ii7_figuras, salvar_figuras_bloco(
+    bloco_ii7$figuras, list(ii7_avaliabilidade = c(19, 9))
+  ), format = "file"),
+  tar_target(bloco_ii7_achados, salvar_tabela(bloco_ii7$achados, "achados_ii7"), format = "file"),
+
+  tar_target(bloco_ii8, executar_ii8(dados_eda, estabilidade = estabilidade)),
+  tar_target(bloco_ii8_tabelas, salvar_tabelas_bloco(bloco_ii8$tabelas), format = "file"),
+  tar_target(bloco_ii8_figuras, salvar_figuras_bloco(
+    bloco_ii8$figuras, list(ii8_insumos = c(19, 9))
+  ), format = "file"),
+  tar_target(bloco_ii8_achados, salvar_tabela(bloco_ii8$achados, "achados_ii8"), format = "file"),
+
+  # Parte III, síntese. Não recalcula nada: consome os achados que cada bloco
+  # declarou, o que faz a tabela de síntese ser derivada e não transcrita.
+  tar_target(bloco_iii, executar_iii(list(
+    bloco_i0$achados, bloco_i1$achados, bloco_i2$achados, bloco_i3$achados,
+    bloco_i4$achados, bloco_i5$achados, bloco_ii1$achados, bloco_ii2$achados,
+    bloco_ii3$achados, bloco_ii4$achados, bloco_ii5$achados, bloco_ii6$achados,
+    bloco_ii7$achados, bloco_ii8$achados
+  ))),
+  tar_target(bloco_iii_tabelas, salvar_tabelas_bloco(bloco_iii$tabelas), format = "file"),
+  tar_target(bloco_iii_figuras, salvar_figuras_bloco(
+    bloco_iii$figuras, list(iii_proveniencia = c(19, 10))
+  ), format = "file"),
+  tar_target(bloco_iii_achados, salvar_tabela(bloco_iii$achados, "achados_iii"), format = "file")
 )

@@ -50,7 +50,7 @@ Catalog e nunca é persistido em disco.
 | Wave | Conteúdo | Estado |
 |------|----------|--------|
 | 1 | Setup e sintetizador (ETL) | Concluído |
-| 2 | EDA | Em andamento |
+| 2 | EDA | Concluído |
 | 3 | Scoring híbrido (content-based + colaborativo) | A seguir |
 | 4 | Otimização multiobjetivo com restrições (ILP, ε-constraint / AUGMECON2) | A seguir |
 | 5 | Explicabilidade (SHAP / XAI) | Opcional |

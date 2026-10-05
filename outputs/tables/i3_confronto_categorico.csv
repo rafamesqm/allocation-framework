@@ -1,0 +1,4 @@
+Par,Procedência,V de Cramér,Alvo real,Atenção,Mecanismo
+nivel_senioridade x tipo_contrato,induzida,"0,291",n/a,,nível de base amarrado a CLT pela coincidência ESTAGIARIO igual a N4; marginal calibrada acima dela
+setor x tipo_projeto,livre,"0,015",n/a,,Segmento e Offering sorteados de forma independente no gerador
+nivel_senioridade x localizacao,livre,"0,000",n/a,,sorteios independentes

@@ -1,0 +1,14 @@
+Variável,Estatística,Real,Sintético,Dif. relativa,Rodada
+duracao_dias,maximo,"1.184,00","2.368,00","+100,0%",Sexta
+duracao_dias,mediana,"81,00","78,00","-3,7%",Segunda consulta
+duracao_dias,p25,"42,00","41,75","-0,6%",Segunda consulta
+duracao_dias,p75,"156,00","158,25","+1,4%",Segunda consulta
+esforco_estimado,assimetria,"-0,05","0,12","-339,0%",Segunda
+esforco_estimado,desvio,"66,90","64,37","-3,8%",Segunda
+esforco_estimado,mediana,"120,00","120,42","+0,4%",Segunda
+esforco_estimado,p25,"32,00","75,71","+136,6%",Segunda
+esforco_estimado,p75,"160,00","162,71","+1,7%",Segunda
+valor_contrato,fracao_zero,"0,15","0,16","+5,8%",Segunda consulta
+valor_contrato,mediana_pos,"457.000,00","456.726,38","-0,1%",Segunda consulta
+valor_contrato,p25_pos,"190.000,00","190.327,68","+0,2%",Segunda consulta
+valor_contrato,p75_pos,"1.100.000,00","1.193.226,10","+8,5%",Segunda consulta

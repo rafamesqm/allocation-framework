@@ -35,6 +35,12 @@ data/processed/
 # =========================================================
 #  Saídas que podem conter dados identificáveis
 # =========================================================
+# Tabelas da monografia saem em CSV e seriam pegas pelo `*.csv` global lá de
+# cima, contra a intenção desta seção. A exceção vem antes das regras de
+# `_raw` de propósito: em .gitignore a última regra que casa é a que vale,
+# então `_raw` continua excluído mesmo estando o CSV reincluído aqui.
+!outputs/tables/*.csv
+
 outputs/figures/*_raw*
 outputs/tables/*_raw*
 # Figuras/tabelas anonimizadas destinadas à monografia PODEM ser versionadas.

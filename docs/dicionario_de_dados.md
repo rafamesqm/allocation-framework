@@ -89,10 +89,15 @@ real capturado (`Indústria` de `vw_gtac_com_clientes`, cotada inicialmente,
 foi descartada por estar quase inteiramente nula; `Segmento`, de
 `vw_crm_oportunidades_latest`, é o substituto validado). A monografia deve
 registrar essa ausência como achado de
-pesquisa, não maquiar como se fosse dado observado. O mecanismo exato de
-estimação (ex.: perfil médio de skills de quem já atuou em projetos do mesmo
-setor/offering versus one-hot direto das categorias) é decisão de wave 3,
-calibrada pela EDA, não travada aqui.
+pesquisa, não maquiar como se fosse dado observado.
+
+**Decidido na EDA (achado II.6.6), e não na wave 3 como este parágrafo
+previa:** `P` é o one-hot do setor, usado como filtro do conjunto candidato e
+aplicado só a quem declarou setor (II.8.1). O perfil médio de skills foi
+rejeitado por não ser avaliável, e não por ter ido mal: no real não existe
+registro que ligue skill de pessoa a requisito de projeto. O one-hot é binário,
+filtra e não ordena, e a vantagem dele sobre a popularidade não se sustenta
+entre realizações; o que ordena dentro do filtro ficou em aberto (III.4).
 
 ### Entidade: Espaço de Skills → `S`
 | Campo | Tipo | Granularidade | Papel no modelo | Disponibilidade |
@@ -114,12 +119,23 @@ Alimenta o colaborativo e constrói os rótulos. É o coração do sinal.
 |-------|------|---------------|-----------------|-----------------|
 | `(consultor_id, projeto_id)` | chave de relação | alocação | célula de `R` | disponível |
 | `papel` · `pct_alocacao` · `horas` | categórico + numérico | alocação | peso da interação | disponível |
+| `data_inicio` · `data_fim` · `duracao_dias` | data / numérico | alocação | janela de vigência da interação, base de `k` e do decaimento temporal | disponível |
 | `avaliacao_desempenho` | ordinal (3 níveis, por competência) | alocação · competência · etapa | rótulo explícito | disponível |
-| `avaliador_id` | categórico (papel: individual, gestor às cegas, gestor final) | alocação · etapa | debiasing de rater | parcial |
+| `avaliador_id` | categórico: identidade do gestor, mais o papel (individual, gestor às cegas, gestor final) | alocação · etapa | debiasing de rater | confirmado |
 | `margem_atribuida` | numérico (R$ / %) | frente · mês (não alocação) | ponderação econômica | parcial |
 | `flag_restaffing` · `solicitacao_nominal` | booleano | alocação | feedback implícito | aspiracional |
 
-### Construção do rótulo (questão de modelagem aberta)
+### Construção do rótulo (decidida na EDA, achado II.5.5)
+
+**Decisão:** a célula de `R` é o desempenho pelo candidato (a), padronizado
+dentro de cada avaliador e com a etapa declarada (II.5.1, II.5.7). A margem sai
+de `R` e entra como objetivo separado do otimizador pelo candidato (d),
+calculada de custo carregado por horas contra valor de contrato, como direção
+e não como magnitude, porque as âncoras econômicas se sobredeterminam
+(II.5.10). O candidato (b) caiu porque a margem não é atribuível a uma
+alocação (II.5.3); o (c), porque não existe custo mensal, e a fonte que
+parecia tê-lo é receita (II.5.4). O texto abaixo é o registro de antes da EDA.
+
 O valor de cada célula de `R` combina desempenho e margem, que são sinais distintos.
 Candidatos, a decidir pela EDA (distribuição, correlação, cobertura): (a) só desempenho
 normalizado por avaliador; (b) média ponderada ou produto desempenho × margem; (c) margem
@@ -129,6 +145,9 @@ calculada estruturalmente em `f` a partir de `custo_carregado` × horas versus
 
 Achado que pesa sobre essa decisão: o usuário confirmou que a granularidade
 por frente e mês é a única que existe para margem, não uma limitação de busca.
+(Correção posterior, consulta Q5 em `mapeamento_schema.md`: o grão é projeto e
+mês, e "frente" é nome herdado do SharePoint. A conclusão, de que não há
+margem por alocação, não muda.)
 Não há `margem_atribuida` por alocação individual em lugar nenhum da Peers.
 Atribuir margem a um indivíduo dentro de um time exigiria alguma regra de
 rateio (ex.: proporcional a `pct_alocacao`/`horas`), que seria estimativa, não
@@ -142,12 +161,22 @@ decidido, só registrado como evidência para a EDA.
 `R` passa a depender inteiramente de `avaliacao_desempenho`, sem nenhum sinal
 de reserva. Hoje isso trava a validação empírica do colaborativo sobre dado
 real (funciona no sintético, porque parte da estrutura; não funciona no real
-sem acesso à base de avaliações). Reforça que o acesso ao banco de desempenho
-é a alavanca de maior retorno do projeto agora, mesmo não sendo pré-requisito
-para começar a trabalhar sobre o sintético.
+sem acesso à base de avaliações).
 
-**Caminho intermediário para o colaborativo sobre dado real, enquanto o
-acesso a desempenho não vem:** um colaborativo de *implicit feedback* sobre a
+**Resolvido em 2026-09-19, e não a favor: o acesso está negado.** Este
+documento registrava o acesso ao banco de desempenho como a alavanca de maior
+retorno do projeto. A consulta ao dono do dado de RH negou até estatísticas
+agregadas sem dado individual (ver `mapeamento_schema.md`). A alavanca está
+fechada, e o caminho descrito abaixo deixa de ser intermediário: é o único
+que existe para dado real.
+
+A mesma consulta, porém, trouxe **estrutura** sobre a avaliação, que é o que
+o gerador podia aproveitar: ela é por projeto, tem gestor identificado, e a
+distribuição de nota tende a variar por senioridade além da rubrica. As três
+coisas foram incorporadas ao gerador.
+
+**Caminho único para o colaborativo sobre dado real, agora que o acesso a
+desempenho está negado:** um colaborativo de *implicit feedback* sobre a
 própria ocorrência da alocação (quem foi alocado a quê, com ou sem peso por
 `pct_alocacao`/`horas`) funciona sem precisar de `avaliacao_desempenho`.
 Ressalva importante: isso não contorna o viés de seleção já registrado em
@@ -201,7 +230,7 @@ Alimenta o otimizador multiobjetivo.
 | Campo | Tipo | Granularidade | Objeto | Papel | Disponibilidade |
 |-------|------|---------------|--------|-------|-----------------|
 | `custo_carregado` | numérico (R$/h) | pessoa · período | `c` | margem + restrição orçam. | disponível |
-| `calendario_alocacao` · `pct_ocupacao` | série temporal | pessoa · período | `k` | restrição de capacidade | parcial |
+| `calendario_alocacao` · `pct_ocupacao` | série temporal | pessoa · mês | `k` | restrição de capacidade | parcial |
 | `ferias` · `capacidade_periodo` | data / numérico | pessoa · período | `k` | limite de alocação | parcial |
 | `conflito_interesse` | matriz pessoa × cliente | par | `A` | restrição dura | aspiracional |
 | `preferencias_dominio` | vetor / ranking | consultor | `f` | objetivo de satisfação | parcial |
@@ -211,8 +240,16 @@ Alimenta o otimizador multiobjetivo.
 ### Score de afinidade `ŝ` e entrada em `f`
 O recomendador (content-based mais colaborativo) produz `ŝ[i,j]` em [0,1]. `ŝ`
 entra em `f` como o coeficiente de aderência da alocação (i, j), ao lado da
-margem. A forma da combinação (switching, weighted, feature augmentation) é
-calibrada pela EDA.
+margem.
+
+**Calibrado pela EDA:** a forma da combinação é a chaveada, pelo quadrante de
+ter histórico e ter respondido o formulário (II.3.3); a ponderada e a cascata
+caíram. O conteúdo filtra e não ordena (II.6.2), e o colaborativo não é o
+componente principal (II.2.4). O que ordena dentro do filtro, e portanto o
+valor de `ŝ`, **não ficou determinado** (III.4): para quem tem histórico sobra a
+popularidade, e para quem não tem, só o perfil de skills, que não pôde ser
+avaliado. A avaliação de `ŝ` tem dois níveis, aderência à prática e relação
+com o desempenho (II.7.8).
 
 ---
 
@@ -239,6 +276,28 @@ O sintético deve emular não só o esquema, mas as características que estress
 * Temporalidade: datas de alocação, férias, decaimento de recência de skill.
 Parametrize o gerador (`n_consultores`, `n_projetos`, `densidade`, `fracao_cold_start`,
 `semente`) para reprodutibilidade.
+
+### Revisão de esquema (2026-09-13), na abertura da wave 2
+
+Três lacunas do gerador foram corrigidas antes de começar a EDA, todas
+pela regra 7 do `CLAUDE.md`: o campo existe na fonte real e faltava no
+sintético, então o sintético estava incompleto.
+
+* **Janela de datas por alocação.** `alocacoes` não tinha `data_inicio` /
+  `data_fim`, embora `vw_gtac_cltv_alocacao` tenha as duas e a
+  temporalidade já estivesse na lista de expectativas acima. Sem elas o
+  vetor `k` não é construível: a soma de `pct_alocacao` por consultor não
+  tem denominador, e o histórico inteiro aparenta superalocação.
+  Calibração pela Sexta rodada (`mapeamento_schema.md`).
+* **`pct_ocupacao` passa a ser série por pessoa e mês**, com mês parcial
+  ponderado pelos dias cobertos, que é a granularidade que a Camada 3
+  sempre exigiu. Antes era um total agregado por consultor.
+* **Margem por frente-mês ganha chave.** A tabela trazia só receita,
+  custo e margem, sem identificador, o que tornava o candidato (c) da
+  construção do rótulo impossível de confrontar com `R`. Passa a ser
+  projeto e mês. A frente está colapsada em projeto, simplificação
+  documentada: quantas frentes um projeto tem nunca foi agregado
+  enquanto havia acesso.
 
 Pedido do orientador (2026-09-01): o gerador precisa reproduzir dispersão,
 assimetria e correlação entre variáveis, não só a média de cada campo

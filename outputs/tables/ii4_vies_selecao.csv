@@ -1,0 +1,4 @@
+Cenário,Taxa de mesmo setor,Razão sobre o acaso,Origem
+Pareamento ao acaso,"10,0%","1,00",Referência analítica
+Previsto pela propensão por popularidade,"13,5%","1,35",Previsto pelo modelo
+Observado no histórico,"60,2%","6,02",Medido no dado
