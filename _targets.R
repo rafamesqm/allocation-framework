@@ -195,7 +195,12 @@ list(
   tar_target(bloco_i0, executar_i0(replicas_estabilidade, versionado = grandezas_versionadas)),
   tar_target(bloco_i0_tabelas, salvar_tabelas_bloco(bloco_i0$tabelas), format = "file"),
   tar_target(bloco_i0_figuras, salvar_figuras_bloco(
-    bloco_i0$figuras, list(i0_estabilidade = c(17, 14), i0_tipicidade = c(17, 9))
+    bloco_i0$figuras, list(
+      i0_estabilidade = c(17, altura_da_figura_estabilidade(
+        sum(bloco_i0$objetos$classificado$classe != "diferença")
+      )),
+      i0_tipicidade = c(17, 9)
+    )
   ), format = "file"),
   tar_target(bloco_i0_achados, salvar_tabela(bloco_i0$achados, "achados_i0"), format = "file"),
   tar_target(estabilidade, bloco_i0$objetos$estabilidade),

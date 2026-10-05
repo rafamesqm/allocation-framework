@@ -63,7 +63,7 @@ existe para evitar.
 
 ## Estabilidade das grandezas
 
-```{r figura, fig.width = 7.5, fig.height = 6}
+```{r figura, fig.width = 7.5, fig.height = altura_da_figura_estabilidade(sum(bloco$objetos$classificado$classe != "diferença")) / 2.54}
 bloco$figuras$i0_estabilidade
 ```
 
