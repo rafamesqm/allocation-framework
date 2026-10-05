@@ -49,8 +49,12 @@ test_that("a fracao candidata sai das marginais e bate com a contagem direta", {
 
   filtro <- medir_reducao_pelo_filtro(consultores, projetos, experiencia)
 
-  # c1 casa com p1, c2 casa com p2, c3 nao casa com nada: 2 de 6 pares.
-  expect_equal(filtro$fracao_candidatos, 2 / 6)
+  # c1 casa com p1 e c2 com p2. c3 nao declarou setor e por isso nao e
+  # filtrado: passa nos dois projetos, como o hibrido chaveado manda. Sao 4 de
+  # 6 pares. A versao anterior excluia c3 e contava 2 de 6.
+  expect_equal(filtro$fracao_candidatos, 4 / 6)
+  expect_equal(filtro$fracao_casamento, 2 / 4)
+  expect_equal(filtro$fracao_excluindo_sem_setor, 2 / 6)
   expect_equal(filtro$consultores_sem_setor, 1 / 3)
 })
 

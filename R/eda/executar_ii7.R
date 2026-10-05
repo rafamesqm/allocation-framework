@@ -100,6 +100,12 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
   poder_conteudo <- poder_de("Conteúdo", "Filtro de setor e acaso")
   acaso_no_conteudo <- poder_de("Conteúdo", "Acaso")
 
+  # O alvo de avaliação, achado II.7.8. O acerto em lista não usa o rótulo de
+  # desempenho que o bloco II.5 pôs na célula de `R`, e estes dois números
+  # dizem quanto da base o segundo nível de avaliação, que usa, alcança.
+  cobertura_do_rotulo <- medir_cobertura_do_rotulo(dados)$cobertura_pares
+  fim_a_fim <- cruzar_conteudo_e_rotulo(dados)$fracao_fim_a_fim
+
   pontos <- \(x) formatar_decimal(100 * x, 1)
   # Cita o intervalo de uma grandeza, ou nada se o bloco rodou sem réplicas.
   sobre_realizacoes <- function(medida, formatador = formatar_pct, sufixo = "") {
@@ -314,7 +320,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       } else {
         ""
       },
-      "**Este é o patamar que a wave 3 precisa bater**, e ele fica fixado ",
+      "**Este é o piso ao lado do qual o colaborativo é reportado** (II.7.6), ",
+      "e ele fica fixado ",
       "agora, antes de existir modelo, que é o que impede ajustá-lo ao ",
       "resultado",
       if (is.null(estabilidade)) {
@@ -323,7 +330,7 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
         paste0(
           ". Fixado como intervalo e não como ponto: ",
           formatar_intervalo(estabilidade, "recall_protocolo_20"),
-          " sobre as realizações, largura que o critério de sucesso da wave 3 ",
+          " sobre as realizações, largura que a leitura do resultado da wave 3 ",
           "precisa levar em conta."
         )
       }
@@ -335,7 +342,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       "divisão temporal para o colaborativo, acerto em lista como métrica ",
       "com o piso de cada componente reportado ao lado em toda comparação, ",
       "popularidade para o colaborativo e filtro de setor com acaso para o ",
-      "conteúdo, e conclusão enunciada sobre a população observada."
+      "conteúdo, um segundo nível contra o desempenho entre os pares com ",
+      "rótulo (II.7.8), e conclusão enunciada sobre a população observada."
     ),
     paste0(
       "Cada peça responde a uma restrição herdada e não a uma preferência. A ",
@@ -421,6 +429,31 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       "de dez pontos, e um ganho menor que não rejeite não autoriza dizer que ",
       "nada ordena dentro do filtro. O planejamento usa o cenário de ",
       "independência porque ele não depende de o modelo imitar a popularidade."
+    ),
+
+    "II.7.8", "instrumento",
+    paste0(
+      "O acerto em lista mede se o modelo devolve quem de fato foi alocado, e ",
+      "por isso mede aderência à prática atual de alocação, e não qualidade ",
+      "da alocação. Das alocações, ", formatar_pct(cobertura_do_rotulo),
+      " têm rótulo de desempenho, e ", formatar_pct(fim_a_fim),
+      " são avaliáveis de ponta a ponta pelo componente de conteúdo, com ",
+      "conteúdo declarado e rótulo ao mesmo tempo (II.5.11)."
+    ),
+    paste0(
+      "**Os blocos II.5 e II.7 não conversavam.** O II.5 põe o desempenho na ",
+      "célula de `R`, e o protocolo avaliava só por acerto contra as alocações ",
+      "passadas, que é feedback implícito. Medido só assim, o modelo é ",
+      "premiado por reproduzir a alocação centralizada e enviesada que motiva ",
+      "a monografia (II.4), e o achado II.5.6 já avisava que esse sinal ",
+      "carrega viés não corrigível. A avaliação passa a ter dois níveis, ",
+      "declarados como tais: o acerto em lista, que diz quanto `ŝ` reproduz a ",
+      "prática, e, entre os pares com rótulo, se `ŝ` ordena pelo desempenho ",
+      "padronizado por avaliador (II.5.7), que diz quanto ele aponta para ",
+      "alocações melhores. O critério do achado II.7.7 é de primeiro nível: ",
+      "diz se algo ordena dentro do filtro na direção da prática, não na do ",
+      "desempenho. A medida de ordenação do segundo nível fica para a wave 3; ",
+      "o que fica fixado aqui é o alvo e a população."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -446,20 +479,20 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     paste0(
       "A linha de base de popularidade é contada só no treino e desempatada ",
       "pelo acerto esperado sob desempate aleatório, e o valor resultante fica ",
-      "fixado agora, antes de existir modelo, como o patamar que o componente ",
-      "colaborativo precisa bater."
+      "fixado agora, antes de existir modelo, como o piso ao lado do qual o ",
+      "componente colaborativo é reportado (II.7.6)."
     ),
     paste0(
       "O patamar numérico é o do sintético: a forma de calculá-lo transfere, ",
       "mas no dado real ele precisa ser recomputado sob o mesmo protocolo antes ",
-      "de servir de critério",
+      "de servir de comparação",
       if (is.null(estabilidade)) {
         "."
       } else {
         paste0(
           ". E mesmo no sintético ele é largo, ",
           formatar_intervalo(estabilidade, "recall_protocolo_20"),
-          " entre realizações, então critério de sucesso que o trate como ponto ",
+          " entre realizações, então comparação que o trate como ponto ",
           "fixo confundiria sorteio com ganho."
         )
       }
@@ -470,8 +503,9 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     paste0(
       "O protocolo fica declarado: divisão por consultor para o conteúdo, ",
       "divisão temporal para o colaborativo, acerto em lista como métrica com o ",
-      "piso de cada componente ao lado, e conclusão enunciada sobre a ",
-      "população observada."
+      "piso de cada componente ao lado, um segundo nível contra o desempenho ",
+      "entre os pares com rótulo, e conclusão enunciada sobre a população ",
+      "observada."
     ),
     NA,
     "fato real",
@@ -508,6 +542,20 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       "O piso e o número de pares são os do sintético, e o ganho mínimo varia ",
       "entre realizações. No dado real os dois precisam ser recomputados sob o ",
       "mesmo protocolo antes de o teste rodar."
+    ),
+    "estrutural",
+
+    "II.7.8",
+    paste0(
+      "A avaliação da wave 3 tem dois níveis: acerto em lista contra as ",
+      "alocações, como medida de aderência à prática atual, e, entre os pares ",
+      "com rótulo, a relação de `ŝ` com o desempenho padronizado por ",
+      "avaliador, como medida de qualidade."
+    ),
+    paste0(
+      "O segundo nível só existe sobre a fração rotulada, e no real a ",
+      "cobertura e a escala do rótulo são desconhecidas, porque o acesso à ",
+      "base de avaliação foi negado (II.5.6)."
     ),
     "estrutural"
   )))

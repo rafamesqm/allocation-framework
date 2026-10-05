@@ -68,7 +68,11 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
 
   combinacoes_setoriais <- nrow(dplyr::distinct(dados$projetos, setor, tipo_projeto))
   segmentos <- dplyr::n_distinct(dados$projetos$setor)
-  consultores_por_segmento <- n_consultores / segmentos
+  # Sobre quem declarou setor, e não sobre o quadro inteiro: quem não declarou
+  # não está em segmento nenhum. Dividir os 285 pelos segmentos dava um
+  # número que o bloco II.6 contradizia ao medir a mediana por classe.
+  com_setor_declarado <- dplyr::n_distinct(dados$experiencia_setorial$consultor_id)
+  consultores_por_segmento <- com_setor_declarado / segmentos
 
   zona_morta_fracao <- cruzamento_setor$zona_morta / n_consultores
   mesma_zona_morta <- cruzamento_skills$zona_morta == cruzamento_setor$zona_morta
@@ -177,9 +181,14 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
     ),
     paste0(
       "Nenhum componente do híbrido tem o que dizer sobre esses consultores, e ",
-      "nenhuma escolha de sinal os resgata. O modelo precisa de uma terceira ",
-      "resposta declarada para eles, e a única que não exige nem histórico nem ",
-      "atributo é a linha de base de popularidade do bloco II.1."
+      "nenhuma escolha de sinal os resgata. **Nem a popularidade**, que uma ",
+      "versão anterior deste achado indicava como a terceira resposta: a ",
+      "popularidade de quem nunca foi alocado é zero, e o achado II.7.5 mede ",
+      "exatamente isso, um consultor sem histórico nunca entra numa lista ",
+      "ordenada por ela. **A zona morta não é recomendável pelo modelo.** O que ",
+      "a põe no conjunto candidato tem de ser uma regra de exposição declarada ",
+      "fora dele, como rodízio ou inclusão explícita, e essa regra é decisão ",
+      "de negócio, não estatística."
     ),
 
     "II.3.3", "instrumento",
@@ -214,7 +223,8 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
       " deles no mesmo perfil. O espaço setorial é grosso pelo mesmo motivo: ",
       segmentos, " segmentos e ", combinacoes_setoriais,
       " combinações de segmento e offering, cerca de ",
-      formatar_decimal(consultores_por_segmento, 0), " consultores por segmento."
+      formatar_decimal(consultores_por_segmento, 0), " consultores por ",
+      "segmento entre os ", com_setor_declarado, " que declararam setor."
     ),
     paste0(
       "Fecha a saída que a primeira versão deste bloco deixara aberta. Não ",
@@ -256,11 +266,15 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
 
     "II.3.2",
     paste0(
-      "A zona morta, de quem não tem histórico nem atributo declarado, recebe ",
-      "uma terceira resposta declarada, a linha de base de popularidade do ",
-      "bloco II.1, porque é a única que não exige nem um nem outro."
+      "A zona morta, de quem não tem histórico nem atributo declarado, é ",
+      "declarada não recomendável pelo modelo; a entrada dela no conjunto ",
+      "candidato depende de uma regra de exposição definida fora dele."
     ),
-    NA,
+    paste0(
+      "Nenhum componente ordena essas pessoas, nem a popularidade, que é zero ",
+      "para quem nunca foi alocado. O fenômeno é real: 48 dos 285 ativos não ",
+      "aparecem em nenhuma linha de alocação no dado da Peers."
+    ),
     "fato real",
 
     "II.3.3",

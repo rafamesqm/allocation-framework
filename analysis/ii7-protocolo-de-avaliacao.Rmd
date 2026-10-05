@@ -151,10 +151,12 @@ if (isFALSE(obj$correcao_separa)) {
 }
 ```
 
-**Este é o patamar que a wave 3 precisa bater**, e ele fica fixado agora,
-antes de existir modelo. Fixado como intervalo, `r obj$protocolo_intervalo`
-sobre as realizações, e não como o ponto desta realização: é essa largura que
-o critério de sucesso precisa levar em conta.
+**Este é o piso ao lado do qual o colaborativo é reportado**, e ele fica
+fixado agora, antes de existir modelo. Fixado como intervalo,
+`r obj$protocolo_intervalo` sobre as realizações, e não como o ponto desta
+realização: é essa largura que a leitura do resultado precisa levar em conta.
+O colaborativo não tem critério de significância, pelo motivo que a próxima
+seção mede.
 
 ## O piso e o poder de cada componente
 
@@ -210,6 +212,27 @@ ganhos de
 `r formatar_decimal(100 * obj$poder_conteudo$ganho_independencia, 1)` pontos
 percentuais sobre o filtro com acaso.
 
+## O que o acerto em lista mede, e o que não mede
+
+O acerto em lista pergunta se o modelo devolve quem de fato foi alocado. Por
+isso mede **aderência à prática atual**, e não qualidade da alocação. Medido
+só assim, o modelo é premiado por reproduzir a alocação centralizada e
+enviesada que motiva a monografia, e o bloco II.5 já avisava que esse sinal,
+feedback implícito, carrega viés que não se corrige.
+
+O bloco II.5 pôs o desempenho na célula de `R`, e até aqui o protocolo não o
+usava. A avaliação passa a ter dois níveis, declarados como tais. O primeiro é
+o acerto em lista, que diz quanto `ŝ` reproduz a prática. O segundo, entre os
+pares com rótulo, é se `ŝ` ordena pelo desempenho padronizado por avaliador,
+que diz quanto ele aponta para alocações melhores. A medida de ordenação do
+segundo nível fica para a wave 3; o que fica fixado aqui é o alvo e a
+população.
+
+O segundo nível alcança pouco da base: o rótulo cobre metade das alocações, e
+só pouco mais de um quarto delas é avaliável de ponta a ponta pelo componente
+de conteúdo. E o critério de sucesso fixado acima é de primeiro nível: diz se
+algo ordena dentro do filtro na direção da prática, não na do desempenho.
+
 ## O protocolo declarado
 
 * **Divisão por consultor** para avaliar o componente de conteúdo, porque é a
@@ -224,6 +247,9 @@ percentuais sobre o filtro com acaso.
   declarada. É um teste e não um número: o ganho mínimo serve para planejar.
 * **Colaborativo reportado de forma descritiva**, ao lado do piso, sem
   critério de significância.
+* **Dois níveis de avaliação**: acerto em lista contra as alocações, como
+  aderência à prática, e, entre os pares com rótulo, relação de `ŝ` com o
+  desempenho padronizado por avaliador, como qualidade.
 * **Conclusão enunciada sobre a população observada**, sem pretender valer
   para os pares que nunca tiveram chance de aparecer.
 

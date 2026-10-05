@@ -106,7 +106,7 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
       dplyr::transmute(
         Granularidade = granularidade,
         Classes = classes,
-        `Mediana por classe` = mediana_por_classe,
+        `Mediana por classe` = formatar_decimal(mediana_por_classe, 1),
         `Empate médio` = formatar_pct(empate_medio),
         `Classes ralas` = formatar_pct(classes_ralas)
       ),
@@ -144,7 +144,7 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
     paste0(
       "Não existe granularidade boa para o one-hot. Em ",
       tolower(grossa$granularidade), ", são ", grossa$classes,
-      " classes com mediana de ", grossa$mediana_por_classe,
+      " classes com mediana de ", formatar_decimal(grossa$mediana_por_classe, 1),
       " consultores, e dois consultores sorteados caem na mesma classe em ",
       formatar_pct(grossa$empate_medio), " das vezes. Cruzando com offering, ",
       "o empate cai para ", formatar_pct(fina$empate_medio), " mas ",

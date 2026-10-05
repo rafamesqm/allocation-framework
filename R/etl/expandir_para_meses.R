@@ -1,8 +1,8 @@
 #' Expande intervalos de datas para uma linha por mês-calendário coberto
 #'
 #' Ponte entre os objetos que nascem com janela de datas (alocação, projeto)
-#' e os que a Camada 3 exige por pessoa-período ou frente-mês: `pct_ocupacao`
-#' e `capacidade_periodo` alimentam `k`, e a margem real existe por frente e
+#' e os que a Camada 3 exige por pessoa-período ou projeto-mês: `pct_ocupacao`
+#' e `capacidade_periodo` alimentam `k`, e a margem real existe por projeto e
 #' mês (ver docs/dicionario_de_dados.md, Camada 3).
 #'
 #' Devolve também quantos dias do mês o intervalo de fato cobre, para quem

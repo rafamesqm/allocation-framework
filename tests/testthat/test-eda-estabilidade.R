@@ -87,8 +87,13 @@ test_that("executar_i0 classifica fragil, estavel e invariante", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_equal(nrow(bloco$achados), 5)
   expect_true(all(
-    bloco$objetos$classificado$classe %in% c("frágil", "estável", "invariante")
+    bloco$objetos$classificado$classe %in% c("frágil", "estável", "invariante", "diferença")
   ))
+  # Diferença se julga pelo sinal; a amplitude relativa dela divide por uma
+  # mediana perto de zero e a faria parecer a grandeza mais frágil.
+  diferencas <- bloco$objetos$classificado$medida[bloco$objetos$classificado$classe == "diferença"]
+  expect_setequal(diferencas, grandezas_de_diferenca())
+  expect_false(bloco$objetos$mais_fragil$medida %in% grandezas_de_diferenca())
   expect_true("cold_start_consultor" %in% bloco$objetos$invariantes$medida)
 })
 

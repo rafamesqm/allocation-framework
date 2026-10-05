@@ -43,10 +43,12 @@ bloco se concentram.
 Uma armadilha que vale explicitar, porque ela já produziu conclusão errada
 na primeira versão desta análise: parte dos agregados reais é de quantis
 **só dos positivos**, não da distribuição inteira. Em variável com massa em
-zero as duas coisas diferem muito. No custo por frente-mês, com 45% de
-zeros, o P25 incondicional é exatamente zero, contra 16 mil nos positivos.
-Comparar um com o outro daria divergência de 100% onde não há divergência
-nenhuma.
+zero as duas coisas diferem muito. Na receita de estagiários por projeto e
+mês, com
+`r formatar_pct(obj$resumo_operacao$fracao_zero[obj$resumo_operacao$variavel == "receita_interns"])`
+de zeros, o P25 incondicional é exatamente zero, e qualquer quantil dos
+positivos fica acima dele. Comparar um com o outro daria divergência de 100%
+onde não há divergência nenhuma.
 
 # Camada 1, Consultores
 
@@ -206,26 +208,28 @@ mostrar_tabela(
 ```{r operacao-confronto}
 mostrar_tabela(
   bloco$tabelas$i2_margem_confronto_real,
-  "Tabela I.2.8: margem por frente-mês contra o agregado real.",
+  "Tabela I.2.8: receita por projeto e mês contra o agregado real.",
   c("l", "l", "r", "r", "r", "l")
 )
 ```
 
 ```{r operacao-numeros}
-rec_assim <- pega_confronto(obj$confronto_margem, "receita", "assimetria")
-rec_mediana <- pega_confronto(obj$confronto_margem, "receita", "mediana_pos")
+receita <- function(estatistica) {
+  pega_confronto(obj$confronto_margem, "receita_total", estatistica)
+}
 ocupacao <- obj$resumo_operacao[
   obj$resumo_operacao$variavel == "pct_ocupacao",
 ]
 ```
 
-O custo por frente-mês reproduz o real em todas as estatísticas com âncora.
-A receita reproduz a mediana dos positivos
-(`r formatar_diferenca(rec_mediana$dif)`) mas erra a assimetria por larga
-margem, `r formatar_decimal(rec_assim$sint)` contra
-`r formatar_decimal(rec_assim$real)`: o mesmo efeito já visto em
-`valor_contrato`, agravado por a receita real ter cauda bem mais curta do
-que a log-normal ajustada por quantis produz.
+A receita total por projeto e mês reproduz o real nas quatro estatísticas
+com âncora: a fração de zeros (`r formatar_diferenca(receita("fracao_zero")$dif)`),
+a mediana (`r formatar_diferenca(receita("mediana_pos")$dif)`), o P25
+(`r formatar_diferenca(receita("p25_pos")$dif)`) e o P75
+(`r formatar_diferenca(receita("p75_pos")$dif)`) dos positivos. Não há âncora
+de assimetria, e por isso nada se afirma sobre a cauda (achado I.2.2). Uma
+versão anterior deste parágrafo comparava a assimetria contra um valor da
+fonte antiga, que a segunda consulta comercial substituiu por quantis.
 
 `pct_ocupacao` tem mediana `r formatar_decimal(ocupacao$mediana)` e
 ultrapassa a capacidade integral em `r formatar_pct(obj$acima_capacidade)`

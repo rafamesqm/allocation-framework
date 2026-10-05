@@ -89,10 +89,15 @@ real capturado (`Indústria` de `vw_gtac_com_clientes`, cotada inicialmente,
 foi descartada por estar quase inteiramente nula; `Segmento`, de
 `vw_crm_oportunidades_latest`, é o substituto validado). A monografia deve
 registrar essa ausência como achado de
-pesquisa, não maquiar como se fosse dado observado. O mecanismo exato de
-estimação (ex.: perfil médio de skills de quem já atuou em projetos do mesmo
-setor/offering versus one-hot direto das categorias) é decisão de wave 3,
-calibrada pela EDA, não travada aqui.
+pesquisa, não maquiar como se fosse dado observado.
+
+**Decidido na EDA (achado II.6.6), e não na wave 3 como este parágrafo
+previa:** `P` é o one-hot do setor, usado como filtro do conjunto candidato e
+aplicado só a quem declarou setor (II.8.1). O perfil médio de skills foi
+rejeitado por não ser avaliável, e não por ter ido mal: no real não existe
+registro que ligue skill de pessoa a requisito de projeto. O one-hot é binário,
+filtra e não ordena, e a vantagem dele sobre a popularidade não se sustenta
+entre realizações; o que ordena dentro do filtro ficou em aberto (III.4).
 
 ### Entidade: Espaço de Skills → `S`
 | Campo | Tipo | Granularidade | Papel no modelo | Disponibilidade |
@@ -120,7 +125,17 @@ Alimenta o colaborativo e constrói os rótulos. É o coração do sinal.
 | `margem_atribuida` | numérico (R$ / %) | frente · mês (não alocação) | ponderação econômica | parcial |
 | `flag_restaffing` · `solicitacao_nominal` | booleano | alocação | feedback implícito | aspiracional |
 
-### Construção do rótulo (questão de modelagem aberta)
+### Construção do rótulo (decidida na EDA, achado II.5.5)
+
+**Decisão:** a célula de `R` é o desempenho pelo candidato (a), padronizado
+dentro de cada avaliador e com a etapa declarada (II.5.1, II.5.7). A margem sai
+de `R` e entra como objetivo separado do otimizador pelo candidato (d),
+calculada de custo carregado por horas contra valor de contrato, como direção
+e não como magnitude, porque as âncoras econômicas se sobredeterminam
+(II.5.10). O candidato (b) caiu porque a margem não é atribuível a uma
+alocação (II.5.3); o (c), porque não existe custo mensal, e a fonte que
+parecia tê-lo é receita (II.5.4). O texto abaixo é o registro de antes da EDA.
+
 O valor de cada célula de `R` combina desempenho e margem, que são sinais distintos.
 Candidatos, a decidir pela EDA (distribuição, correlação, cobertura): (a) só desempenho
 normalizado por avaliador; (b) média ponderada ou produto desempenho × margem; (c) margem
@@ -130,6 +145,9 @@ calculada estruturalmente em `f` a partir de `custo_carregado` × horas versus
 
 Achado que pesa sobre essa decisão: o usuário confirmou que a granularidade
 por frente e mês é a única que existe para margem, não uma limitação de busca.
+(Correção posterior, consulta Q5 em `mapeamento_schema.md`: o grão é projeto e
+mês, e "frente" é nome herdado do SharePoint. A conclusão, de que não há
+margem por alocação, não muda.)
 Não há `margem_atribuida` por alocação individual em lugar nenhum da Peers.
 Atribuir margem a um indivíduo dentro de um time exigiria alguma regra de
 rateio (ex.: proporcional a `pct_alocacao`/`horas`), que seria estimativa, não
@@ -222,8 +240,16 @@ Alimenta o otimizador multiobjetivo.
 ### Score de afinidade `ŝ` e entrada em `f`
 O recomendador (content-based mais colaborativo) produz `ŝ[i,j]` em [0,1]. `ŝ`
 entra em `f` como o coeficiente de aderência da alocação (i, j), ao lado da
-margem. A forma da combinação (switching, weighted, feature augmentation) é
-calibrada pela EDA.
+margem.
+
+**Calibrado pela EDA:** a forma da combinação é a chaveada, pelo quadrante de
+ter histórico e ter respondido o formulário (II.3.3); a ponderada e a cascata
+caíram. O conteúdo filtra e não ordena (II.6.2), e o colaborativo não é o
+componente principal (II.2.4). O que ordena dentro do filtro, e portanto o
+valor de `ŝ`, **não ficou determinado** (III.4): para quem tem histórico sobra a
+popularidade, e para quem não tem, só o perfil de skills, que não pôde ser
+avaliado. A avaliação de `ŝ` tem dois níveis, aderência à prática e relação
+com o desempenho (II.7.8).
 
 ---
 

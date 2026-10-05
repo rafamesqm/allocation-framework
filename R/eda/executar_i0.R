@@ -67,6 +67,20 @@ mapa_medida_achado <- function() {
   )
 }
 
+#' Grandezas que são diferença entre duas outras, e que se julgam pelo sinal
+#'
+#' A amplitude relativa divide a largura do intervalo pela mediana, o que
+#' serve para magnitude e não serve para diferença. Uma diferença centrada
+#' perto de zero tem mediana pequena, e a divisão a faz parecer a grandeza
+#' mais frágil do capítulo quando a pergunta certa sobre ela é outra: se o
+#' intervalo contém o zero. É a pergunta que os achados II.6.6 e II.7.3 já
+#' fazem, via `intervalo_separa_de_zero()`.
+#'
+#' @return Vetor de nomes de grandeza.
+grandezas_de_diferenca <- function() {
+  c("folga_one_hot_popularidade", "correcao_linha_base_20")
+}
+
 #' Executa o bloco I.0 da EDA, preâmbulo metodológico e estabilidade
 #'
 #' Bloco de abertura do capítulo. Faz duas coisas que precisam vir antes de
@@ -104,6 +118,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     dplyr::left_join(mapa_medida_achado(), by = "medida") |>
     dplyr::mutate(
       classe = dplyr::case_when(
+        medida %in% grandezas_de_diferenca() ~ "diferença",
         is.na(amplitude_relativa) ~ "invariante",
         desvio_mc == 0 ~ "invariante",
         amplitude_relativa < limite_invariancia ~ "invariante",
@@ -114,7 +129,8 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
 
   frageis <- dplyr::filter(classificado, classe == "frágil")
   invariantes <- dplyr::filter(classificado, classe == "invariante")
-  mais_fragil <- classificado[which.max(classificado$amplitude_relativa), ]
+  de_magnitude <- dplyr::filter(classificado, classe != "diferença")
+  mais_fragil <- de_magnitude[which.max(de_magnitude$amplitude_relativa), ]
 
   # O caso que mais importa é a fração de consultores sem atributo de
   # conteúdo, porque dela depende a leitura qualitativa do achado I.1.3.
@@ -187,7 +203,8 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
         Inferior = formatar_decimal(inferior, 4),
         Superior = formatar_decimal(superior, 4),
         `Amplitude relativa` = dplyr::if_else(
-          is.na(amplitude_relativa), "n/a", formatar_pct(amplitude_relativa)
+          is.na(amplitude_relativa) | classe == "diferença", "n/a",
+          formatar_pct(amplitude_relativa)
         ),
         Classe = classe,
         `Sustenta` = dplyr::coalesce(achados, "")
@@ -219,7 +236,9 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
 
   figuras <- list(
     i0_estabilidade = figura_estabilidade(
-      classificado,
+      # As diferenças ficam de fora: julgam-se pelo sinal, e a amplitude
+      # relativa delas não significa nada.
+      de_magnitude,
       titulo = "Variabilidade de Monte Carlo das grandezas reportadas",
       subtitulo = paste0(
         "Amplitude do intervalo de ", round(100 * nivel),
@@ -320,15 +339,17 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     "I.0.1", "instrumento",
     paste0(
       "O conjunto versionado é uma realização entre muitas, e a variabilidade ",
-      "entre elas não é desprezível: das ", nrow(classificado),
-      " grandezas que sustentam achados do capítulo, ", nrow(frageis),
-      " têm amplitude relativa acima de ",
+      "entre elas não é desprezível: das ", nrow(de_magnitude),
+      " grandezas de magnitude que sustentam achados do capítulo, ",
+      nrow(frageis), " têm amplitude relativa acima de ",
       formatar_pct(limite_fragilidade), ". A mais frágil é ",
       mais_fragil$medida, ", com ",
-      formatar_pct(mais_fragil$amplitude_relativa), "."
+      formatar_pct(mais_fragil$amplitude_relativa), ". As ",
+      nrow(classificado) - nrow(de_magnitude), " grandezas que são diferença ",
+      "entre duas outras se julgam pelo sinal, e não pela amplitude."
     ),
     paste0(
-      "Nenhum número da Parte I deve ser lido como propriedade fixa do ",
+      "Nenhum número do capítulo deve ser lido como propriedade fixa do ",
       "modelo. O intervalo mede quanto o valor se moveria se a população ",
       "fosse sorteada de novo, e **não** é incerteza sobre a Peers: essa vem ",
       "das ressalvas de cobertura de join, não daqui."
@@ -413,7 +434,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
 
     "I.0.1", NA,
     paste0(
-      "Nenhum número da Parte I vale como propriedade fixa do modelo: ",
+      "Nenhum número do capítulo vale como propriedade fixa do modelo: ",
       "grandeza que sustenta achado vem acompanhada do intervalo entre ",
       "realizações, e comparação pontual contra alvo real não decide nada ",
       "onde a amplitude é larga."

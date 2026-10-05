@@ -233,9 +233,10 @@ avaliador, exigiriam mais avaliações por gestor do que há.
 
 Dois fatos, e cada um mata um candidato.
 
-**A margem não é atribuível a uma alocação.** `margem_frente_mes` não tem
-`consultor_id`, e o usuário confirmou que frente e mês é a única
-granularidade que existe na Peers, não uma limitação de busca.
+**A margem não é atribuível a uma alocação.** A fonte real de receita e
+custo tem grão de projeto e mês, sem `consultor_id`: a consulta Q5 mostrou
+que o "frente" do nome da view é herança do SharePoint, e não uma
+granularidade.
 `r formatar_pct(margem$fracao_projetos_com_equipe)` dos projetos alocados têm
 mais de uma pessoa, com mediana de `r margem$mediana_equipe` e máximo de
 `r margem$maior_equipe`. Ratear a margem de uma frente entre os membros do
@@ -289,9 +290,15 @@ a margem estrutural não fecha.
 `r formatar_pct(margem$fracao_margem_estrutural_negativa)` dos projetos com
 contrato positivo saem com margem negativa, e no quinto percentil o prejuízo
 chega a `r formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1)`
-vezes o valor do contrato. A mediana,
-`r formatar_pct(margem$margem_estrutural_relativa_mediana)`, é plausível; a
-cauda não.
+vezes o valor do contrato. Contra os alvos reais, a fração de prejuízo fica a
+`r formatar_decimal(100 * margem$desvio_do_prejuizo_alvo, 1)` pontos da real,
+de `r formatar_pct(margem$alvo_prejuizo)`, e a mediana,
+`r formatar_pct(margem$margem_estrutural_relativa_mediana)`, fica
+`r formatar_decimal(100 * margem$desvio_da_mediana_alvo, 1)` pontos acima da
+real, de `r formatar_pct(margem$alvo_mediana)`. **O desacordo está no centro
+da distribuição, e não na cauda**, que é o que o achado II.5.10 explica. Uma
+versão anterior deste parágrafo dizia o contrário, o que valia antes das
+correções de escala.
 
 **É o primeiro caso no capítulo de grandezas individualmente calibradas que
 não fecham em conjunto.** `valor_contrato`, `horas_mes` e `custo_carregado`

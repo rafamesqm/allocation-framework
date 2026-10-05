@@ -51,7 +51,7 @@ separá-las. `avaliacoes_desempenho` tem
 `r formatar_inteiro(obj$inventario$linhas[obj$inventario$tabela == "avaliacoes_desempenho"])`
 linhas porque a granularidade real da avaliação é item por etapa, não
 avaliação por alocação: são 14 itens em 3 etapas para cada alocação
-avaliada. `ocupacao_consultor` e `margem_frente_mes` são grandes porque
+avaliada. `ocupacao_consultor` e `receita_projeto_mes` são grandes porque
 expandem entidade por mês de vigência, que é a granularidade que a Camada 3
 exige para sustentar a restrição de capacidade.
 

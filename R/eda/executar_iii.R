@@ -128,10 +128,11 @@ executar_iii <- function(achados_por_bloco) {
       resumo$depende_do_gerador, " dependente do gerador."
     ),
     paste0(
-      "**A forma da wave 3 e da wave 4 foi determinada, não escolhida.** Cada ",
-      "peça do desenho responde a uma restrição medida, e a contagem mostra ",
-      "que a maior parte delas se apoia em agregado da Peers ou em ",
-      "propriedade do problema, não no instrumento. O número que importa é o ",
+      "**O que não funciona foi determinado, não escolhido.** Cada eliminação ",
+      "responde a uma restrição medida, e a contagem mostra que a maior parte ",
+      "delas se apoia em agregado da Peers ou em propriedade do problema, não ",
+      "no instrumento. O que ordena dentro do filtro, ao contrário, não foi ",
+      "determinado, e o achado III.4 diz por quê. O número que importa é o ",
       "último: as decisões que cairiam se o gerador fosse outro são ",
       resumo$depende_do_gerador, " de ", resumo$n_decisoes,
       ", estão nomeadas no achado III.2 e nenhuma delas é das que definem a ",
@@ -169,13 +170,36 @@ executar_iii <- function(achados_por_bloco) {
       "dois levaria a descartar o capítulo inteiro por ele rodar sobre ",
       "sintético, ou a aceitá-lo inteiro por ele citar âncoras reais, e ",
       "nenhuma das duas leituras é correta."
+    ),
+
+    "III.4", "instrumento",
+    paste0(
+      "Juntando os blocos, sobra pouco para ordenar consultores dentro do ",
+      "filtro de setor. Para quem tem histórico, a fatoração degenera em ",
+      "popularidade (II.2.4) e o projeto novo nunca foi visto (II.7.1), então ",
+      "o que ordena é a popularidade. Para quem não tem histórico, a ",
+      "popularidade é zero (II.7.5), e o único sinal restante é o perfil de ",
+      "skills, que o bloco II.6 mostrou não ser avaliável (II.6.6). A zona ",
+      "morta não é ordenável por nada (II.3.2)."
+    ),
+    paste0(
+      "**`ŝ` não está determinado pela EDA, e isso precisa ser dito antes, e ",
+      "não descoberto depois.** O capítulo determinou o que não funciona; o ",
+      "que ordena dentro do filtro é a pergunta que a wave 3 responde, e o ",
+      "critério do achado II.7.7 é exatamente ela. Um resultado possível, que ",
+      "a monografia precisa estar pronta para relatar, é o modelo híbrido ",
+      "degenerar em popularidade filtrada por setor para quem tem histórico e ",
+      "em acaso dentro do filtro para quem não tem. Não seria fracasso do ",
+      "método: seria a medida de quanto sinal estes dados carregam, e o ",
+      "capítulo já mostrou por que pode ser pouco."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
 
     "III.2", NA,
     paste0(
-      "Quatro decisões do capítulo cairiam se o gerador fosse outro, e a de ",
+      "As ", resumo$depende_do_gerador,
+      " decisões que cairiam se o gerador fosse outro são ressalva, e a de ",
       "maior consequência é a autorização do rótulo escalar: a consistência ",
       "interna do formulário real nunca pôde ser medida."
     ),
@@ -188,7 +212,15 @@ executar_iii <- function(achados_por_bloco) {
       "mede e a pergunta sobre o que a decisão exige são diferentes."
     ),
     NA,
-    "estrutural"
+    "estrutural",
+
+    "III.4", NA,
+    paste0(
+      "O que ordena dentro do filtro não tem sinal avaliado: a popularidade só ",
+      "alcança quem tem histórico, e o perfil de skills, único candidato para ",
+      "quem não tem, não pode ser avaliado nem no sintético nem no real."
+    ),
+    "fato real"
   )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)

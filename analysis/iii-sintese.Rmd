@@ -33,10 +33,11 @@ Esta parte só empilha. Transcrever catorze documentos à mão sairia de
 sincronia na primeira revisão de texto, e o leitor não teria como saber qual
 versão está velha.
 
-## A forma do modelo foi determinada, não escolhida
+## O que a EDA eliminou, e o que deixou em aberto
 
 Vale ler a cadeia antes das tabelas, porque é ela que dá sentido a elas. Cada
-elo fecha uma porta, e o que sobra no fim não é preferência de quem escreveu.
+elo fecha uma porta, e as portas fechadas não são preferência de quem
+escreveu. O que sobra aberto no fim é dito no fim, e não escondido.
 
 O bloco **II.1** mede esparsidade abaixo de um por cento e conclui que
 vizinhança não tem sobreposição para estimar similaridade. O **II.2** mostra
@@ -48,8 +49,10 @@ principal**, e não sobra terceira família de método de interação.
 O peso teria de ir para o conteúdo, e o **II.3** mostra que o conteúdo cobre
 menos gente que o colaborativo: 48,4% contra 83,2%. O enquadramento usual do
 cold start se inverte. Das cinco formas de híbrido de Burke (2002) sobra uma,
-**a chaveada**, e a zona morta de quem não tem nem histórico nem atributo
-precisa de uma terceira resposta declarada.
+**a chaveada**. A zona morta, de quem não tem nem histórico nem atributo, não
+é ordenável por componente nenhum, nem pela popularidade, que é zero para
+quem nunca foi alocado: entra no conjunto candidato por regra de exposição
+declarada fora do modelo.
 
 O **II.6** pergunta quanto de sinal o conteúdo carrega e responde que o
 one-hot separa mas não ordena, por ter dois valores distintos. **O conteúdo
@@ -63,14 +66,27 @@ exposição aleatória, a propensão não é falsificável. **A wave 3 declara o
 viés em vez de corrigi-lo.** O **II.7** herda isso e mais duas restrições, e
 descobre que nenhuma forma de divisão serve aos dois componentes: separar
 pessoas para não vazar atributo é exatamente criar cold start. **Dois
-protocolos, um por componente.**
+protocolos, um por componente**, e dois níveis de avaliação: o acerto contra as
+alocações mede aderência à prática, e só a relação com o desempenho, que o
+**II.5** pôs na célula de `R`, mede qualidade.
 
-O **II.5** define o que é a célula de `R`, e o **II.8** conta o que sobrou de
-insumo para o otimizador: dois de oito com escala utilizável. **A wave 4 é
-exercício retrospectivo, não alocador prospectivo.**
+O **II.8** conta o que sobrou de insumo para o otimizador: dois de oito com
+escala utilizável. **A wave 4 é exercício retrospectivo, não alocador
+prospectivo**, e o filtro de setor, aplicado a quem o declarou como o
+chaveado manda, não basta para torná-la tratável.
 
 Nenhum desses elos foi escolhido. Cada um é o que restou depois de o anterior
 eliminar as alternativas.
+
+**O que a cadeia não determina é o que ordena dentro do filtro.** Para quem
+tem histórico, o que resta é a popularidade: a fatoração degenera nela, e o
+projeto novo nunca foi visto. Para quem não tem, a popularidade é zero, e o
+único sinal restante é o perfil de skills, que o II.6 mostrou não ser
+avaliável. Por isso `ŝ`, a afinidade que liga a recomendação ao otimizador,
+não está determinado pela EDA. É a pergunta que a wave 3 responde, e um
+resultado possível, que a monografia precisa estar pronta para relatar, é o
+híbrido degenerar em popularidade filtrada por setor. Não seria fracasso do
+método: seria a medida de quanto sinal estes dados carregam (achado III.4).
 
 ## As decisões
 
@@ -200,7 +216,11 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
   histórico e ter respondido o formulário (II.3.3).
 * **Papel de cada componente**: o conteúdo filtra o conjunto candidato por
   one-hot de setor e não ordena (II.6.2, II.6.6); o colaborativo não é o
-  componente principal (II.2.4); a zona morta recebe popularidade (II.3.2).
+  componente principal (II.2.4); a zona morta não é recomendável pelo modelo
+  e entra por regra de exposição declarada fora dele (II.3.2).
+* **O que fica em aberto**: o que ordena dentro do filtro, e portanto `ŝ`.
+  Para quem tem histórico sobra a popularidade; para quem não tem, só o
+  perfil de skills, que não pôde ser avaliado (III.4).
 * **Rótulo**: desempenho pelo candidato (a), padronizado dentro de cada
   avaliador, com a etapa declarada (II.5.1, II.5.5, II.5.7).
 * **Protocolo**: dois, um por componente, com divisão por consultor para o
@@ -212,6 +232,10 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
 * **Critério de sucesso**: para o conteúdo, o teste pareado de McNemar a 5%
   contra o filtro com acaso, fixado como teste e não como número (II.7.7). O
   colaborativo não é validável e entra de forma descritiva (II.7.6).
+* **Dois níveis de avaliação**: o acerto contra as alocações mede aderência à
+  prática atual; entre os pares com rótulo, a relação de `ŝ` com o desempenho
+  padronizado por avaliador mede qualidade. O critério acima é de primeiro
+  nível (II.7.8).
 * **Enunciado**: a conclusão vale sobre a população observada, com o viés
   declarado (II.4.5), e supõe o setor do projeto conhecido no momento da
   alocação, premissa que o esquema real não permite verificar (II.6.7).
@@ -219,10 +243,14 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
 ## O que a wave 4 herda
 
 * **Formulação**: trio de consultor, projeto e mês, porque o par não expressa
-  capacidade, restrito ao conjunto candidato do filtro de conteúdo (II.8.1).
+  capacidade, com o filtro de setor aplicado só a quem o declarou (II.8.1).
+  O filtro não torna o problema tratável, e a tratabilidade é a primeira
+  pergunta da wave 4.
 * **Objetivos**: custo como magnitude dimensionada, a partir de salário base
   por cargo com fator de carga declarado (II.5.9); margem como direção e não
-  como magnitude (II.5.10); desempenho a partir de `R` (II.5.5).
+  como magnitude (II.5.10); afinidade `ŝ`, produzida pela wave 3, como
+  coeficiente do objetivo de desempenho, com o rótulo de `R` servindo para
+  treiná-la e avaliá-la (II.5.5, II.8.4).
 * **Restrições**: férias sem ambiguidade de escala; capacidade **não** como
   limite duro, com a escolha entre penalidade, limite calibrado e
   infactibilidade como diagnóstico ainda aberta (II.8.2).
@@ -242,7 +270,8 @@ II.8.3). `pipeline_demandas` não alimenta o otimizador (II.8.3). As âncoras
 econômicas se sobredeterminam e o acesso que decidiria qual relaxar encerrou
 (II.5.10). Não há amostra de exposição aleatória, então a propensão não é
 falsificável (II.4.4). O conteúdo alcança 48,4% dos consultores (I.1.3,
-II.3.1).
+II.3.1). Quem nunca foi alocado não é ordenável por nada (II.3.2). Nada ordena
+dentro do filtro com sinal avaliado (III.4).
 
 **Do instrumento, e removíveis se o acesso voltar.** As `r r$depende_do_gerador`
 decisões da Tabela III.4, com destaque para a unidimensionalidade do rótulo.

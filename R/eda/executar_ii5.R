@@ -250,8 +250,9 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     "II.5.3", "âncora real",
     paste0(
       "A margem não é atribuível a uma alocação individual. ",
-      "`margem_frente_mes` não tem `consultor_id`, o usuário confirmou que ",
-      "frente e mês é a única granularidade que existe na Peers, e ",
+      "a fonte real de receita e custo tem grão de projeto e mês, sem ",
+      "`consultor_id` (consulta Q5: o \"frente\" do nome da view é herança ",
+      "do SharePoint), e ",
       formatar_pct(margem$fracao_projetos_com_equipe),
       " dos projetos alocados têm mais de uma pessoa, com mediana de ",
       margem$mediana_equipe, " e máximo de ", margem$maior_equipe, "."
@@ -294,9 +295,21 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       " dos projetos com contrato positivo saem com margem negativa, e no ",
       "quinto percentil o prejuízo chega a ",
       formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1),
-      " vezes o valor do contrato. A mediana, ",
-      formatar_pct(margem$margem_estrutural_relativa_mediana),
-      ", é plausível; a cauda não."
+      " vezes o valor do contrato. Contra os alvos reais, a mediana, ",
+      formatar_pct(margem$margem_estrutural_relativa_mediana), ", fica ",
+      formatar_decimal(100 * margem$desvio_da_mediana_alvo, 1),
+      " pontos acima da real, de ", formatar_pct(margem$alvo_mediana),
+      ", e a fração de prejuízo fica a ",
+      formatar_decimal(100 * margem$desvio_do_prejuizo_alvo, 1),
+      " pontos da real, de ", formatar_pct(margem$alvo_prejuizo), ". ",
+      # O veredito sai da comparação e não do texto. Uma versão anterior dizia
+      # que a mediana era plausível e a cauda não, o que valia antes das
+      # correções de escala e passou a contradizer os próprios alvos.
+      if (abs(margem$desvio_da_mediana_alvo) > abs(margem$desvio_do_prejuizo_alvo)) {
+        "O desacordo está no centro da distribuição, e não na cauda."
+      } else {
+        "O desacordo está na cauda, e não no centro da distribuição."
+      }
     ),
     paste0(
       "**É o primeiro caso no capítulo de grandezas individualmente ",
@@ -318,8 +331,10 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "taxa do estagiário das tarifas cobradas do cliente. A fonte de custo ",
       "passou a ser a tabela de custo por cargo, que é **salário base por ",
       "hora, sem encargos**, e a razão entre custo e contrato deixou de ",
-      "centrar em 1: agora fica em ",
-      formatar_decimal(escala_margem$centro_da_razao, 2), "."
+      "centrar em 1: a média geométrica dela agora fica em ",
+      formatar_decimal(escala_margem$centro_da_razao, 2),
+      ", que é o centro adequado a uma razão e não deve ser confrontado com a ",
+      "mediana da margem do achado II.5.8."
     ),
     paste0(
       "Fecha a hipótese que este bloco levantou. O sintoma era a razão ",
@@ -546,8 +561,9 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     "II.5.8", NA,
     paste0(
       "A margem estrutural tem mecanismo correto e escala não calibrada: a ",
-      "mediana é plausível e a cauda não, e o resíduo é o da sobredeterminação ",
-      "das âncoras, não um defeito à parte."
+      "fração de prejuízo fica perto da real e a mediana fica muito acima ",
+      "dela, e o resíduo é o da sobredeterminação das âncoras, não um defeito ",
+      "à parte."
     ),
     "fato real",
 

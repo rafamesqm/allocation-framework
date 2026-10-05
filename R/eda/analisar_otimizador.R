@@ -56,33 +56,52 @@ medir_porte_do_problema <- function(consultores, projetos, alocacoes, meses_ativ
 
 #' Mede que fração dos pares o filtro de conteúdo deixa passar
 #'
-#' O filtro é o one-hot de setor decidido no bloco II.6: passa o par cujo
-#' consultor tem o setor do projeto. Consultor sem setor declarado não passa
-#' por nenhum, o que é o cold start de conteúdo do bloco II.3 aparecendo de
-#' novo, agora como redução de porte com efeito colateral ruim.
+#' O filtro é o one-hot de setor decidido no bloco II.6, aplicado como o
+#' híbrido chaveado do bloco II.3 manda: **só a quem declarou setor**. Quem
+#' declarou passa nos projetos do seu setor; quem não declarou não é filtrado,
+#' porque para essa pessoa o conteúdo não tem o que dizer e o chaveado a
+#' encaminha a outro componente.
+#'
+#' Uma versão anterior deixava de fora do conjunto candidato todo consultor
+#' sem setor, mais da metade do quadro, e media com isso uma redução de porte
+#' de cerca de quinze vezes, metade da qual vinha da exclusão e não do
+#' casamento de setor. Um otimizador montado sobre ela nunca alocaria quem não
+#' respondeu o formulário. As três frações abaixo separam as duas origens.
 #'
 #' @param consultores,projetos Dados que definem a matriz.
 #' @param experiencia_setorial tibble com o setor observado.
-#' @return Lista com `fracao_candidatos` e `consultores_sem_setor`.
+#' @return Lista com `fracao_candidatos`, a fração de pares que o filtro
+#'   coerente com o chaveado deixa passar; `fracao_casamento`, a fração que
+#'   casa entre quem declarou setor; `fracao_excluindo_sem_setor`, a da versão
+#'   anterior; e `consultores_sem_setor`.
 medir_reducao_pelo_filtro <- function(consultores, projetos, experiencia_setorial) {
   setor <- setor_predominante_observado(experiencia_setorial)
   setor_do_consultor <- setor$segmento[
     match(consultores$consultor_id, setor$consultor_id)
   ]
+  com_setor <- !is.na(setor_do_consultor)
 
-  # Fração de pares em que o setor bate, calculada pelas marginais em vez da
-  # matriz inteira: é a soma, sobre setores, do produto das duas proporções.
-  tabela_consultor <- table(setor_do_consultor)
+  # Pares em que o setor bate, calculados pelas marginais em vez da matriz
+  # inteira: a soma, sobre setores, do produto das duas contagens.
+  tabela_consultor <- table(setor_do_consultor[com_setor])
   tabela_projeto <- table(projetos$setor)
   comuns <- intersect(names(tabela_consultor), names(tabela_projeto))
-
-  pares_que_passam <- sum(
+  pares_que_casam <- sum(
     as.numeric(tabela_consultor[comuns]) * as.numeric(tabela_projeto[comuns])
   )
 
+  pares_sem_filtro <- sum(!com_setor) * nrow(projetos)
+  pares_totais <- nrow(consultores) * nrow(projetos)
+
   list(
-    fracao_candidatos = pares_que_passam / (nrow(consultores) * nrow(projetos)),
-    consultores_sem_setor = mean(is.na(setor_do_consultor))
+    fracao_candidatos = (pares_que_casam + pares_sem_filtro) / pares_totais,
+    fracao_casamento = if (any(com_setor)) {
+      pares_que_casam / (sum(com_setor) * nrow(projetos))
+    } else {
+      NA_real_
+    },
+    fracao_excluindo_sem_setor = pares_que_casam / pares_totais,
+    consultores_sem_setor = mean(!com_setor)
   )
 }
 
@@ -144,8 +163,8 @@ registrar_insumos_do_otimizador <- function(margem_calibrada = FALSE,
     "Margem", "objetivo econômico", TRUE, margem_calibrada,
     "calculável pelo candidato (d), mas o bloco II.5 mediu que as âncoras econômicas se sobredeterminam e discordam por 1,45 vezes",
 
-    "Qualidade da alocação", "objetivo de desempenho", TRUE, FALSE,
-    "é o rótulo de `R`, e o acesso à base de avaliação está negado, então distribuição e cobertura são suposição",
+    "Afinidade prevista ŝ", "objetivo de desempenho", TRUE, FALSE,
+    "o otimizador precisa de ŝ para cada par candidato, e é a wave 3 que o produz; o rótulo de `R` só existe para pares que aconteceram e serve para treinar e avaliar ŝ, não para substituí-lo. Com o acesso à base de avaliação negado, a escala dos dois é suposição",
 
     "Capacidade mensal", "restrição dura", TRUE, capacidade_respeitada,
     "existe e é medida, mas o histórico a viola com frequência, o que a impede de entrar como limite sem tornar infactível o que aconteceu",

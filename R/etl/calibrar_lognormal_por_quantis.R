@@ -2,7 +2,7 @@
 #'
 #' Vários campos reais deste projeto são positivos e fortemente assimétricos
 #' à direita: `valor_contrato` (assimetria 12,68), receita e custo por
-#' frente-mês, duração de projeto (3,6) e duração de alocação (3,97), todos
+#' projeto-mês, duração de projeto (3,6) e duração de alocação (3,97), todos
 #' em docs/mapeamento_schema.md. Para todos eles calibrar por média e desvio
 #' é instável, porque os dois são dominados pela cauda; os quantis são
 #' robustos e são o que está documentado.

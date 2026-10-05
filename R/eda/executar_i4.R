@@ -217,14 +217,20 @@ executar_i4 <- function(dados,
     ),
     "depende do gerador",
 
-    "I.4.3", NA,
+    "I.4.3",
+    paste0(
+      "O decaimento por recência de skill é tratado como descontínuo, em ondas ",
+      "de formulário, e não como função suave do tempo."
+    ),
     paste0(
       "A estrutura de ondas é real, porque na fonte as skills de uma pessoa ",
       "vêm de uma única resposta de formulário, mas as datas das ondas são ",
       "suposição declarada e nenhuma análise de recência pode tratá-las como ",
       "medida."
     ),
-    "depende do gerador",
+    # A proveniência se refere à decisão, que se apoia na estrutura real da
+    # campanha de formulários; a suposição sobre as datas fica na ressalva.
+    "fato real",
 
     "I.4.4",
     paste0(

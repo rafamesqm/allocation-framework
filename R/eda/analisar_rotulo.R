@@ -208,9 +208,9 @@ decompor_variancia_do_escore <- function(avaliacoes, etapa = "gestor_final") {
 #' Mede se a margem pode ser atribuída a uma alocação individual
 #'
 #' A pergunta que separa os candidatos (b) dos candidatos (c) e (d) da
-#' construção do rótulo. `margem_frente_mes` não tem `consultor_id`, e o
-#' usuário confirmou que frente e mês é a única granularidade que existe na
-#' Peers. Atribuir margem a uma pessoa dentro de um time exigiria regra de
+#' construção do rótulo. A fonte real de receita e custo tem grão de projeto
+#' e mês, sem `consultor_id`: a consulta Q5 mostrou que o "frente" do nome da
+#' view é herança do SharePoint, e não uma granularidade. Atribuir margem a uma pessoa dentro de um time exigiria regra de
 #' rateio, que seria estimativa e não captura.
 #'
 #' **O candidato (c) não cai mais por custo zerado, e sim por não existir.** A
@@ -336,7 +336,7 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
     margem_atribuivel, FALSE,
     paste0(
       "a margem não existe por alocação em lugar nenhum da Peers, e ratear a de ",
-      "frente e mês entre os membros do time seria necessário em ",
+      "projeto e mês entre os membros do time seria necessário em ",
       formatar_pct(fracao_projetos_com_equipe),
       " dos projetos alocados; o rateio é estimativa, não captura"
     ),

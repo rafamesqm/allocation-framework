@@ -32,15 +32,16 @@ calcular_assimetria <- function(x) {
 #' quantis, e o resumo tem que falar a mesma língua da calibração.
 #'
 #' `fracao_zero` não é detalhe de formatação: várias variáveis aqui têm
-#' massa pontual em zero (`valor_contrato`, receita e custo por frente-mês),
+#' massa pontual em zero (`valor_contrato`, receita por projeto e mês),
 #' e essa massa é o que distingue um modelo hurdle de uma log-normal comum.
 #' Uma leitura que só olhe a mediana não a enxerga.
 #'
 #' **Os quantis vêm em duas versões, incondicional e só dos positivos.** Não
 #' é redundância. Em variável com massa em zero as duas medem coisas
 #' diferentes, e confundi-las produz conclusão errada com aparência de
-#' rigor: em `custo` da margem por frente-mês, com 45% de zeros, o P25
-#' incondicional é exatamente zero, enquanto o P25 dos positivos é 16 mil.
+#' rigor: na receita de estagiários por projeto e mês, com cerca de 40% de
+#' zeros, o P25 incondicional é exatamente zero, e qualquer quantil dos
+#' positivos fica acima dele.
 #' Os agregados reais deste projeto foram levantados nas duas formas,
 #' dependendo do campo (ver `docs/mapeamento_schema.md`), e a comparação só
 #' vale entre iguais. Em variável sem zeros as duas coincidem.

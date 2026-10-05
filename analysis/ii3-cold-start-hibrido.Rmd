@@ -102,9 +102,16 @@ declarado. O número é **idêntico** com skills ou com experiência setorial
 como sinal de conteúdo, porque são as mesmas pessoas que responderam.
 
 Nenhum componente do híbrido tem o que dizer sobre eles, e nenhuma escolha de
-sinal os resgata. O modelo precisa de uma terceira resposta declarada, e a
-única que não exige nem histórico nem atributo é a linha de base de
-popularidade do bloco II.1.
+sinal os resgata. **Nem a popularidade**, que uma versão anterior deste bloco
+indicava como terceira resposta: a popularidade de quem nunca foi alocado é
+zero, e o bloco II.7 mede exatamente isso, um consultor sem histórico nunca
+entra numa lista ordenada por ela.
+
+**A zona morta não é recomendável pelo modelo.** O que a põe no conjunto
+candidato tem de ser uma regra de exposição declarada fora dele, como rodízio
+ou inclusão explícita, e essa regra é decisão de negócio, não estatística. O
+fenômeno é real: 48 dos 285 ativos não aparecem em nenhuma linha de alocação
+no dado da Peers.
 
 Duas ressalvas sobre este número. A primeira é de realização: o gerador
 sorteia a ausência de histórico independentemente da ausência de resposta, e

@@ -105,16 +105,18 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "mês. Acrescentar o mês leva a ",
       formatar_inteiro(com_tempo$variaveis), " variáveis e ",
       formatar_inteiro(com_tempo$restricoes_capacidade), " restrições. ",
-      "Restringindo ao conjunto candidato do filtro de conteúdo, caem para ",
-      formatar_inteiro(restrito$variaveis), ", uma redução de ",
-      formatar_decimal(reducao, 1), " vezes",
+      "O filtro de setor, aplicado só a quem o declarou como o híbrido ",
+      "chaveado manda, deixa passar ", formatar_pct(filtro$fracao_candidatos),
+      " dos pares e reduz o problema para ",
+      formatar_inteiro(restrito$variaveis), " variáveis, uma redução de ",
+      formatar_decimal(reducao, 3), " vezes",
       if (is.null(estabilidade)) {
         "."
       } else {
         paste0(
           ", ou ",
           formatar_intervalo(
-            estabilidade, "reducao_porte_filtro", \(x) formatar_decimal(x, 1)
+            estabilidade, "reducao_porte_filtro", \(x) formatar_decimal(x, 3)
           ),
           " sobre as realizações",
           descrever_ponto_fora(posicao_no_intervalo(
@@ -125,14 +127,20 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       }
     ),
     paste0(
-      "**O filtro do bloco II.6 é o que torna o problema tratável**, e isso ",
-      "amarra os dois blocos por um caminho que não era o esperado: lá ele ",
-      "foi escolhido por filtrar e não ordenar, e aqui o mesmo corte reduz o ",
-      "espaço de decisão na proporção do número de categorias. Com ",
-      "ε-constraint, que resolve um inteiro a cada ponto da fronteira, a ",
-      "diferença entre um milhão e setenta mil binárias decide se a fronteira ",
-      "é calculável. O custo do corte está no achado II.6.5: ele exclui ",
-      "candidatos que na prática seriam alocados."
+      "**O filtro não torna o problema tratável.** Entre quem declarou setor ",
+      "ele corta ", formatar_decimal(1 / filtro$fracao_casamento, 1),
+      " vezes, mas quem não declarou, ",
+      formatar_pct(filtro$consultores_sem_setor), " do quadro, não é ",
+      "filtrado, e é essa metade que segura o porte. Uma versão anterior deste ",
+      "bloco media redução de ",
+      formatar_decimal(1 / filtro$fracao_excluindo_sem_setor, 1),
+      " vezes porque deixava essas pessoas fora do conjunto candidato: o ",
+      "otimizador nunca alocaria quem não respondeu o formulário, o que ",
+      "contradizia o híbrido chaveado do bloco II.3. Com ε-constraint, que ",
+      "resolve um inteiro a cada ponto da fronteira, a tratabilidade volta a ",
+      "ser pergunta aberta da wave 4, e a resposta terá de vir de outro lugar ",
+      "que não o filtro. Onde o corte existe, o custo dele é o do achado ",
+      "II.6.5: exclui candidatos que na prática seriam alocados."
     ),
 
     "II.8.2", "instrumento",
@@ -170,10 +178,13 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
     ),
     paste0(
       "Existir e ter escala utilizável são exigências diferentes, e separá-las ",
-      "é o que impede uma contagem otimista. Margem e qualidade da alocação ",
-      "são calculáveis e não dimensionáveis, cada uma pelo seu motivo já ",
+      "é o que impede uma contagem otimista. Margem e afinidade prevista são ",
+      "calculáveis e não dimensionáveis, cada uma pelo seu motivo já ",
       "registrado: a margem porque as âncoras se sobredeterminam (II.5.10), a ",
-      "qualidade porque o acesso à base de avaliação está negado (II.5.6). ",
+      "afinidade porque o acesso à base de avaliação está negado (II.5.6). ",
+      "A afinidade é `ŝ`, a predição que a wave 3 produz para cada par ",
+      "candidato, e não o rótulo de `R`, que só existe para pares que ",
+      "aconteceram e serve para treinar e avaliar `ŝ`. ",
       "**A ausência mais grave é a demanda futura**: `pipeline_demandas` traz ",
       "identificador e estágio, sem data, tamanho nem perfil. Sem ela o ",
       "otimizador não aloca para frente, só reavalia o passado."
@@ -184,12 +195,15 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "A wave 4 é viável como **exercício retrospectivo e multiobjetivo ",
       "parcial**, e não como alocador prospectivo. Ela pode rodar sobre os ",
       "projetos históricos, com capacidade e férias como restrições, custo ",
-      "como objetivo dimensionado, e o conjunto candidato restrito pelo filtro ",
-      "de conteúdo."
+      "como objetivo dimensionado, a afinidade `ŝ` da wave 3 como coeficiente ",
+      "do objetivo de desempenho, e o filtro de setor aplicado a quem o ",
+      "declarou."
     ),
     paste0(
       "É a decisão que a contagem de insumos permite, e ela é menor do que a ",
-      "ambição das pré-definições. O que fica de fora precisa ficar escrito: ",
+      "ambição das pré-definições. A ponte entre as duas waves é `ŝ`, como as ",
+      "pré-definições previam, e o achado III.4 registra o que a EDA deixa em ",
+      "aberto sobre ela. O que fica de fora precisa ficar escrito: ",
       "sem demanda futura não há alocação prospectiva; sem margem dimensionada ",
       "o objetivo econômico entra como direção e não como magnitude; sem ",
       "pirâmide não há restrição de composição; e sem skills requeridas a ",
@@ -204,10 +218,15 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
     "II.8.1",
     paste0(
       "A formulação do otimizador é o trio de consultor, projeto e mês, porque ",
-      "o par não expressa capacidade, restrita ao conjunto candidato do filtro ",
-      "de conteúdo, que é o que a torna tratável."
+      "o par não expressa capacidade, com o filtro de setor aplicado só a quem ",
+      "o declarou."
     ),
-    NA,
+    paste0(
+      "Com o filtro coerente com o chaveado, o problema segue na casa das ",
+      "centenas de milhares de binárias, e nada aqui mede se o ε-constraint o ",
+      "resolve no tempo disponível: a tratabilidade é a primeira pergunta da ",
+      "wave 4."
+    ),
     "estrutural",
 
     "II.8.2", NA,
@@ -231,8 +250,8 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
     paste0(
       "A wave 4 é exercício retrospectivo e multiobjetivo parcial, e não ",
       "alocador prospectivo: roda sobre os projetos históricos, com capacidade ",
-      "e férias como restrições, custo como objetivo dimensionado e o conjunto ",
-      "candidato restrito pelo filtro de conteúdo."
+      "e férias como restrições, custo como objetivo dimensionado, `ŝ` como ",
+      "coeficiente de afinidade e o filtro de setor aplicado a quem o declarou."
     ),
     NA,
     "fato real"

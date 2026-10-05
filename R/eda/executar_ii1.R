@@ -16,9 +16,9 @@
 #'
 #' **Decisão que discrimina.** Sobredispersão alta significa que a vizinhança
 #' dos nós de grau baixo é rala ou dominada pelos poucos nós populares, o que
-#' degrada método baseado em vizinhança e pesa a favor de fator latente. A
-#' linha de base de popularidade fixa o piso que o recomendador da wave 3
-#' precisa superar para justificar sua existência.
+#' degrada método baseado em vizinhança e deixa como alternativa o fator
+#' latente, que o bloco II.2 também derruba. A linha de base de popularidade
+#' fixa o piso que o componente colaborativo precisa superar.
 #'
 #' @param dados Lista nomeada de tibbles, de `carregar_dados()`.
 #' @param estabilidade tibble de `resumir_estabilidade()`, opcional.
@@ -149,8 +149,9 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
       "A ordem de grandeza reproduz a densidade real estimada de 0,5%, com a ",
       "ressalva de cobertura de join já registrada. Esparsidade nesse nível é ",
       "o regime em que método de vizinhança tem pouca sobreposição para ",
-      "estimar similaridade, e é o primeiro argumento a favor de fator ",
-      "latente sobre vizinhança."
+      "estimar similaridade, e é o argumento contra vizinhança. A ",
+      "alternativa natural, fator latente, não sai favorecida por isso: o ",
+      "bloco II.2 mostra que ela também não se sustenta nesta escala."
     ),
 
     "II.1.2", "consequência do gerador",
@@ -216,21 +217,21 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
       }
     ),
     paste0(
-      "É o piso que o recomendador da wave 3 precisa superar para justificar ",
-      "sua existência: modelo que não bata isso com folga não está usando ",
-      "informação de afinidade, apenas redescobrindo popularidade. O número é ",
-      "limite superior, por desempate favorável ao consultor avaliado, e ",
-      "precisa ser refeito sob o protocolo do bloco II.7 antes de virar ",
-      "critério formal."
+      "É o piso do componente colaborativo: modelo que não bata isso com ",
+      "folga não está usando informação de afinidade, apenas redescobrindo ",
+      "popularidade. O componente de conteúdo tem piso próprio, porque sob a ",
+      "divisão que o avalia a popularidade é zero (II.7.5). O número é limite ",
+      "superior, por desempate favorável ao consultor avaliado, e precisa ser ",
+      "refeito sob o protocolo do bloco II.7 antes de servir de comparação."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
 
     "II.1.1",
     paste0(
-      "O método de vizinhança fica descartado em favor de fator latente: ",
-      "neste nível de esparsidade não há sobreposição para estimar ",
-      "similaridade entre pares."
+      "O método de vizinhança fica descartado: neste nível de esparsidade não ",
+      "há sobreposição para estimar similaridade entre pares. A alternativa ",
+      "de fator latente cai no bloco II.2."
     ),
     NA,
     "fato real",
@@ -254,8 +255,8 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
     "II.1.4",
     paste0(
       "A linha de base de popularidade é reportada ao lado de toda comparação ",
-      "da wave 3, como piso que o recomendador precisa superar para justificar ",
-      "sua existência."
+      "do componente colaborativo, como o piso que ele precisa superar para ",
+      "justificar sua existência; o conteúdo tem piso próprio (II.7.5)."
     ),
     paste0(
       "O número medido aqui é limite superior, por desempate favorável ao ",

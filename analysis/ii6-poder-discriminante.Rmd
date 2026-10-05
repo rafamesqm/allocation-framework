@@ -49,7 +49,7 @@ Os dois lados do compromisso precisam ser lidos juntos, porque olhar só um
 leva à escolha errada.
 
 Em **setor**, são `r obj$grossa$classes` classes com mediana de
-`r obj$grossa$mediana_por_classe` consultores, e dois consultores sorteados
+`r formatar_decimal(obj$grossa$mediana_por_classe, 1)` consultores, e dois consultores sorteados
 caem na mesma classe em `r formatar_pct(obj$grossa$empate_medio)` das vezes.
 Dentro da classe o mecanismo é indiferente, e é justamente dentro da classe
 que a alocação precisa escolher.

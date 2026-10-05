@@ -1,6 +1,6 @@
 #' Gera uma variável numérica via modelo hurdle (Bernoulli + log-normal)
 #'
-#' Vários campos reais (`valor_contrato`, receita e custo por frente-mês,
+#' Vários campos reais (`valor_contrato`, receita e custo por projeto-mês,
 #' ver docs/mapeamento_schema.md) têm o mesmo formato: uma fração exata de
 #' zeros mais uma cauda positiva extremamente assimétrica. Uma log-normal
 #' comum não acomoda massa em zero exato, por isso o modelo hurdle: uma

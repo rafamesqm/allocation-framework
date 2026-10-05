@@ -36,9 +36,10 @@ sequência de grau dos dois lados, concentração da interação nos nós mais
 ativos, e o acerto que a popularidade sozinha alcança.
 
 **Decisão que discrimina.** Sobredispersão alta significa vizinhança rala
-para os nós de grau baixo, o que degrada método baseado em vizinhança e pesa
-a favor de fator latente. E a linha de base de popularidade fixa o piso que
-o recomendador da wave 3 precisa superar para justificar sua existência.
+para os nós de grau baixo, o que degrada método baseado em vizinhança e
+deixa como alternativa o fator latente, que o bloco II.2 examina e também
+derruba. E a linha de base de popularidade fixa o piso que o componente
+colaborativo precisa superar; o de conteúdo tem piso próprio (bloco II.7).
 
 ## Esparsidade
 
@@ -105,7 +106,7 @@ que obriga a métrica de avaliação da wave 3 a controlar popularidade. Sem
 esse controle, um modelo que apenas aprendeu a devolver quem já é muito
 alocado aparece como bom modelo.
 
-## A linha de base que o modelo precisa bater
+## A linha de base do componente colaborativo
 
 ```{r linha-base, fig.width = 7, fig.height = 4.5}
 bloco$figuras$ii1_linha_base
