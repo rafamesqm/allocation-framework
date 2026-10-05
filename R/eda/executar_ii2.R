@@ -60,6 +60,21 @@ executar_ii2 <- function(dados, estabilidade = NULL,
   razao_netflix <- netflix$obs_por_parametro / este$obs_por_parametro
   razao_movielens <- movielens_pequeno$obs_por_parametro / este$obs_por_parametro
 
+  # As referências da literatura e o agregado real são números fixos, então
+  # só o lado sintético varia entre realizações. Duas consequências: o
+  # intervalo da razão sai do intervalo da evidência por parâmetro, porque
+  # quantil comuta com transformação monotônica; e a pergunta que importa é se
+  # o valor real cai dentro do intervalo sintético, que é o que sustenta dizer
+  # que a conclusão não depende do gerador.
+  k10_estavel <- if (is.null(estabilidade)) {
+    NULL
+  } else {
+    estabilidade[estabilidade$medida == "obs_por_parametro_k10", ]
+  }
+  real_no_intervalo <- posicao_no_intervalo(
+    estabilidade, "obs_por_parametro_k10", real$obs_por_parametro
+  )
+
   # A distância relativa entre a razão do sintético e a dos agregados reais.
   # É o que autoriza dizer que a conclusão do bloco não depende do gerador.
   desvio_real <- abs(este$obs_por_parametro - real$obs_por_parametro) /
@@ -148,7 +163,30 @@ executar_ii2 <- function(dados, estabilidade = NULL,
       formatar_decimal(netflix$obs_por_parametro, 1),
       " do Netflix Prize, isto é, ",
       formatar_decimal(razao_movielens, 0), " e ",
-      formatar_decimal(razao_netflix, 0), " vezes menos evidência."
+      formatar_decimal(razao_netflix, 0), " vezes menos evidência",
+      if (is.null(k10_estavel) || nrow(k10_estavel) == 0) {
+        "."
+      } else {
+        paste0(
+          ". Sobre as realizações a evidência por parâmetro fica em ",
+          formatar_intervalo(
+            estabilidade, "obs_por_parametro_k10", \(x) formatar_decimal(x, 3)
+          ),
+          ", o que mantém a distância para o MovieLens entre ",
+          formatar_decimal(movielens_pequeno$obs_por_parametro / k10_estavel$superior, 0),
+          " e ",
+          formatar_decimal(movielens_pequeno$obs_por_parametro / k10_estavel$inferior, 0),
+          " vezes, e o valor refeito sobre os agregados reais, ",
+          formatar_decimal(real$obs_por_parametro, 3), ", cai ",
+          switch(
+            real_no_intervalo,
+            dentro = "dentro do intervalo",
+            abaixo = "abaixo do intervalo",
+            acima = "acima do intervalo"
+          ),
+          "."
+        )
+      }
     ),
     paste0(
       "O MovieLens 100K é o menor conjunto de uso corrente na literatura, e ",

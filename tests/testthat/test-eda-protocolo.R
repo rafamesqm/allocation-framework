@@ -91,10 +91,13 @@ test_that("a linha de base sob protocolo nao usa o teste para contar popularidad
   expect_equal(base$recall[base$n_recomendados == 5], 0)
 })
 
-test_that("o desempate usa a posicao esperada e nao a mais favoravel", {
-  # Dez consultores com a mesma popularidade: o focal fica, em media, no meio
-  # do bloco. Desempate favoravel o poria em primeiro e daria acerto em
-  # qualquer lista.
+test_that("o desempate da o acerto esperado e nao o acerto da posicao esperada", {
+  # Dez consultores com a mesma popularidade: o focal cai com a mesma chance
+  # em qualquer das dez posicoes. Desempate favoravel o poria em primeiro e
+  # daria acerto em qualquer lista. Comparar a posicao media, 5,5, com o
+  # tamanho da lista daria zero em lista de 4 e um em lista de 6, que era o
+  # erro da versao anterior: o acerto esperado e a fracao do bloco que cabe
+  # na lista.
   consultores <- tibble::tibble(consultor_id = paste0("c", 1:10))
   treino <- tibble::tibble(
     consultor_id = rep(paste0("c", 1:10), each = 2), projeto_id = "p1"
@@ -103,9 +106,8 @@ test_that("o desempate usa a posicao esperada e nao a mais favoravel", {
 
   base <- medir_linha_base_sob_protocolo(treino, teste, consultores, tamanhos = c(4, 6))
 
-  # Posicao esperada e 5,5: fora de lista 4, dentro de lista 6.
-  expect_equal(base$recall[base$n_recomendados == 4], 0)
-  expect_equal(base$recall[base$n_recomendados == 6], 1)
+  expect_equal(base$recall[base$n_recomendados == 4], 0.4)
+  expect_equal(base$recall[base$n_recomendados == 6], 0.6)
 })
 
 test_that("executar_ii7 devolve as quatro partes do bloco", {
@@ -116,7 +118,7 @@ test_that("executar_ii7 devolve as quatro partes do bloco", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_true(all(vapply(bloco$tabelas, is.data.frame, logical(1))))
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
-  expect_equal(nrow(bloco$achados), 4)
+  expect_equal(nrow(bloco$achados), 7)
   expect_true(all(startsWith(bloco$achados$codigo, "II.7.")))
   expect_true(bloco$objetos$nenhuma_serve_aos_dois)
 })
@@ -132,4 +134,66 @@ test_that("a figura do bloco II.7 carrega o proprio tema", {
     expect_s3_class(figura$theme$panel.border, "element_rect")
     expect_no_error(ggplot2::ggplot_build(figura))
   }
+})
+
+test_that("o piso de filtro com acaso da a fracao do conjunto filtrado que cabe na lista", {
+  # Setor A tem dois consultores, setor B tem um, e c4 nao declarou setor.
+  consultores <- tibble::tibble(consultor_id = paste0("c", 1:4))
+  experiencia <- tibble::tibble(
+    consultor_id = c("c1", "c2", "c3"), segmento = c("A", "A", "B"),
+    intensidade = 1
+  )
+  projetos <- tibble::tibble(projeto_id = "p1", setor = "A")
+  teste <- tibble::tibble(consultor_id = c("c1", "c3"), projeto_id = "p1")
+
+  # Lista de um: c1 passa e divide a vaga com c2; c3 nao passa e nao sobra
+  # vaga depois dos dois filtrados.
+  um <- medir_piso_filtro_e_acaso(teste, consultores, projetos, experiencia, 1)
+  expect_equal(um$recall, mean(c(0.5, 0)))
+  expect_equal(um$fracao_passa, 0.5)
+
+  # Lista de tres: c1 entra sempre; c3 disputa a vaga que sobra com c4.
+  tres <- medir_piso_filtro_e_acaso(teste, consultores, projetos, experiencia, 3)
+  expect_equal(tres$recall, mean(c(1, 0.5)))
+})
+
+test_that("o ganho minimo resolve a formula de Connor e respeita os dois cenarios", {
+  otimista <- calcular_ganho_minimo_detectavel(300, 0.2, "dominancia")
+  conservador <- calcular_ganho_minimo_detectavel(300, 0.2, "independencia")
+
+  # Dominancia e o minimo de discordancia possivel, entao e o cenario que
+  # enxerga o menor ganho.
+  expect_lt(otimista, conservador)
+
+  # Substituir o ganho devolvido na formula precisa devolver o proprio n.
+  psi <- (0.2 + conservador) * 0.8 + (1 - 0.2 - conservador) * 0.2
+  n <- (stats::qnorm(0.975) * sqrt(psi) + stats::qnorm(0.8) * sqrt(psi - conservador^2))^2 /
+    conservador^2
+  expect_equal(n, 300, tolerance = 1e-4)
+})
+
+test_that("mais pares deixam enxergar ganhos menores, e pares de menos nada", {
+  ganhos <- vapply(
+    c(50, 200, 800), calcular_ganho_minimo_detectavel, numeric(1), piso = 0.2
+  )
+
+  expect_true(all(diff(ganhos) < 0))
+  expect_true(is.na(calcular_ganho_minimo_detectavel(3, 0.2)))
+  expect_true(is.na(calcular_ganho_minimo_detectavel(0, 0.2)))
+})
+
+test_that("sob divisao por consultor o piso de popularidade do conteudo e zero", {
+  # E consequencia da divisao, e nao do conjunto: nenhum consultor de teste
+  # foi visto no treino. Se um dia sair de zero, a divisao vazou.
+  dados <- carregar_dados()
+
+  poder <- planejar_poder_por_componente(
+    dados$alocacoes, dados$consultores, dados$projetos, dados$experiencia_setorial
+  )
+  popularidade_no_conteudo <- poder$valor_piso[
+    poder$componente == "Conteúdo" & poder$piso == "Popularidade no treino"
+  ]
+
+  expect_equal(nrow(poder), 4)
+  expect_equal(popularidade_no_conteudo, 0)
 })

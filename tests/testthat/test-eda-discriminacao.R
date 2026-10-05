@@ -114,7 +114,7 @@ test_that("executar_ii6 devolve as quatro partes do bloco", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_true(all(vapply(bloco$tabelas, is.data.frame, logical(1))))
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
-  expect_equal(nrow(bloco$achados), 6)
+  expect_equal(nrow(bloco$achados), 7)
   expect_true(all(startsWith(bloco$achados$codigo, "II.6.")))
   expect_equal(
     bloco$achados$etiqueta[bloco$achados$codigo == "II.6.4"],
@@ -133,4 +133,44 @@ test_that("a figura do bloco II.6 carrega o proprio tema", {
     expect_s3_class(figura$theme$panel.border, "element_rect")
     expect_no_error(ggplot2::ggplot_build(figura))
   }
+})
+
+test_that("comparar_mecanismos_de_p nao falha com menos candidatos que negativos pedidos", {
+  # Sempre rodou na escala completa, onde o limite nao morde. Dentro das
+  # replicas de estabilidade, com populacao pequena, o sorteio sem reposicao
+  # quebrava por pedir mais negativos do que existiam. Pedir 500 contra os
+  # cerca de 140 candidatos da escala completa exercita o mesmo caminho.
+  dados <- carregar_dados()
+
+  resultado <- comparar_mecanismos_de_p(dados, amostra_negativos = 500)
+
+  expect_true(all(resultado$resultados$auc >= 0 & resultado$resultados$auc <= 1))
+})
+
+test_that("sem replicas o II.6 nao afirma que a folga do one-hot caiu", {
+  # Ausencia de medida nao e evidencia contra. Antes de os estados virarem
+  # tres, rodar o bloco sem replicas emitia a ressalva de que a vantagem nao
+  # se sustenta, afirmando um resultado que ninguem tinha medido.
+  achados <- executar_ii6(carregar_dados(), estabilidade = NULL)$achados
+  ii66 <- achados[achados$codigo == "II.6.6", ]
+  ii62 <- achados[achados$codigo == "II.6.2", ]
+
+  expect_true(is.na(ii66$limitacao))
+  expect_no_match(ii62$enunciado, "não se sustentar")
+  expect_match(ii66$enunciado, "não tem intervalo medido")
+})
+
+test_that("com a folga medida cruzando o zero o II.6 declara a ressalva", {
+  estabilidade <- tibble::tibble(
+    medida = c("folga_one_hot_popularidade", "auc_perfil_sem_vazamento"),
+    mediana = c(0.03, 0.49), inferior = c(-0.01, 0.46), superior = c(0.065, 0.54)
+  )
+
+  achados <- executar_ii6(carregar_dados(), estabilidade = estabilidade)$achados
+
+  expect_match(
+    achados$limitacao[achados$codigo == "II.6.6"], "**sem** poder alegar",
+    fixed = TRUE
+  )
+  expect_match(achados$enunciado[achados$codigo == "II.6.6"], "não se sustenta")
 })

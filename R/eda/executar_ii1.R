@@ -70,6 +70,10 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
     recall_20 = recall_20,
     recall_50 = recall_50,
     fracao_lista_50 = fracao_lista_50,
+    recall_20_intervalo = formatar_intervalo(estabilidade, "recall_popularidade_20"),
+    recall_20_posicao = posicao_no_intervalo(
+      estabilidade, "recall_popularidade_20", recall_20
+    ),
     concentracao_top10_projeto = concentracao_top10_projeto,
     concentracao_top10_consultor = concentracao_top10_consultor,
     grau_consultor = grau_consultor,
@@ -189,7 +193,27 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
       "Recomendar apenas os consultores mais alocados, sem olhar o projeto, ",
       "acerta ", formatar_pct(recall_20, 1), " das alocações com lista de 20 ",
       "e ", formatar_pct(recall_50, 1), " com lista de 50, esta última ",
-      "cobrindo ", formatar_pct(fracao_lista_50), " do quadro."
+      "cobrindo ", formatar_pct(fracao_lista_50), " do quadro",
+      if (is.null(estabilidade)) {
+        "."
+      } else {
+        paste0(
+          ". Sobre as realizações, ",
+          formatar_intervalo(estabilidade, "recall_popularidade_20"),
+          " em lista de 20 e ",
+          formatar_intervalo(estabilidade, "recall_popularidade_50"),
+          " em lista de 50",
+          descrever_ponto_fora(c(
+            "lista de 20" = posicao_no_intervalo(
+              estabilidade, "recall_popularidade_20", recall_20
+            ),
+            "lista de 50" = posicao_no_intervalo(
+              estabilidade, "recall_popularidade_50", recall_50
+            )
+          )),
+          "."
+        )
+      }
     ),
     paste0(
       "É o piso que o recomendador da wave 3 precisa superar para justificar ",

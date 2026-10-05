@@ -38,8 +38,12 @@ medir_realizacao <- function(semente,
   experiencia_observada <- restringir_a_respondentes(experiencia, respondentes)
   alocacoes <- gerar_alocacoes(consultores, projetos, experiencia, semente = semente)
   custo <- gerar_custo_carregado(consultores, semente = semente)
+  # O espaço de skills sai da chamada para ser reaproveitado pelas grandezas
+  # do bloco II.6, no fim desta função. Içá-lo não desloca o fluxo aleatório
+  # porque `gerar_espaco_skills()` é determinístico.
+  espaco_skills <- gerar_espaco_skills()
   skills <- gerar_skills_consultor(
-    consultores, gerar_espaco_skills(), respondentes = respondentes
+    consultores, espaco_skills, respondentes = respondentes
   )
   grafo <- gerar_grafo_coalocacao(alocacoes)
   ocupacao <- agregar_ocupacao_consultor(alocacoes)
@@ -93,6 +97,67 @@ medir_realizacao <- function(semente,
   sem_skills <- !consultores$consultor_id %in% skills$consultor_id
   sem_setor_observado <- !consultores$consultor_id %in% experiencia_observada$consultor_id
 
+  # **Bloco II.6, apensado ao fim de propósito.** `comparar_mecanismos_de_p()`
+  # chama `set.seed()` e amostra negativos. Posto antes de qualquer gerador,
+  # deslocaria o fluxo aleatório de toda a realização, e as grandezas já
+  # publicadas mudariam de valor sem nenhuma mudança de modelo. Aqui, nada
+  # consome aleatoriedade depois dele.
+  #
+  # A experiência entra na versão **observada**, e não na latente, porque é
+  # sobre ela que o bloco II.6 estima o one-hot: usar a latente mediria um
+  # setor que o analista não enxerga.
+  discriminacao <- comparar_mecanismos_de_p(list(
+    alocacoes = alocacoes,
+    projetos = projetos,
+    consultores = consultores,
+    skills_consultor = skills,
+    espaco_skills = espaco_skills,
+    experiencia_setorial = experiencia_observada
+  ))$resultados
+
+  auc_de <- function(mecanismo) {
+    discriminacao$auc[discriminacao$mecanismo == mecanismo]
+  }
+  auc_one_hot <- auc_de("one_hot")
+  auc_popularidade <- auc_de("popularidade")
+
+  # Blocos II.1, II.2, II.7 e II.8, também apensados ao fim. Do II.7 entra só
+  # a divisão temporal: as outras formas sorteiam, e a temporal é a que o
+  # protocolo adota para o colaborativo. `dividir_interacoes()` chama
+  # `set.seed()` mesmo no ramo temporal, o que é inofensivo aqui porque nada
+  # depois dele consome aleatoriedade.
+  divisao_temporal <- dividir_interacoes(alocacoes, "temporal", fracao_teste = 0.3)
+  avaliabilidade_temporal <- medir_divisao(
+    divisao_temporal, unique(experiencia_observada$consultor_id)
+  )
+  linha_base_protocolo <- medir_linha_base_sob_protocolo(
+    divisao_temporal$treino, divisao_temporal$teste, consultores, tamanhos = 20
+  )
+  linha_base_50 <- medir_linha_base_popularidade(alocacoes, consultores, tamanhos = 50)
+  identificabilidade_k10 <- medir_identificabilidade(
+    alocacoes, consultores, projetos, fatores = 10
+  )
+  filtro <- medir_reducao_pelo_filtro(consultores, projetos, experiencia_observada)
+  porte <- medir_porte_do_problema(
+    consultores, projetos, alocacoes, dplyr::n_distinct(ocupacao$ano_mes),
+    fracao_candidatos = filtro$fracao_candidatos
+  )
+  variaveis_de <- function(formulacao) porte$variaveis[porte$formulacao == formulacao]
+
+  # Poder por componente, do bloco II.7. O número de pares avaliáveis do
+  # colaborativo varia bastante entre realizações, e calcular o ganho mínimo
+  # sobre uma só repetiria o erro que estas réplicas existem para evitar. A
+  # divisão por consultor sorteia, mas `dividir_interacoes()` fixa a própria
+  # semente e nada depois dela consome aleatoriedade.
+  poder <- planejar_poder_por_componente(
+    alocacoes, consultores, projetos, experiencia_observada
+  )
+  poder_de <- function(componente, piso) {
+    poder[poder$componente == componente & poder$piso == piso, ]
+  }
+  poder_colaborativo <- poder_de("Colaborativo", "Popularidade no treino")
+  poder_conteudo <- poder_de("Conteúdo", "Filtro de setor e acaso")
+
   tibble::tibble(
     semente = semente,
     densidade_R = nrow(alocacoes) / (nrow(consultores) * nrow(projetos)),
@@ -138,7 +203,38 @@ medir_realizacao <- function(semente,
     cobertura_setor_observada = mean(!sem_setor_observado),
     zona_morta_setor = mean(sem_interacao & sem_setor_observado),
     massa_pct_alocacao_em_1 = mean(alocacoes$pct_alocacao == 1),
-    massa_horas_mes_em_0 = mean(alocacoes$horas_mes == 0)
+    massa_horas_mes_em_0 = mean(alocacoes$horas_mes == 0),
+    auc_one_hot = auc_one_hot,
+    auc_popularidade_discriminacao = auc_popularidade,
+    auc_perfil_sem_vazamento = auc_de("perfil_sem_vazamento"),
+    # **A folga é medida como grandeza própria, e não deduzida das duas
+    # anteriores**, porque é ela, e não cada AUC em separado, que o achado
+    # II.6.6 afirma ser positiva. Sobrepor os dois intervalos marginais
+    # responderia outra pergunta.
+    #
+    # A correlação entre os dois AUCs sobre as réplicas é de cerca de -0,35, e
+    # não positiva como se poderia supor por ambos responderem à concentração
+    # da alocação. Com correlação negativa a diferença varia **mais** do que
+    # variaria sob independência, o que torna a medida direta ainda mais
+    # necessária: deduzir a folga das marginais a subestimaria.
+    folga_one_hot_popularidade = auc_one_hot - auc_popularidade,
+    recall_popularidade_50 = linha_base_50$recall,
+    obs_por_parametro_k10 = identificabilidade_k10$obs_por_parametro,
+    avaliavel_colaborativo_temporal = avaliabilidade_temporal$avaliavel_colaborativo,
+    recall_protocolo_20 = linha_base_protocolo$recall,
+    # Medida como grandeza própria pelo mesmo motivo da folga do one-hot: o
+    # achado II.7.3 afirma que a correção morde, que é afirmar um sinal.
+    correcao_linha_base_20 = linha_base$recall - linha_base_protocolo$recall,
+    reducao_porte_filtro = variaveis_de("Trio consultor, projeto e mês") /
+      variaveis_de("Trio, restrito ao conjunto candidato"),
+    n_avaliavel_colaborativo = poder_colaborativo$n_avaliavel,
+    piso_colaborativo = poder_colaborativo$valor_piso,
+    ganho_minimo_colaborativo = poder_colaborativo$ganho_independencia,
+    ganho_minimo_colaborativo_dominancia = poder_colaborativo$ganho_dominancia,
+    n_avaliavel_conteudo = poder_conteudo$n_avaliavel,
+    piso_conteudo_filtro = poder_conteudo$valor_piso,
+    ganho_minimo_conteudo = poder_conteudo$ganho_independencia,
+    ganho_minimo_conteudo_dominancia = poder_conteudo$ganho_dominancia
   )
 }
 
@@ -206,6 +302,10 @@ resumir_estabilidade <- function(replicas, nivel = 0.90) {
 #' @return Texto no formato `"mediana (inferior a superior)"`, ou `NA` se a
 #'   grandeza não foi medida.
 formatar_intervalo <- function(estabilidade, nome_medida, formatador = formatar_pct) {
+  # Mesma proteção das duas funções irmãs abaixo. Os blocos aceitam rodar sem
+  # réplicas, e só esta das três quebrava nesse caso.
+  if (is.null(estabilidade)) return(NA_character_)
+
   linha <- estabilidade[estabilidade$medida == nome_medida, ]
   if (nrow(linha) == 0) return(NA_character_)
 
@@ -245,4 +345,65 @@ posicao_no_intervalo <- function(estabilidade, nome_medida, valor) {
   } else {
     "dentro"
   }
+}
+
+#' Diz se o intervalo de uma grandeza fica inteiramente de um lado do zero
+#'
+#' Existe para achado que afirma um sinal, e não uma magnitude. Dizer que o
+#' one-hot supera a linha de base é afirmar que uma diferença é positiva, e
+#' essa afirmação só se sustenta se o intervalo da diferença não contiver
+#' zero. Sem este teste, o texto citaria a mediana e silenciaria sobre o
+#' intervalo, que foi exatamente o que aconteceu com o achado II.6.6 antes de
+#' a folga passar a ser medida.
+#'
+#' O teste é sobre a grandeza da **diferença**, medida diretamente. Aplicá-lo
+#' a cada termo em separado e comparar os intervalos responderia outra
+#' pergunta, e responderia errado sempre que os dois termos forem
+#' correlacionados.
+#'
+#' @param estabilidade tibble de `resumir_estabilidade()`.
+#' @param nome_medida Nome da grandeza de diferença.
+#' @return `TRUE` se o intervalo exclui zero, `FALSE` se o contém, `NA` se a
+#'   grandeza não foi medida.
+intervalo_separa_de_zero <- function(estabilidade, nome_medida) {
+  if (is.null(estabilidade)) return(NA)
+
+  linha <- estabilidade[estabilidade$medida == nome_medida, ]
+  if (nrow(linha) == 0) return(NA)
+
+  linha$inferior > 0 | linha$superior < 0
+}
+
+#' Descreve, em oração, os pontos que caem fora do próprio intervalo
+#'
+#' Complemento textual de `posicao_no_intervalo()`. O bloco II.4 escreveu
+#' essa oração à mão quando a positividade da realização versionada caiu
+#' fora do intervalo; o bloco II.1 precisou da mesma coisa para o piso de
+#' popularidade, e a segunda ocorrência é o ponto de virar função, para os
+#' blocos não divergirem na forma de dizer.
+#'
+#' Ponto fora não é defeito. Um sorteio em cada dez cai fora de um intervalo
+#' de 90% por definição. O que não pode é o texto citar o ponto e o
+#' intervalo lado a lado como se fossem compatíveis.
+#'
+#' @param posicoes Vetor de `posicao_no_intervalo()`, nomeado pelo que cada
+#'   posição descreve, como `c("lista de 20" = "acima")`. Sem nomes, a oração
+#'   fala do ponto sem qualificá-lo.
+#' @return Oração iniciada por ponto e vírgula, ou texto vazio se todos os
+#'   pontos estão dentro ou não foram medidos.
+descrever_ponto_fora <- function(posicoes) {
+  fora <- posicoes[!is.na(posicoes) & posicoes != "dentro"]
+  if (length(fora) == 0) return("")
+
+  rotulos <- names(fora)
+  partes <- if (is.null(rotulos) || all(!nzchar(rotulos))) {
+    paste0(fora, " do intervalo")
+  } else {
+    paste0(fora, " do intervalo em ", rotulos)
+  }
+
+  paste0(
+    "; a realização versionada cai ", paste(partes, collapse = " e "),
+    ", então o valor pontual é um sorteio extremo e não o típico"
+  )
 }

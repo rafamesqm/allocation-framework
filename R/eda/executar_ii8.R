@@ -107,7 +107,22 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       formatar_inteiro(com_tempo$restricoes_capacidade), " restrições. ",
       "Restringindo ao conjunto candidato do filtro de conteúdo, caem para ",
       formatar_inteiro(restrito$variaveis), ", uma redução de ",
-      formatar_decimal(reducao, 1), " vezes."
+      formatar_decimal(reducao, 1), " vezes",
+      if (is.null(estabilidade)) {
+        "."
+      } else {
+        paste0(
+          ", ou ",
+          formatar_intervalo(
+            estabilidade, "reducao_porte_filtro", \(x) formatar_decimal(x, 1)
+          ),
+          " sobre as realizações",
+          descrever_ponto_fora(posicao_no_intervalo(
+            estabilidade, "reducao_porte_filtro", reducao
+          )),
+          "."
+        )
+      }
     ),
     paste0(
       "**O filtro do bloco II.6 é o que torna o problema tratável**, e isso ",

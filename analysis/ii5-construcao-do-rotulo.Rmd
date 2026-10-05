@@ -72,6 +72,38 @@ mostrar_tabela(
 O número é parâmetro do gerador e não diz nada sobre a Peers, onde a
 cobertura real é desconhecida.
 
+### Cruzada com a cobertura do conteúdo
+
+```{r conteudo-rotulo}
+mostrar_tabela(
+  bloco$tabelas$ii5_conteudo_rotulo,
+  "Tabela II.5.2: rótulo por quadrante de cobertura do bloco II.3.",
+  c("l", "r", "r", "r")
+)
+```
+
+O bloco II.3 mede quem tem conteúdo e este mede quem tem rótulo, e a
+pergunta que nenhum dos dois faz sozinho é se as duas faltas caem sobre as
+mesmas pessoas. Se caíssem, haveria um terceiro viés de seleção empilhado
+sobre os dois do bloco II.4.
+
+Quem nunca foi alocado não tem rótulo, por construção aqui e na Peers, então
+o teste de associação roda só entre quem tem histórico. Ali a razão de
+chances entre ter conteúdo e ter rótulo é de
+`r formatar_decimal(obj$cruzamento$razao_de_chances, 2)`, com intervalo de
+95% de `r formatar_decimal(obj$cruzamento$ic_razao[1], 2)` a
+`r formatar_decimal(obj$cruzamento$ic_razao[2], 2)` pelo teste exato de
+Fisher. **É independência, e é construção**: o gerador sorteia as alocações
+avaliadas sem olhar para mais nada.
+
+O que fica de valor são duas coisas. Na granularidade da célula de `R`, só
+`r formatar_pct(obj$cruzamento$fracao_fim_a_fim)` das alocações são
+avaliáveis de ponta a ponta pelo componente de conteúdo. E o intervalo da
+razão de chances é largo: com tão poucas pessoas com histórico e sem rótulo,
+o teste só enxerga empilhamento forte. **Se ele for aplicado ao dado real e
+der não significativo, isso não autoriza dizer que as faltas são
+independentes.**
+
 ## O rótulo é ambíguo até a etapa ser declarada
 
 ```{r divergencia, fig.width = 7.5, fig.height = 3.5}
@@ -81,7 +113,7 @@ bloco$figuras$ii5_divergencia_etapas
 ```{r divergencia-tabela}
 mostrar_tabela(
   bloco$tabelas$ii5_divergencia_etapas,
-  "Tabela II.5.2: nível e composição da nota em cada etapa.",
+  "Tabela II.5.3: nível e composição da nota em cada etapa.",
   c("l", "r", "r", "r")
 )
 ```
@@ -92,7 +124,7 @@ itens, então a comparação é pareada e direta.
 ```{r concordancia}
 mostrar_tabela(
   bloco$tabelas$ii5_concordancia_pares,
-  "Tabela II.5.3: concordância entre etapas, item a item.",
+  "Tabela II.5.4: concordância entre etapas, item a item.",
   c("l", "l", "r", "r")
 )
 ```
@@ -122,7 +154,7 @@ bloco$figuras$ii5_dimensionalidade_itens
 ```{r dimensionalidade-tabela}
 mostrar_tabela(
   bloco$tabelas$ii5_dimensionalidade,
-  "Tabela II.5.4: estrutura comum entre os itens e sinal sobre a pessoa.",
+  "Tabela II.5.5: estrutura comum entre os itens e sinal sobre a pessoa.",
   c("l", "r")
 )
 ```
@@ -179,7 +211,7 @@ avaliador, e o que se mede abaixo é o regime real.
 ```{r construcoes}
 mostrar_tabela(
   bloco$tabelas$ii5_construcoes_rotulo,
-  "Tabela II.5.5: efeito de normalizar, contra o avaliador registrado.",
+  "Tabela II.5.6: efeito de normalizar, contra o avaliador registrado.",
   c("l", "r", "r", "r")
 )
 ```
@@ -236,7 +268,7 @@ alocação não é célula de `R`.
 ```{r candidatos}
 mostrar_tabela(
   bloco$tabelas$ii5_candidatos_rotulo,
-  "Tabela II.5.9: os quatro candidatos do dicionário contra o medido.",
+  "Tabela II.5.7: os quatro candidatos do dicionário contra o medido.",
   c("l", "l", "l", "c", "l")
 )
 ```
@@ -305,7 +337,7 @@ prometer: otimizar essa margem é otimizar medida bruta, não lucro.
 ```{r sobredeterminacao}
 mostrar_tabela(
   bloco$tabelas$ii5_sobredeterminacao,
-  "Tabela II.5.7: o que cada âncora precisaria valer para o sistema fechar.",
+  "Tabela II.5.8: o que cada âncora precisaria valer para o sistema fechar.",
   c("l", "r", "r", "r", "c")
 )
 ```

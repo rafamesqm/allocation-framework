@@ -126,7 +126,7 @@ com uma lista de 20 e `r formatar_pct(obj$recall_50, 1)` com uma lista de
 50, que cobre `r formatar_pct(obj$fracao_lista_50)` do quadro.
 
 Duas ressalvas metodológicas, ambas necessárias para o número não ser lido
-como mais do que é.
+como mais do que é, e uma terceira, de amostragem.
 
 A popularidade de cada consultor é recalculada **excluindo a alocação sendo
 prevista**. Sem esse deixa-um-de-fora, a alocação que se quer prever entra
@@ -142,6 +142,18 @@ Além disso, isto é um deixa-um-de-fora sobre o conjunto inteiro, não uma
 avaliação sob protocolo. A divisão treino e teste, a métrica definitiva e a
 amostragem de negativos são decisão do bloco II.7, e o número aqui deve ser
 lido como ordem de grandeza do piso, não como resultado de avaliação.
+
+```{r piso-extremo, results = "asis"}
+if (identical(obj$recall_20_posicao, "acima")) {
+  cat(paste0(
+    "Por fim, **esta realização é um sorteio alto.** Sobre as cem realizações ",
+    "do bloco I.0, o acerto em lista de 20 fica em ", obj$recall_20_intervalo,
+    ", e o valor desta realização cai acima do intervalo. O bloco II.7 mostra ",
+    "a consequência: boa parte da queda que a correção do piso parece produzir ",
+    "aqui vem de partir deste ponto alto."
+  ))
+}
+```
 
 ## Achados do bloco
 

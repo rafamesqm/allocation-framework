@@ -207,7 +207,15 @@ comparar_mecanismos_de_p <- function(dados, data_corte = NULL,
       return(NULL)
     }
 
-    negativos <- sample(setdiff(candidatos, positivo), amostra_negativos)
+    # O número de negativos é limitado ao que existe. Na escala completa há
+    # bem mais candidatos que negativos pedidos e o limite não morde, mas em
+    # população pequena o sorteio sem reposição falharia. O índice via
+    # `sample.int` evita a armadilha de `sample()` com vetor de tamanho um,
+    # a mesma que corrompeu a banda de custo de N2.
+    disponiveis <- setdiff(candidatos, positivo)
+    negativos <- disponiveis[sample.int(
+      length(disponiveis), size = min(amostra_negativos, length(disponiveis))
+    )]
     avaliados <- c(positivo, negativos)
 
     tibble::tibble(

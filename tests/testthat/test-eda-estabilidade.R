@@ -6,7 +6,14 @@ test_that("medir_realizacao devolve uma linha com as grandezas dos achados", {
     "densidade_R", "cold_start_consultor", "cobertura_skills",
     "cor_nivel_custo", "agrupamento_grafo", "acima_capacidade"
   ) %in% names(medida)))
-  expect_false(anyNA(dplyr::select(medida, -dplyr::any_of("agrupamento_grafo"))))
+  # O ganho minimo do colaborativo e NA por definicao quando ha pares de
+  # menos para distinguir ate um modelo perfeito, que e o caso nesta
+  # populacao reduzida. Na escala completa ha pares de sobra para isso.
+  legitimamente_na <- c(
+    "agrupamento_grafo", "ganho_minimo_colaborativo",
+    "ganho_minimo_colaborativo_dominancia"
+  )
+  expect_false(anyNA(dplyr::select(medida, -dplyr::any_of(legitimamente_na))))
 })
 
 test_that("a mesma semente devolve a mesma realizacao", {
@@ -102,4 +109,41 @@ test_that("os blocos aceitam estabilidade e citam o intervalo no achado", {
   expect_false(grepl("realizações", achado_sem, fixed = TRUE))
   expect_match(achado_com, "realizações")
   expect_true(nchar(achado_com) > nchar(achado_sem))
+})
+
+test_that("intervalo_separa_de_zero distingue intervalo que contem o zero", {
+  # E o teste que o achado II.6.6 precisava e nao tinha: afirmar que uma
+  # diferenca e positiva exige que o intervalo dela nao contenha o zero.
+  estabilidade <- tibble::tibble(
+    medida = c("positiva", "cruza", "negativa"),
+    inferior = c(0.01, -0.01, -0.05),
+    superior = c(0.06, 0.06, -0.02)
+  )
+
+  expect_true(intervalo_separa_de_zero(estabilidade, "positiva"))
+  expect_false(intervalo_separa_de_zero(estabilidade, "cruza"))
+  expect_true(intervalo_separa_de_zero(estabilidade, "negativa"))
+  expect_true(is.na(intervalo_separa_de_zero(estabilidade, "inexistente")))
+  expect_true(is.na(intervalo_separa_de_zero(NULL, "positiva")))
+})
+
+test_that("a folga do one-hot e medida como grandeza propria e bate com a diferenca", {
+  medida <- medir_realizacao(1, n_consultores = 80, n_projetos = 120)
+
+  expect_equal(
+    medida$folga_one_hot_popularidade,
+    medida$auc_one_hot - medida$auc_popularidade_discriminacao
+  )
+})
+
+test_that("descrever_ponto_fora fala so do que caiu fora e cala no resto", {
+  expect_equal(descrever_ponto_fora(c(a = "dentro", b = NA)), "")
+  expect_equal(descrever_ponto_fora(NA_character_), "")
+
+  uma <- descrever_ponto_fora(c("lista de 20" = "acima", "lista de 50" = "dentro"))
+  expect_match(uma, "acima do intervalo em lista de 20")
+  expect_no_match(uma, "lista de 50")
+
+  sem_nome <- descrever_ponto_fora("abaixo")
+  expect_match(sem_nome, "^; a realização versionada cai abaixo do intervalo")
 })

@@ -667,3 +667,85 @@ medir_sobredeterminacao_economica <- function(equipe = 2.51,
     descartadas = ancoras$ancora[!ancoras$absorve]
   )
 }
+
+#' Cruza a cobertura do conteúdo com a cobertura do rótulo
+#'
+#' O bloco II.3 mede quem tem atributo de conteúdo e o bloco II.5 mede quem
+#' tem rótulo de desempenho, mas nenhum dos dois cruza as duas coberturas.
+#' Se quem não tem rótulo fosse desproporcionalmente quem também não tem
+#' conteúdo, haveria um terceiro viés de seleção empilhado sobre os dois que
+#' o bloco II.4 documenta, e a parte da base avaliável de ponta a ponta seria
+#' menor que o produto das duas coberturas.
+#'
+#' **O teste de associação roda só entre quem tem histórico.** Rótulo nasce
+#' de alocação, no gerador e na Peers, então quem nunca foi alocado não tem
+#' rótulo por construção. Incluir essas pessoas criaria uma associação
+#' artificial entre não ter conteúdo e não ter rótulo, porque a zona morta
+#' entraria inteira na mesma célula.
+#'
+#' **Fisher, e não réplicas.** Com as duas margens fixas, a sobreposição
+#' segue a hipergeométrica, e o teste exato de Fisher é essa distribuição. Dá
+#' a incerteza da sobreposição sem custar realização nenhuma, e é o teste que
+#' se aplicaria ao dado real se o acesso à base de avaliação voltasse.
+#'
+#' No sintético o resultado é sabido de antemão: o gerador sorteia as
+#' alocações avaliadas de forma uniforme e os respondentes do formulário de
+#' forma independente, então a razão de chances deve ficar em torno de um. O
+#' valor do cruzamento está no instrumento, não na resposta.
+#'
+#' @param dados Lista nomeada de tibbles, de `carregar_dados()`.
+#' @param sinal_conteudo Tabela de conteúdo. O padrão é a experiência
+#'   setorial, que é de onde o bloco II.6 estima `P`; os quatro sinais da
+#'   campanha de formulários cobrem as mesmas pessoas (achado II.3.1).
+#' @return Lista com a tabela por quadrante, a razão de chances com
+#'   intervalo e valor-p, e as frações por alocação.
+cruzar_conteudo_e_rotulo <- function(dados, sinal_conteudo = "experiencia_setorial") {
+  ids <- dados$consultores$consultor_id
+  tem_interacao <- ids %in% dados$alocacoes$consultor_id
+  tem_conteudo <- ids %in% dados[[sinal_conteudo]]$consultor_id
+  tem_rotulo <- ids %in% dados$avaliacoes_desempenho$consultor_id
+
+  quadrantes <- tibble::tibble(
+    interacao = tem_interacao, conteudo = tem_conteudo, rotulo = tem_rotulo
+  ) |>
+    dplyr::summarise(
+      consultores = dplyr::n(),
+      com_rotulo = sum(.data$rotulo),
+      .by = c("interacao", "conteudo")
+    ) |>
+    dplyr::mutate(
+      situacao = dplyr::case_when(
+        .data$interacao & .data$conteudo ~ "Ambos os componentes atuam",
+        .data$interacao ~ "Só o colaborativo atua",
+        .data$conteudo ~ "Só o conteúdo atua",
+        .default = "Nenhum componente atua"
+      ),
+      fracao_com_rotulo = .data$com_rotulo / .data$consultores
+    ) |>
+    dplyr::arrange(dplyr::desc(.data$interacao), dplyr::desc(.data$conteudo))
+
+  teste <- stats::fisher.test(table(
+    factor(tem_conteudo[tem_interacao], levels = c(FALSE, TRUE)),
+    factor(tem_rotulo[tem_interacao], levels = c(FALSE, TRUE))
+  ))
+
+  # Na granularidade da alocação, que é a da célula de `R`: o par precisa ter
+  # rótulo e o consultor precisa ter conteúdo para o componente de conteúdo
+  # ser avaliável de ponta a ponta contra o desempenho.
+  chave <- function(tabela) paste(tabela$consultor_id, tabela$projeto_id)
+  par_avaliado <- chave(dados$alocacoes) %in% chave(dados$avaliacoes_desempenho)
+  alocacao_com_conteudo <- dados$alocacoes$consultor_id %in%
+    dados[[sinal_conteudo]]$consultor_id
+
+  list(
+    quadrantes = quadrantes,
+    razao_de_chances = unname(teste$estimate),
+    ic_razao = unname(teste$conf.int),
+    p_valor = teste$p.value,
+    fracao_alocacoes_com_conteudo = mean(alocacao_com_conteudo),
+    fracao_alocacoes_com_rotulo = mean(par_avaliado),
+    fracao_fim_a_fim = mean(alocacao_com_conteudo & par_avaliado),
+    fracao_fim_a_fim_independente = mean(alocacao_com_conteudo) * mean(par_avaliado),
+    sinal_conteudo = sinal_conteudo
+  )
+}

@@ -64,11 +64,17 @@ executar_iii <- function(achados_por_bloco) {
         `Limitação que impõe` = dplyr::coalesce(.data$limitacao, "--"),
         `Proveniência` = .data$proveniencia
       ),
+    # A coluna de ressalva não é enfeite: achado que decide **e** limita
+    # aparece só aqui, porque a tabela de limitações exclui quem já entrou
+    # como decisão. Sem ela, a ressalva do II.6.6, de que o one-hot é adotado
+    # sem poder alegar que supera a linha de base, não apareceria em quadro
+    # nenhum do documento.
     iii_decisoes = sintese |>
       dplyr::filter(!is.na(.data$decisao)) |>
       dplyr::transmute(
         Achado = .data$codigo,
         `Decisão que habilita` = .data$decisao,
+        `Ressalva da própria decisão` = dplyr::coalesce(.data$limitacao, "--"),
         `Proveniência` = .data$proveniencia
       ),
     # As que também trazem decisão já apareceram na tabela anterior, e a

@@ -1138,6 +1138,12 @@ faturamento são emissão e vencimento, não alocação por origem. E o gerador
 proposto pela consulta nunca foi executado, por indisponibilidade de
 ambiente do lado de lá.
 
+**Acrescentado em 2026-10-03, a partir do achado II.6.7.** Quando o `setor`
+do projeto é preenchido: na abertura da oportunidade, na assinatura do
+contrato ou já com o projeto em andamento. O dicionário registra o campo como
+disponível sem dizer quando, e a resposta decide se o filtro de conteúdo serve
+a um alocador prospectivo ou apenas à reavaliação retrospectiva da wave 4.
+
 ## Fechamento da wave 1 (2026-09-16)
 
 Acesso ao Databricks e às planilhas de `data/raw/skills/` encerraram em

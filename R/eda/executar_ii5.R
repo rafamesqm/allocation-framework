@@ -29,6 +29,7 @@
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_final") {
   cobertura <- medir_cobertura_do_rotulo(dados)
+  cruzamento <- cruzar_conteudo_e_rotulo(dados)
   divergencia <- medir_divergencia_entre_avaliadores(dados$avaliacoes_desempenho)
   dimensionalidade <- medir_dimensionalidade_dos_itens(
     dados$avaliacoes_desempenho, etapa = etapa_rotulo
@@ -65,6 +66,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
 
   objetos <- list(
     cobertura = cobertura,
+    cruzamento = cruzamento,
     divergencia = divergencia,
     dimensionalidade = dimensionalidade,
     variancia_escore = variancia_escore,
@@ -86,6 +88,13 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
   )
 
   tabelas <- list(
+    ii5_conteudo_rotulo = cruzamento$quadrantes |>
+      dplyr::transmute(
+        `Situação` = .data$situacao,
+        Consultores = formatar_inteiro(.data$consultores),
+        `Com rótulo` = formatar_inteiro(.data$com_rotulo),
+        `Fração com rótulo` = formatar_pct(.data$fracao_com_rotulo)
+      ),
     ii5_cobertura_rotulo = tibble::tibble(
       `Denominador` = c("Alocações", "Consultores", "Projetos"),
       `Com avaliação` = formatar_inteiro(c(
@@ -435,6 +444,32 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "inteiramente de desempenho, e sem esse acesso a alternativa é feedback ",
       "implícito (Hu, Koren e Volinsky, 2008), que o bloco II.4 mostrou ",
       "carregar viés de seleção não corrigível."
+    ),
+
+    "II.5.11", "consequência do gerador",
+    paste0(
+      "Cruzando as duas coberturas, só ",
+      formatar_pct(cruzamento$fracao_fim_a_fim),
+      " das alocações são avaliáveis de ponta a ponta pelo componente de ",
+      "conteúdo, com o consultor tendo conteúdo declarado e o par tendo ",
+      "rótulo, contra ", formatar_pct(cruzamento$fracao_fim_a_fim_independente),
+      " que a independência entre as coberturas daria. Entre quem tem ",
+      "histórico, a razão de chances entre ter conteúdo e ter rótulo é de ",
+      formatar_decimal(cruzamento$razao_de_chances, 2), " (IC95 de ",
+      formatar_decimal(cruzamento$ic_razao[1], 2), " a ",
+      formatar_decimal(cruzamento$ic_razao[2], 2), ")."
+    ),
+    paste0(
+      "**Não há terceiro viés empilhado no sintético, e isso é construção, ",
+      "não achado**: o gerador sorteia as alocações avaliadas de forma ",
+      "uniforme e os respondentes do formulário de forma independente. Ficam ",
+      "duas coisas de valor. A primeira é o número: avaliado contra o ",
+      "desempenho, o componente de conteúdo dispõe de pouco mais de um quarto ",
+      "das alocações. A segunda é um aviso sobre o instrumento: o teste exato ",
+      "de Fisher entre quem tem histórico é o que se aplicaria ao dado real, ",
+      "mas nesta escala ele só detecta empilhamento forte, com razão de ",
+      "chances fora do intervalo acima. **Não significativo, aqui, não quer ",
+      "dizer independente.**"
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -530,6 +565,15 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "A margem entra no otimizador como direção e não como magnitude, porque ",
       "seis agregados reais descrevem a mesma economia e discordam por 1,45 ",
       "vezes, e escolher qual âncora relaxar exigiria um acesso que encerrou."
+    ),
+    "fato real",
+
+    "II.5.11", NA,
+    paste0(
+      "Se no real quem não tem rótulo é desproporcionalmente quem não tem ",
+      "conteúdo é inverificável, porque o acesso à base de avaliação foi ",
+      "negado até em forma agregada (II.5.6). A fração avaliável de ponta a ",
+      "ponta pode ser menor que a do sintético, e não há como saber daqui."
     ),
     "fato real"
   )))

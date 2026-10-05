@@ -45,7 +45,25 @@ mapa_medida_achado <- function() {
     "variancia_primeiro_componente", "II.5", "dimensionalidade do rótulo",
     "fracao_variancia_entre_consultores", "II.5", "sinal sobre a pessoa",
     "massa_pct_alocacao_em_1", "I.2.3", "defeito corrigido",
-    "massa_horas_mes_em_0", "I.2.3", "defeito corrigido"
+    "massa_horas_mes_em_0", "I.2.3", "defeito corrigido",
+    "auc_one_hot", "II.6.2, II.6.6", "poder discriminante",
+    "auc_popularidade_discriminacao", "II.6.6", "linha de base do mecanismo",
+    "auc_perfil_sem_vazamento", "II.6.3", "artefato removido",
+    "folga_one_hot_popularidade", "II.6.6", "folga que sustenta a decisão",
+    "recall_popularidade_50", "II.1.4", "linha de base",
+    "obs_por_parametro_k10", "II.2.2", "identificabilidade",
+    "avaliavel_colaborativo_temporal", "II.7.1", "avaliabilidade do colaborativo",
+    "recall_protocolo_20", "II.7.3", "piso sob o protocolo",
+    "correcao_linha_base_20", "II.7.3", "efeito da correção do piso",
+    "reducao_porte_filtro", "II.8.1", "tratabilidade do otimizador",
+    "n_avaliavel_colaborativo", "II.7.6", "poder do colaborativo",
+    "piso_colaborativo", "II.7.6", "poder do colaborativo",
+    "ganho_minimo_colaborativo", "II.7.6", "poder do colaborativo",
+    "ganho_minimo_colaborativo_dominancia", "II.7.6", "poder do colaborativo",
+    "n_avaliavel_conteudo", "II.7.7", "poder do conteúdo",
+    "piso_conteudo_filtro", "II.7.5, II.7.7", "piso do conteúdo",
+    "ganho_minimo_conteudo", "II.7.7", "poder do conteúdo",
+    "ganho_minimo_conteudo_dominancia", "II.7.7", "poder do conteúdo"
   )
 }
 

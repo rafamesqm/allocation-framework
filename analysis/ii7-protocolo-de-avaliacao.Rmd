@@ -124,18 +124,91 @@ contagem vem só do treino.
 
 O segundo era **desempatar a favor do consultor avaliado**. Com contagens
 inteiras os empates são grandes, e contar apenas quem está estritamente acima
-põe o focal na melhor posição possível dentro do bloco de empatados. A posição
-esperada sob desempate aleatório é a medida correta.
+põe o focal na melhor posição possível dentro do bloco de empatados. A medida
+correta é o **acerto esperado** sob desempate aleatório: o focal cai com a
+mesma chance em qualquer posição do seu bloco, então entra na lista com
+probabilidade igual à fração do bloco que cabe nela. Comparar a posição média
+do bloco com o tamanho da lista, como uma versão anterior deste bloco fazia,
+dá zero ou um justamente quando o bloco atravessa o corte.
 
-Em lista de 20 o acerto cai de
+Nesta realização, em lista de 20, o acerto cai de
 `r formatar_pct(base$recall_otimista[base$n_recomendados == 20])` para
 `r formatar_pct(base$recall_protocolo[base$n_recomendados == 20])`. Nos
 extremos a correção não morde, e a razão é estrutural: em lista muito curta o
 focal fica fora de qualquer jeito, e em lista longa entra de qualquer jeito. O
 empate só decide no meio da faixa.
 
-**Este é o número que a wave 3 precisa bater**, e ele fica fixado agora, antes
-de existir modelo.
+```{r correcao-instavel, results = "asis"}
+if (isFALSE(obj$correcao_separa)) {
+  cat(paste0(
+    "**Mas a queda desta realização não é típica.** Sobre as cem realizações ",
+    "do bloco I.0, a correção em lista de 20 fica em ", obj$correcao_intervalo,
+    ", intervalo que contém o zero. A queda grande daqui vem em boa parte de o ",
+    "piso otimista ter sido um sorteio alto, como o bloco II.1 registra. A ",
+    "correção é adotada por ser o cálculo certo, não por mudar o número de ",
+    "forma material."
+  ))
+}
+```
+
+**Este é o patamar que a wave 3 precisa bater**, e ele fica fixado agora,
+antes de existir modelo. Fixado como intervalo, `r obj$protocolo_intervalo`
+sobre as realizações, e não como o ponto desta realização: é essa largura que
+o critério de sucesso precisa levar em conta.
+
+## O piso e o poder de cada componente
+
+Fixar o piso não basta. Falta fixar o que conta como superá-lo, e isso depende
+de quantos pares cada protocolo deixa e de contra o quê cada componente é
+comparado.
+
+```{r poder}
+mostrar_tabela(
+  bloco$tabelas$ii7_poder,
+  "Tabela II.7.4: pares avaliáveis, piso e menor ganho distinguível, em pontos percentuais.",
+  c("l", "l", "l", "r", "r", "r", "r")
+)
+```
+
+O ganho mínimo é o menor aumento de acerto em lista de 20 que um teste pareado
+de McNemar, a 5% e com poder de 80%, conseguiria distinguir do piso. A
+comparação é pareada porque modelo e piso são avaliados sobre os mesmos pares,
+e o que decide o poder são os pares em que um acerta e o outro não. Como essa
+fração só se conhece com o modelo pronto, o cálculo vem em dois cenários que
+cercam a verdade: o otimista, em que o modelo acerta tudo o que o piso acerta e
+mais um pouco, e o conservador, em que os acertos dos dois são independentes.
+
+**A popularidade é degenerada para o conteúdo.** Sob divisão por consultor,
+nenhum consultor de teste foi visto no treino, todos empatam em zero, e o piso
+de popularidade vale
+`r formatar_pct(obj$popularidade_no_conteudo$valor_piso)`. Qualquer modelo o
+supera, e a comparação não mediria nada. O piso que mede alguma coisa é o
+filtro de setor com ordem ao acaso dentro dele, que já acerta
+`r formatar_pct(obj$poder_conteudo$valor_piso)` nesta realização. É contra
+ele que se pergunta se alguma coisa ordena dentro do filtro, que é a pergunta
+que o bloco II.6 deixou aberta.
+
+Esse número é do gerador. Aqui
+`r formatar_pct(obj$poder_conteudo$fracao_passa_filtro)` dos pares passam o
+filtro, e no real o bloco II.6 mediu afinidade de volume baixo, então o piso
+real deve ser bem menor.
+
+**O colaborativo não é validável.** Com
+`r formatar_inteiro(obj$poder_colaborativo$n_avaliavel)` pares avaliáveis, um
+ganho só seria distinguível se passasse de
+`r formatar_decimal(100 * obj$poder_colaborativo$ganho_dominancia, 1)` a
+`r formatar_decimal(100 * obj$poder_colaborativo$ganho_independencia, 1)`
+pontos percentuais, conforme o cenário. Mais dado no mesmo desenho não
+resolveria, porque os pares são poucos pela natureza do projeto de
+consultoria, que aparece uma vez e não volta. Fixar meta de significância aqui
+seria fixar uma meta que nenhum modelo plausível alcança.
+
+**O conteúdo tem poder.** Com
+`r formatar_inteiro(obj$poder_conteudo$n_avaliavel)` pares, o teste distingue
+ganhos de
+`r formatar_decimal(100 * obj$poder_conteudo$ganho_dominancia, 1)` a
+`r formatar_decimal(100 * obj$poder_conteudo$ganho_independencia, 1)` pontos
+percentuais sobre o filtro com acaso.
 
 ## O protocolo declarado
 
@@ -143,8 +216,14 @@ de existir modelo.
   única que não vaza atributo de entidade.
 * **Divisão temporal** para o colaborativo, porque em produção não se prevê o
   passado, com a ressalva de que ela deixa pouquíssimo par pontuável.
-* **Acerto em lista** como métrica, com a linha de base de popularidade
-  reportada ao lado em toda comparação.
+* **Acerto em lista** como métrica, com o piso de cada componente reportado ao
+  lado em toda comparação: popularidade no treino para o colaborativo, filtro
+  de setor com acaso para o conteúdo.
+* **Critério de sucesso do conteúdo**: o teste pareado de McNemar a 5% contra
+  o filtro com acaso, com os empates do piso desfeitos ao acaso sob semente
+  declarada. É um teste e não um número: o ganho mínimo serve para planejar.
+* **Colaborativo reportado de forma descritiva**, ao lado do piso, sem
+  critério de significância.
 * **Conclusão enunciada sobre a população observada**, sem pretender valer
   para os pares que nunca tiveram chance de aparecer.
 

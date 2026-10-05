@@ -66,6 +66,17 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
   grossa <- resolucao[resolucao$granularidade == "Setor", ]
   fina <- resolucao[resolucao$granularidade == "Setor e offering", ]
 
+  # A folga entre o one-hot e a linha de base é o que este bloco afirma ser
+  # positivo, e por isso é ela, e não cada AUC em separado, que precisa de
+  # intervalo. Enquanto não havia réplica, o texto citava a mediana e calava
+  # sobre a dispersão.
+  folga <- one_hot$auc - popularidade$auc
+  folga_separa <- intervalo_separa_de_zero(estabilidade, "folga_one_hot_popularidade")
+  # Três estados, não dois. Sem réplicas a folga não foi medida, e tratar
+  # isso como "não se sustenta" afirmaria um resultado que ninguém mediu.
+  folga_sustentada <- isTRUE(folga_separa)
+  folga_cai <- isFALSE(folga_separa)
+
   objetos <- list(
     resolucao = resolucao,
     comparacao = comparacao,
@@ -78,6 +89,13 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
     popularidade = popularidade,
     vazamento = vazamento,
     contaminacao = contaminacao,
+    folga = folga,
+    folga_sustentada = folga_sustentada,
+    # O intervalo já formatado, e não a tabela de estabilidade inteira, para o
+    # documento não recarregar um alvo que ele não usa para mais nada.
+    folga_intervalo = formatar_intervalo(
+      estabilidade, "folga_one_hot_popularidade", \(x) formatar_decimal(x, 3)
+    ),
     grossa = grossa,
     fina = fina,
     minimo_por_classe = minimo_por_classe
@@ -144,8 +162,10 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
 
     "II.6.2", "instrumento",
     paste0(
-      "O one-hot tem a maior separação medida, com AUC de ",
-      formatar_decimal(one_hot$auc, 2), ", e ao mesmo tempo é o que menos ",
+      "O one-hot tem a maior separação medida nesta realização, com AUC de ",
+      formatar_decimal(one_hot$auc, 2),
+      if (folga_cai) ", vantagem que o achado II.6.6 mostra não se sustentar entre realizações" else "",
+      ", e ao mesmo tempo é o que menos ",
       "serve para ordenar: ele produz ", one_hot$valores_distintos,
       " valores distintos, então empata ",
       formatar_pct(one_hot$fracao_empatada), " dos pares avaliados."
@@ -226,10 +246,42 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
       "Contra a linha de base de popularidade, que mede ",
       formatar_decimal(popularidade$auc, 3),
       " sem sequer olhar o projeto, nenhum dos dois mecanismos entrega o que ",
-      "se pediria dele. O one-hot supera a linha em AUC, com ",
-      formatar_decimal(one_hot$auc, 3),
-      ", e não ordena dentro da classe. O perfil médio ordena, e limpo fica ",
-      "em ", formatar_decimal(sem_vazamento$auc, 3), ", abaixo da linha."
+      "se pediria dele. O one-hot mede ", formatar_decimal(one_hot$auc, 3),
+      " e não ordena dentro da classe. ",
+      if (is.na(folga_separa)) {
+        paste0(
+          "A folga de ", formatar_decimal(folga, 3),
+          " sobre a linha não tem intervalo medido."
+        )
+      } else if (folga_sustentada) {
+        paste0(
+          "A folga dele sobre a linha é de ", formatar_decimal(folga, 3),
+          ", e **se sustenta entre realizações**: ",
+          formatar_intervalo(estabilidade, "folga_one_hot_popularidade", \(x) formatar_decimal(x, 3)),
+          "."
+        )
+      } else {
+        paste0(
+          "**A folga dele sobre a linha não se sustenta**: ela mede ",
+          formatar_decimal(folga, 3),
+          " nesta realização e ",
+          formatar_intervalo(estabilidade, "folga_one_hot_popularidade", \(x) formatar_decimal(x, 3)),
+          " sobre as realizações, intervalo que contém o zero."
+        )
+      },
+      " O perfil médio ordena, e limpo fica em ",
+      formatar_decimal(sem_vazamento$auc, 3), ", abaixo da linha",
+      if (is.null(estabilidade)) {
+        "."
+      } else {
+        paste0(
+          " e ",
+          formatar_intervalo(
+            estabilidade, "auc_perfil_sem_vazamento", \(x) formatar_decimal(x, 3)
+          ),
+          " sobre as realizações, indistinguível do acaso em qualquer delas."
+        )
+      }
     ),
     paste0(
       "**A decisão habilitada é estimar `P` por one-hot no nível do setor, ",
@@ -241,6 +293,24 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
       "sem evidência. A consequência casa com o bloco II.3: o conteúdo filtra ",
       "e não ordena, e a ordenação dentro do conjunto candidato precisa vir de ",
       "outra fonte, que os blocos II.7 e II.8 têm de resolver."
+    ),
+
+    "II.6.7", "consequência do gerador",
+    paste0(
+      "No sintético, o setor do projeto existe desde a criação do projeto, por ",
+      "construção do gerador, e portanto está disponível no momento em que a ",
+      "alocação é decidida. No real, o dicionário registra `setor` como ",
+      "disponível sem dizer quando ele é preenchido."
+    ),
+    paste0(
+      "**É vazamento de tempo, e não de divisão.** Se o setor só for ",
+      "registrado depois de o projeto começar, um alocador prospectivo não o ",
+      "teria na hora de decidir, e o filtro de conteúdo dependeria de uma ",
+      "informação que ainda não existe. A wave 4 contorna o problema por ser ",
+      "retrospectiva (II.8.4), mas a avaliação do conteúdo na wave 3 supõe o ",
+      "setor conhecido no momento da alocação. Nenhuma medida sobre o ",
+      "sintético responde a isso, porque o gerador cria o setor junto com o ",
+      "projeto: fica como premissa declarada e pergunta ao dono do dado."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -297,7 +367,26 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
       "real não existe registro que ligue skill de pessoa a requisito de ",
       "projeto."
     ),
-    NA,
+    if (!folga_cai) {
+      NA
+    } else {
+      paste0(
+        "O one-hot é adotado como filtro **sem** poder alegar que supera a ",
+        "linha de base de popularidade: a folga entre os dois não se separa de ",
+        "zero entre realizações. O que sustenta a adoção é ele ser binário, e ",
+        "portanto filtrar sem ordenar, mais a afinidade real medida no achado ",
+        "II.6.5, e não a vantagem em AUC."
+      )
+    },
+    "fato real",
+
+    "II.6.7", NA,
+    paste0(
+      "Que o setor do projeto esteja disponível no momento da decisão de ",
+      "alocação é premissa não verificada: o esquema real não registra quando ",
+      "o setor é preenchido. Se for depois do início do projeto, o filtro de ",
+      "conteúdo não serve a um alocador prospectivo."
+    ),
     "fato real"
   )))
 

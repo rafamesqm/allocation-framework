@@ -165,8 +165,17 @@ das frentes de Digital têm de cinco a nove pessoas.
 
 Contra a linha de base de popularidade, que mede
 `r formatar_decimal(obj$popularidade$auc, 3)` sem sequer olhar o projeto,
-nenhum dos dois mecanismos entrega o que se pediria dele. O one-hot supera a
-linha em AUC e não ordena; o perfil médio ordena e fica abaixo dela.
+nenhum dos dois mecanismos entrega o que se pediria dele. O perfil médio
+ordena e fica abaixo dela. O one-hot fica acima e não ordena, mas **a
+vantagem dele não se sustenta**: a folga mede
+`r formatar_decimal(obj$folga, 3)` nesta realização e
+`r obj$folga_intervalo` sobre as cem realizações do bloco I.0, intervalo que
+contém o zero.
+
+A consequência precisa ficar dita, porque é desconfortável. **O one-hot é
+adotado sem poder alegar que bate a popularidade.** O que sustenta a adoção é
+ele ser binário, e portanto filtrar sem ordenar, mais a afinidade real medida
+na seção anterior. Não é a AUC.
 
 **A decisão habilitada é estimar `P` por one-hot no nível do setor, como
 filtro do conjunto candidato, e não adotar o perfil médio.**

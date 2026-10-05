@@ -53,7 +53,10 @@ precisa de uma terceira resposta declarada.
 
 O **II.6** pergunta quanto de sinal o conteúdo carrega e responde que o
 one-hot separa mas não ordena, por ter dois valores distintos. **O conteúdo
-filtra e não ordena**, e a ordenação tem de vir de outro lugar.
+filtra e não ordena**, e a ordenação tem de vir de outro lugar. E separa
+menos do que parecia: a vantagem do one-hot sobre a popularidade não se
+sustenta entre realizações, então ele entra como filtro pelo que é, binário e
+apoiado em afinidade real, e não por ganhar da linha de base.
 
 O **II.4** fecha a saída de corrigir o viés de seleção: sem amostra de
 exposição aleatória, a propensão não é falsificável. **A wave 3 declara o
@@ -74,8 +77,8 @@ eliminar as alternativas.
 ```{r decisoes}
 mostrar_tabela(
   bloco$tabelas$iii_decisoes,
-  "Tabela III.1: as decisões do capítulo, com a proveniência de cada uma.",
-  c("l", "l", "l")
+  "Tabela III.1: as decisões do capítulo, com a ressalva e a proveniência de cada uma.",
+  c("l", "l", "l", "l")
 )
 ```
 
@@ -202,10 +205,16 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
   avaliador, com a etapa declarada (II.5.1, II.5.5, II.5.7).
 * **Protocolo**: dois, um por componente, com divisão por consultor para o
   conteúdo e temporal para o colaborativo (II.7.2, II.7.4).
-* **Métrica e piso**: acerto em lista, com a linha de base de popularidade
-  reportada ao lado em toda comparação (II.1.3, II.1.4, II.7.3).
+* **Métrica e piso**: acerto em lista, com o piso de cada componente ao lado
+  em toda comparação: popularidade no treino para o colaborativo (II.7.3) e
+  filtro de setor com acaso para o conteúdo, porque sob divisão por consultor a
+  popularidade é zero (II.7.5).
+* **Critério de sucesso**: para o conteúdo, o teste pareado de McNemar a 5%
+  contra o filtro com acaso, fixado como teste e não como número (II.7.7). O
+  colaborativo não é validável e entra de forma descritiva (II.7.6).
 * **Enunciado**: a conclusão vale sobre a população observada, com o viés
-  declarado (II.4.5).
+  declarado (II.4.5), e supõe o setor do projeto conhecido no momento da
+  alocação, premissa que o esquema real não permite verificar (II.6.7).
 
 ## O que a wave 4 herda
 

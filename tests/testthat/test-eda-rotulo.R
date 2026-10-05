@@ -237,7 +237,7 @@ test_that("executar_ii5 devolve as quatro partes do bloco", {
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
   expect_true(all(vapply(bloco$tabelas, is.data.frame, logical(1))))
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
-  expect_equal(nrow(bloco$achados), 10)
+  expect_equal(nrow(bloco$achados), 11)
   expect_true(all(startsWith(bloco$achados$codigo, "II.5.")))
   # A cobertura do rotulo e parametro do gerador, e o achado que a reporta
   # precisa estar etiquetado como tal.
@@ -349,5 +349,32 @@ test_that("o diagnostico de escala da margem mede sem decidir", {
   expect_equal(
     escala$custo_mensal$custo_mensal_implicito,
     escala$custo_mensal$taxa_mediana * escala$jornada_mensal
+  )
+})
+
+test_that("quem nunca foi alocado nao tem rotulo, e o teste exclui essas pessoas", {
+  # Rotulo nasce de alocacao. Se o teste de associacao incluisse a zona
+  # morta, ela entraria inteira na celula sem conteudo e sem rotulo e
+  # fabricaria uma associacao que nao existe.
+  cruzamento <- cruzar_conteudo_e_rotulo(carregar_dados())
+  sem_historico <- cruzamento$quadrantes[!cruzamento$quadrantes$interacao, ]
+
+  expect_true(all(sem_historico$com_rotulo == 0))
+})
+
+test_that("no sintetico conteudo e rotulo sao independentes, por construcao", {
+  # O gerador sorteia as alocacoes avaliadas de forma uniforme. Se a razao de
+  # chances sair do entorno de um, alguem acoplou as duas coberturas.
+  cruzamento <- cruzar_conteudo_e_rotulo(carregar_dados())
+
+  expect_lte(cruzamento$ic_razao[1], 1)
+  expect_gte(cruzamento$ic_razao[2], 1)
+  expect_equal(
+    cruzamento$fracao_fim_a_fim, cruzamento$fracao_fim_a_fim_independente,
+    tolerance = 0.03
+  )
+  expect_lte(
+    cruzamento$fracao_fim_a_fim,
+    min(cruzamento$fracao_alocacoes_com_conteudo, cruzamento$fracao_alocacoes_com_rotulo)
   )
 })
