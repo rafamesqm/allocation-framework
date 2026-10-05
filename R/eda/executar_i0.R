@@ -92,9 +92,12 @@ mapa_medida_achado <- function() {
 #'   arredondamento do número de avaliações, o que bastava para ela ser
 #'   classificada como estável e escapar do aviso do achado I.0.3. Convenção
 #'   de leitura declarada, não teste.
+#' @param versionado tibble de uma linha, de `medir_grandezas()` aplicado ao
+#'   conjunto versionado. Opcional; sem ele o achado I.0.5 declara que a
+#'   comparação não foi feita.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
-                         limite_invariancia = 0.001) {
+                         limite_invariancia = 0.001, versionado = NULL) {
   estabilidade <- resumir_estabilidade(replicas, nivel = nivel)
 
   classificado <- estabilidade |>
@@ -128,6 +131,35 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
   sem_skills_invariante <- sem_skills$desvio_mc == 0
   cruza_metade <- sem_skills$inferior < 0.5 && sem_skills$superior > 0.5
 
+  # O conjunto versionado é típico? A comparação usa a mesma classificação de
+  # invariância deste bloco, para o I.0 não ter duas definições dela.
+  tipicidade <- if (is.null(versionado)) {
+    NULL
+  } else {
+    julgar_tipicidade_do_versionado(
+      versionado, replicas, nivel = nivel, invariantes = invariantes$medida
+    )
+  }
+  fora_do_intervalo <- if (is.null(tipicidade)) {
+    NULL
+  } else {
+    tipicidade$situacao |>
+      dplyr::filter(.data$posicao %in% c("abaixo", "acima")) |>
+      dplyr::left_join(mapa_medida_achado(), by = "medida")
+  }
+  # A grandeza que explica a direção comum dos desvios, quando ela é um deles:
+  # a fração das alocações cujo consultor tem setor observado. Alta, ela diz
+  # que os respondentes do formulário calharam de estar entre os mais
+  # alocados, e isso empurra junto tudo o que depende da cobertura do
+  # conteúdo por alocação.
+  covariavel <- if (is.null(fora_do_intervalo)) {
+    NULL
+  } else {
+    fora_do_intervalo[fora_do_intervalo$medida == "cobertura_covariavel_alocacoes", ]
+  }
+  covariavel_alta <- !is.null(covariavel) && nrow(covariavel) == 1 &&
+    covariavel$posicao == "acima"
+
   objetos <- list(
     replicas = replicas,
     estabilidade = estabilidade,
@@ -140,7 +172,10 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     sem_skills_invariante = sem_skills_invariante,
     n_replicas = nrow(replicas),
     nivel = nivel,
-    limite_fragilidade = limite_fragilidade
+    limite_fragilidade = limite_fragilidade,
+    tipicidade = tipicidade,
+    fora_do_intervalo = fora_do_intervalo,
+    covariavel_alta = covariavel_alta
   )
 
   tabelas <- list(
@@ -167,6 +202,21 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     )
   )
 
+  if (!is.null(tipicidade)) {
+    tabelas$i0_tipicidade <- fora_do_intervalo |>
+      dplyr::transmute(
+        Grandeza = .data$medida,
+        Sustenta = dplyr::coalesce(.data$achados, ""),
+        `No conjunto versionado` = formatar_decimal(.data$valor_versionado, 4),
+        `Intervalo das réplicas` = paste0(
+          formatar_decimal(.data$inferior, 4), " a ",
+          formatar_decimal(.data$superior, 4)
+        ),
+        Percentil = formatar_pct(.data$percentil, 0),
+        `Posição` = .data$posicao
+      )
+  }
+
   figuras <- list(
     i0_estabilidade = figura_estabilidade(
       classificado,
@@ -177,6 +227,92 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
       )
     )
   )
+  # Texto do achado I.0.5. A fronteira de 5% é convenção declarada para
+  # separar sorteio comum de atípico, não teste de hipótese formal: o valor-p
+  # é empírico, sobre as próprias réplicas.
+  tipico <- !is.null(tipicidade) && tipicidade$valor_p >= 0.05
+  n_acima <- if (is.null(fora_do_intervalo)) 0 else sum(fora_do_intervalo$posicao == "acima")
+  direcao_comum <- if (covariavel_alta) {
+    paste0(
+      ", e a que explica a direção é a fração das alocações cujo consultor ",
+      "tem setor observado, ", formatar_pct(covariavel$valor_versionado),
+      " contra ", formatar_pct(covariavel$inferior), " a ",
+      formatar_pct(covariavel$superior), " nas réplicas: neste sorteio os ",
+      "respondentes do formulário calharam de estar entre os mais alocados, o ",
+      "que empurra junto tudo o que depende da cobertura do conteúdo por ",
+      "alocação"
+    )
+  } else {
+    ""
+  }
+  enunciado_i05 <- if (is.null(tipicidade)) {
+    "O conjunto versionado não foi comparado com as réplicas nesta execução."
+  } else {
+    paste0(
+      "Medido pela mesma função que as réplicas, o conjunto versionado cai ",
+      "fora do intervalo de ", round(100 * nivel), "% em ", tipicidade$n_fora,
+      " das ", tipicidade$n_comparaveis, " grandezas que variam entre ",
+      "realizações, contra ",
+      formatar_decimal(tipicidade$fora_sob_independencia, 1),
+      " que se esperariam se elas fossem independentes. Tratando cada réplica ",
+      "como se fosse o conjunto versionado, a mediana é de ",
+      tipicidade$mediana_referencia, " grandezas fora, e ",
+      formatar_pct(tipicidade$valor_p, 0),
+      " das réplicas têm tantas ou mais quanto ele."
+    )
+  }
+  implicacao_i05 <- if (is.null(tipicidade)) {
+    paste0(
+      "Sem a comparação, os pontos citados nos blocos não podem ser situados ",
+      "como típicos ou atípicos."
+    )
+  } else if (tipico) {
+    paste0(
+      "**O conjunto versionado é um sorteio comum.** O excesso sobre a conta ",
+      "de independência é efeito de as grandezas serem correlacionadas: ",
+      "várias respondem à mesma concentração da alocação, e caem fora juntas. ",
+      "É por isso que a referência é a contagem nas próprias réplicas, que ",
+      "herda a dependência sem precisar modelá-la. O que o conjunto tem de ",
+      "particular é direção, não magnitude: ", n_acima, " das ",
+      tipicidade$n_fora, " grandezas fora estão acima do intervalo",
+      direcao_comum, ". Os pontos citados nos blocos continuam sendo os ",
+      "valores do conjunto que o auditor executa, e cada bloco já declara ",
+      "quando o seu cai fora."
+    )
+  } else {
+    paste0(
+      "**O conjunto versionado é um sorteio atípico**, e os números pontuais ",
+      "do capítulo precisam ser lidos pela mediana das realizações e não pelo ",
+      "ponto. ", n_acima, " das ", tipicidade$n_fora,
+      " grandezas fora estão acima do intervalo", direcao_comum, "."
+    )
+  }
+  limitacao_i05 <- if (covariavel_alta) {
+    paste0(
+      "Os valores pontuais que dependem da cobertura do conteúdo por alocação ",
+      "saem altos neste conjunto, porque os respondentes do formulário ",
+      "calharam de estar entre os mais alocados; para eles a leitura correta é ",
+      "o intervalo das realizações, e não o ponto."
+    )
+  } else if (!is.null(tipicidade) && !tipico) {
+    paste0(
+      "Os valores pontuais do capítulo vêm de um sorteio atípico e devem ser ",
+      "lidos pela mediana das realizações."
+    )
+  } else {
+    NA_character_
+  }
+
+  if (!is.null(tipicidade)) {
+    figuras$i0_tipicidade <- figura_tipicidade_do_versionado(
+      tipicidade$referencia, tipicidade$n_fora,
+      titulo = "Grandezas fora do intervalo num sorteio comum",
+      subtitulo = paste0(
+        "Cada réplica comparada com as outras ", nrow(replicas) - 1,
+        "; a linha marca o conjunto versionado"
+      )
+    )
+  }
 
   achados <- registrar_achados("I.0", com_sintese(tibble::tribble(
     ~codigo, ~etiqueta, ~enunciado, ~implicacao,
@@ -269,7 +405,9 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
       "isso. Comparação pontual dela contra o alvo real não sustenta ",
       "conclusão, e a diferença relativa reportada na validação de utilidade ",
       "é métrica enganosa nessa escala."
-    )
+    ),
+
+    "I.0.5", "instrumento", enunciado_i05, implicacao_i05
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
 
@@ -305,7 +443,10 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
       "pessoas, e a diferença relativa contra o alvo real é métrica enganosa ",
       "nessa faixa."
     ),
-    "estrutural"
+    "estrutural",
+
+    "I.0.5", NA, limitacao_i05,
+    if (is.na(limitacao_i05)) NA_character_ else "depende do gerador"
   )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)

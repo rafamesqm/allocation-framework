@@ -199,9 +199,12 @@ executar_ii4 <- function(dados, estabilidade = NULL, limite_ess = 0.5) {
       if (is.null(estabilidade)) {
         "."
       } else {
+        # A versão observável, e não a latente: o ponto ao lado é calculado com
+        # a experiência que o formulário capturou, e citar o intervalo da
+        # latente, como uma versão anterior fazia, comparava duas grandezas.
         paste0(
           ". Sobre as realizações, ",
-          formatar_intervalo(estabilidade, "taxa_mesmo_setor"), "."
+          formatar_intervalo(estabilidade, "taxa_mesmo_setor_observavel"), "."
         )
       }
     ),

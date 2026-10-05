@@ -117,6 +117,42 @@ que a comparação pontual dessa correlação contra o alvo real não sustenta
 conclusão nenhuma, e que a diferença relativa reportada na tabela de
 validação de utilidade é métrica enganosa nessa escala.
 
+## O conjunto versionado é um sorteio típico?
+
+Os blocos citam o valor do conjunto versionado, que é o dado que o auditor
+executa, ao lado do intervalo das réplicas, e cada um declara quando o seu
+ponto cai fora. Falta a pergunta de conjunto: se ele cai fora em mais
+grandezas do que um sorteio comum cairia.
+
+```{r tipicidade-figura, fig.width = 7.5, fig.height = 4}
+bloco$figuras$i0_tipicidade
+```
+
+A referência óbvia, de que um intervalo de 90% deixa fora 10% das grandezas,
+só vale se elas forem independentes, e não são: várias respondem à mesma
+concentração da alocação, e algumas são função direta de outras. Grandezas
+correlacionadas caem fora juntas e engordam a cauda da contagem.
+
+**Em vez de modelar a dependência, a referência a herda.** Cada réplica faz o
+papel do conjunto versionado e é comparada com o intervalo das demais. A
+distribuição dessas contagens, na figura, é a de um sorteio comum com toda a
+correlação embutida.
+
+```{r tipicidade-tabela}
+mostrar_tabela(
+  bloco$tabelas$i0_tipicidade,
+  "Tabela I.0.3: grandezas em que o conjunto versionado cai fora do intervalo das réplicas.",
+  c("l", "l", "r", "r", "r", "c")
+)
+```
+
+O conjunto versionado deixa `r obj$tipicidade$n_fora` grandezas fora, e
+`r formatar_pct(obj$tipicidade$valor_p, 0)` das réplicas deixam tantas ou
+mais. Ponto e intervalo saem da mesma função de medida, e foi ao montar essa
+simetria que apareceu um defeito antigo: o achado II.4.1 citava um ponto
+calculado com a experiência setorial observada ao lado do intervalo da
+latente, e agora cita o da observada.
+
 ## Achados do bloco
 
 ```{r achados, results = "asis"}

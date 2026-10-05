@@ -189,10 +189,13 @@ list(
     n_projetos = parametros$n_projetos,
     data_referencia = parametros$data_referencia
   )),
-  tar_target(bloco_i0, executar_i0(replicas_estabilidade)),
+  # As grandezas do conjunto versionado, pela mesma função que mede as
+  # réplicas. É o que permite ao bloco I.0 dizer se ele é um sorteio típico.
+  tar_target(grandezas_versionadas, medir_grandezas(dados_eda)),
+  tar_target(bloco_i0, executar_i0(replicas_estabilidade, versionado = grandezas_versionadas)),
   tar_target(bloco_i0_tabelas, salvar_tabelas_bloco(bloco_i0$tabelas), format = "file"),
   tar_target(bloco_i0_figuras, salvar_figuras_bloco(
-    bloco_i0$figuras, list(i0_estabilidade = c(17, 14))
+    bloco_i0$figuras, list(i0_estabilidade = c(17, 14), i0_tipicidade = c(17, 9))
   ), format = "file"),
   tar_target(bloco_i0_achados, salvar_tabela(bloco_i0$achados, "achados_i0"), format = "file"),
   tar_target(estabilidade, bloco_i0$objetos$estabilidade),

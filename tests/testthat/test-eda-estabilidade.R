@@ -85,7 +85,7 @@ test_that("executar_i0 classifica fragil, estavel e invariante", {
   bloco <- executar_i0(replicas)
 
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
-  expect_equal(nrow(bloco$achados), 4)
+  expect_equal(nrow(bloco$achados), 5)
   expect_true(all(
     bloco$objetos$classificado$classe %in% c("frágil", "estável", "invariante")
   ))
@@ -146,4 +146,80 @@ test_that("descrever_ponto_fora fala so do que caiu fora e cala no resto", {
 
   sem_nome <- descrever_ponto_fora("abaixo")
   expect_match(sem_nome, "^; a realização versionada cai abaixo do intervalo")
+})
+
+test_that("medir_grandezas reproduz sobre o versionado o ponto que o bloco cita", {
+  # E a simetria que valida o achado I.0.5: ponto e intervalo saem da mesma
+  # definicao. Foi a falta dela que deixou o II.4.1 comparar a experiencia
+  # observada com a latente.
+  dados <- carregar_dados()
+  versionado <- medir_grandezas(dados)
+
+  expect_equal(
+    versionado$recall_popularidade_20, executar_ii1(dados)$objetos$recall_20
+  )
+  expect_equal(
+    versionado$folga_one_hot_popularidade, executar_ii6(dados)$objetos$folga
+  )
+})
+
+test_that("sem a experiencia latente so a taxa latente fica de fora", {
+  versionado <- medir_grandezas(carregar_dados())
+
+  expect_true(is.na(versionado$taxa_mesmo_setor))
+  expect_false(is.na(versionado$taxa_mesmo_setor_observavel))
+})
+
+test_that("a refatoracao mantem cada realizacao identica a de antes", {
+  # gerar_realizacao seguida de medir_grandezas precisa reproduzir o fluxo
+  # aleatorio de quando as duas eram uma funcao so.
+  pequena <- function(semente) {
+    medir_realizacao(semente, n_consultores = 80, n_projetos = 120)
+  }
+
+  expect_equal(pequena(3), pequena(3))
+  expect_equal(
+    names(pequena(3))[1:3], c("semente", "densidade_R", "cold_start_consultor")
+  )
+})
+
+test_that("situar_versionado distingue fora, dentro e invariante", {
+  replicas <- tibble::tibble(
+    semente = 1:20, varia = seq_len(20) / 20, fixa = 0.5
+  )
+  versionado <- tibble::tibble(varia = 2, fixa = 0.9)
+
+  situacao <- situar_versionado_nas_replicas(versionado, replicas)
+
+  expect_equal(situacao$posicao[situacao$medida == "varia"], "acima")
+  expect_equal(situacao$percentil[situacao$medida == "varia"], 1)
+  # A fixa e parametro imposto: o versionado diferir dela nao e sorteio.
+  expect_true(is.na(situacao$posicao[situacao$medida == "fixa"]))
+})
+
+test_that("a referencia herda a dependencia entre grandezas", {
+  # Tres grandezas identicas sao o caso extremo de correlacao: cada replica
+  # cai fora das tres ou de nenhuma. E isso que a conta de independencia,
+  # 10% fora, nao capta, e que a referencia por deixar um de fora capta sem
+  # precisar modelar.
+  base <- tibble::tibble(semente = 1:20, a = 1:20, b = 1:20, c = 1:20)
+  base[20, c("a", "b", "c")] <- 1000
+
+  contagem <- contar_fora_por_replica(base, c("a", "b", "c"))
+
+  expect_true(all(contagem %in% c(0L, 3L)))
+  expect_equal(contagem[20], 3L)
+})
+
+test_that("o valor-p empirico e a fracao de replicas com tantas ou mais fora", {
+  base <- tibble::tibble(semente = 1:20, a = 1:20, b = 1:20, c = 1:20)
+  versionado <- tibble::tibble(a = 1000, b = 1000, c = 10)
+
+  julgamento <- julgar_tipicidade_do_versionado(versionado, base)
+
+  expect_equal(julgamento$n_fora, 2L)
+  expect_equal(
+    julgamento$valor_p, mean(julgamento$referencia >= julgamento$n_fora)
+  )
+  expect_equal(julgamento$n_comparaveis, 3L)
 })

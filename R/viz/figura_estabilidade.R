@@ -49,3 +49,49 @@ figura_estabilidade <- function(classificado, titulo, subtitulo = NULL) {
       legenda = "Classe"
     )
 }
+
+#' Figura: quantas grandezas um sorteio comum deixa fora do intervalo
+#'
+#' Responde se o conjunto versionado é uma realização típica, e por isso
+#' mostra a distribuição de referência e o lugar dele nela, nada além. Cada
+#' barra conta as réplicas que, comparadas com o intervalo das demais,
+#' deixaram aquele número de grandezas fora. A linha marca o conjunto
+#' versionado.
+#'
+#' As barras ficam em tom recessivo porque são o fundo da comparação, e a
+#' linha leva a primeira cor categórica porque é o objeto da pergunta. O
+#' rótulo vai direto ao lado dela, em tinta de texto, e não numa legenda:
+#' há uma série só.
+#'
+#' @param referencia Vetor de `contar_fora_por_replica()`.
+#' @param n_fora Grandezas fora no conjunto versionado.
+#' @param titulo,subtitulo Rótulos da figura.
+#' @return Objeto ggplot.
+figura_tipicidade_do_versionado <- function(referencia, n_fora, titulo, subtitulo = NULL) {
+  paleta <- paleta_monografia()
+  contagem <- dplyr::count(tibble::tibble(fora = referencia), .data$fora)
+
+  ggplot2::ggplot(contagem, ggplot2::aes(x = .data$fora, y = .data$n)) +
+    tema_monografia() +
+    ggplot2::geom_col(width = 0.8, fill = paleta$chrome[["moldura"]]) +
+    ggplot2::geom_vline(
+      xintercept = n_fora, colour = paleta$categorica[1], linewidth = 0.8
+    ) +
+    ggplot2::annotate(
+      "text", x = n_fora, y = max(contagem$n),
+      label = paste0("conjunto versionado: ", n_fora),
+      hjust = -0.08, vjust = 1, size = 3.2,
+      colour = paleta$chrome[["tinta_primaria"]]
+    ) +
+    ggplot2::scale_x_continuous(
+      breaks = scales::breaks_width(2),
+      expand = ggplot2::expansion(mult = c(0.02, 0.15))
+    ) +
+    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.05))) +
+    rotular_figura(
+      titulo = titulo,
+      subtitulo = subtitulo,
+      eixo_x = "Grandezas fora do intervalo de 90%",
+      eixo_y = "Réplicas"
+    )
+}

@@ -1,8 +1,19 @@
-#' Mede, numa realização do gerador, as grandezas que sustentam os achados
+#' Gera uma realização do sintético, com as tabelas que as grandezas medem
 #'
-#' Uma realização é um sorteio, não uma propriedade do modelo. Esta função
-#' existe para que a Parte I possa dizer quanto de cada número reportado é
+#' Uma realização é um sorteio, não uma propriedade do modelo. As réplicas
+#' existem para que a Parte I possa dizer quanto de cada número reportado é
 #' estrutura e quanto é a semente que calhou de ser usada.
+#'
+#' **Gerar e medir são funções separadas** para a mesma medida poder ser
+#' aplicada ao conjunto versionado, que não é gerado aqui. Antes da separação
+#' cada bloco recalculava o seu ponto por conta própria, e foi assim que o
+#' achado II.4.1 passou a citar um ponto calculado com a experiência observada
+#' ao lado de um intervalo calculado com a latente.
+#'
+#' A experiência entra nas duas versões, com os nomes do conjunto versionado:
+#' `experiencia_setorial` é a observada, restrita a quem respondeu o
+#' formulário, e `experiencia_latente` é a que alimentou a alocação. O
+#' conjunto versionado só guarda a primeira.
 #'
 #' **A realização versionada não é a réplica de semente 1.** O `targets`
 #' atribui a cada alvo uma semente própria e determinística, derivada do nome
@@ -20,11 +31,11 @@
 #' @param semente Inteiro que identifica a realização.
 #' @param n_consultores,n_projetos Escala da população.
 #' @param data_referencia Data de referência da geração.
-#' @return tibble de uma linha, uma coluna por grandeza medida.
-medir_realizacao <- function(semente,
-                              n_consultores = 285,
-                              n_projetos = 952,
-                              data_referencia = as.Date("2026-09-01")) {
+#' @return Lista nomeada de tibbles, com os nomes de `carregar_dados()`.
+gerar_realizacao <- function(semente,
+                             n_consultores = 285,
+                             n_projetos = 952,
+                             data_referencia = as.Date("2026-09-01")) {
   consultores <- gerar_consultores(n_consultores = n_consultores, semente = semente)
   projetos <- gerar_projetos(
     n_projetos = n_projetos, semente = semente, data_referencia = data_referencia
@@ -52,6 +63,47 @@ medir_realizacao <- function(semente,
     semente = semente
   )
 
+  list(
+    consultores = consultores,
+    projetos = projetos,
+    experiencia_setorial = experiencia_observada,
+    experiencia_latente = experiencia,
+    alocacoes = alocacoes,
+    custo_carregado = custo,
+    espaco_skills = espaco_skills,
+    skills_consultor = skills,
+    grafo_coalocacao = grafo,
+    ocupacao_consultor = ocupacao,
+    avaliacoes_desempenho = avaliacoes
+  )
+}
+
+#' Mede as grandezas que sustentam os achados, sobre qualquer conjunto
+#'
+#' Recebe as tabelas com os nomes de `carregar_dados()`, e por isso serve
+#' tanto às réplicas, via `gerar_realizacao()`, quanto ao conjunto versionado.
+#' É essa simetria que torna válida a comparação do achado I.0.5: o ponto e o
+#' intervalo saem da mesma definição.
+#'
+#' A única grandeza que depende da experiência latente é `taxa_mesmo_setor`,
+#' e ela fica `NA` quando o conjunto não traz a latente, que é o caso do
+#' versionado. A versão que um analista consegue calcular é
+#' `taxa_mesmo_setor_observavel`.
+#'
+#' @param dados Lista nomeada de tibbles.
+#' @return tibble de uma linha, uma coluna por grandeza medida.
+medir_grandezas <- function(dados) {
+  consultores <- dados$consultores
+  projetos <- dados$projetos
+  experiencia_observada <- dados$experiencia_setorial
+  alocacoes <- dados$alocacoes
+  custo <- dados$custo_carregado
+  espaco_skills <- dados$espaco_skills
+  skills <- dados$skills_consultor
+  grafo <- dados$grafo_coalocacao
+  ocupacao <- dados$ocupacao_consultor
+  avaliacoes <- dados$avaliacoes_desempenho
+
   divergencia <- medir_divergencia_entre_avaliadores(avaliacoes)
   dimensionalidade <- medir_dimensionalidade_dos_itens(avaliacoes)
   variancia_escore <- decompor_variancia_do_escore(avaliacoes)
@@ -73,12 +125,19 @@ medir_realizacao <- function(semente,
   # II.4 mede, e ela só é pequena porque o gerador sorteia a resposta ao
   # formulário de forma independente da alocação. No dado real essa
   # independência é suposição, e não há como verificá-la.
-  setor_latente <- setor_predominante_observado(experiencia)
+  tem_latente <- !is.null(dados$experiencia_latente)
+  setor_latente <- if (tem_latente) {
+    setor_predominante_observado(dados$experiencia_latente)
+  } else {
+    NULL
+  }
   setor_observado <- setor_predominante_observado(experiencia_observada)
 
-  grupo_consultor <- setor_latente$segmento[
-    match(alocacoes$consultor_id, setor_latente$consultor_id)
-  ]
+  grupo_consultor <- if (tem_latente) {
+    setor_latente$segmento[match(alocacoes$consultor_id, setor_latente$consultor_id)]
+  } else {
+    NULL
+  }
   grupo_consultor_observavel <- setor_observado$segmento[
     match(alocacoes$consultor_id, setor_observado$consultor_id)
   ]
@@ -159,7 +218,6 @@ medir_realizacao <- function(semente,
   poder_conteudo <- poder_de("Conteúdo", "Filtro de setor e acaso")
 
   tibble::tibble(
-    semente = semente,
     densidade_R = nrow(alocacoes) / (nrow(consultores) * nrow(projetos)),
     cold_start_consultor = 1 - dplyr::n_distinct(alocacoes$consultor_id) / nrow(consultores),
     cold_start_projeto = 1 - dplyr::n_distinct(alocacoes$projeto_id) / nrow(projetos),
@@ -177,7 +235,11 @@ medir_realizacao <- function(semente,
     isolados_grafo = sum(igraph::degree(g) == 0),
     acima_capacidade = mean(ocupacao$pct_ocupacao > 1),
     grau_medio_consultor = nrow(alocacoes) / dplyr::n_distinct(alocacoes$consultor_id),
-    taxa_mesmo_setor = mean(grupo_consultor == setor_projeto, na.rm = TRUE),
+    taxa_mesmo_setor = if (tem_latente) {
+      mean(grupo_consultor == setor_projeto, na.rm = TRUE)
+    } else {
+      NA_real_
+    },
     taxa_mesmo_setor_observavel = mean(
       grupo_consultor_observavel == setor_projeto, na.rm = TRUE
     ),
@@ -235,6 +297,18 @@ medir_realizacao <- function(semente,
     piso_conteudo_filtro = poder_conteudo$valor_piso,
     ganho_minimo_conteudo = poder_conteudo$ganho_independencia,
     ganho_minimo_conteudo_dominancia = poder_conteudo$ganho_dominancia
+  )
+}
+
+#' Gera e mede uma realização
+#'
+#' @param semente Inteiro que identifica a realização.
+#' @param ... Repassado a `gerar_realizacao()`.
+#' @return tibble de uma linha: a semente e uma coluna por grandeza.
+medir_realizacao <- function(semente, ...) {
+  dplyr::bind_cols(
+    tibble::tibble(semente = semente),
+    medir_grandezas(gerar_realizacao(semente, ...))
   )
 }
 
@@ -405,5 +479,129 @@ descrever_ponto_fora <- function(posicoes) {
   paste0(
     "; a realização versionada cai ", paste(partes, collapse = " e "),
     ", então o valor pontual é um sorteio extremo e não o típico"
+  )
+}
+
+#' Situa o conjunto versionado dentro da distribuição das réplicas
+#'
+#' Os blocos citam o valor do conjunto versionado, que é o dado que o auditor
+#' executa, ao lado do intervalo das réplicas. Cada bloco já declara quando o
+#' seu ponto cai fora. O que faltava era a pergunta de conjunto: **o
+#' conjunto versionado é uma realização típica?** Se ele cair fora em mais
+#' grandezas do que um sorteio comum cairia, os números pontuais do capítulo
+#' vêm de um sorteio atípico, e é preciso dizer em que direção.
+#'
+#' Ponto e intervalo saem da mesma função, `medir_grandezas()`, aplicada às
+#' duas fontes. Grandeza que não varia entre réplicas é parâmetro imposto
+#' (achado I.0.3) e não entra na comparação, porque nela o conjunto
+#' versionado coincide com as réplicas por construção.
+#'
+#' @param versionado tibble de uma linha, de `medir_grandezas()` sobre o
+#'   conjunto versionado.
+#' @param replicas tibble de `simular_estabilidade()`.
+#' @param nivel Massa coberta pelo intervalo.
+#' @param invariantes Nomes das grandezas tratadas como invariantes. O
+#'   bloco I.0 passa a sua própria classificação, que é mais rigorosa que
+#'   exigir variação zero; sem ela, vale a variação zero.
+#' @return tibble com uma linha por grandeza, o valor versionado, o
+#'   intervalo, o percentil empírico e a posição.
+situar_versionado_nas_replicas <- function(versionado, replicas, nivel = 0.90,
+                                           invariantes = NULL) {
+  margem <- (1 - nivel) / 2
+  medidas <- setdiff(intersect(names(versionado), names(replicas)), "semente")
+
+  purrr::map(medidas, function(medida) {
+    valores <- replicas[[medida]]
+    valor <- versionado[[medida]]
+    invariante <- if (is.null(invariantes)) {
+      dplyr::n_distinct(valores[!is.na(valores)]) <= 1
+    } else {
+      medida %in% invariantes
+    }
+    inferior <- unname(stats::quantile(valores, margem, na.rm = TRUE))
+    superior <- unname(stats::quantile(valores, 1 - margem, na.rm = TRUE))
+
+    tibble::tibble(
+      medida = medida,
+      valor_versionado = valor,
+      inferior = inferior,
+      superior = superior,
+      percentil = if (is.na(valor)) NA_real_ else mean(valores <= valor, na.rm = TRUE),
+      invariante = invariante,
+      posicao = dplyr::case_when(
+        is.na(valor) | invariante ~ NA_character_,
+        valor < inferior ~ "abaixo",
+        valor > superior ~ "acima",
+        .default = "dentro"
+      )
+    )
+  }) |>
+    purrr::list_rbind()
+}
+
+#' Conta, para cada réplica, quantas grandezas dela caem fora do intervalo
+#'
+#' É a distribuição de referência para julgar o conjunto versionado, e
+#' existe porque a referência óbvia está errada. Com intervalos de 90%,
+#' esperam-se fora 10% das grandezas, mas só se elas fossem independentes, e
+#' não são: várias respondem à mesma concentração da alocação, e algumas são
+#' função direta de outras. Grandezas correlacionadas caem fora juntas, o que
+#' engorda a cauda da contagem.
+#'
+#' **Em vez de modelar a dependência, a contagem a herda.** Cada réplica faz
+#' o papel do conjunto versionado e é comparada com o intervalo das demais.
+#' A distribuição dessas contagens é a de um sorteio comum, com toda a
+#' correlação entre grandezas embutida, e é contra ela que o conjunto
+#' versionado é julgado.
+#'
+#' @param replicas tibble de `simular_estabilidade()`.
+#' @param medidas Grandezas a considerar, as não invariantes.
+#' @param nivel Massa coberta pelo intervalo.
+#' @return Vetor inteiro, uma contagem por réplica.
+contar_fora_por_replica <- function(replicas, medidas, nivel = 0.90) {
+  margem <- (1 - nivel) / 2
+  valores <- as.matrix(replicas[, medidas, drop = FALSE])
+
+  vapply(seq_len(nrow(valores)), function(i) {
+    demais <- valores[-i, , drop = FALSE]
+    inferior <- apply(demais, 2, stats::quantile, probs = margem, na.rm = TRUE)
+    superior <- apply(demais, 2, stats::quantile, probs = 1 - margem, na.rm = TRUE)
+    sum(valores[i, ] < inferior | valores[i, ] > superior, na.rm = TRUE)
+  }, integer(1))
+}
+
+#' Julga se o conjunto versionado é uma realização típica
+#'
+#' Junta as duas funções anteriores numa resposta: quantas grandezas do
+#' conjunto versionado caem fora, quantas um sorteio comum deixaria fora, e
+#' que fração das réplicas tem pelo menos tantas fora quanto ele, que é o
+#' valor-p empírico da pergunta.
+#'
+#' O conjunto versionado é comparado com o intervalo das cem réplicas, e cada
+#' réplica com o das outras 99. A diferença de uma réplica no intervalo é
+#' desprezível diante da da largura dele.
+#'
+#' @param versionado,replicas,invariantes Como em
+#'   `situar_versionado_nas_replicas()`.
+#' @param nivel Massa coberta pelo intervalo.
+#' @return Lista com a tabela por grandeza, a contagem do versionado, a
+#'   distribuição de referência e o valor-p empírico.
+julgar_tipicidade_do_versionado <- function(versionado, replicas, nivel = 0.90,
+                                            invariantes = NULL) {
+  situacao <- situar_versionado_nas_replicas(versionado, replicas, nivel, invariantes)
+  comparaveis <- situacao$medida[!is.na(situacao$posicao)]
+  referencia <- contar_fora_por_replica(replicas, comparaveis, nivel)
+  fora <- sum(situacao$posicao %in% c("abaixo", "acima"))
+
+  list(
+    situacao = situacao,
+    n_comparaveis = length(comparaveis),
+    n_invariantes = sum(situacao$invariante),
+    n_fora = fora,
+    fora_sob_independencia = (1 - nivel) * length(comparaveis),
+    referencia = referencia,
+    mediana_referencia = stats::median(referencia),
+    valor_p = mean(referencia >= fora),
+    nivel = nivel
   )
 }

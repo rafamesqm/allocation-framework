@@ -1,0 +1,10 @@
+Grandeza,Sustenta,No conjunto versionado,Intervalo das réplicas,Percentil,Posição
+cold_start_projeto,"I.1.3, II.3","0,2132","0,1849 a 0,2081",100%,acima
+cobertura_covariavel_alocacoes,II.4,"0,5701","0,4435 a 0,5267",100%,acima
+pares_sem_positividade,II.4,"0,3457","0,3222 a 0,3415",100%,acima
+ess_relativo_ips,II.4,"0,2425","0,2547 a 0,3717",3%,abaixo
+gini_grau_consultor,II.1,"0,4036","0,3624 a 0,4029",96%,acima
+recall_popularidade_20,II.1,"0,2461","0,1847 a 0,2360",98%,acima
+recall_protocolo_20,II.7.3,"0,2329","0,1716 a 0,2292",96%,acima
+reducao_porte_filtro,II.8.1,"15,4669","13,0747 a 15,0628",100%,acima
+piso_conteudo_filtro,"II.7.5, II.7.7","0,5857","0,4785 a 0,5739",98%,acima
