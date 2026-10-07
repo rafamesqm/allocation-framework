@@ -35,6 +35,39 @@ knitr::opts_chunk$set(
   dpi = 150
 )
 
+# **Valor inline vazio é erro, não texto.** Quando a grandeza que um trecho
+# cita deixa de existir, `r ...` devolve vetor vazio ou `NA`, e o knitr
+# imprime nada no lugar do número: o documento sai com "()" ou "contra ,"
+# e ninguém percebe. Aconteceu no bloco I.2, mais de uma vez, e uma varredura
+# do texto renderizado não pegou todos os casos, porque o buraco toma formas
+# diferentes conforme a frase. Barrar na origem pega todos: a renderização
+# para e aponta as linhas do trecho.
+#
+# O gancho é o de avaliação, e não o de saída. Para resultado de comprimento
+# zero, que é justamente o caso de grandeza que sumiu, o knitr escreve texto
+# vazio sem chamar o gancho de saída, e a guarda ficaria cega exatamente onde
+# mais importa.
+local({
+  avaliar_padrao <- knitr::knit_hooks$get("evaluate.inline")
+  knitr::knit_hooks$set(evaluate.inline = function(code, envir = knitr::knit_global()) {
+    resultado <- avaliar_padrao(code, envir)
+    texto <- if (length(resultado) == 0) character(0) else as.character(resultado)
+    vazio <- length(texto) == 0 ||
+      all(is.na(texto)) ||
+      all(!nzchar(trimws(texto))) ||
+      all(trimws(texto) %in% c("NA", "n/a", "NaN"))
+    if (vazio) {
+      stop(
+        "Valor inline vazio, NA ou n/a em `r ", code, "`. A grandeza citada ",
+        "no texto não existe mais ou não foi medida; corrija o trecho em vez ",
+        "de publicá-lo assim.",
+        call. = FALSE
+      )
+    }
+    resultado
+  })
+})
+
 #' Lê um alvo de bloco da EDA, com mensagem útil se a pipeline não rodou
 #'
 #' `targets::tar_read()` falha com erro pouco informativo quando o alvo não
@@ -68,7 +101,14 @@ ler_bloco <- function(nome) {
 #' @param alinhamento Vetor de alinhamento por coluna, opcional.
 #' @return Objeto de tabela do knitr.
 mostrar_tabela <- function(tabela, legenda, alinhamento = NULL) {
-  knitr::kable(tabela, align = alinhamento, caption = legenda)
+  # Coluna numérica crua sai do `kable` no padrão inglês, com ponto decimal,
+  # contra a regra de pt-BR em todo texto final. A maior parte das tabelas já
+  # chega formatada como texto pelos `formatar_*`; estas opções cobrem as que
+  # ainda trazem número, sem depender de cada bloco lembrar de formatar.
+  knitr::kable(
+    tabela, align = alinhamento, caption = legenda,
+    format.args = list(decimal.mark = ",", big.mark = ".")
+  )
 }
 
 #' Renderiza os achados de um bloco como texto corrido
