@@ -195,15 +195,28 @@ Esse número é do gerador. Aqui
 filtro, e no real o bloco II.6 mediu afinidade de volume baixo, então o piso
 real deve ser bem menor.
 
-**O colaborativo não é validável.** Com
+**O colaborativo só é validável para ganhos grandes.** Com
 `r formatar_inteiro(obj$poder_colaborativo$n_avaliavel)` pares avaliáveis, um
 ganho só seria distinguível se passasse de
 `r formatar_decimal(100 * obj$poder_colaborativo$ganho_dominancia, 1)` a
 `r formatar_decimal(100 * obj$poder_colaborativo$ganho_independencia, 1)`
 pontos percentuais, conforme o cenário. Mais dado no mesmo desenho não
 resolveria, porque os pares são poucos pela natureza do projeto de
-consultoria, que aparece uma vez e não volta. Fixar meta de significância aqui
-seria fixar uma meta que nenhum modelo plausível alcança.
+consultoria, que aparece uma vez e não volta. No cenário conservador, ser
+distinguível do piso de
+`r formatar_pct(obj$poder_colaborativo$valor_piso)` exige multiplicar o acerto
+dele por
+`r formatar_decimal((obj$poder_colaborativo$valor_piso + obj$poder_colaborativo$ganho_independencia) / obj$poder_colaborativo$valor_piso, 1)`,
+e mesmo assim **o colaborativo passa pelo mesmo teste que o conteúdo**, o
+pareado de McNemar a 5% contra o piso de popularidade. O que muda é a leitura:
+com tão poucos pares, não rejeitar é o desfecho esperado de qualquer ganho
+moderado e não autoriza dizer que o componente não funciona. O teste responde
+se o colaborativo superou o piso por margem grande, e só isso.
+
+Uma versão anterior deste parágrafo dizia que nenhum modelo plausível passaria
+no teste, e por isso o componente seria reportado só de forma descritiva. Isso
+valia com 44 pares avaliáveis e deixou de valer quando a duração das alocações
+foi recalibrada, o que mais que dobrou esse número.
 
 **O conteúdo tem poder.** Com
 `r formatar_inteiro(obj$poder_conteudo$n_avaliavel)` pares, o teste distingue
@@ -245,8 +258,9 @@ algo ordena dentro do filtro na direção da prática, não na do desempenho.
 * **Critério de sucesso do conteúdo**: o teste pareado de McNemar a 5% contra
   o filtro com acaso, com os empates do piso desfeitos ao acaso sob semente
   declarada. É um teste e não um número: o ganho mínimo serve para planejar.
-* **Colaborativo reportado de forma descritiva**, ao lado do piso, sem
-  critério de significância.
+* **Critério de sucesso do colaborativo**: o mesmo teste pareado de McNemar a
+  5%, contra a popularidade no treino, com o ganho mínimo reportado ao lado e
+  a não rejeição lida como falta de poder, não como ausência de efeito.
 * **Dois níveis de avaliação**: acerto em lista contra as alocações, como
   aderência à prática, e, entre os pares com rótulo, relação de `ŝ` com o
   desempenho padronizado por avaliador, como qualidade.

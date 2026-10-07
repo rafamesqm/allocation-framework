@@ -41,6 +41,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
   construcoes <- comparar_construcoes_de_rotulo(dados$avaliacoes_desempenho)
   escala_margem <- diagnosticar_escala_da_margem(dados)
   sobredeterminacao <- medir_sobredeterminacao_economica()
+  horas_da_margem <- medir_horas_contra_contrato(dados, sobredeterminacao)
 
   candidatos <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = margem$tem_consultor_na_margem,
@@ -73,6 +74,7 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     margem = margem,
     escala_margem = escala_margem,
     sobredeterminacao = sobredeterminacao,
+    horas_da_margem = horas_da_margem,
     construcoes = construcoes,
     bruta = construcoes[construcoes$forma == "Nota bruta", ],
     normalizada = construcoes[construcoes$forma == "Normalizada por avaliador", ],
@@ -319,8 +321,13 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "porque o valor é por projeto, e a de preço usado como custo, ",
       "confirmada e corrigida. Depois das duas correções a fração de ",
       "prejuízo caiu para perto da real e a mediana continua alta, porque o ",
-      "projeto sintético acumula cerca de metade das horas que o contrato ",
-      "implica. O resíduo é o da sobredeterminação, não um defeito à parte."
+      "projeto sintético acumula ",
+      formatar_pct(horas_da_margem$fracao_das_horas_implicadas),
+      " das horas que o contrato implica. A sobredeterminação do achado ",
+      "II.5.10 responde por um fator de ",
+      formatar_decimal(sobredeterminacao$desacordo, 2),
+      " desse desacordo; o resto vem de uma sétima âncora, a duração da ",
+      "alocação, que o achado II.5.10 detalha."
     ),
 
     "II.5.9", "âncora real",
@@ -369,10 +376,20 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       " candidatas, e a mais provável é o tamanho de equipe: os 2,51 vêm de ",
       "pares distintos entre colaborador e **código** de alocação, e um ",
       "projeto pode ter mais de um código. Se for isso, a equipe real é maior ",
-      "e o resto fecha sem mexer em mais nada. É a explicação do resíduo que ",
-      "o achado II.5.8 media: a margem estrutural sintética tem prejuízo em ",
-      "linha com o real, e mediana alta, porque o projeto acumula cerca de ",
-      "metade das horas que o contrato implica."
+      "e o resto fecha sem mexer em mais nada. **A duração da alocação é uma ",
+      "sétima âncora, e ela aumenta o desacordo.** A relação acima supõe cada ",
+      "consultor presente pela duração do projeto, de ",
+      formatar_decimal(sobredeterminacao$ancoras$medido[3], 1), " semanas, ",
+      "mas a alocação real dura ",
+      formatar_inteiro(horas_da_margem$duracao_alocacao_dias),
+      " dias medianos. Com uma alocação por par entre consultor e projeto, ",
+      "como o gerador supõe, o desacordo sobe para ",
+      formatar_decimal(horas_da_margem$desacordo_com_alocacao, 1),
+      " vezes. Ele fecharia se cada pessoa somasse várias alocações curtas no ",
+      "mesmo projeto, o que a fonte não informa. É a explicação do resíduo ",
+      "que o achado II.5.8 mede: o projeto sintético acumula ",
+      formatar_pct(horas_da_margem$fracao_das_horas_implicadas),
+      " das horas que o contrato implica."
     ),
 
     "II.5.5", "instrumento",
@@ -562,8 +579,9 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     paste0(
       "A margem estrutural tem mecanismo correto e escala não calibrada: a ",
       "fração de prejuízo fica perto da real e a mediana fica muito acima ",
-      "dela, e o resíduo é o da sobredeterminação das âncoras, não um defeito ",
-      "à parte."
+      "dela. O resíduo é o das âncoras, que discordam entre si, e cresce com ",
+      "a duração real da alocação, porque o gerador supõe uma alocação por ",
+      "par entre consultor e projeto e a fonte não diz quantas há."
     ),
     "fato real",
 

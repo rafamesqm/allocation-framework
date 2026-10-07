@@ -145,8 +145,10 @@ forma do híbrido no bloco II.3.
 A cobertura de alocação, `r formatar_pct(aloc_consultor$cobertura)` do lado
 do consultor e `r formatar_pct(aloc_projeto$cobertura)` do lado do projeto,
 é consequência direta da fração de cold start parametrizada no gerador,
-calibrada em 17% contra o dado real, com a ressalva de cobertura de join já
-registrada em `docs/mapeamento_schema.md`. A caracterização propriamente
+calibrada em 17% contra o dado real. A âncora são os 48 dos 285 ativos sem
+nenhuma linha de alocação, e ela não é artefato de chave: a consulta Q4
+confirmou que `ID` e `Cód. Colaborador` são a mesma chave
+(`docs/mapeamento_schema.md`). A caracterização propriamente
 dita fica para o bloco II.3.
 
 As tabelas com cobertura total são, em geral, consequência do gerador e não

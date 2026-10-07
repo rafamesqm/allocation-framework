@@ -749,3 +749,52 @@ cruzar_conteudo_e_rotulo <- function(dados, sinal_conteudo = "experiencia_setori
     sinal_conteudo = sinal_conteudo
   )
 }
+
+#' Mede quantas das horas que o contrato implica o projeto sintético acumula
+#'
+#' É o número que explica a mediana alta da margem estrutural (achado
+#' II.5.8). Até a wave 2.5 ele aparecia no texto como "cerca de metade",
+#' digitado, e deixou de ser verdade quando a duração da alocação foi
+#' recalibrada sem que nada acusasse. Agora sai do dado.
+#'
+#' As horas que o contrato implica são o contrato mediano dividido por preço
+#' e fator de receita, as mesmas âncoras de
+#' `medir_sobredeterminacao_economica()`. O desacordo com alocação refaz a
+#' conta daquela função trocando a duração do projeto pela da alocação real,
+#' que é o que vale se cada consultor tem uma alocação por projeto, como o
+#' gerador supõe.
+#'
+#' @param dados Lista nomeada de tibbles, de `carregar_dados()`.
+#' @param sobredeterminacao Saída de `medir_sobredeterminacao_economica()`.
+#' @param dias_por_mes Divisor que converte dias em meses.
+#' @return Lista com as horas medianas por projeto alocado, as horas que o
+#'   contrato implica, a fração entre as duas, a duração real da alocação e
+#'   o desacordo das âncoras com ela.
+medir_horas_contra_contrato <- function(dados, sobredeterminacao,
+                                        dias_por_mes = 365.25 / 12) {
+  ancora <- function(nome) {
+    sobredeterminacao$ancoras$medido[sobredeterminacao$ancoras$ancora == nome]
+  }
+  referencias <- referencias_reais()
+  duracao_alocacao_dias <- referencias$valor_real[
+    referencias$tabela == "alocacoes" & referencias$variavel == "duracao_dias" &
+      referencias$estatistica == "mediana"
+  ]
+
+  horas_por_projeto <- dados$alocacoes |>
+    dplyr::mutate(horas = horas_mes * duracao_dias / dias_por_mes) |>
+    dplyr::summarise(horas = sum(horas), .by = projeto_id)
+
+  horas_implicadas <- ancora("Valor de contrato") /
+    (ancora("Fator de receita") * ancora("Preço por hora"))
+  horas_com_alocacao <- ancora("Consultores por projeto") *
+    ancora("Horas por mês") * duracao_alocacao_dias / dias_por_mes
+
+  list(
+    horas_mediana_sintetica = stats::median(horas_por_projeto$horas),
+    horas_implicadas_pelo_contrato = horas_implicadas,
+    fracao_das_horas_implicadas = stats::median(horas_por_projeto$horas) / horas_implicadas,
+    duracao_alocacao_dias = duracao_alocacao_dias,
+    desacordo_com_alocacao = horas_implicadas / horas_com_alocacao
+  )
+}

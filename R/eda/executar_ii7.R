@@ -386,7 +386,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
 
     "II.7.6", "instrumento",
     paste0(
-      "O colaborativo não é validável. Sob divisão temporal restam ",
+      "O colaborativo só é validável para ganhos grandes. Sob divisão ",
+      "temporal restam ",
       formatar_inteiro(poder_colaborativo$n_avaliavel), " pares avaliáveis",
       sobre_realizacoes("n_avaliavel_colaborativo", formatar_inteiro),
       ", e contra o piso de popularidade de ",
@@ -401,10 +402,19 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     paste0(
       "Não é falta de poder que mais dado resolveria neste desenho: os pares ",
       "avaliáveis são poucos porque projeto de consultoria aparece uma vez e ",
-      "não volta (II.7.1). **Fixar meta de significância para esse componente ",
-      "seria fixar uma meta que nenhum modelo plausível alcança.** O resultado ",
-      "dele na wave 3 é reportado de forma descritiva, ao lado do piso, sem ",
-      "teste."
+      "não volta (II.7.1). No cenário conservador, ser distinguível do piso ",
+      "exige multiplicar o acerto dele por ",
+      formatar_decimal(
+        (poder_colaborativo$valor_piso + poder_colaborativo$ganho_independencia) /
+          poder_colaborativo$valor_piso, 1
+      ),
+      ". **O colaborativo passa pelo mesmo teste que o conteúdo**, o pareado ",
+      "de McNemar a 5% contra o piso de popularidade, com os empates do piso ",
+      "desfeitos ao acaso sob semente declarada, e o ganho mínimo é reportado ",
+      "ao lado do resultado. A diferença está na leitura: com tão poucos ",
+      "pares, a não rejeição é o desfecho esperado de qualquer ganho moderado ",
+      "e não autoriza dizer que o componente não funciona. O teste diz se o ",
+      "colaborativo superou o piso por margem grande, e só isso."
     ),
 
     "II.7.7", "instrumento",
@@ -526,10 +536,17 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
 
     "II.7.6",
     paste0(
-      "O componente colaborativo é reportado de forma descritiva, ao lado do ",
-      "piso de popularidade, sem critério de significância."
+      "O critério de sucesso do componente colaborativo é o teste pareado de ",
+      "McNemar a 5% contra o piso de popularidade no treino, sob divisão ",
+      "temporal, com o ganho mínimo detectável reportado ao lado; a não ",
+      "rejeição não é lida como ausência de efeito."
     ),
-    NA,
+    paste0(
+      "O piso de popularidade é a grandeza mais instável do capítulo entre ",
+      "realizações (achado I.0.1), e o número de pares avaliáveis também é do ",
+      "sintético. No dado real os dois, e com eles o ganho mínimo, precisam ser ",
+      "recomputados sob o mesmo protocolo antes de o teste rodar."
+    ),
     "fato real",
 
     "II.7.7",

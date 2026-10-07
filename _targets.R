@@ -104,8 +104,9 @@ list(
   )),
   tar_target(alocacoes_arquivo, salvar_synthetic(alocacoes, "alocacoes"), format = "file"),
 
-  # Acopla contrato e esforço estimado ao esforço de fato alocado. Roda
-  # depois da alocação porque é dela que sai o esforço, e não há ciclo:
+  # Acopla o contrato ao esforço de fato alocado e deriva dele o esforço
+  # estimado. Roda depois da alocação porque é dela que sai o esforço, e não
+  # há ciclo:
   # `gerar_alocacoes()` usa do projeto só setor e janela de datas. Ver
   # `acoplar_projetos_ao_esforco()` para o defeito de Camada 3 que motivou.
   tar_target(projetos_acoplados, acoplar_projetos_ao_esforco(projetos, alocacoes)),
@@ -195,7 +196,12 @@ list(
   tar_target(bloco_i0, executar_i0(replicas_estabilidade, versionado = grandezas_versionadas)),
   tar_target(bloco_i0_tabelas, salvar_tabelas_bloco(bloco_i0$tabelas), format = "file"),
   tar_target(bloco_i0_figuras, salvar_figuras_bloco(
-    bloco_i0$figuras, list(i0_estabilidade = c(17, 14), i0_tipicidade = c(17, 9))
+    bloco_i0$figuras, list(
+      i0_estabilidade = c(17, altura_da_figura_estabilidade(
+        sum(bloco_i0$objetos$classificado$classe != "diferença")
+      )),
+      i0_tipicidade = c(17, 9)
+    )
   ), format = "file"),
   tar_target(bloco_i0_achados, salvar_tabela(bloco_i0$achados, "achados_i0"), format = "file"),
   tar_target(estabilidade, bloco_i0$objetos$estabilidade),

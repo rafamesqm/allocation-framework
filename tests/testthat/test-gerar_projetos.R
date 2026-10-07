@@ -4,7 +4,7 @@ test_that("gerar_projetos produz a dimensão e as colunas esperadas", {
   expect_equal(nrow(projetos), 300)
   expect_named(projetos, c(
     "projeto_id", "setor", "tipo_projeto", "valor_contrato",
-    "esforco_estimado", "data_inicio", "duracao_dias", "data_fim"
+    "data_inicio", "duracao_dias", "data_fim"
   ))
   expect_false(anyNA(projetos))
   expect_equal(dplyr::n_distinct(projetos$projeto_id), 300)
@@ -28,11 +28,10 @@ test_that("setor e tipo_projeto ficam dentro do espaço real de categorias", {
   expect_true(all(projetos$tipo_projeto %in% offerings_esperados))
 })
 
-test_that("valor_contrato e esforco_estimado são não negativos", {
+test_that("valor_contrato é não negativo", {
   projetos <- gerar_projetos(n_projetos = 500)
 
   expect_true(all(projetos$valor_contrato >= 0))
-  expect_true(all(projetos$esforco_estimado >= 0))
 })
 
 test_that("datas são coerentes: data_fim nunca antes de data_inicio", {

@@ -111,8 +111,11 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
     ),
     paste0(
       "Decorre de o gerador construir as satélites a partir das entidades e ",
-      "não vale como propriedade do domínio: no dado real o join entre ",
-      "entidades e alocação cobre apenas 64% dos colaboradores."
+      "não vale como propriedade do domínio. No dado real, a chave entre ",
+      "entidades e alocação é a mesma (consulta Q4), mas parte dos ",
+      "colaboradores históricos de alocação não tem registro de entidade: a ",
+      "view usada na calibração casava 64% deles, e a fonte certa eleva isso a ",
+      "cerca de 98%. Nem no melhor caso a integridade é completa."
     ),
 
     "I.1.3", "âncora real",
@@ -190,8 +193,8 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
     "I.1.2", NA,
     paste0(
       "Integridade referencial completa é artefato de construção e não ",
-      "propriedade do domínio: no dado real o join entre entidades e ",
-      "alocação cobre 64% dos colaboradores."
+      "propriedade do domínio: no dado real, mesmo com a fonte certa, cerca de ",
+      "2% dos colaboradores de alocação não têm registro de entidade."
     ),
     "fato real",
 

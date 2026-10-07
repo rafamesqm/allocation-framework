@@ -53,8 +53,9 @@
 #' @param duracao_teto_dias Teto de duração, em dias (ver decisão de
 #'   modelagem acima): 2x o máximo real observado (1.184 dias).
 #' @return tibble com um projeto por linha: `projeto_id`, `setor`,
-#'   `tipo_projeto`, `valor_contrato`, `esforco_estimado`, `data_inicio`,
-#'   `duracao_dias`, `data_fim`.
+#'   `tipo_projeto`, `valor_contrato`, `data_inicio`, `duracao_dias`,
+#'   `data_fim`. O `esforco_estimado` é acrescentado depois, derivado das
+#'   alocações, por `acoplar_projetos_ao_esforco()`.
 gerar_projetos <- function(n_projetos = 952,
                             semente = 1,
                             data_referencia = Sys.Date(),
@@ -106,7 +107,6 @@ gerar_projetos <- function(n_projetos = 952,
       prob_zero = 0.147, mediana_positivos = 457000,
       p25_positivos = 190000, p75_positivos = 1100000
     ),
-    esforco_estimado = gerar_esforco_estimado(n_projetos),
     data_inicio = data_inicio,
     duracao_dias = duracao_dias,
     data_fim = data_inicio + duracao_dias

@@ -231,7 +231,9 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
   popularidade é zero (II.7.5).
 * **Critério de sucesso**: para o conteúdo, o teste pareado de McNemar a 5%
   contra o filtro com acaso, fixado como teste e não como número (II.7.7). O
-  colaborativo não é validável e entra de forma descritiva (II.7.6).
+  colaborativo passa pelo mesmo teste contra a popularidade no treino, mas só
+  enxerga ganhos grandes, e a não rejeição não conta como ausência de efeito
+  (II.7.6).
 * **Dois níveis de avaliação**: o acerto contra as alocações mede aderência à
   prática atual; entre os pares com rótulo, a relação de `ŝ` com o desempenho
   padronizado por avaliador mede qualidade. O critério acima é de primeiro

@@ -129,29 +129,37 @@ bloco$figuras$i2_projetos_distribuicoes
 ```
 
 ```{r projetos-numeros}
-vc_mediana <- pega_confronto(obj$confronto_projetos, "valor_contrato", "mediana_pos")
-vc_assim <- pega_confronto(obj$confronto_projetos, "valor_contrato", "assimetria_pos")
-dur_media <- pega_confronto(obj$confronto_projetos, "duracao_dias", "media")
-dur_mediana <- pega_confronto(obj$confronto_projetos, "duracao_dias", "mediana")
+projeto <- function(variavel, estatistica) {
+  pega_confronto(obj$confronto_projetos, variavel, estatistica)
+}
 ```
 
 O confronto separa com nitidez o que a calibração acertou do que ela não
-controlava, e o padrão se repete nas três variáveis.
+controlava.
 
-`valor_contrato` reproduz os quantis dos positivos quase exatamente: a
-mediana sai a `r formatar_diferenca(vc_mediana$dif)` do real. A assimetria
-dos positivos, porém, sai em `r formatar_decimal(vc_assim$sint)` contra
-`r formatar_decimal(vc_assim$real)` reais,
-`r formatar_diferenca(vc_assim$dif)`. Não é falha de execução, é o que
-casamento de quantis faz: fixa três pontos da distribuição e não tem
-instrumento sobre o quarto momento. A cauda extrema real é mais pesada do
-que a log-normal ajustada por quantis consegue produzir.
+`valor_contrato` reproduz o real nas quatro estatísticas com âncora: a fração
+de zeros sai a `r formatar_diferenca(projeto("valor_contrato", "fracao_zero")$dif)`,
+e a mediana, o P25 e o P75 dos positivos a
+`r formatar_diferenca(projeto("valor_contrato", "mediana_pos")$dif)`,
+`r formatar_diferenca(projeto("valor_contrato", "p25_pos")$dif)` e
+`r formatar_diferenca(projeto("valor_contrato", "p75_pos")$dif)`.
+`duracao_dias` faz o mesmo nos três quantis, com a mediana a
+`r formatar_diferenca(projeto("duracao_dias", "mediana")$dif)`, e o máximo sai
+em `r formatar_inteiro(projeto("duracao_dias", "maximo")$sint)` dias contra
+`r formatar_inteiro(projeto("duracao_dias", "maximo")$real)` reais, porque é o
+teto definido no gerador. A fonte recalibrada dá quantis e não momentos, e
+por isso nada se afirma sobre média, desvio ou assimetria dessas duas
+(achado I.2.2). Uma versão anterior deste parágrafo os comparava contra a
+fonte antiga.
 
-`duracao_dias` mostra o mesmo em espelho. Os três quantis batem (mediana a
-`r formatar_diferenca(dur_mediana$dif)`), enquanto média e desvio explodem
-(`r formatar_diferenca(dur_media$dif)` na média) e o máximo sai exatamente
-no dobro do real, porque é o teto de 2.368 dias definido no gerador. Onde a
-calibração mirou, acertou; onde não mirou, a cauda ficou livre.
+**`esforco_estimado` não tem âncora real e não é sorteado.** Ele é a soma das
+horas mensais das alocações do projeto, a necessidade de capacidade por mês
+que a Camada 3 confronta com a capacidade de cada consultor. Uma versão
+anterior o sorteava contra mediana 120 e desvio 66,9, mas esses números vêm
+de uma tabela com uma linha por pessoa alocada: são horas mensais de
+consultor, e foram realocados para `horas_mes` na tabela I.2.6. Projeto ainda
+sem alocação recebe um esforço sorteado entre os dos alocados, porque é
+justamente o projeto que a wave 4 precisa equipar.
 
 # Camada 2, Alocações
 
@@ -172,7 +180,34 @@ mostrar_tabela(
 
 ```{r alocacoes-numeros}
 horas <- obj$resumo_alocacoes[obj$resumo_alocacoes$variavel == "horas_mes", ]
+alocacao <- function(variavel, estatistica) {
+  pega_confronto(obj$confronto_alocacoes, variavel, estatistica)
+}
+horas_nivel <- function(nivel) {
+  obj$horas_por_nivel$mediana[obj$horas_por_nivel$nivel_senioridade == nivel]
+}
 ```
+
+A duração das alocações bate os três quartis reais, com P25, mediana e P75 a
+`r formatar_diferenca(alocacao("duracao_dias", "p25")$dif)`,
+`r formatar_diferenca(alocacao("duracao_dias", "mediana")$dif)` e
+`r formatar_diferenca(alocacao("duracao_dias", "p75")$dif)` do real. Média,
+desvio e assimetria, que não entraram na calibração, saem a
+`r formatar_diferenca(alocacao("duracao_dias", "media")$dif)`,
+`r formatar_diferenca(alocacao("duracao_dias", "desvio")$dif)` e
+`r formatar_diferenca(alocacao("duracao_dias", "assimetria")$dif)`, o que diz
+que a forma está certa, e não só os pontos mirados. Não era assim até a wave
+2.5: a duração da alocação era uma fração fixa de 75% da duração do projeto, e
+quando a segunda consulta comercial alongou o projeto de 18 para 81 dias
+medianos, a alocação alongou junto, para 56 dias medianos contra 18 reais.
+
+`horas_mes` acerta mediana e desvio, mas não a forma (achado I.2.5). O P25
+sai em `r formatar_decimal(alocacao("horas_mes", "p25")$sint, 1)` horas contra
+`r formatar_decimal(alocacao("horas_mes", "p25")$real, 0)` reais, e o perfil
+por nível é uma reta onde o real tem corcova por cargo. No sintético, a
+mediana vai de `r formatar_decimal(horas_nivel("N0"), 0)` horas em N0 a
+`r formatar_decimal(horas_nivel("N4"), 0)` em N4; no real, estagiários ficam
+perto de 112, cargos de execução entre 141 e 146, e os seniores entre 12 e 60.
 
 Este bloco encontrou aqui um defeito de plausibilidade que não estava
 documentado, e que desde então foi corrigido no gerador. Vale registrar o

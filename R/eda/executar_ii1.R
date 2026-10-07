@@ -146,8 +146,11 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
       formatar_inteiro(esparsidade$celulas), " células possíveis."
     ),
     paste0(
-      "A ordem de grandeza reproduz a densidade real estimada de 0,5%, com a ",
-      "ressalva de cobertura de join já registrada. Esparsidade nesse nível é ",
+      "A ordem de grandeza reproduz a densidade real estimada de 0,5%. Ela foi ",
+      "calculada só sobre a tabela de alocação, sem join com a de entidades, e ",
+      "a ressalva que carrega é de denominador: são colaboradores históricos ",
+      "contra códigos de alocação, e um projeto pode ter mais de um código ",
+      "(II.5.10). Esparsidade nesse nível é ",
       "o regime em que método de vizinhança tem pouca sobreposição para ",
       "estimar similaridade, e é o argumento contra vizinhança. A ",
       "alternativa natural, fator latente, não sai favorecida por isso: o ",

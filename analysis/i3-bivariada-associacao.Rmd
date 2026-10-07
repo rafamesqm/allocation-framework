@@ -108,6 +108,8 @@ Ela tinha três pares de projeto, e os três ganharam mecanismo quando o
 gerador passou a acoplar valor de contrato e esforço estimado ao esforço de
 fato alocado. A mudança veio do bloco II.5, que mostrou que a independência
 entre porte financeiro e esforço tornava a margem estrutural sem sentido.
+Desde a wave 2.5 o esforço estimado deixou de ser acoplado e passou a ser
+derivado das alocações, o que mantém os três pares com mecanismo declarado.
 
 Esta verificação chegou a acusar os três, o que é exatamente o que ela
 existe para fazer. A resposta correta não foi afrouxar o limite: foi

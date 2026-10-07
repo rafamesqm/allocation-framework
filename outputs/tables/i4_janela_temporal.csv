@@ -1,7 +1,7 @@
 Tabela,Campo,Início,Fim,Amplitude (dias),n
 projetos,data_inicio,2024-09-01,2026-08-31,729,952
-alocacoes,data_inicio,2024-09-01,2027-05-11,982,2.426
-alocacoes,data_fim,2024-09-23,2032-06-09,2.816,2.426
+alocacoes,data_inicio,2024-09-03,2029-12-12,1.926,2.426
+alocacoes,data_fim,2024-09-07,2030-12-10,2.285,2.426
 projetos,data_fim,2024-09-24,2032-10-17,2.945,952
 ferias_consultor,inicio_ferias,2026-01-02,2026-12-01,333,285
 ferias_consultor,fim_ferias,2026-02-01,2026-12-31,333,285

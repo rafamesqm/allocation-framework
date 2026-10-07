@@ -2,7 +2,7 @@ Tabela,Variável,Fração zero,P25,Mediana,P75,Média,Desvio,Assimetria
 receita_projeto_mes,receita_total,"16,7%",50853,134690.3,274420.7,211462.8,268897.1,3.76
 receita_projeto_mes,receita_nf,"16,7%",44785.2,120945.2,247751.5,191948.7,246902,3.81
 receita_projeto_mes,receita_interns,"41,1%",0,5288.9,21746.2,19514.1,40383.6,5.58
-ocupacao_consultor,pct_ocupacao,"0,0%",0.5,0.8,1.4,1.1,0.9,1.98
-ocupacao_consultor,horas_mes,"0,0%",82.2,150.1,250.5,194.4,175.2,2.55
-margem_estrutural,custo_total,"21,3%",13900.5,82491.3,272038.1,250723.7,517112.2,5.67
-margem_estrutural,margem_estrutural,"3,7%",25669.2,195958.2,659550.3,700300.5,1641695,6.14
+ocupacao_consultor,pct_ocupacao,"0,0%",0.3,0.7,1,0.8,0.6,1.8
+ocupacao_consultor,horas_mes,"0,0%",48.2,117.7,192.2,142.2,130.4,2.24
+margem_estrutural,custo_total,"21,3%",1201.9,32309.8,128663.7,137092.6,343892.4,6.8
+margem_estrutural,margem_estrutural,"3,7%",73114.1,271698.3,794198.1,813931.6,1710640.6,5.8
