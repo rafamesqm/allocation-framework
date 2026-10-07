@@ -58,17 +58,17 @@ procedencia_associacoes <- function() {
     # As três reclassificadas de `livre` para `induzida` quando o bloco II.5
     # mostrou que a independência entre porte financeiro e esforço tornava a
     # margem estrutural sem sentido (ver `acoplar_projetos_ao_esforco()`).
-    # Contrato e esforço estimado passam a ser permutados pelo posto do
-    # esforço de fato alocado, o que induz associação entre os dois e com a
-    # duração, já que alocação mais longa acumula mais horas. A existência do
-    # vínculo é estrutura reproduzida; a força é suposição declarada, sem
-    # alvo real para confrontar.
+    # O contrato passa a ser permutado pelo posto das horas de fato alocadas,
+    # e o esforço estimado, desde a wave 2.5, é derivado das alocações como
+    # soma das horas mensais da equipe. Isso induz associação entre os dois e
+    # com a duração. A existência do vínculo é estrutura reproduzida; a força
+    # do acoplamento do contrato é suposição declarada, sem alvo real.
     "valor_contrato", "esforco_estimado", "induzida", NA_real_, NA_character_,
-    "ambos permutados pelo posto do esforço alocado, o que os liga entre si",
+    "o contrato é ordenado pelas horas alocadas, das quais o esforço mensal é um fator",
     "valor_contrato", "duracao_dias", "induzida", NA_real_, NA_character_,
     "alocação mais longa acumula mais horas, e as horas ordenam o contrato",
     "esforco_estimado", "duracao_dias", "induzida", NA_real_, NA_character_,
-    "idem",
+    "projeto mais longo acumula mais alocações, e o esforço soma as horas delas",
 
     # Categóricas -----------------------------------------------------------
     # Reclassificada de `ausente` para `induzida` quando o gerador passou a

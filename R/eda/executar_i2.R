@@ -47,6 +47,20 @@ executar_i2 <- function(dados, estabilidade = NULL) {
   horas <- resumo_alocacoes[resumo_alocacoes$variavel == "horas_mes", ]
   ocupacao <- resumo_ocupacao[resumo_ocupacao$variavel == "pct_ocupacao", ]
   acima_capacidade <- mean(dados$ocupacao_consultor$pct_ocupacao > 1)
+  horas_p25 <- pega(confronto_alocacoes, "horas_mes", "p25")
+  duracao_alocacao <- confronto_alocacoes[confronto_alocacoes$variavel == "duracao_dias", ]
+
+  # O real tem perfil em corcova por cargo, e o gerador, uma reta por nível:
+  # a correlação global de -0,55 é a mesma, mas a forma não.
+  horas_por_nivel <- dados$alocacoes |>
+    dplyr::left_join(
+      dplyr::select(dados$consultores, consultor_id, nivel_senioridade),
+      by = "consultor_id"
+    ) |>
+    dplyr::summarise(mediana = stats::median(horas_mes), .by = nivel_senioridade) |>
+    dplyr::arrange(nivel_senioridade)
+  horas_n0 <- horas_por_nivel$mediana[horas_por_nivel$nivel_senioridade == "N0"]
+  horas_n4 <- horas_por_nivel$mediana[horas_por_nivel$nivel_senioridade == "N4"]
 
   objetos <- list(
     resumo_consultores = resumo_consultores,
@@ -62,6 +76,8 @@ executar_i2 <- function(dados, estabilidade = NULL) {
     confronto_alocacoes = confronto_alocacoes,
     confronto_margem = confronto_margem,
     comparacao_nivel = comparacao_nivel,
+    horas_por_nivel = horas_por_nivel,
+    duracao_alocacao = duracao_alocacao,
     acima_capacidade = acima_capacidade,
     estrutural_negativa = mean(dados$margem_estrutural$margem_estrutural < 0),
     horas_zero = sum(dados$alocacoes$horas_mes == 0),
@@ -228,6 +244,25 @@ executar_i2 <- function(dados, estabilidade = NULL) {
       "O histórico observado viola a restrição de capacidade que a wave 4 ",
       "pretende impor. Sem agregado real para confrontar, o valor está no ",
       "diagnóstico existir, não na magnitude sintética."
+    ),
+
+    "I.2.5", "consequência do gerador",
+    paste0(
+      "horas_mes acerta mediana e desvio reais, mas não a forma. O P25 sai em ",
+      formatar_decimal(horas_p25$sint, 1), " horas contra ",
+      formatar_decimal(horas_p25$real, 0), " reais, e o perfil por nível é ",
+      "uma reta, de ", formatar_decimal(horas_n0, 0), " horas medianas em N0 a ",
+      formatar_decimal(horas_n4, 0), " em N4, onde o real tem corcova: ",
+      "estagiários perto de 112, execução entre 141 e 146 e cargos seniores ",
+      "entre 12 e 60."
+    ),
+    paste0(
+      "O gerador reproduz a correlação de -0,55 entre horas e senioridade com ",
+      "uma relação linear, e as âncoras disponíveis, quatro estatísticas ",
+      "globais e faixas por cargo sem contagem, não bastam para calibrar a ",
+      "corcova sem inventar o que falta. Resultado que dependa de horas ",
+      "mensais por nível, e não de horas no agregado, herda essa forma: a ",
+      "base da pirâmide sai mais carregada do que é."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -258,6 +293,14 @@ executar_i2 <- function(dados, estabilidade = NULL) {
       "O histórico viola a restrição de capacidade que a wave 4 pretende ",
       "impor, mas sem agregado real para confrontar o valor está no ",
       "diagnóstico existir e não na magnitude sintética."
+    ),
+    "depende do gerador",
+
+    "I.2.5", NA,
+    paste0(
+      "Horas mensais por nível seguem uma reta no sintético e uma corcova no ",
+      "real, então resultado que dependa delas por nível, e não no agregado, ",
+      "herda uma forma que o dado real não tem."
     ),
     "depende do gerador"
   )))

@@ -327,7 +327,7 @@ simular_estabilidade <- function(sementes = 1:40, ...) {
 #' **O que este intervalo é, e o que não é.** Ele mede quanto cada número se
 #' moveria se a população sintética fosse sorteada de novo. Não é incerteza
 #' sobre a Peers: o dado real é o que é, e a incerteza sobre ele vem das
-#' ressalvas de cobertura de join registradas em `mapeamento_schema.md`, não
+#' ressalvas de cobertura das fontes registradas em `mapeamento_schema.md`, não
 #' daqui. Confundir os dois transformaria variabilidade de código em margem
 #' de erro sobre a empresa, que seria exatamente o tipo de afirmação que este
 #' capítulo existe para evitar.

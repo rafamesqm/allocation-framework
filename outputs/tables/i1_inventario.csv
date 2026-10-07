@@ -1,9 +1,9 @@
 Tabela,Linhas,Colunas,Chave declarada,Chave única
 avaliacoes_desempenho,50.946,8,"consultor_id, projeto_id, item, etapa",sim
 receita_projeto_mes,5.107,7,"projeto_id, ano_mes",sim
-ocupacao_consultor,5.050,5,"consultor_id, ano_mes",sim
 pipeline_demandas,4.302,2,oportunidade_id,sim
 grafo_coalocacao,4.231,3,"consultor_a, consultor_b",sim
+ocupacao_consultor,3.882,5,"consultor_id, ano_mes",sim
 skills_consultor,3.128,4,"consultor_id, skill_id",sim
 alocacoes,2.426,8,"consultor_id, projeto_id",sim
 soft_skills_consultor,1.242,3,"consultor_id, competencia",sim

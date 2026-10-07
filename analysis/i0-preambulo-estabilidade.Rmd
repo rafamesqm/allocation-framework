@@ -55,8 +55,9 @@ Este bloco mede isso, repetindo a geração completa sobre
 Uma distinção que precisa ficar explícita, porque confundi-la seria grave.
 **O intervalo aqui mede variabilidade do gerador, não incerteza sobre a
 Peers.** O dado real é o que é; a incerteza sobre ele vem das ressalvas de
-cobertura de join registradas em `mapeamento_schema.md`, sobretudo dos 64% de
-correspondência entre a tabela de entidades e a de alocação. Ler este
+cobertura das fontes registradas em `mapeamento_schema.md`, como o teto de
+5.000 linhas da extração e os colaboradores históricos sem registro de
+entidade. Ler este
 intervalo como margem de erro sobre a empresa transformaria variabilidade de
 código em afirmação empírica, que é exatamente o erro que este capítulo
 existe para evitar.

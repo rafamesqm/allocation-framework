@@ -7,7 +7,7 @@
 #'
 #' * `âncora real`: o número é calibrado contra agregado documentado em
 #'   `docs/mapeamento_schema.md`. Fala sobre a Peers, com as ressalvas de
-#'   cobertura de join já registradas.
+#'   cobertura das fontes já registradas.
 #' * `consequência do gerador`: decorre de suposição de modelagem, não de
 #'   observação. Fala sobre o instrumento, não sobre a empresa.
 #' * `instrumento`: o valor está no diagnóstico ter sido construído e

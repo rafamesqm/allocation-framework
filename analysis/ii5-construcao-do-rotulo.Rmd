@@ -371,11 +371,25 @@ pares distintos entre colaborador e *código* de alocação, e um projeto pode
 ter mais de um código. Se for isso, a equipe real por projeto é maior e o
 resto fecha sem mexer em mais nada.
 
+**A duração da alocação é uma sétima âncora, e ela aumenta o desacordo.** A
+relação acima supõe cada consultor presente pela duração inteira do projeto,
+mas a alocação real dura
+`r formatar_inteiro(obj$horas_da_margem$duracao_alocacao_dias)` dias medianos,
+contra `r formatar_decimal(obj$sobredeterminacao$ancoras$medido[3], 1)`
+semanas de projeto. Com uma alocação por par entre consultor e projeto, que é
+o que o gerador supõe, o desacordo sobe para
+`r formatar_decimal(obj$horas_da_margem$desacordo_com_alocacao, 1)` vezes. Ele
+fecharia se cada pessoa somasse várias alocações curtas no mesmo projeto, e a
+fonte não diz se é assim.
+
 É essa a explicação do resíduo. Depois de corrigir unidade, acoplamento,
-fonte do custo, fonte do contrato e duração do projeto, a fração de prejuízo
-ficou perto da real e a mediana continua alta, porque o projeto sintético
-acumula cerca de metade das horas que o contrato implica. O resíduo é o da
-sobredeterminação, e não um defeito à parte.
+fonte do custo, fonte do contrato, duração do projeto e duração da alocação,
+a fração de prejuízo ficou perto da real e a mediana continua alta, porque o
+projeto sintético acumula
+`r formatar_pct(obj$horas_da_margem$fracao_das_horas_implicadas)` das horas
+que o contrato implica. Até a wave 2.5 eram cerca de metade, mas porque a
+alocação sintética durava três vezes a real: a concordância anterior vinha de
+um erro compensando outro.
 
 **A decisão que este bloco habilita é (a) para `R` e (d) para `f`.** A célula
 de `R` é o desempenho, normalizado por avaliador e com a etapa declarada. A

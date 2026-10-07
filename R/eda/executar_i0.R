@@ -212,7 +212,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     i0_etiquetas = tibble::tibble(
       Etiqueta = etiquetas_achado(),
       `O que autoriza afirmar` = c(
-        "Sobre a Peers, com as ressalvas de cobertura de join documentadas",
+        "Sobre a Peers, com as ressalvas de cobertura das fontes documentadas",
         "Sobre o gerador, nunca sobre a empresa",
         "Sobre a validade do diagnóstico, aplicável ao dado real"
       )
@@ -352,7 +352,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
       "Nenhum número do capítulo deve ser lido como propriedade fixa do ",
       "modelo. O intervalo mede quanto o valor se moveria se a população ",
       "fosse sorteada de novo, e **não** é incerteza sobre a Peers: essa vem ",
-      "das ressalvas de cobertura de join, não daqui."
+      "das ressalvas de cobertura das fontes, não daqui."
     ),
 
     "I.0.2", "instrumento",

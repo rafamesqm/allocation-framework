@@ -378,3 +378,18 @@ test_that("no sintetico conteudo e rotulo sao independentes, por construcao", {
     min(cruzamento$fracao_alocacoes_com_conteudo, cruzamento$fracao_alocacoes_com_rotulo)
   )
 })
+
+test_that("as horas da margem saem do dado e a alocacao real aumenta o desacordo", {
+  # O texto do II.5 dizia "cerca de metade das horas" digitado, e o numero
+  # mudou para um quinto sem que nada acusasse quando a duracao da alocacao
+  # foi recalibrada.
+  dados <- carregar_dados(tabelas = c("projetos", "alocacoes"))
+  sobredeterminacao <- medir_sobredeterminacao_economica()
+
+  horas <- medir_horas_contra_contrato(dados, sobredeterminacao)
+
+  expect_gt(horas$fracao_das_horas_implicadas, 0)
+  expect_lt(horas$fracao_das_horas_implicadas, 1)
+  expect_equal(horas$duracao_alocacao_dias, 18)
+  expect_gt(horas$desacordo_com_alocacao, sobredeterminacao$desacordo)
+})

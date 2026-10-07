@@ -470,7 +470,13 @@ precisa ser lida nessa direção.
 |---|---|---|---|---|---|---|
 | Taxa/hora (`custo_carregado`) | `vw_gtac_fin_taxa_hora` | 453,50 | 286,58 | 485,70 | 944,62 | 0,93 (moderada, positiva) |
 | Valor de contrato, só positivos | `actarnet_alocacao_pessoas` | 1.771.644 | 34.814 | 108.300 | 375.054 | 12,68 (extrema, cauda muito pesada) |
-| Horas/mês (`esforco_estimado`) | `vw_bi_tbl_pps_alocacao_pessoas` | 66,90 | 32 | 120 | 160 | -0,05 (quase simétrica) |
+| Horas/mês por pessoa alocada (`horas_mes`; registrada antes como `esforco_estimado`, ver nota abaixo) | `vw_bi_tbl_pps_alocacao_pessoas` | 66,90 | 32 | 120 | 160 | -0,05 (quase simétrica) |
+
+Nota da wave 2.5: a linha de horas/mês foi registrada nesta rodada como
+`esforco_estimado` de projeto, e o gerador sorteou o esforço de projeto a
+partir dela. A fonte tem uma linha por pessoa alocada, então as âncoras são de
+`horas_mes` de consultor. O esforço de projeto não tem âncora real e passou a
+ser derivado das alocações, como soma das horas mensais da equipe.
 
 **Massa em zero no valor de contrato:** de 3339 registros, 490 (14,7%) são
 zero ou negativos. Não é um detalhe menor: uma log-normal comum não acomoda
@@ -499,7 +505,9 @@ saíram idênticos aos já registrados acima.** Schema das 6 tabelas usadas
 anterior; o que muda nesta rodada é a validação dos dois joins pendentes.
 
 **Join `ID` (entidades) = `Cód. Colaborador` (alocação): fraco, usar com
-ressalva.** Cobertura real: dos 511 colaboradores distintos que aparecem em
+ressalva.** *Superado pela consulta Q4, mais abaixo: a chave é a mesma, e a
+fonte `gold.apdata_entidades_globais` eleva a cobertura para cerca de 98%. O
+registro abaixo fica como estava na rodada.* Cobertura real: dos 511 colaboradores distintos que aparecem em
 `vw_gtac_cltv_alocacao`, só 327 (64%) têm `ID` correspondente na tabela de
 entidades atual. Testei duas chaves alternativas (`cod_contratado_apdata`,
 `cod_id_datalake`, ambas também presentes em entidades): as duas deram 0% de

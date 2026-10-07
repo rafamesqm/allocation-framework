@@ -63,12 +63,6 @@ referencias_reais <- function() {
     "projetos", "valor_contrato", "mediana_pos", NA_character_, 457000, "Segunda consulta",
     "projetos", "valor_contrato", "p75_pos", NA_character_, 1100000, "Segunda consulta",
 
-    "projetos", "esforco_estimado", "desvio", NA_character_, 66.90, "Segunda",
-    "projetos", "esforco_estimado", "p25", NA_character_, 32, "Segunda",
-    "projetos", "esforco_estimado", "mediana", NA_character_, 120, "Segunda",
-    "projetos", "esforco_estimado", "p75", NA_character_, 160, "Segunda",
-    "projetos", "esforco_estimado", "assimetria", NA_character_, -0.05, "Segunda",
-
     # Idem: a duração passa a vir de `pps`, em semanas (p10/50/90 de
     # 3,6/11,6/43,6), convertidas em dias. A calibração anterior media outra
     # coisa e deixava o projeto curto demais para acumular as horas que o
@@ -105,8 +99,16 @@ referencias_reais <- function() {
     "alocacoes", "duracao_dias", "p75", NA_character_, 60, "Sexta",
     "alocacoes", "duracao_dias", "assimetria", NA_character_, 3.97, "Sexta",
 
+    # Estes cinco ficaram registrados como `esforco_estimado` de projeto até
+    # a wave 2.5, mas a fonte é `vw_bi_tbl_pps_alocacao_pessoas`, uma linha
+    # por pessoa alocada: são horas mensais de consultor, não esforço de
+    # projeto. O esforço de projeto não tem âncora real e passou a ser
+    # derivado das alocações (ver `acoplar_projetos_ao_esforco()`).
     "alocacoes", "horas_mes", "desvio", NA_character_, 66.90, "Segunda",
+    "alocacoes", "horas_mes", "p25", NA_character_, 32, "Segunda",
     "alocacoes", "horas_mes", "mediana", NA_character_, 120, "Segunda",
+    "alocacoes", "horas_mes", "p75", NA_character_, 160, "Segunda",
+    "alocacoes", "horas_mes", "assimetria", NA_character_, -0.05, "Segunda",
 
     # Camada 3: Operação ---------------------------------------------------
     # Os quantis da receita mensal vêm da segunda consulta às bases
