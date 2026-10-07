@@ -388,7 +388,8 @@ fonte do custo, fonte do contrato, duração do projeto e duração da alocaçã
 a fração de prejuízo ficou perto da real e a mediana continua alta, porque o
 projeto sintético acumula
 `r formatar_pct(obj$horas_da_margem$fracao_das_horas_implicadas)` das horas
-que o contrato implica. Até a wave 2.5 eram cerca de metade, mas porque a
+que o contrato implica. Antes da recalibração da duração das alocações eram
+cerca de metade, mas porque a
 alocação sintética durava três vezes a real: a concordância anterior vinha de
 um erro compensando outro.
 

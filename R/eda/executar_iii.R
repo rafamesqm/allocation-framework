@@ -176,7 +176,8 @@ executar_iii <- function(achados_por_bloco) {
     paste0(
       "Juntando os blocos, sobra pouco para ordenar consultores dentro do ",
       "filtro de setor. Para quem tem histórico, a fatoração degenera em ",
-      "popularidade (II.2.4) e o projeto novo nunca foi visto (II.7.1), então ",
+      "popularidade (II.2.4) e o projeto do teste raramente foi visto no ",
+      "treino (II.7.1), então ",
       "o que ordena é a popularidade. Para quem não tem histórico, a ",
       "popularidade é zero (II.7.5), e o único sinal restante é o perfil de ",
       "skills, que o bloco II.6 mostrou não ser avaliável (II.6.6). A zona ",

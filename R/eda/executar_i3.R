@@ -172,17 +172,20 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
       } else if (objetos$maior_livre <= limite_livre) {
         paste0(
           if (nrow(livres) == 1) {
+            # O valor com sinal, e não o absoluto: com um par só, o absoluto
+            # escrito como medida trocava -0,003 por 0,003.
             paste0(
               "O único par sem mecanismo declarado, ", livres$variavel_a, " e ",
-              livres$variavel_b, ", não se afasta de zero: mede "
+              livres$variavel_b, ", não se afasta de zero: mede ",
+              formatar_decimal(livres$medida, 3)
             )
           } else {
             paste0(
               "Nenhum dos ", nrow(livres), " pares sem mecanismo declarado se ",
-              "afasta de zero: o maior valor absoluto é "
+              "afasta de zero: o maior valor absoluto é ",
+              formatar_decimal(objetos$maior_livre, 3)
             )
           },
-          formatar_decimal(objetos$maior_livre, 3),
           ". O gerador não introduziu dependência não intencional entre ",
           "variáveis que deveriam ser independentes."
         )
@@ -217,8 +220,8 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
       "esforço estimado ao esforço de fato alocado, os três pares de projeto ",
       "deixaram de ser independentes, este achado passou a acusá-los, e a ",
       "resposta foi reclassificá-los para `induzida`, porque ganharam ",
-      "mecanismo declarado, e não afrouxar o limite. Na wave 2.5 o esforço ",
-      "passou a ser derivado das alocações, o par entre esforço e duração ",
+      "mecanismo declarado, e não afrouxar o limite. Na correção que ",
+      "recalibrou a duração das alocações, o esforço passou a ser derivado das alocações, o par entre esforço e duração ",
       "perdeu o mecanismo, e voltou para `livre`, onde a medida perto de zero ",
       "é a confirmação. O enunciado acima é condicional de propósito: ",
       "afirmar que nada se afasta de zero enquanto o número diz o contrário ",

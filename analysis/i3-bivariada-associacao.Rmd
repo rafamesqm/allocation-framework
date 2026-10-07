@@ -117,7 +117,8 @@ reclassificá-los para `induzida` em `procedencia_associacoes()`, porque
 passaram a ter mecanismo declarado. Com isso a categoria ficou vazia, e a
 verificação, sem nada para vigiar.
 
-Na wave 2.5 o esforço estimado deixou de ser acoplado e passou a ser a soma
+Na correção que recalibrou a duração das alocações, o esforço estimado
+deixou de ser acoplado e passou a ser a soma
 das horas mensais da equipe, que não cresce com a duração do projeto. O par
 entre esforço e duração perdeu o mecanismo, mediu perto de zero, e voltou
 para `livre`. Contrato e duração, e contrato e esforço, seguem induzidos pelo

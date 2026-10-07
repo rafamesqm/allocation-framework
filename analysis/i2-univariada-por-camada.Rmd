@@ -197,8 +197,8 @@ desvio e assimetria, que não entraram na calibração, saem a
 `r formatar_diferenca(alocacao("duracao_dias", "desvio")$dif)` e
 `r formatar_diferenca(alocacao("duracao_dias", "assimetria")$dif)`. O corpo da
 distribuição acompanha o real, e a cauda sai um pouco mais longa, o que pesa
-no desvio mais do que em qualquer quantil. Não era assim até a wave
-2.5: a duração da alocação era uma fração fixa de 75% da duração do projeto, e
+no desvio mais do que em qualquer quantil. Não era assim antes da
+recalibração da duração das alocações: a duração da alocação era uma fração fixa de 75% da duração do projeto, e
 quando a segunda consulta comercial alongou o projeto de 18 para 81 dias
 medianos, a alocação alongou junto, para 56 dias medianos contra 18 reais.
 

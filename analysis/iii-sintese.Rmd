@@ -80,7 +80,7 @@ eliminar as alternativas.
 
 **O que a cadeia não determina é o que ordena dentro do filtro.** Para quem
 tem histórico, o que resta é a popularidade: a fatoração degenera nela, e o
-projeto novo nunca foi visto. Para quem não tem, a popularidade é zero, e o
+projeto do teste raramente foi visto no treino (II.7.1). Para quem não tem, a popularidade é zero, e o
 único sinal restante é o perfil de skills, que o II.6 mostrou não ser
 avaliável. Por isso `ŝ`, a afinidade que liga a recomendação ao otimizador,
 não está determinado pela EDA. É a pergunta que a wave 3 responde, e um
