@@ -104,8 +104,9 @@ list(
   )),
   tar_target(alocacoes_arquivo, salvar_synthetic(alocacoes, "alocacoes"), format = "file"),
 
-  # Acopla contrato e esforço estimado ao esforço de fato alocado. Roda
-  # depois da alocação porque é dela que sai o esforço, e não há ciclo:
+  # Acopla o contrato ao esforço de fato alocado e deriva dele o esforço
+  # estimado. Roda depois da alocação porque é dela que sai o esforço, e não
+  # há ciclo:
   # `gerar_alocacoes()` usa do projeto só setor e janela de datas. Ver
   # `acoplar_projetos_ao_esforco()` para o defeito de Camada 3 que motivou.
   tar_target(projetos_acoplados, acoplar_projetos_ao_esforco(projetos, alocacoes)),

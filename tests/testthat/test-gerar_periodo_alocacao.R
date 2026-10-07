@@ -29,52 +29,36 @@ test_that("projeto de 1 dia produz alocação de 1 dia, sem folga", {
   expect_true(all(periodo$data_inicio == as.Date("2026-01-01")))
 })
 
-test_that("a cobertura média da janela do projeto bate a razão real de 0,75", {
-  # Razão real entre média de duração de alocação (51,6) e média do span do
-  # projeto (68,8), Sexta rodada de docs/mapeamento_schema.md. É o alvo de
-  # calibração do default, ver roxygen.
-  set.seed(3)
-  n <- 100000
-  duracao_projeto <- rep(1000L, n)
-
-  periodo <- gerar_periodo_alocacao(rep(as.Date("2026-01-01"), n), duracao_projeto)
-
-  expect_equal(mean(periodo$duracao_dias / duracao_projeto), 0.75, tolerance = 0.01)
-})
-
-test_that("concentração maior aproxima a alocação da cobertura total", {
-  set.seed(4)
-  n <- 20000
-  inicio <- rep(as.Date("2026-01-01"), n)
-  duracao_projeto <- rep(500L, n)
-
-  frouxa <- gerar_periodo_alocacao(inicio, duracao_projeto, concentracao_cobertura = 2)
-  apertada <- gerar_periodo_alocacao(inicio, duracao_projeto, concentracao_cobertura = 20)
-
-  expect_true(mean(apertada$duracao_dias) > mean(frouxa$duracao_dias))
-  expect_true(mean(apertada$duracao_dias / duracao_projeto) > 0.9)
-})
-
-test_that("a duracao da alocacao e uma fracao plausivel da janela do projeto", {
-  # Testa o mecanismo, e nao quantis absolutos. Os alvos anteriores (mediana
-  # 13, p75 60) estavam ancorados na calibracao antiga de duracao de projeto,
-  # que a segunda consulta comercial substituiu: quando a janela do projeto
-  # mudou de 18 para 81 dias, eles passaram a medir a calibracao velha e nao
-  # a propriedade do gerador.
+test_that("a duração das alocações fica perto dos quartis reais 4, 18 e 60", {
+  # A calibração anterior acertava a fração da janela do projeto e errava a
+  # duração da alocação, que é a grandeza com âncora real: quando a duração
+  # de projeto mudou de 18 para 81 dias medianos, a mediana das alocações foi
+  # a 56 dias contra 18 reais sem nenhum teste falhar. Este teste olha a
+  # grandeza ancorada, sobre as durações de projeto do gerador.
   set.seed(5)
   projetos <- gerar_projetos(n_projetos = 20000, data_referencia = as.Date("2026-01-01"))
 
   periodo <- gerar_periodo_alocacao(projetos$data_inicio, projetos$duracao_dias)
-  fracao <- periodo$duracao_dias / pmax(projetos$duracao_dias, 1)
+  quartis <- stats::quantile(periodo$duracao_dias, c(0.25, 0.5, 0.75), names = FALSE)
 
-  # A alocacao cobre boa parte da janela, sem nunca ultrapassa-la.
-  expect_true(all(fracao <= 1))
-  expect_gt(stats::median(fracao), 0.5)
-  expect_lt(stats::median(fracao), 1)
-  # E a duracao resultante fica na ordem de grandeza da duracao real de
-  # alocacao registrada, que e de 12 semanas medianas.
-  expect_gt(stats::median(periodo$duracao_dias), 30)
-  expect_lt(stats::median(periodo$duracao_dias), 100)
+  expect_gte(quartis[1], 2)
+  expect_lte(quartis[1], 8)
+  expect_gte(quartis[2], 12)
+  expect_lte(quartis[2], 27)
+  expect_gte(quartis[3], 42)
+  expect_lte(quartis[3], 80)
+})
+
+test_that("os parâmetros padrão são os que a calibração devolve", {
+  # Amarra o padrão de gerar_periodo_alocacao() à função que o produz, para
+  # que uma mudança na duração de projeto não deixe o padrão órfão.
+  set.seed(6)
+  projetos <- gerar_projetos(n_projetos = 3000, data_referencia = as.Date("2026-01-01"))
+
+  calibrado <- calibrar_cobertura_alocacao(projetos$duracao_dias)
+
+  expect_equal(calibrado$forma_a, 0.426, tolerance = 0.25)
+  expect_equal(calibrado$forma_b, 0.689, tolerance = 0.25)
 })
 
 test_that("é reprodutível sob a mesma semente", {

@@ -52,53 +52,73 @@ acoplar_por_posto <- function(valores, referencia, forca = 0.7) {
   saida[ordem_desejada] <- sort(valores)
   saida
 }
-
-#' Acopla valor de contrato e esforço estimado ao esforço de fato alocado
+#' Acopla o valor de contrato ao esforço alocado e deriva o esforço estimado
 #'
 #' Roda depois de `gerar_alocacoes()` de propósito, e não dentro de
 #' `gerar_projetos()`: o esforço alocado só existe depois que a alocação foi
 #' gerada. Não há ciclo, porque `gerar_alocacoes()` usa do projeto apenas
 #' setor e janela de datas, nunca contrato nem esforço.
 #'
-#' **Projeto sem alocação fica de fora do acoplamento.** Acoplar pelo posto
-#' colocaria todos eles no piso da distribuição de contrato, o que diria que
-#' projeto ainda não equipado é projeto pequeno. Não é: ele é projeto sobre o
-#' qual não há informação de esforço, e o que corresponde à ausência de
-#' informação é ausência de acoplamento. Eles ficam com valores sorteados
-#' entre os que sobraram, preservando a marginal do conjunto todo.
+#' **O esforço estimado é derivado, e não sorteado.** Ele é a soma das horas
+#' mensais das alocações do projeto, a necessidade de capacidade por mês que
+#' a Camada 3 confronta com a capacidade `k`. A versão anterior o sorteava
+#' de uma Normal calibrada por âncoras que eram, na verdade, de `horas_mes`
+#' por pessoa, com mediana 120 e desvio 66,9: uma grandeza por consultor
+#' tomada como se fosse por projeto. Além do erro de unidade, o truncamento
+#' em zero deixava 3,6% dos projetos com esforço exatamente nulo, um atributo
+#' que nenhum projeto real tem. Não há âncora real de esforço por projeto, e
+#' derivar é a forma de ele ser coerente com as alocações por construção, em
+#' vez de por um acoplamento de força arbitrária.
 #'
-#' O esforço estimado acopla mais forte que o contrato porque é uma
-#' estimativa da mesma grandeza, enquanto o preço tem margem de negociação
-#' por cima do esforço. As duas forças são suposição declarada.
+#' **Projeto sem alocação recebe esforço sorteado entre os dos projetos
+#' alocados.** Ele não tem alocação de onde derivar, mas é justamente o
+#' projeto que o modelo de otimização precisa equipar, e por isso não pode
+#' ficar sem necessidade de capacidade. O sorteio reproduz a distribuição dos
+#' alocados, que é a estimativa disponível antes do equipamento.
+#'
+#' **O contrato continua acoplado por posto ao total de horas alocadas.**
+#' Acoplar o projeto sem alocação pelo posto o colocaria no piso da
+#' distribuição de contrato, o que diria que projeto ainda não equipado é
+#' projeto pequeno. Não é: é projeto sobre o qual não há informação de
+#' esforço, e eles ficam com valores sorteados entre os que sobraram,
+#' preservando a marginal do conjunto todo. A força é suposição declarada.
 #'
 #' @param projetos tibble de `gerar_projetos()`.
 #' @param alocacoes tibble de `gerar_alocacoes()`.
-#' @param forca_contrato,forca_esforco Intensidade de cada acoplamento.
+#' @param forca_contrato Intensidade do acoplamento do contrato.
 #' @param dias_por_mes Divisor que converte duração em dias para meses.
-#' @return `projetos` com `valor_contrato` e `esforco_estimado` permutados.
+#' @return `projetos` com `valor_contrato` permutado e `esforco_estimado`
+#'   acrescentado logo depois dele.
 acoplar_projetos_ao_esforco <- function(projetos, alocacoes,
                                          forca_contrato = 0.7,
-                                         forca_esforco = 0.85,
                                          dias_por_mes = 365.25 / 12) {
-  horas_por_projeto <- alocacoes |>
+  esforco_por_projeto <- alocacoes |>
     dplyr::mutate(horas = horas_mes * duracao_dias / dias_por_mes) |>
-    dplyr::summarise(horas_alocadas = sum(horas), .by = projeto_id)
+    dplyr::summarise(
+      horas_alocadas = sum(horas),
+      horas_mes_equipe = sum(horas_mes),
+      .by = projeto_id
+    )
 
-  com_horas <- projetos$projeto_id %in% horas_por_projeto$projeto_id
-  horas <- horas_por_projeto$horas_alocadas[
-    match(projetos$projeto_id[com_horas], horas_por_projeto$projeto_id)
-  ]
+  posicao <- match(projetos$projeto_id, esforco_por_projeto$projeto_id)
+  com_horas <- !is.na(posicao)
+  horas <- esforco_por_projeto$horas_alocadas[posicao[com_horas]]
 
-  permutar <- function(valores, forca) {
-    saida <- valores
-    saida[com_horas] <- acoplar_por_posto(valores[com_horas], horas, forca)
-    saida[!com_horas] <- sample(valores[!com_horas])
-    saida
-  }
+  valor_contrato <- projetos$valor_contrato
+  valor_contrato[com_horas] <- acoplar_por_posto(
+    valor_contrato[com_horas], horas, forca_contrato
+  )
+  valor_contrato[!com_horas] <- sample(valor_contrato[!com_horas])
+
+  esforco_estimado <- esforco_por_projeto$horas_mes_equipe[posicao]
+  esforco_estimado[!com_horas] <- sample(
+    esforco_estimado[com_horas], sum(!com_horas), replace = TRUE
+  )
 
   projetos |>
     dplyr::mutate(
-      valor_contrato = permutar(valor_contrato, forca_contrato),
-      esforco_estimado = permutar(esforco_estimado, forca_esforco)
+      valor_contrato = .env$valor_contrato,
+      esforco_estimado = .env$esforco_estimado,
+      .after = valor_contrato
     )
 }
