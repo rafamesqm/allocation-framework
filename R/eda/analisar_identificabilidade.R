@@ -137,7 +137,8 @@ comparar_porte_com_referencias <- function(alocacoes, consultores, projetos,
 #' confirmou que são: `ID` é `cod_id_funcionario`, e o nome completo coincide
 #' em 98,1% dos códigos casados. Duas notas ficam. A cobertura sobe para
 #' cerca de 98% usando `gold.apdata_entidades_globais` em vez da view que
-#' perde cerca de cem códigos, e 6% das linhas de alocação seguem sem casar.
+#' perde cerca de cem códigos. Na base silver, 79 códigos, ou 310 linhas de
+#' alocação (6%), não casam; só 9 não casam em nenhuma tabela testada.
 #' As chaves Starsoft **não** servem para este join, com 18% de coincidência
 #' de nome, que são colisões.
 #'

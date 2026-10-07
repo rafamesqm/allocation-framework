@@ -150,7 +150,8 @@ Kish cai para `r formatar_decimal(pos$ess, 0)` de
 Uma ressalva de leitura, e ela importa: esse ponto cai
 **`r obj$posicao_ess`** do intervalo de 90% sobre as realizações,
 `r formatar_intervalo(obj$estabilidade, "ess_relativo_ips")`.
-A realização versionada é a mais extrema das cem em positividade, e é o
+Fora do intervalo, a realização versionada fica entre as mais extremas das
+cem em positividade, e é o
 intervalo que deve ser citado, não o ponto. A conclusão qualitativa não muda,
 porque o intervalo inteiro fica muito abaixo de metade da amostra, mas citar
 `r formatar_pct(pos$ess_relativo)` como se fosse o número típico exageraria o

@@ -81,6 +81,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
     acima_capacidade = acima_capacidade,
     estrutural_negativa = mean(dados$margem_estrutural$margem_estrutural < 0),
     horas_zero = sum(dados$alocacoes$horas_mes == 0),
+    pct_integral = sum(dados$alocacoes$pct_alocacao == 1),
     n_alocacoes = nrow(dados$alocacoes)
   )
 

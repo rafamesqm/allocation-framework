@@ -101,9 +101,10 @@ mostrar_tabela(
 São `r r$n_decisoes` decisões, vindas de `r obj$blocos_com_decisao` dos
 catorze blocos. **Os oito blocos da Parte II decidem, e dois dos seis da
 Parte I também**, que é a divisão esperada: a parte não direcionada descreve,
-e as duas exceções dela são decisões de preparo, não de modelagem, uma sobre
-quais colunas entram na matriz de atributos e outra sobre a janela temporal
-da análise.
+e as duas exceções dela são decisões de preparo, não de modelagem: a do I.2,
+sobre quais colunas entram na matriz de atributos, e as do I.4, sobre o
+tratamento do tempo, com a janela de análise, a vigência como medida de carga
+e a recência em ondas.
 
 ## As limitações
 
@@ -152,7 +153,7 @@ propriedade matemática ou definicional que vale em qualquer conjunto, e
 real**, e é o ponto que a pergunta pedia: sem demanda futura não há alocação
 prospectiva, porque `pipeline_demandas` traz identificador e estágio e nada
 mais; sem margem dimensionada o objetivo econômico entra como direção,
-porque seis agregados reais discordam por 1,45 vezes; sem pirâmide não há
+porque os agregados reais discordam entre si (II.5.10); sem pirâmide não há
 restrição de composição, porque a regra não está em tabela nenhuma; e sem
 skills requeridas a aderência é grossa, porque o dono do dado confirmou que o
 processo não existe na Peers. Nenhuma delas mudaria se o gerador fosse outro.
@@ -207,8 +208,10 @@ qual.
 
 Há uma linha da tabela que merece atenção por não ser degenerada: existe
 achado de etiqueta `âncora real` com proveniência `depende do gerador`. É o
-caso da dependência entre senioridade e tipo de contrato, em que a âncora
-real determina a base da pirâmide e a magnitude acima dela é do código.
+`r paste(obj$consolidados$codigo[obj$consolidados$etiqueta == "âncora real" & obj$consolidados$proveniencia == "depende do gerador"], collapse = ", ")`,
+das correlações calibradas: a âncora real existe, mas reproduzi-la é
+conferência da calibração, e a comparação pontual contra ela só vale onde a
+estabilidade entre realizações é alta, o que é propriedade do gerador.
 
 ## O que a wave 3 herda
 

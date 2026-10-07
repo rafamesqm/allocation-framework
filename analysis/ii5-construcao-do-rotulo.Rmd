@@ -288,9 +288,9 @@ caso que obriga a distinção.
 Conferida a plausibilidade dos **valores**, e não só a estrutura dos zeros,
 a margem estrutural não fecha.
 `r formatar_pct(margem$fracao_margem_estrutural_negativa)` dos projetos com
-contrato positivo saem com margem negativa, e no quinto percentil o prejuízo
-chega a `r formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1)`
-vezes o valor do contrato. Contra os alvos reais, a fração de prejuízo fica a
+contrato positivo saem com margem negativa, e
+`r if (margem$margem_estrutural_relativa_p05 < 0) paste0("no quinto percentil o prejuízo chega a ", formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1), " vezes o valor do contrato") else paste0("mesmo no quinto percentil a margem é positiva, de ", formatar_pct(margem$margem_estrutural_relativa_p05), " do contrato")`.
+Contra os alvos reais, a fração de prejuízo fica a
 `r formatar_decimal(100 * margem$desvio_do_prejuizo_alvo, 1)` pontos da real,
 de `r formatar_pct(margem$alvo_prejuizo)`, e a mediana,
 `r formatar_pct(margem$margem_estrutural_relativa_mediana)`, fica
@@ -368,8 +368,9 @@ passar de 1, o que é impossível se o preço é a tarifa cobrada.
 
 Das que sobram, a mais provável é o **tamanho de equipe**: os 2,51 vêm de
 pares distintos entre colaborador e *código* de alocação, e um projeto pode
-ter mais de um código. Se for isso, a equipe real por projeto é maior e o
-resto fecha sem mexer em mais nada.
+ter mais de um código. Se for isso, a equipe real por projeto é maior e
+as seis fecham entre si sem mexer em mais nada. Não fecha o resíduo inteiro,
+pela âncora que vem a seguir.
 
 **A duração da alocação é uma sétima âncora, e ela aumenta o desacordo.** A
 relação acima supõe cada consultor presente pela duração inteira do projeto,

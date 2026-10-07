@@ -96,6 +96,7 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
     interacao_consultor = interacao_consultor,
     interacao_projeto = interacao_projeto,
     zona_morta_fracao = zona_morta_fracao,
+    zona_morta_intervalo = formatar_intervalo(estabilidade, "zona_morta_setor"),
     mesma_zona_morta = mesma_zona_morta,
     so_colaborativo = so_colaborativo,
     combinacoes_setoriais = combinacoes_setoriais,

@@ -986,7 +986,9 @@ inutilizável. Não é incompletude, e não é custo.
 `ID` da view gold é `cod_id_funcionario`. Em `silver.bi_peers_entidades_globais`
 casam 432 de 511 códigos, e nos casados o primeiro nome coincide em 100% e o
 nome completo em 98,1%. A view gold perde cerca de 100 códigos; usar
-`gold.apdata_entidades_globais` eleva a cobertura para cerca de 98%.
+`gold.apdata_entidades_globais` eleva a cobertura para cerca de 98%. Na base
+silver, 79 códigos, ou 310 linhas de alocação (6%), não casam, e só 9 códigos
+não casam em nenhuma tabela testada.
 
 Duas ressalvas. As chaves Starsoft não servem para este join, com 18% de
 coincidência, que são colisões. E a cadeia NetSuite faz o oposto:

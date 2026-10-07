@@ -97,27 +97,31 @@ seguintes, não evidência sobre a Peers.
 
 A associação induzida mais forte é `r induzida$variavel_a` x
 `r induzida$variavel_b`, em `r formatar_decimal(induzida$medida, 3)`. Ela não
-foi calibrada contra nada: nasce de as duas variáveis dependerem do nível de
-senioridade em direções opostas. É uma correlação real dentro do sintético e
-sem contraparte conhecida fora dele.
+foi calibrada contra nada, e o mecanismo declarado é este:
+`r induzida$mecanismo`. É uma correlação real dentro do sintético e sem
+contraparte conhecida fora dele.
 
-A categoria **livre** está hoje vazia entre as numéricas confrontadas, e
-isso merece uma palavra em vez de silêncio.
+A categoria **livre** tem hoje `r nrow(obj$livres)`
+`r if (nrow(obj$livres) == 1) "par" else "pares"` entre as numéricas
+confrontadas, e o maior valor absoluto nela é
+`r formatar_decimal(obj$maior_livre, 3)`, contra o limite de
+`r formatar_decimal(obj$limite_livre, 2)`. A história dela mostra a
+verificação funcionando nos dois sentidos.
 
 Ela tinha três pares de projeto, e os três ganharam mecanismo quando o
 gerador passou a acoplar valor de contrato e esforço estimado ao esforço de
 fato alocado. A mudança veio do bloco II.5, que mostrou que a independência
 entre porte financeiro e esforço tornava a margem estrutural sem sentido.
-Desde a wave 2.5 o esforço estimado deixou de ser acoplado e passou a ser
-derivado das alocações, o que mantém os três pares com mecanismo declarado.
+Esta verificação acusou os três, e a resposta não foi afrouxar o limite: foi
+reclassificá-los para `induzida` em `procedencia_associacoes()`, porque
+passaram a ter mecanismo declarado. Com isso a categoria ficou vazia, e a
+verificação, sem nada para vigiar.
 
-Esta verificação chegou a acusar os três, o que é exatamente o que ela
-existe para fazer. A resposta correta não foi afrouxar o limite: foi
-reclassificá-los de `livre` para `induzida` em `procedencia_associacoes()`,
-porque eles passaram a ter mecanismo declarado. **Com a categoria vazia, a
-verificação passa a não vigiar nada**, o que é perda de cobertura e não boa
-notícia. Toda variável nova que entrar no gerador sem mecanismo declarado
-volta a povoá-la.
+Na wave 2.5 o esforço estimado deixou de ser acoplado e passou a ser a soma
+das horas mensais da equipe, que não cresce com a duração do projeto. O par
+entre esforço e duração perdeu o mecanismo, mediu perto de zero, e voltou
+para `livre`. Contrato e duração, e contrato e esforço, seguem induzidos pelo
+acoplamento do contrato às horas alocadas.
 
 ## Associação entre categóricas
 

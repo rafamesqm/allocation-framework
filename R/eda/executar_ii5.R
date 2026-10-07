@@ -49,7 +49,8 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     tem_custo_mensal = margem$tem_custo_mensal,
     custo_zero_explicavel_estrutural = margem$custo_zero_estrutural_sem_alocacao,
     alfa_cronbach = dimensionalidade$alfa_ordinal,
-    fracao_margem_negativa = margem$fracao_margem_estrutural_negativa
+    desvio_da_mediana_alvo = margem$desvio_da_mediana_alvo,
+    desvio_do_prejuizo_alvo = margem$desvio_do_prejuizo_alvo
   )
   candidatos_viaveis <- dplyr::filter(candidatos, viavel)
 
@@ -294,10 +295,23 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       "Conferida a plausibilidade dos **valores**, e não só a estrutura dos ",
       "zeros, a margem estrutural não fecha: ",
       formatar_pct(margem$fracao_margem_estrutural_negativa),
-      " dos projetos com contrato positivo saem com margem negativa, e no ",
-      "quinto percentil o prejuízo chega a ",
-      formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1),
-      " vezes o valor do contrato. Contra os alvos reais, a mediana, ",
+      " dos projetos com contrato positivo saem com margem negativa, e ",
+      # O sinal do quinto percentil decide a frase. Com 6% de projetos no
+      # prejuízo ele era negativo; com menos de 5% ele é margem positiva, e
+      # um abs() aqui a descrevia como prejuízo.
+      if (margem$margem_estrutural_relativa_p05 < 0) {
+        paste0(
+          "no quinto percentil o prejuízo chega a ",
+          formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1),
+          " vezes o valor do contrato. "
+        )
+      } else {
+        paste0(
+          "mesmo no quinto percentil a margem é positiva, de ",
+          formatar_pct(margem$margem_estrutural_relativa_p05), " do contrato. "
+        )
+      },
+      "Contra os alvos reais, a mediana, ",
       formatar_pct(margem$margem_estrutural_relativa_mediana), ", fica ",
       formatar_decimal(100 * margem$desvio_da_mediana_alvo, 1),
       " pontos acima da real, de ", formatar_pct(margem$alvo_mediana),
@@ -376,7 +390,8 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
       " candidatas, e a mais provável é o tamanho de equipe: os 2,51 vêm de ",
       "pares distintos entre colaborador e **código** de alocação, e um ",
       "projeto pode ter mais de um código. Se for isso, a equipe real é maior ",
-      "e o resto fecha sem mexer em mais nada. **A duração da alocação é uma ",
+      "e as seis fecham entre si sem mexer em mais nada. Não fecha o resíduo ",
+      "inteiro, porque **a duração da alocação é uma ",
       "sétima âncora, e ela aumenta o desacordo.** A relação acima supõe cada ",
       "consultor presente pela duração do projeto, de ",
       formatar_decimal(sobredeterminacao$ancoras$medido[3], 1), " semanas, ",
@@ -597,8 +612,11 @@ executar_ii5 <- function(dados, estabilidade = NULL, etapa_rotulo = "gestor_fina
     "II.5.10", NA,
     paste0(
       "A margem entra no otimizador como direção e não como magnitude, porque ",
-      "seis agregados reais descrevem a mesma economia e discordam por 1,45 ",
-      "vezes, e escolher qual âncora relaxar exigiria um acesso que encerrou."
+      "seis agregados reais descrevem a mesma economia e discordam por ",
+      formatar_decimal(sobredeterminacao$desacordo, 2), " vezes, ou por ",
+      formatar_decimal(horas_da_margem$desacordo_com_alocacao, 1),
+      " com a duração real da alocação, e escolher qual âncora relaxar ",
+      "exigiria um acesso que encerrou."
     ),
     "fato real",
 

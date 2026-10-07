@@ -52,7 +52,7 @@ dividir_interacoes <- function(alocacoes,
 #' atributo com chave de entidade, como o perfil de skills de um consultor,
 #' vazamento significa que o modelo já encontrou aquela pessoa e a avaliação
 #' mede em parte memorização. O bloco II.6 mostrou o efeito: o perfil médio
-#' media AUC de 0,62 com vazamento e 0,49 sem.
+#' perde toda a separação quando o vazamento sai, e cai para o acaso.
 #'
 #' **Avaliabilidade** é a fração de pares de teste que cada componente do
 #' híbrido consegue pontuar. O colaborativo precisa ter visto as **duas**

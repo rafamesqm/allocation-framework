@@ -195,8 +195,9 @@ A duração das alocações bate os três quartis reais, com P25, mediana e P75 
 desvio e assimetria, que não entraram na calibração, saem a
 `r formatar_diferenca(alocacao("duracao_dias", "media")$dif)`,
 `r formatar_diferenca(alocacao("duracao_dias", "desvio")$dif)` e
-`r formatar_diferenca(alocacao("duracao_dias", "assimetria")$dif)`, o que diz
-que a forma está certa, e não só os pontos mirados. Não era assim até a wave
+`r formatar_diferenca(alocacao("duracao_dias", "assimetria")$dif)`. O corpo da
+distribuição acompanha o real, e a cauda sai um pouco mais longa, o que pesa
+no desvio mais do que em qualquer quantil. Não era assim até a wave
 2.5: a duração da alocação era uma fração fixa de 75% da duração do projeto, e
 quando a segunda consulta comercial alongou o projeto de 18 para 81 dias
 medianos, a alocação alongou junto, para 56 dias medianos contra 18 reais.
@@ -228,7 +229,8 @@ resolveria: apenas moveria o pico. A correção foi trocar o recorte por
 reamostragem por rejeição, que devolve a normal truncada pretendida sem ponto
 de massa, redesenhando só o ruído para não destruir a correlação calibrada.
 
-Hoje as três contagens são zero, e a verificação continua rodando a cada
+Hoje as duas contagens são `r formatar_inteiro(obj$horas_zero)` e
+`r formatar_inteiro(obj$pct_integral)`, e a verificação continua rodando a cada
 execução da pipeline.
 
 # Camada 3, Operação

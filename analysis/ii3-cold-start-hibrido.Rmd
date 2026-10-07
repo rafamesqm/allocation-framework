@@ -119,10 +119,9 @@ o esperado sob independência é
 `r formatar_decimal(obj$cruzamento_setor$zona_morta_esperada, 1)`, contra
 `r obj$cruzamento_setor$zona_morta` observados. O excesso é ruído amostral, e
 o bloco I.0 acompanha a grandeza. Vale registrar que
-`r formatar_pct(obj$zona_morta_fracao)` é o **extremo superior** do intervalo
-de 90% sobre as realizações, e não o centro dele: o conjunto versionado
-calhou de ser uma realização pessimista nesta grandeza, e a mediana está mais
-perto de 8,8%. A conclusão qualitativa não depende disso, porque o intervalo
+`r formatar_pct(obj$zona_morta_fracao)` fica **no alto** do intervalo de 90%
+sobre as realizações, `r obj$zona_morta_intervalo`, e não no centro dele: o
+conjunto versionado calhou de ser uma realização pessimista nesta grandeza. A conclusão qualitativa não depende disso, porque o intervalo
 inteiro fica longe de zero, mas citar o ponto sem o intervalo exageraria o
 tamanho da zona morta.
 

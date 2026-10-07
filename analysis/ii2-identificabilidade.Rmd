@@ -105,8 +105,9 @@ resolvida e a favor**. O join que produziu os
 e `Cód. Colaborador` em alocação fossem a mesma chave, sem confirmação. A
 segunda consulta comercial confirmou que são: `ID` é `cod_id_funcionario`, e
 entre os códigos casados o nome completo coincide em 98,1%. A cobertura chega
-a cerca de 98% usando `gold.apdata_entidades_globais`, e 6% das linhas de
-alocação seguem sem casar.
+a cerca de 98% usando `gold.apdata_entidades_globais`. Na base silver, 79
+códigos, ou 310 linhas de alocação (6%), não casam, e só 9 códigos não casam
+em nenhuma tabela testada.
 
 Resta uma ressalva diferente, de extração e não de chave: a tabela de
 alocação tem 4.999 linhas, e a mesma consulta mostrou que várias tabelas do
@@ -158,7 +159,8 @@ de viés do modelo.
 E os termos de viés são, em essência, popularidade.
 
 É aqui que este bloco encontra o anterior. O bloco II.1 mediu que recomendar
-apenas por popularidade acerta 24,6% com lista de 20. Este bloco mostra que,
+apenas por popularidade acerta
+`r formatar_pct(ler_bloco("bloco_ii1")$objetos$recall_20, 1)` com lista de 20. Este bloco mostra que,
 para a maioria das entidades, uma fatoração latente suficientemente
 regularizada para ser estimável entrega aproximadamente aquilo.
 

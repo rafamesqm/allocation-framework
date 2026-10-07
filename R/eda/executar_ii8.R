@@ -165,7 +165,7 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "ressalva de que uma ocupação de ",
       formatar_decimal(capacidade$ocupacao_maxima, 1),
       " vezes é implausível como fato e sugere que a própria medida de ",
-      "capacidade mereça revisão antes de virar restrição."
+      "ocupação mereça revisão antes de virar restrição."
     ),
 
     "II.8.3", "instrumento",

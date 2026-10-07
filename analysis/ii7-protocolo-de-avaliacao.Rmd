@@ -44,9 +44,14 @@ Do **bloco II.4**, que nenhum estimador não enviesado por propensão
 sobreviveu: a conclusão precisa ser enunciada sobre a população observada, sem
 pretender valer para os pares que nunca tiveram chance de aparecer.
 
+```{r auc-ii6}
+ii6 <- ler_bloco("bloco_ii6")$objetos
+```
+
 Do **bloco II.6**, que a divisão temporal separa alocações e não pessoas: o
-perfil médio media AUC de 0,62 com vazamento e 0,49 sem, então atributo com
-chave de entidade exige separação por entidade.
+perfil médio media AUC de `r formatar_decimal(ii6$sem_popularidade$auc, 2)`
+com vazamento e `r formatar_decimal(ii6$sem_vazamento$auc, 2)` sem, então
+atributo com chave de entidade exige separação por entidade.
 
 Do **bloco II.1**, que a linha de base de popularidade reportada lá era limite
 superior e precisava ser refeita aqui antes de virar critério formal.
@@ -93,6 +98,13 @@ mostrar_tabela(
 )
 ```
 
+O veredito do colaborativo pede que a forma deixe pontuável ao menos metade
+dos pares de teste. Só a aleatória passa, e passa pelo vazamento de projeto
+que a seção anterior mediu, então o "sim" dela não é avaliação honesta. A
+temporal fica abaixo do limite e mesmo assim é a forma adotada para o
+colaborativo, por ser a única que respeita a ordem do tempo: o "não" registra
+quanto ela deixa de fora, e não que exista alternativa melhor.
+
 A temporal deixa `r formatar_pct(obj$temporal$vazamento_consultor)` dos
 consultores do teste já vistos no treino, o que invalida avaliação de atributo
 de entidade. A divisão por consultor zera esse vazamento e zera junto a
@@ -133,10 +145,17 @@ dá zero ou um justamente quando o bloco atravessa o corte.
 
 Nesta realização, em lista de 20, o acerto cai de
 `r formatar_pct(base$recall_otimista[base$n_recomendados == 20])` para
-`r formatar_pct(base$recall_protocolo[base$n_recomendados == 20])`. Nos
-extremos a correção não morde, e a razão é estrutural: em lista muito curta o
-focal fica fora de qualquer jeito, e em lista longa entra de qualquer jeito. O
-empate só decide no meio da faixa.
+`r formatar_pct(base$recall_protocolo[base$n_recomendados == 20])`. A queda,
+em pontos, é de
+`r formatar_decimal(100 * (base$recall_otimista - base$recall_protocolo)[base$n_recomendados == 5], 1)`
+em lista de 5,
+`r formatar_decimal(100 * (base$recall_otimista - base$recall_protocolo)[base$n_recomendados == 20], 1)`
+em lista de 20 e
+`r formatar_decimal(100 * (base$recall_otimista - base$recall_protocolo)[base$n_recomendados == 50], 1)`
+em lista de 50. Ela tende a se concentrar no meio da faixa, e a razão é
+estrutural: em lista muito curta o focal tende a ficar fora de qualquer jeito,
+e em lista longa a entrar de qualquer jeito, e é no meio que o bloco de
+empatados decide.
 
 ```{r correcao-instavel, results = "asis"}
 if (isFALSE(obj$correcao_separa)) {
@@ -155,8 +174,8 @@ if (isFALSE(obj$correcao_separa)) {
 fixado agora, antes de existir modelo. Fixado como intervalo,
 `r obj$protocolo_intervalo` sobre as realizações, e não como o ponto desta
 realização: é essa largura que a leitura do resultado precisa levar em conta.
-O colaborativo não tem critério de significância, pelo motivo que a próxima
-seção mede.
+O critério de significância do colaborativo, e o tamanho de ganho que ele
+consegue enxergar, vêm na próxima seção.
 
 ## O piso e o poder de cada componente
 

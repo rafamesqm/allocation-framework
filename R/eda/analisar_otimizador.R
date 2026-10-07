@@ -161,7 +161,7 @@ registrar_insumos_do_otimizador <- function(margem_calibrada = FALSE,
     "salário base por cargo, com âncora real; o fator de carga é declarado e o bloco II.5 mostrou que as âncoras não comportam um realista",
 
     "Margem", "objetivo econômico", TRUE, margem_calibrada,
-    "calculável pelo candidato (d), mas o bloco II.5 mediu que as âncoras econômicas se sobredeterminam e discordam por 1,45 vezes",
+    "calculável pelo candidato (d), mas o bloco II.5 mediu que as âncoras econômicas se sobredeterminam e discordam entre si (II.5.10)",
 
     "Afinidade prevista ŝ", "objetivo de desempenho", TRUE, FALSE,
     "o otimizador precisa de ŝ para cada par candidato, e é a wave 3 que o produz; o rótulo de `R` só existe para pares que aconteceram e serve para treinar e avaliar ŝ, não para substituí-lo. Com o acesso à base de avaliação negado, a escala dos dois é suposição",

@@ -290,12 +290,15 @@ medir_atribuibilidade_da_margem <- function(dados,
 #' @param custo_zero_explicavel_estrutural Se o custo zero da margem
 #'   estrutural coincide com projeto sem alocação.
 #' @param alfa_cronbach Confiabilidade da escala de itens.
-#' @param fracao_margem_negativa Fração de projetos com margem estrutural
-#'   negativa, que é o teste de plausibilidade do candidato (d).
+#' @param desvio_da_mediana_alvo,desvio_do_prejuizo_alvo Distância da margem
+#'   estrutural sintética aos dois alvos reais, a mediana e a fração de
+#'   prejuízo, como fração do contrato. São o teste de escala do candidato (d).
 #' @param limite_alfa Piso de aceitação do alfa. Convenção declarada.
-#' @param limite_margem_negativa Fração de margem negativa acima da qual o
-#'   candidato (d) é tratado como não calibrado. Convenção declarada: alguns
-#'   projetos de consultoria de fato dão prejuízo, um terço deles não.
+#' @param limite_desvio_margem Distância máxima, em fração do contrato, a que
+#'   cada alvo real pode ficar para o candidato (d) ser tratado como
+#'   calibrado. Convenção declarada. O teste olhava só a fração de prejuízo,
+#'   e por isso marcava (d) como calibrado com a mediana a mais de cinquenta
+#'   pontos da real: a fração de prejuízo pode bater com o centro errado.
 #' Separa **dois eixos** que colapsar num veredito só confundiria. `viavel`
 #' diz se o mecanismo existe e está correto: se a grandeza é construível a
 #' partir do que a Peers tem. `calibrado` diz se o sintético reproduz a
@@ -314,10 +317,13 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
                                           tem_custo_mensal,
                                           custo_zero_explicavel_estrutural,
                                           alfa_cronbach,
-                                          fracao_margem_negativa,
+                                          desvio_da_mediana_alvo,
+                                          desvio_do_prejuizo_alvo,
                                           limite_alfa = 0.7,
-                                          limite_margem_negativa = 0.15) {
+                                          limite_desvio_margem = 0.10) {
   escala_confiavel <- alfa_cronbach >= limite_alfa
+  margem_calibrada <- abs(desvio_da_mediana_alvo) <= limite_desvio_margem &&
+    abs(desvio_do_prejuizo_alvo) <= limite_desvio_margem
 
   tibble::tribble(
     ~candidato, ~descricao, ~exige, ~viavel, ~calibrado, ~justificativa,
@@ -355,13 +361,22 @@ avaliar_candidatos_de_rotulo <- function(margem_atribuivel,
     "(d)", "margem estrutural, de custo carregado por horas contra valor de contrato",
     "custo e contrato disponíveis para todo projeto com alocação",
     custo_zero_explicavel_estrutural,
-    fracao_margem_negativa < limite_margem_negativa,
+    margem_calibrada,
     paste0(
       "mecanismo correto: não depende do apontamento de custo, que derruba o ",
       "candidato (c), e só é zero onde não há ninguém alocado, que não é ",
-      "célula de `R`. Mas a escala não fecha no sintético, com ",
-      formatar_pct(fracao_margem_negativa),
-      " dos projetos em margem negativa, então o nível não é utilizável"
+      "célula de `R`. ",
+      if (margem_calibrada) {
+        "A escala fecha no sintético, com mediana e fração de prejuízo perto das reais"
+      } else {
+        paste0(
+          "Mas a escala não fecha no sintético: a mediana fica a ",
+          formatar_decimal(100 * desvio_da_mediana_alvo, 1),
+          " pontos da real e a fração de prejuízo a ",
+          formatar_decimal(100 * desvio_do_prejuizo_alvo, 1),
+          ", então o nível não é utilizável"
+        )
+      }
     )
   )
 }

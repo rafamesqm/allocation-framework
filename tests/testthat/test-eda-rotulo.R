@@ -99,12 +99,14 @@ test_that("o veredito dos candidatos de rotulo responde as medidas", {
   medido <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
     tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = 0.9, fracao_margem_negativa = 0.328
+    alfa_cronbach = 0.9, desvio_da_mediana_alvo = 0.558,
+    desvio_do_prejuizo_alvo = -0.013
   )
   hipotetico <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = TRUE, fracao_projetos_com_equipe = 0,
     tem_custo_mensal = TRUE, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = 0.9, fracao_margem_negativa = 0.02
+    alfa_cronbach = 0.9, desvio_da_mediana_alvo = 0.02,
+    desvio_do_prejuizo_alvo = 0.005
   )
 
   expect_equal(medido$candidato[medido$viavel], c("(a)", "(d)"))
@@ -120,7 +122,8 @@ test_that("mecanismo e calibracao sao eixos separados no veredito", {
   medido <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
     tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = 0.9, fracao_margem_negativa = 0.328
+    alfa_cronbach = 0.9, desvio_da_mediana_alvo = 0.558,
+    desvio_do_prejuizo_alvo = -0.013
   )
   d <- medido[medido$candidato == "(d)", ]
 
@@ -130,9 +133,24 @@ test_that("mecanismo e calibracao sao eixos separados no veredito", {
   calibrado <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
     tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = 0.9, fracao_margem_negativa = 0.02
+    alfa_cronbach = 0.9, desvio_da_mediana_alvo = 0.02,
+    desvio_do_prejuizo_alvo = 0.005
   )
   expect_true(calibrado$calibrado[calibrado$candidato == "(d)"])
+})
+
+test_that("a fracao de prejuizo certa nao basta para calibrar a margem", {
+  # O teste antigo olhava so a fracao de prejuizo, e marcava (d) como
+  # calibrado com 0,7% de prejuizo contra 2% reais enquanto a mediana ficava
+  # a 55,8 pontos da real, em contradicao com o texto do bloco.
+  centro_errado <- avaliar_candidatos_de_rotulo(
+    margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
+    tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
+    alfa_cronbach = 0.9, desvio_da_mediana_alvo = 0.558,
+    desvio_do_prejuizo_alvo = -0.013
+  )
+
+  expect_false(centro_errado$calibrado[centro_errado$candidato == "(d)"])
 })
 
 test_that("escala nao confiavel derruba o candidato (a)", {
@@ -140,7 +158,8 @@ test_that("escala nao confiavel derruba o candidato (a)", {
   sem_escala <- avaliar_candidatos_de_rotulo(
     margem_atribuivel = FALSE, fracao_projetos_com_equipe = 0.685,
     tem_custo_mensal = FALSE, custo_zero_explicavel_estrutural = TRUE,
-    alfa_cronbach = -0.035, fracao_margem_negativa = 0.328
+    alfa_cronbach = -0.035, desvio_da_mediana_alvo = 0.558,
+    desvio_do_prejuizo_alvo = -0.013
   )
 
   expect_false(sem_escala$viavel[sem_escala$candidato == "(a)"])

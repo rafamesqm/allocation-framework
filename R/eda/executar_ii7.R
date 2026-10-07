@@ -66,6 +66,7 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     by = "n_recomendados"
   ) |>
     dplyr::mutate(diferenca = recall_otimista - recall_protocolo)
+  queda_por_lista <- function(n) comparacao_base$diferenca[comparacao_base$n_recomendados == n]
 
   nenhuma_serve_aos_dois <- !any(protocolos$serve_colaborativo & protocolos$serve_conteudo)
 
@@ -275,8 +276,10 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       formatar_pct(comparacao_base$recall_otimista[comparacao_base$n_recomendados == 10]),
       " para ",
       formatar_pct(comparacao_base$recall_protocolo[comparacao_base$n_recomendados == 10]),
-      ". Nos extremos a correção não morde: em lista de 5 os dois praticamente ",
-      "coincidem, e em lista de 50 coincidem",
+      ". A queda, em pontos, é de ",
+      formatar_decimal(100 * queda_por_lista(5), 1), " em lista de 5, ",
+      formatar_decimal(100 * queda_por_lista(20), 1), " em lista de 20 e ",
+      formatar_decimal(100 * queda_por_lista(50), 1), " em lista de 50",
       if (is.na(correcao_separa)) {
         "."
       } else if (correcao_separa) {
@@ -435,8 +438,9 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       "pareado de McNemar rejeitar a igualdade a 5%, com os empates do piso ",
       "desfeitos ao acaso sob semente declarada, para cada par ter um acerto ",
       "de zero ou um. O ganho mínimo serve para planejar e não para julgar: ",
-      "ele diz que, no cenário conservador, o teste só enxerga ganhos da ordem ",
-      "de dez pontos, e um ganho menor que não rejeite não autoriza dizer que ",
+      "ele diz que, no cenário conservador, o teste só enxerga ganhos a partir ",
+      "de ", pontos(poder_conteudo$ganho_independencia), " pontos, e um ganho ",
+      "menor que não rejeite não autoriza dizer que ",
       "nada ordena dentro do filtro. O planejamento usa o cenário de ",
       "independência porque ele não depende de o modelo imitar a popularidade."
     ),
