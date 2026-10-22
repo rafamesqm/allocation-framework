@@ -20,9 +20,7 @@
 #' projeto registrada, e chamar com essa fonte para de forma explícita, em
 #' vez de silenciosamente devolver sintético como se fosse real.
 #'
-#' `avaliacoes_desempenho` é a maior tabela de longe (cerca de 70 MB, por
-#' causa do comentário em texto livre). Use `tabelas` para não pagar a
-#' leitura dela quando a análise não precisar.
+#' Use `tabelas` para ler só o que a análise precisa.
 #'
 #' @param fonte `"synthetic"` (padrão) ou `"databricks"`.
 #' @param tabelas Vetor de nomes de tabela, sem extensão. `NULL` (padrão)

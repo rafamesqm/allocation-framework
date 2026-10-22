@@ -1,4 +1,4 @@
-test_that("todo consultor tem as 9 subcompetências avaliadas", {
+test_that("todo consultor tem as 9 competências", {
   consultores <- gerar_consultores(n_consultores = 100)
   soft_skills <- gerar_soft_skills_consultor(consultores)
 
@@ -7,7 +7,7 @@ test_that("todo consultor tem as 9 subcompetências avaliadas", {
   expect_equal(dplyr::n_distinct(soft_skills$competencia), 9)
 })
 
-test_that("nivel fica na escala de 3 níveis da avaliação de desempenho", {
+test_that("nivel fica na escala de 3 níveis", {
   consultores <- gerar_consultores(n_consultores = 100)
   soft_skills <- gerar_soft_skills_consultor(consultores)
 

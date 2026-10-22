@@ -24,56 +24,6 @@ não podem ser carregadas no Databricks e por isso vivem em `data/raw/skills/`,
 fora do rastreamento do git (guarda de diretório inteiro, não só de extensão).
 Ver seção própria abaixo.
 
-## Fonte externa: plataforma de avaliação de desempenho (schema, sem acesso a banco)
-
-O time não liberou acesso à base nem ao schema de avaliação de desempenho,
-segundo o usuário é o dado mais sensível da empresa. Não há como consultar via
-Databricks nem via arquivo. O que existe é uma reconstrução da estrutura a
-partir da própria tela da plataforma (visualização de tela pelo usuário, com
-`Ferramenta de Captura`/print e HTML renderizado da página, nunca consulta a
-banco). Nenhum dado de terceiro foi lido; a única pessoa identificável no
-material consultado foi o próprio usuário avaliando a si mesmo, e mesmo assim
-só a estrutura foi registrada aqui, não o conteúdo das notas/comentários.
-
-**Estrutura confirmada:**
-
-* Metadados por avaliação: consultor avaliado, projeto vinculado (código +
-  período, ex.: semestral), etapa da avaliação, tipo de avaliação.
-* **Três etapas sobre o mesmo conjunto de campos, por ciclo:** Individual
-  (autoavaliação) → Avaliação às cegas (gestor avalia sem ver a autoavaliação)
-  → Avaliação do gestor / calibração (gestor vê individual × às cegas lado a
-  lado e define a nota final). `avaliador_id` é esse eixo de papel (individual
-  / gestor às cegas / gestor final), não um identificador solto.
-* Duas famílias de item avaliado, mesma mecânica nas duas: 9 subcompetências
-  em 5 categorias (Cultura, Desenvolvimento, Gestão de Projeto, Entrega do
-  Projeto, Geração de Valor) e itens de "Performance" (Coletivo: resultado do
-  projeto; Individual: qualidade da entrega, relacionamento com cliente,
-  comercial, valor para empresa). Achado inicial (antes da correção do
-  usuário) tratava Performance como bloco read-only; não é: é avaliado com a
-  mesma mecânica.
-* Cada item, em cada etapa: nota ordinal de 3 níveis (valor interno `ABAIXO` /
-  `DENTRO` / `ACIMA`, rótulo visual "Abaixo/Esperado/Acima do esperado"), com
-  **rubrica descritiva própria por nível de carreira** (o texto da régua muda
-  conforme N3, N4 etc.: não é escala fixa igual pra todo mundo), mais um
-  comentário de texto livre justificando a nota.
-* Comprimento do comentário observado varia muito: de poucas palavras (notas
-  factuais curtas) a parágrafos longos (100-260 palavras, tom narrativo e
-  específico). Não modelar como campo de tamanho fixo.
-* Único exemplo visto (n=1, a autoavaliação do usuário): 8 de 9 subcompetências
-  marcadas "Acima do esperado", 1 "Dentro do esperado". Não dá pra calibrar
-  proporção populacional com n=1, mas é evidência de que a distribuição pode
-  ser bem assimétrica pra cima: não assumir centrada em "Esperado".
-
-**Implicação para a EDA:** a divergência entre autoavaliação e avaliação às
-cegas do gestor é um sinal direto de viés de avaliador (rule de "normalizar
-entre raters" do dicionário), não só um problema a corrigir: vale caracterizar
-essa divergência como achado, se algum dia houver acesso a mais de um registro.
-
-**Sem mudança no acesso:** `avaliacao_desempenho` continua sem nenhuma consulta
-possível à base real. O gerador sintético para esse campo parte inteiramente
-da estrutura acima (3 etapas × N itens × escala + comentário, rubrica por
-nível), nunca de distribuição real observada.
-
 ## Fonte externa: formulários de skills (`data/raw/skills/`)
 
 Três planilhas de formulário, populações majoritariamente distintas de
@@ -242,7 +192,7 @@ qualquer mapeamento na camada de acesso.
 **Correção sobre `ft_peers_mind` (databricks_alocacao.silver):** cotada
 inicialmente nesta reconciliação como candidata a `skills_hard[]`/`soft_skills[]`
 pelo formato (entidade-atributo-valor, `des_atributo`/`des_valor`/`num_peso`).
-O usuário corrigiu: não é avaliação de skills nem de desempenho, é registro de
+O usuário corrigiu: não é registro de skills, é registro de
 saúde mental dos colaboradores durante a execução de projetos. Dado sensível.
 Removida como candidata a qualquer campo do dicionário. Pode ser dado
 relevante para alguma análise futura, mas não decidido: não faz parte do
@@ -266,7 +216,7 @@ qualquer uso exigiria consideração ética própria antes de virar insumo.
 | `idiomas[]` | lista categórica, restrição dura | Confirmado, aproximado | STRING (resposta de formulário: inglês, espanhol, outras línguas) | `vw_apdata_bi_entidades_globais` |
 | `experiencia_setorial[]` | vetor setor → intensidade, fit de domínio | Confirmado | STRING (texto livre, "em quais segmentos já executou projeto", por prática) | `data/raw/skills/Formulário de Skills 2.1.xlsx` |
 | `expertise_funcional` | categórico / vetor, fit complementar | Confirmado | STRING (formulário organizado por prática: E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking) | `data/raw/skills/Formulário de Skills 2.1.xlsx`; complementa `vw_apdata_bi_entidades_globais` (Vertical, Frente) |
-| `soft_skills[]` | vetor das avaliações, fit qualitativo | Confirmado | STRING (bloco de habilidades de consultoria: estruturação de problema, storylining, design thinking, gestão da mudança...) | `data/raw/skills/Formulário de Skills 2.1.xlsx` |
+| `soft_skills[]` | vetor do formulário de skills, fit qualitativo | Confirmado | STRING (bloco de habilidades de consultoria: estruturação de problema, storylining, design thinking, gestão da mudança...) | `data/raw/skills/Formulário de Skills 2.1.xlsx` |
 | `recencia_skill[]` | vetor skill → data, decaimento | Parcial | POSIXct (`Hora de conclusão` do formulário) | derivável da data de resposta de cada planilha, não é recência por skill individual |
 
 ### Projeto / Demanda → linhas de `P`
@@ -296,8 +246,7 @@ qualquer uso exigiria consideração ética própria antes de virar insumo.
 |---|---|---|---|---|
 | `(consultor_id, projeto_id)` | chave de relação, célula da matriz `R` | Confirmado | STRING | `silver.vw_gtac_cltv_alocacao` (`Cód. Colaborador`, `Código`), `silver.vw_bi_tbl_pps_alocacao_pessoas` (`id_pp`, `id_alocacao`) |
 | `papel` · `pct_alocacao` · `horas` | categórico + numérico, peso da interação | Confirmado | DOUBLE (`Percentual de alocação do N1`, `horas_mes`), STRING (`nivel`, `sigla_cargo`) | `vw_gtac_cltv_alocacao`, `vw_bi_tbl_pps_alocacao_pessoas` |
-| `avaliacao_desempenho` | numérico, rótulo explícito | Confirmado (schema), sem acesso a banco | ordinal 3 níveis por competência × etapa, ver seção "Fonte externa: plataforma de avaliação" | plataforma de avaliação (schema reconstruído via UI, `ft_peers_mind` descartado como candidato) |
-| `avaliador_id` | chave estrangeira, debiasing de rater | Confirmado (schema), sem acesso a banco | categórico: individual / gestor às cegas / gestor final | mesma fonte acima; é eixo estrutural de papel, não FK solta |
+| avaliação de desempenho | fonte não disponibilizada pela organização; o modelo não a considera | Não disponibilizada | - | - |
 | `margem_atribuida` | numérico (R$/%), ponderação econômica | Confirmado, granularidade diferente da esperada | DOUBLE (`peers_total_vlr`, `actar_receita_vlr` etc.) | `silver.vw_bi_custo_frente_mensal`; usuário confirmou que frente/mês é a única granularidade que existe, não há margem por alocação individual em lugar nenhum |
 | `flag_restaffing` · `solicitacao_nominal` | booleano, feedback implícito | Confirmado ausente | - | usuário confirmou: não é documentado |
 
@@ -362,12 +311,6 @@ qualquer uso exigiria consideração ética própria antes de virar insumo.
   proficiência distintas que precisam de de-para, uma duplicata de
   respondente, cabeçalhos de coluna com formatação inconsistente, e a
   chave de ligação sendo e-mail/nome (PII), não `consultor_id`.
-* **`avaliacao_desempenho` e `avaliador_id` mudaram de "sem fonte" para
-  "schema conhecido, sem acesso a banco"**: a estrutura real (3 etapas ×
-  9 competências + itens de Performance × escala 3 níveis + comentário,
-  rubrica por nível de carreira) foi reconstruída via a própria plataforma,
-  sem nenhuma consulta a base. O gargalo não é mais "não sabemos a forma", é
-  "não temos acesso ao dado real": o gerador sintético parte só da forma.
 
 ## Calibração agregada (levantada em 2026-09-01, antes do fim do acesso em 09/09)
 
@@ -820,33 +763,6 @@ são declarações do dono do dado sobre semântica e processo, e é isso que
 as torna úteis, porque semântica não é derivável de agregado. Cada item
 abaixo diz o que muda no projeto.
 
-**Agregados da base de avaliação de desempenho: NÃO haverá acesso.** Nem
-mesmo estatísticas agregadas sem dado individual. O dicionário registrava o
-acesso a essa base como "a alavanca de maior retorno do projeto"; a alavanca
-está fechada. Distribuição, cobertura e estrutura de dependência de
-`avaliacao_desempenho` passam de "sem calibração por ora" a **limitação
-permanente**. O bloco II.5 já operava assim, e agora é definitivo.
-
-**`avaliador_id` existe, e a estrutura é mais rica do que o dicionário
-supunha.** A avaliação é **por projeto**: num mesmo ciclo um colaborador
-pode ter várias avaliações, uma por projeto, e **cada uma pode ter um ou
-mais gestores**. Duas consequências:
-
-* o grão (consultor, projeto) que o gerador já usa está certo;
-* o confronto entre avaliadores deixa de ser hipotético. O bloco II.5.7
-  simulava, como cenário declarado, o regime em que cada alocação é avaliada
-  por um avaliador diferente, para mostrar que a normalização por avaliador
-  é obrigatória. **Esse regime é o real.** A severidade de cada gestor entra
-  de fato como variação espúria entre pessoas, e o eixo "papel" (individual,
-  gestor às cegas, gestor final) não é o mesmo eixo que "qual gestor".
-
-**A distribuição de nota muda por nível de senioridade, não só a rubrica.**
-Contradiz suposição documentada em `gerar_avaliacoes_desempenho()`, que
-dizia não haver evidência de que a distribuição (e não só o texto da
-rubrica) variasse por nível. Há: o dono do dado confirma que "tende a
-mudar". **A direção e a magnitude não foram informadas**, então o gerador
-reproduz a existência do efeito e declara o resto como suposição.
-
 **Cobertura do Formulário de Skills 2.1 isolado: pode assumir 48,4%.**
 Confirma a escolha que `sortear_respondentes_formulario()` já fazia. Deixa
 de ser teto conservador adotado por falta de número e passa a ser
@@ -928,7 +844,7 @@ identidade contábil, não correlação. A leitura de receita está fechada.
 Além dos indícios já registrados, a rodada mediu que a receita mensal do PP
 é **0,87 vezes horas planejadas vezes `Taxa`**, com valor implícito por hora
 entre R$255 e R$426. A `Taxa` é o preço pelo qual a receita é apurada, não
-custo. O achado II.5.9 da EDA fica fechado.
+custo. O achado II.5.5 da EDA fica fechado.
 
 O que o 0,87 representa, se desconto comercial ou outra convenção, não foi
 verificado.
@@ -977,7 +893,7 @@ Como o campo é receita, zero significa mês sem **receita** de estagiário.
 Persistência por PP, em 597 PPs com três ou mais meses ativos: 29% nunca,
 47% sempre, 24% mista.
 
-**Isto derruba o achado II.5.4 da EDA**, que lia os 44,7% como incompletude
+**Isto derruba o achado II.5.3 da EDA**, que lia os 44,7% como incompletude
 de apontamento de custo e concluía que a margem por frente e mês era
 inutilizável. Não é incompletude, e não é custo.
 
@@ -1180,9 +1096,6 @@ limitação permanente, não pendência.
   por essa escala nunca chegou a ser agregada e registrada aqui, só a
   existência da escala. Sem o arquivo, não há mais como extrair esse
   número. `intensidade` segue `runif(0,1)`, suposição documentada.
-* `avaliacao_desempenho`/`avaliador_id`: schema reconstruído (ver seção
-  própria), acesso à base nunca foi liberado. Gerador sintético segue
-  100% estrutural, sem calibração por distribuição real.
 * Crosswalk e-mail/nome → `consultor_id` linha a linha: as planilhas
   saíram da máquina antes de ser construído. Só a cobertura populacional
   agregada por hash (48,4%) ficou registrada.

@@ -126,7 +126,7 @@ test_that("toda chave declarada é de fato única no dado sintético", {
   inventario <- inventariar_tabelas(carregar_dados())
 
   expect_true(all(inventario$chave_unica))
-  expect_equal(nrow(inventario), 19)
+  expect_equal(nrow(inventario), 18)
 })
 
 test_that("resumir_cobertura mede entidade sem registro, não célula vazia", {

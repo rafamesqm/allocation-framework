@@ -73,7 +73,7 @@ proveniencias_achado <- function() {
 #'   decisão**, porque é a decisão que a síntese existe para defender. A
 #'   ressalva própria da limitação, quando divergir, fica dita no texto dela.
 #'   O caso típico é decisão apoiada em fato real cuja magnitude de apoio é
-#'   sintética, como em II.5.7.
+#'   sintética, como em II.7.6.
 #'
 #' A validação é deliberadamente rígida. Achado sem etiqueta epistêmica ou
 #' sem implicação declarada é exatamente o tipo de conclusão solta que este
@@ -190,8 +190,8 @@ registrar_achados <- function(bloco, achados) {
     )
   }
 
-  # Ordem numérica e não alfabética: `arrange(codigo)` punha `II.5.10` antes
-  # de `II.5.2`, o que já aparecia na lista de achados do bloco II.5.
+  # Ordem numérica e não alfabética: `arrange(codigo)` punha o décimo achado
+  # de um bloco antes do segundo.
   achados[ordem_de_leitura(achados$codigo), ]
 }
 

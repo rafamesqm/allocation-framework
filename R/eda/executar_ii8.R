@@ -180,11 +180,12 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "Existir e ter escala utilizável são exigências diferentes, e separá-las ",
       "é o que impede uma contagem otimista. Margem e afinidade prevista são ",
       "calculáveis e não dimensionáveis, cada uma pelo seu motivo já ",
-      "registrado: a margem porque as âncoras se sobredeterminam (II.5.10), a ",
-      "afinidade porque o acesso à base de avaliação está negado (II.5.6). ",
-      "A afinidade é `ŝ`, a predição que a wave 3 produz para cada par ",
-      "candidato, e não o rótulo de `R`, que só existe para pares que ",
-      "aconteceram e serve para treinar e avaliar `ŝ`. ",
+      "registrado: a margem porque as âncoras se sobredeterminam (II.5.6), a ",
+      "afinidade porque `ŝ` só existe depois da wave 3, e o que ordena dentro ",
+      "do filtro não ficou determinado pela EDA (III.4). A afinidade é `ŝ`, a ",
+      "predição que a wave 3 produz para cada par candidato, e não o sinal de ",
+      "interação de `R`, que só existe para pares que aconteceram e serve para ",
+      "treinar e avaliar `ŝ`. ",
       "**A ausência mais grave é a demanda futura**: `pipeline_demandas` traz ",
       "identificador e estágio, sem data, tamanho nem perfil. Sem ela o ",
       "otimizador não aloca para frente, só reavalia o passado."
@@ -196,7 +197,7 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "parcial**, e não como alocador prospectivo. Ela pode rodar sobre os ",
       "projetos históricos, com capacidade e férias como restrições, custo ",
       "como objetivo dimensionado, a afinidade `ŝ` da wave 3 como coeficiente ",
-      "do objetivo de desempenho, e o filtro de setor aplicado a quem o ",
+      "do objetivo de afinidade, e o filtro de setor aplicado a quem o ",
       "declarou."
     ),
     paste0(

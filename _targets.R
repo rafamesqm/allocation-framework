@@ -25,7 +25,6 @@ parametros <- list(
   data_referencia = as.Date("2026-09-01"),
   fracao_cold_start = 0.17,
   prob_vies = 0.7,
-  fracao_com_avaliacao = 0.5,
   dias_ferias = 30,
   ano_ferias = 2026,
   n_oportunidades = 4302, # soma do censo real por situação, ver mapeamento_schema.md
@@ -112,16 +111,6 @@ list(
   tar_target(projetos_acoplados, acoplar_projetos_ao_esforco(projetos, alocacoes)),
   tar_target(projetos_arquivo, salvar_synthetic(projetos_acoplados, "projetos"), format = "file"),
 
-  tar_target(avaliacoes_desempenho_arquivo, salvar_synthetic(
-    gerar_avaliacoes_desempenho(
-      alocacoes,
-      fracao_com_avaliacao = parametros$fracao_com_avaliacao,
-      consultores = consultores,
-      semente = parametros$semente
-    ),
-    "avaliacoes_desempenho"
-  ), format = "file"),
-
   # Camada 3: Operação ------------------------------------------------------
   tar_target(custo_carregado, gerar_custo_carregado(consultores, semente = parametros$semente)),
   tar_target(custo_carregado_arquivo, salvar_synthetic(custo_carregado, "custo_carregado"), format = "file"),
@@ -171,7 +160,7 @@ list(
       custo_carregado_arquivo, espaco_skills_arquivo, skills_consultor_arquivo,
       experiencia_setorial_arquivo, expertise_funcional_arquivo,
       idiomas_consultor_arquivo, certificacoes_consultor_arquivo,
-      soft_skills_consultor_arquivo, avaliacoes_desempenho_arquivo,
+      soft_skills_consultor_arquivo,
       ocupacao_consultor_arquivo, ferias_consultor_arquivo,
       receita_projeto_mes_arquivo, margem_estrutural_arquivo,
       pipeline_demandas_arquivo, grafo_coalocacao_arquivo,
@@ -282,13 +271,6 @@ list(
 
   tar_target(bloco_ii5, executar_ii5(dados_eda, estabilidade = estabilidade)),
   tar_target(bloco_ii5_tabelas, salvar_tabelas_bloco(bloco_ii5$tabelas), format = "file"),
-  tar_target(bloco_ii5_figuras, salvar_figuras_bloco(
-    bloco_ii5$figuras,
-    list(
-      ii5_divergencia_etapas = c(17, 8),
-      ii5_dimensionalidade_itens = c(17, 9)
-    )
-  ), format = "file"),
   tar_target(bloco_ii5_achados, salvar_tabela(bloco_ii5$achados, "achados_ii5"), format = "file"),
 
   tar_target(bloco_ii6, executar_ii6(dados_eda, estabilidade = estabilidade)),

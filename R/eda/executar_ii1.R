@@ -150,7 +150,7 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
       "calculada só sobre a tabela de alocação, sem join com a de entidades, e ",
       "a ressalva que carrega é de denominador: são colaboradores históricos ",
       "contra códigos de alocação, e um projeto pode ter mais de um código ",
-      "(II.5.10). Esparsidade nesse nível é ",
+      "(II.5.6). Esparsidade nesse nível é ",
       "o regime em que método de vizinhança tem pouca sobreposição para ",
       "estimar similaridade, e é o argumento contra vizinhança. A ",
       "alternativa natural, fator latente, não sai favorecida por isso: o ",

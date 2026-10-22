@@ -1,7 +1,7 @@
 Insumo,Papel,Existe,Escala utilizável,Observação
 Custo por hora,objetivo e restrição orçamentária,sim,sim,"salário base por cargo, com âncora real; o fator de carga é declarado e o bloco II.5 mostrou que as âncoras não comportam um realista"
-Margem,objetivo econômico,sim,não,"calculável pelo candidato (d), mas o bloco II.5 mediu que as âncoras econômicas se sobredeterminam e discordam entre si (II.5.10)"
-Afinidade prevista ŝ,objetivo de desempenho,sim,não,"o otimizador precisa de ŝ para cada par candidato, e é a wave 3 que o produz; o rótulo de `R` só existe para pares que aconteceram e serve para treinar e avaliar ŝ, não para substituí-lo. Com o acesso à base de avaliação negado, a escala dos dois é suposição"
+Margem,objetivo econômico,sim,não,"calculável pela forma estrutural, mas o bloco II.5 mediu que as âncoras econômicas se sobredeterminam e discordam entre si (II.5.6)"
+Afinidade prevista ŝ,objetivo de afinidade,sim,não,"o otimizador precisa de ŝ para cada par candidato, e é a wave 3 que o produz; o sinal de interação de `R` só existe para pares que aconteceram e serve para treinar e avaliar ŝ, não para substituí-lo. O que ordena dentro do filtro não ficou determinado pela EDA (III.4), e a escala de ŝ é suposição"
 Capacidade mensal,restrição dura,sim,não,"existe e é medida, mas o histórico a viola com frequência, o que a impede de entrar como limite sem tornar infactível o que aconteceu"
 Férias,restrição de disponibilidade,sim,sim,"uma janela por consultor, sem ambiguidade de escala"
 Skills requeridas,restrição de aderência,não,não,"não existe como processo na Peers, confirmado pelo dono do dado; o bloco II.6 decidiu usar categoria do projeto como filtro, que é aderência grossa"

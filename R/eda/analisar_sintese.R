@@ -1,7 +1,7 @@
 #' Ordem de leitura dos códigos de achado
 #'
 #' A ordenação alfabética que `registrar_achados()` aplica dentro de cada
-#' bloco erra a partir do décimo achado: `II.5.10` vem antes de `II.5.2`,
+#' bloco erra a partir do décimo achado: `II.4.10` viria antes de `II.4.2`,
 #' porque compara texto e não número. Dentro de um bloco isso passa quase
 #' despercebido; numa tabela que empilha os catorze blocos, fica visível e
 #' atrapalha a conferência contra o documento de origem.

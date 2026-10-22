@@ -81,14 +81,6 @@ especificacao_tabelas <- function() {
     "alocacoes", "duracao_dias", "numerico", "atributo", NA_character_,
     "alocacoes", "data_fim", "data", "atributo", NA_character_,
 
-    "avaliacoes_desempenho", "consultor_id", "texto", "chave", "consultores.consultor_id",
-    "avaliacoes_desempenho", "projeto_id", "texto", "chave", "projetos.projeto_id",
-    "avaliacoes_desempenho", "item", "texto", "chave", NA_character_,
-    "avaliacoes_desempenho", "etapa", "texto", "chave", NA_character_,
-    "avaliacoes_desempenho", "categoria_item", "texto", "atributo", NA_character_,
-    "avaliacoes_desempenho", "nota", "texto", "atributo", NA_character_,
-    "avaliacoes_desempenho", "avaliador_id", "texto", "atributo", NA_character_,
-    "avaliacoes_desempenho", "comentario", "texto", "atributo", NA_character_,
 
     # Camada 3: Operação ---------------------------------------------------
     "custo_carregado", "consultor_id", "texto", "chave", "consultores.consultor_id",

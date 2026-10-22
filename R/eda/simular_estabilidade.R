@@ -22,12 +22,6 @@
 #' correta é que o conjunto versionado é um sorteio da mesma distribuição que
 #' estas réplicas caracterizam, e não um elemento desta amostra.
 #'
-#' `avaliacoes_desempenho` entra sem a coluna de comentário. O texto livre
-#' respondia por praticamente todo o tempo de geração da tabela e não alimenta
-#' grandeza nenhuma, então dispensá-lo torna barato incluir as grandezas do
-#' rótulo que o bloco II.5 mede. Antes desta mudança a tabela ficava de fora
-#' inteira, e as grandezas do rótulo não teriam intervalo.
-#'
 #' @param semente Inteiro que identifica a realização.
 #' @param n_consultores,n_projetos Escala da população.
 #' @param data_referencia Data de referência da geração.
@@ -58,10 +52,6 @@ gerar_realizacao <- function(semente,
   )
   grafo <- gerar_grafo_coalocacao(alocacoes)
   ocupacao <- agregar_ocupacao_consultor(alocacoes)
-  avaliacoes <- gerar_avaliacoes_desempenho(
-    alocacoes, com_comentario = FALSE, consultores = consultores,
-    semente = semente
-  )
 
   list(
     consultores = consultores,
@@ -73,8 +63,7 @@ gerar_realizacao <- function(semente,
     espaco_skills = espaco_skills,
     skills_consultor = skills,
     grafo_coalocacao = grafo,
-    ocupacao_consultor = ocupacao,
-    avaliacoes_desempenho = avaliacoes
+    ocupacao_consultor = ocupacao
   )
 }
 
@@ -102,15 +91,6 @@ medir_grandezas <- function(dados) {
   skills <- dados$skills_consultor
   grafo <- dados$grafo_coalocacao
   ocupacao <- dados$ocupacao_consultor
-  avaliacoes <- dados$avaliacoes_desempenho
-
-  divergencia <- medir_divergencia_entre_avaliadores(avaliacoes)
-  dimensionalidade <- medir_dimensionalidade_dos_itens(avaliacoes)
-  variancia_escore <- decompor_variancia_do_escore(avaliacoes)
-  par_individual_gestor <- divergencia$pares[
-    divergencia$pares$etapa_a == "individual" &
-      divergencia$pares$etapa_b == "gestor_cegas",
-  ]
 
   nivel_num <- senioridade_numerica(consultores$nivel_senioridade)
   nivel_alocacao <- nivel_num[match(alocacoes$consultor_id, consultores$consultor_id)]
@@ -254,14 +234,6 @@ medir_grandezas <- function(dados) {
     projetos_subdeterminados_k5 = identificabilidade_k5$fracao_projetos_subdeterminados,
     consultores_subdeterminados_k5 = identificabilidade_k5$fracao_consultores_subdeterminados,
     zona_morta_skills = mean(sem_interacao & sem_skills),
-    cobertura_rotulo_pares = dplyr::n_distinct(
-      paste(avaliacoes$consultor_id, avaliacoes$projeto_id)
-    ) / nrow(alocacoes),
-    concordancia_individual_gestor = par_individual_gestor$concordancia,
-    correlacao_individual_gestor = par_individual_gestor$correlacao,
-    alfa_cronbach_itens = dimensionalidade$alfa_cronbach,
-    variancia_primeiro_componente = dimensionalidade$variancia_primeiro_componente,
-    fracao_variancia_entre_consultores = variancia_escore$fracao_entre_consultores,
     cobertura_setor_observada = mean(!sem_setor_observado),
     zona_morta_setor = mean(sem_interacao & sem_setor_observado),
     massa_pct_alocacao_em_1 = mean(alocacoes$pct_alocacao == 1),

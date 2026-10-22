@@ -1,7 +1,7 @@
 test_that("a paleta entrega os quatro papéis de cor esperados", {
   paleta <- paleta_monografia()
 
-  expect_named(paleta, c("categorica", "ordinal_senioridade", "divergente_nota", "chrome"))
+  expect_named(paleta, c("categorica", "ordinal_senioridade", "divergente", "chrome"))
   expect_length(paleta$categorica, 5)
   expect_true(all(grepl("^#[0-9a-f]{6}$", unlist(paleta), ignore.case = TRUE)))
 })
@@ -30,12 +30,12 @@ test_that("a rampa ordinal é de uma matiz só", {
   expect_lt(diff(range(matiz)) * 360, 40)
 })
 
-test_that("a escala divergente da nota cobre os três níveis e tem neutro no meio", {
+test_that("a escala divergente tem três polos e neutro no meio", {
   paleta <- paleta_monografia()
-  rgb_nota <- grDevices::col2rgb(paleta$divergente_nota)
+  rgb_divergente <- grDevices::col2rgb(paleta$divergente)
 
-  expect_named(paleta$divergente_nota, c("ABAIXO", "DENTRO", "ACIMA"))
-  expect_equal(rgb_nota[, "DENTRO"][["red"]], rgb_nota[, "DENTRO"][["green"]], tolerance = 0.05)
+  expect_named(paleta$divergente, c("negativo", "neutro", "positivo"))
+  expect_equal(rgb_divergente[, "neutro"][["red"]], rgb_divergente[, "neutro"][["green"]], tolerance = 0.05)
 })
 
 test_that("toda cor categórica alcança 3:1 de contraste contra o fundo", {
