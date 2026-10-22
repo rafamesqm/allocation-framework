@@ -8,6 +8,14 @@ alocacoes_de_teste <- function() {
   )
 }
 
+sem_ferias <- function() {
+  tibble::tibble(
+    consultor_id = character(0),
+    inicio_ferias = as.Date(character(0)),
+    fim_ferias = as.Date(character(0))
+  )
+}
+
 criterios_de_teste <- function(...) {
   base <- tibble::tibble(
     discordancia_id = 1L,
@@ -25,7 +33,7 @@ test_that("a alocacao analisada nao entra na folga de capacidade", {
   # c1 tem 100 horas no projeto analisado e 40 em outro.
   folga <- medir_folga_de_capacidade(
     "c1", "2026-03", alocacoes_de_teste(), projeto_excluido = "p1",
-    capacidade_mensal_horas = 168
+    ferias = sem_ferias(), capacidade_mensal_horas = 168
   )
 
   expect_equal(folga, 168 - 40)
@@ -34,10 +42,43 @@ test_that("a alocacao analisada nao entra na folga de capacidade", {
 test_that("a folga do recomendado desconta todas as alocacoes dele no mes", {
   folga <- medir_folga_de_capacidade(
     c("c2", "c1"), c("2026-03", "2026-04"), alocacoes_de_teste(),
-    projeto_excluido = c("p1", "p1"), capacidade_mensal_horas = 168
+    projeto_excluido = c("p1", "p1"), ferias = sem_ferias(),
+    capacidade_mensal_horas = 168
   )
 
   expect_equal(folga, c(168 - 60, 168))
+})
+
+test_that("as ferias no mes descontam a capacidade, ponderadas pelos dias", {
+  # c2 tira 10 dos 31 dias de marco; a capacidade cai na mesma fracao, e as
+  # 60 horas da outra alocacao saem depois.
+  ferias <- tibble::tibble(
+    consultor_id = "c2",
+    inicio_ferias = as.Date("2026-03-01"),
+    fim_ferias = as.Date("2026-03-10")
+  )
+
+  folga <- medir_folga_de_capacidade(
+    c("c2", "c1"), c("2026-03", "2026-03"), alocacoes_de_teste(),
+    projeto_excluido = c("p9", "p1"), ferias = ferias,
+    capacidade_mensal_horas = 168
+  )
+
+  expect_equal(folga[1], 168 * (1 - 10 / 31) - 60)
+  expect_equal(folga[2], 168 - 40)
+})
+
+test_that("o recomendado comparado e o primeiro fora do time no mes", {
+  # c1 ja esta em p1 em marco, entao o comparado e o segundo da lista; em
+  # abril c1 ja saiu do projeto e volta a ser o primeiro.
+  escolhido <- selecionar_recomendado_comparado(
+    recomendados = list(c("c1", "c3"), c("c1", "c3"), c("c1")),
+    projeto_id = c("p1", "p1", "p1"),
+    mes = c("2026-03", "2026-04", "2026-03"),
+    alocacoes = alocacoes_de_teste()
+  )
+
+  expect_equal(escolhido, c("c3", "c1", NA_character_))
 })
 
 test_that("a distancia de senioridade usa a mediana das posicoes e e NA sem time", {
@@ -50,6 +91,13 @@ test_that("setor nao declarado fica desconhecido, e nao incompativel", {
   expect_equal(
     comparar_setor(c("Varejo", "Banking", NA), "Varejo"),
     c("compatível", "incompatível", "desconhecido")
+  )
+})
+
+test_that("projeto sem setor tambem fica desconhecido", {
+  expect_equal(
+    comparar_setor(c("Varejo", NA), NA_character_),
+    c("desconhecido", "desconhecido")
   )
 })
 
@@ -104,7 +152,8 @@ test_that("o sorteio estratifica, exclui a zona morta e reporta estrato vazio", 
     ramo = rep(c("conteúdo", "colaborativo"), each = 5),
     classe = c(rep("recomendado melhor", 4), "recomendado pior",
                rep("incomparáveis", 5)),
-    na_zona_morta = c(rep(FALSE, 9), TRUE)
+    na_zona_morta = c(rep(FALSE, 9), TRUE),
+    desempate_por_tempo_de_casa = c(TRUE, TRUE, FALSE, FALSE, TRUE, rep(FALSE, 5))
   )
 
   sorteio <- sortear_casos_para_leitura(classificadas, por_estrato = 2, semente = 1)
@@ -121,6 +170,18 @@ test_that("o sorteio estratifica, exclui a zona morta e reporta estrato vazio", 
     sorteio$casos,
     sortear_casos_para_leitura(classificadas, por_estrato = 2, semente = 1)$casos
   )
+  # Dois dos quatro "melhor" de conteudo e o unico "pior" vieram do desempate.
+  desempates <- sorteio$desempates_por_classe
+  expect_equal(
+    desempates$disponiveis_por_desempate[desempates$classe == "recomendado melhor"], 2L
+  )
+  expect_equal(
+    desempates$disponiveis_por_desempate[desempates$classe == "recomendado pior"], 1L
+  )
+  expect_equal(
+    desempates$disponiveis_por_desempate[desempates$classe == "incomparáveis"], 0L
+  )
+  expect_true(all(estratos$sorteados_por_desempate <= estratos$sorteados))
 })
 
 test_that("a rubrica traz os quatro campos em branco e os vereditos fixos", {
@@ -150,6 +211,7 @@ test_that("os criterios usam o time do mesmo mes e tratam projeto sem time como 
     custo_carregado = tibble::tibble(
       consultor_id = c("c1", "c2", "c3", "c4"), custo_carregado = c(200, 300, 250, 400)
     ),
+    ferias_consultor = sem_ferias(),
     experiencia_setorial = tibble::tibble(
       consultor_id = c("c1", "c2"), segmento = c("Varejo", "Banking"), intensidade = c(1, 1)
     ),

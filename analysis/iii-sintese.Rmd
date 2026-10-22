@@ -218,9 +218,11 @@ estabilidade entre realizações é alta, o que é propriedade do gerador.
 * **O que fica em aberto**: o que ordena dentro do filtro, e portanto `ŝ`.
   Para quem tem histórico sobra a popularidade; para quem não tem, só o
   perfil de skills, que não pôde ser avaliado (III.4).
-* **Sinal de interação**: feedback implícito, com preferência binária pela
-  ocorrência da alocação e confiança pelas horas; o binário contra a
-  confiança por horas é decidido pelo teste registrado (II.5.1).
+* **Sinal de interação**: a célula de `R` é a ocorrência binária da alocação
+  (II.5.1). A confiança por horas fica como comparação pré-registrada, fora
+  da contagem de decisões: o binário contra a confiança, pelo mesmo teste
+  pareado do protocolo, decidido na wave 3. A confiança depende do gerador,
+  porque as horas dependem da duração recalibrada das alocações.
 * **Protocolo**: dois, um por componente, com divisão por consultor para o
   conteúdo e temporal para o colaborativo (II.7.2, II.7.4).
 * **Métrica e piso**: acerto em lista, com o piso de cada componente ao lado

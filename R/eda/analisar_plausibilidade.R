@@ -1,8 +1,10 @@
 # Segundo nível de avaliação do bloco II.7: plausibilidade das discordâncias
 # entre a alocação recomendada e a realizada. Uma discordância é um par de
 # teste em que o consultor realizado não está entre os recomendados; ela
-# compara o primeiro recomendado com o realizado, no projeto e no mês da
-# alocação realizada.
+# compara com o realizado o primeiro recomendado que não estava alocado ao
+# projeto no mês da alocação realizada, escolhido por
+# `selecionar_recomendado_comparado()`. Recomendar quem já está no time não é
+# alternativa ao realizado, e compará-lo mediria outra coisa.
 #
 # A entrada das funções abaixo é uma tabela de discordâncias com as colunas
 # `discordancia_id`, `projeto_id`, `data_inicio` (da alocação realizada),
@@ -18,18 +20,53 @@ listar_vereditos_de_leitura <- function() {
   c("plausível", "plausível com ressalva", "implausível", "indeterminável")
 }
 
+#' Escolhe o recomendado que a discordância compara com o realizado
+#'
+#' É o primeiro da lista recomendada que não estava alocado ao projeto no mês
+#' da alocação realizada. O realizado, que está alocado por definição, nunca é
+#' escolhido.
+#'
+#' @param recomendados Lista com um vetor de consultores por discordância, na
+#'   ordem da recomendação.
+#' @param projeto_id Vetor com o projeto de cada discordância.
+#' @param mes Vetor de texto com o mês da alocação realizada, "AAAA-MM".
+#' @param alocacoes tibble com `consultor_id`, `projeto_id`, `data_inicio` e
+#'   `data_fim`.
+#' @return Vetor com o consultor escolhido, ou `NA` quando todos os
+#'   recomendados já estavam no time naquele mês.
+selecionar_recomendado_comparado <- function(recomendados, projeto_id, mes, alocacoes) {
+  stopifnot(length(recomendados) == length(projeto_id), length(projeto_id) == length(mes))
+
+  meses <- expandir_para_meses(alocacoes$data_inicio, alocacoes$data_fim) |>
+    dplyr::mutate(
+      consultor_id = alocacoes$consultor_id[linha],
+      projeto_id = alocacoes$projeto_id[linha]
+    )
+
+  purrr::pmap_chr(list(recomendados, projeto_id, mes), function(lista, projeto, mes_alvo) {
+    time <- meses$consultor_id[meses$projeto_id == projeto & meses$ano_mes == mes_alvo]
+    fora_do_time <- setdiff(lista, time)
+    if (length(fora_do_time) == 0) NA_character_ else fora_do_time[1]
+  })
+}
+
 #' Mede a folga de capacidade de consultores num mês, sem a alocação em análise
 #'
-#' A folga é a capacidade mensal menos as horas das demais alocações do
-#' consultor ativas naquele mês. Mês parcial entra ponderado pelos dias
+#' A folga é a capacidade do consultor no mês menos as horas das demais
+#' alocações dele ativas naquele mês. Mês parcial entra ponderado pelos dias
 #' cobertos, como em `agregar_ocupacao_consultor()`. A alocação analisada
 #' sai do cálculo: sem isso, o realizado pagaria em folga a própria
 #' alocação que está sendo julgada, e perderia o critério por construção.
 #'
-#' A capacidade padrão, 168 horas, é o mesmo limite de mês cheio de trabalho
-#' de `medir_sobredeterminacao_economica()`. Como recomendado e realizado são
-#' comparados no mesmo mês, a constante desloca os dois por igual e não muda
-#' a comparação.
+#' A capacidade no mês é a capacidade mensal vezes a fração do mês fora de
+#' férias. A capacidade padrão, 168 horas, é o mesmo limite de mês cheio de
+#' trabalho de `medir_sobredeterminacao_economica()`. Com as férias a
+#' constante deixa de deslocar recomendado e realizado por igual: ela escala
+#' o desconto de férias, e quando só um dos dois está de férias no mês o
+#' resultado da comparação pode depender dela.
+#'
+#' **As férias sintéticas cobrem só 2026.** Mês fora desse ano fica com a
+#' capacidade cheia por falta de registro, e não por ausência de férias.
 #'
 #' @param consultor_id Vetor de consultores.
 #' @param mes Vetor de texto com o mês de cada consulta, no formato "AAAA-MM"
@@ -38,12 +75,20 @@ listar_vereditos_de_leitura <- function() {
 #'   `data_inicio` e `data_fim`.
 #' @param projeto_excluido Vetor com o projeto da alocação analisada, para
 #'   cada consulta. A alocação do consultor nesse projeto não entra.
-#' @param capacidade_mensal_horas Capacidade de um consultor num mês.
+#' @param ferias tibble com `consultor_id`, `inicio_ferias` e `fim_ferias`.
+#' @param capacidade_mensal_horas Capacidade de um consultor num mês inteiro
+#'   sem férias.
 #' @return Vetor numérico com a folga em horas, um valor por consulta.
 medir_folga_de_capacidade <- function(consultor_id, mes, alocacoes,
-                                      projeto_excluido,
+                                      projeto_excluido, ferias,
                                       capacidade_mensal_horas = 168) {
   stopifnot(length(consultor_id) == length(mes), length(mes) == length(projeto_excluido))
+
+  meses_de_ferias <- expandir_para_meses(ferias$inicio_ferias, ferias$fim_ferias) |>
+    dplyr::mutate(
+      consultor_id = ferias$consultor_id[linha],
+      fracao_de_ferias = dias_ativos / dias_no_mes
+    )
 
   meses <- expandir_para_meses(alocacoes$data_inicio, alocacoes$data_fim)
   horas_ativas <- meses |>
@@ -61,7 +106,10 @@ medir_folga_de_capacidade <- function(consultor_id, mes, alocacoes,
           horas_ativas$ano_mes == mes_alvo &
           horas_ativas$projeto_id != projeto
       ]
-      capacidade_mensal_horas - sum(ocupadas)
+      de_ferias <- sum(meses_de_ferias$fracao_de_ferias[
+        meses_de_ferias$consultor_id == consultor & meses_de_ferias$ano_mes == mes_alvo
+      ])
+      capacidade_mensal_horas * (1 - min(de_ferias, 1)) - sum(ocupadas)
     }
   )
 }
@@ -85,14 +133,15 @@ medir_distancia_de_senioridade <- function(posicao, posicoes_do_time) {
 #'
 #' Três valores, e não dois: consultor sem setor declarado fica
 #' "desconhecido", e não "incompatível", porque a ausência de resposta ao
-#' formulário não diz nada sobre a experiência da pessoa.
+#' formulário não diz nada sobre a experiência da pessoa. Projeto sem setor
+#' também fica "desconhecido".
 #'
 #' @param setor_consultor Setor predominante declarado, ou `NA`.
 #' @param setor_projeto Setor do projeto.
 #' @return Vetor de texto com "compatível", "incompatível" ou "desconhecido".
 comparar_setor <- function(setor_consultor, setor_projeto) {
   dplyr::case_when(
-    is.na(setor_consultor) ~ "desconhecido",
+    is.na(setor_consultor) | is.na(setor_projeto) ~ "desconhecido",
     setor_consultor == setor_projeto ~ "compatível",
     .default = "incompatível"
   )
@@ -101,7 +150,8 @@ comparar_setor <- function(setor_consultor, setor_projeto) {
 #' Mede os quatro critérios de cada discordância, para os dois consultores
 #'
 #' Os critérios são a folga de capacidade no mês de início da alocação
-#' realizada, o custo por hora, a compatibilidade de setor e a adequação de
+#' realizada, já descontadas as férias, o custo por hora, a compatibilidade
+#' de setor e a adequação de
 #' senioridade ao restante do time no mesmo mês. Projeto sem outros membros
 #' no mês dá empate no critério de senioridade: as duas distâncias saem 0.
 #'
@@ -150,6 +200,7 @@ medir_criterios_da_discordancia <- function(discordancias, dados,
   folga <- function(consultor) {
     medir_folga_de_capacidade(
       consultor, mes, dados$alocacoes, discordancias$projeto_id,
+      ferias = dados$ferias_consultor,
       capacidade_mensal_horas = capacidade_mensal_horas
     )
   }
@@ -276,8 +327,10 @@ contar_criterios_desconhecidos <- function(classificadas) {
 #' @param classificadas tibble de `classificar_discordancia_por_dominancia()`.
 #' @param por_estrato Casos sorteados por estrato.
 #' @param semente Semente do sorteio.
-#' @return Lista com `casos`, as linhas sorteadas, e `estratos`, a contagem
-#'   disponível e sorteada de cada um dos seis estratos.
+#' @return Lista com `casos`, as linhas sorteadas; `estratos`, a contagem
+#'   disponível e sorteada de cada um dos seis estratos, e quantas delas
+#'   vieram do desempate por tempo de casa; e `desempates_por_classe`, a mesma
+#'   contagem de desempates somada por classe.
 sortear_casos_para_leitura <- function(classificadas, por_estrato = 2, semente = 20261022) {
   ramos <- c("conteúdo", "colaborativo")
   classes <- c("recomendado melhor", "recomendado pior", "incomparáveis")
@@ -295,16 +348,30 @@ sortear_casos_para_leitura <- function(classificadas, por_estrato = 2, semente =
       dplyr::ungroup()
   })
 
+  contar <- function(tabela, nome) {
+    tabela |>
+      dplyr::summarise(
+        "{nome}" := dplyr::n(),
+        "{nome}_por_desempate" := sum(desempate_por_tempo_de_casa),
+        .by = c(ramo, classe)
+      )
+  }
   estratos <- tidyr::expand_grid(ramo = ramos, classe = classes) |>
-    dplyr::left_join(dplyr::count(universo, ramo, classe, name = "disponiveis"), by = c("ramo", "classe")) |>
-    dplyr::left_join(dplyr::count(casos, ramo, classe, name = "sorteados"), by = c("ramo", "classe")) |>
+    dplyr::left_join(contar(universo, "disponiveis"), by = c("ramo", "classe")) |>
+    dplyr::left_join(contar(casos, "sorteados"), by = c("ramo", "classe")) |>
     dplyr::mutate(
-      disponiveis = dplyr::coalesce(disponiveis, 0L),
-      sorteados = dplyr::coalesce(sorteados, 0L),
+      dplyr::across(c(disponiveis, disponiveis_por_desempate, sorteados, sorteados_por_desempate),
+                    \(x) dplyr::coalesce(as.integer(x), 0L)),
       vazio = disponiveis == 0
     )
+  desempates_por_classe <- estratos |>
+    dplyr::summarise(
+      disponiveis_por_desempate = sum(disponiveis_por_desempate),
+      sorteados_por_desempate = sum(sorteados_por_desempate),
+      .by = classe
+    )
 
-  list(casos = casos, estratos = estratos)
+  list(casos = casos, estratos = estratos, desempates_por_classe = desempates_por_classe)
 }
 
 #' Monta a rubrica da leitura qualitativa para os casos sorteados

@@ -56,11 +56,15 @@ ele, os pares longos dominariam a confiança de todos os outros. Com `α = 1` a
 confiança vai de `r formatar_decimal(obj$confianca_quantis[1], 2)` a
 `r formatar_decimal(obj$confianca_quantis[3], 2)`.
 
-**A comparação entre os dois sinais fica registrada agora, antes de existir
-modelo.** `α = 0`, o binário puro, contra `α = 1`, a confiança por horas, pelo
-mesmo teste pareado de McNemar a 5% do protocolo do bloco II.7. Se `α = 1` não
-superar o binário, fica o binário. Registrar a regra antes do resultado é o
-que impede escolher o sinal pelo número que ele produz.
+**A decisão da EDA é só a ocorrência binária.** A confiança por horas não é
+decisão: fica como **comparação pré-registrada**, fora da contagem de
+decisões, a decidir na wave 3. `α = 0`, o binário puro, contra `α = 1`, a
+confiança por horas, pelo mesmo teste pareado de McNemar a 5% do protocolo do
+bloco II.7. Se `α = 1` não superar o binário, fica o binário. Registrar a
+regra antes do resultado é o que impede escolher o sinal pelo número que ele
+produz. E a confiança depende do gerador: as horas do par dependem da duração
+das alocações, que foi recalibrada, e com outra calibração a distribuição da
+confiança seria outra.
 
 O sinal mede a ocorrência da alocação, e por isso a prática atual de escolha.
 Ele herda o viés de seleção que o bloco II.4 mostrou não ser corrigível nesta
@@ -230,8 +234,9 @@ concordância anterior vinha de um erro compensando outro.
 ## A decisão do bloco
 
 **A célula de `R` é o sinal implícito, e a margem vai para `f` pela forma
-estrutural.** A célula de `R` é a ocorrência da alocação, com a confiança
-decidida pela comparação registrada acima. A margem sai de `R` e entra como
+estrutural.** A célula de `R` é a ocorrência binária da alocação; a confiança
+por horas é a comparação pré-registrada acima, que a wave 3 decide. A margem
+sai de `R` e entra como
 objetivo separado no otimizador, calculada de custo carregado por horas
 contra valor de contrato, como direção e não como magnitude, porque as
 âncoras econômicas se sobredeterminam.

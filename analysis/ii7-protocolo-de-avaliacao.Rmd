@@ -260,16 +260,21 @@ top-20, sempre contra o piso de cada componente. É o nível em que valem os
 critérios de sucesso fixados acima.
 
 **Segundo nível, plausibilidade das discordâncias.** Quando o realizado não
-está entre os recomendados, a discordância compara o primeiro recomendado com
-o realizado, no projeto e no mês de início da alocação realizada, em quatro
-critérios:
+está entre os recomendados, a discordância compara com o realizado o primeiro
+recomendado que não estava alocado ao projeto no mês de início da alocação
+realizada. Recomendar quem já está no time não é alternativa ao realizado. A
+comparação usa quatro critérios:
 
-* **folga de capacidade no mês**: a capacidade do consultor menos as horas
-  das demais alocações dele ativas naquele mês, sem a alocação em análise,
-  para o realizado não pagar em folga a própria alocação julgada;
+* **folga de capacidade no mês**: a capacidade do consultor no mês, já
+  descontadas as férias pelos dias que caem nele, menos as horas das demais
+  alocações dele ativas naquele mês, sem a alocação em análise, para o
+  realizado não pagar em folga a própria alocação julgada. As férias
+  sintéticas cobrem só 2026, e fora desse ano a capacidade fica cheia por falta
+  de registro;
 * **custo por hora**, menor é melhor;
 * **compatibilidade de setor**, em três valores: compatível, incompatível ou
-  desconhecido, quando o consultor não declarou setor;
+  desconhecido, quando o consultor não declarou setor ou o projeto não tem
+  setor;
 * **adequação de senioridade**: a distância, em posições da escala de níveis,
   entre o consultor e a mediana do restante do time alocado ao projeto no
   mesmo mês. Projeto sem outros membros no mês dá empate no critério.
@@ -287,8 +292,9 @@ Da classificação sai uma leitura qualitativa. O universo são as discordância
 do teste fora da zona morta, e os estratos cruzam o ramo que atuou, conteúdo ou
 colaborativo, com a classe da comparação, o que dá seis estratos. Cada estrato
 contribui com `r obj$casos_por_estrato` casos, sorteados com a semente
-`r obj$semente_da_leitura`, fixa no código, e estrato vazio é reportado como
-vazio. A rubrica é fixa: disponibilidade do recomendado no mês,
+`r obj$semente_da_leitura`, fixa no código. Estrato vazio é reportado como
+vazio, e cada classe informa quantos dos seus casos vieram do desempate por
+tempo de casa. A rubrica é fixa: disponibilidade do recomendado no mês,
 compatibilidade de setor, algo observável nos dados que justifique a escolha
 realizada, e o veredito, entre `r paste(obj$vereditos, collapse = ", ")`. A
 explicação de cada recomendação vem da própria arquitetura: o ramo, o filtro e

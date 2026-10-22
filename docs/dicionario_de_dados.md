@@ -128,13 +128,18 @@ Alimenta o colaborativo e constrói o sinal de interação. É o coração do si
 A fonte de avaliação de desempenho não foi disponibilizada pela organização, e
 o modelo não a considera.
 
-**Decisão:** a célula de `R` é feedback implícito (Hu, Koren e Volinsky, 2008).
-A preferência é binária, `r_ij = 1` quando houve alocação, e a confiança é
-`w_ij = 1 + α·log(1 + h_ij)`, com `h_ij` as horas do consultor no projeto. A
-comparação entre `α = 0` (binário puro) e `α = 1` fica registrada antes de
-existir modelo e é decidida pelo mesmo teste pareado de McNemar a 5% do
-protocolo de avaliação; se `α = 1` não superar o binário, fica o binário
-(II.5.1). O sinal mede a ocorrência da alocação, e por isso a prática atual de
+**Decisão:** a célula de `R` é a ocorrência binária da alocação, `r_ij = 1`
+quando houve alocação, como feedback implícito (Hu, Koren e Volinsky, 2008;
+II.5.1).
+
+**Comparação pré-registrada, fora da contagem de decisões:** a confiança
+`w_ij = 1 + α·log(1 + h_ij)`, com `h_ij` as horas do consultor no projeto.
+`α = 0` (binário puro) contra `α = 1` é decidido na wave 3 pelo mesmo teste
+pareado de McNemar a 5% do protocolo de avaliação; se `α = 1` não superar o
+binário, fica o binário. A confiança depende do gerador, porque as horas
+dependem da duração recalibrada das alocações.
+
+O sinal mede a ocorrência da alocação, e por isso a prática atual de
 escolha, com o viés de seleção registrado em "Nota sobre viés de seleção"
 abaixo.
 

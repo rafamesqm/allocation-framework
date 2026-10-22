@@ -104,11 +104,13 @@ executar_ii5 <- function(dados, estabilidade = NULL) {
       formatar_decimal(confianca_quantis[3], 2), "."
     ),
     paste0(
-      "**A comparação entre os dois sinais fica registrada antes de existir ",
-      "modelo.** Alfa igual a 0, o binário puro, contra alfa igual a 1, a ",
-      "confiança por horas, pelo mesmo teste pareado de McNemar a 5% do ",
-      "protocolo do bloco II.7. Se alfa igual a 1 não superar o binário, ",
-      "fica o binário. O logaritmo existe porque as horas variam em ordem de ",
+      "**A decisão da EDA é só a ocorrência binária.** A confiança por horas ",
+      "não é decisão: fica como comparação pré-registrada, alfa igual a 0 ",
+      "contra alfa igual a 1, decidida na wave 3 pelo mesmo teste pareado de ",
+      "McNemar a 5% do protocolo do bloco II.7, e se alfa igual a 1 não ",
+      "superar o binário fica o binário. A confiança depende do gerador, ",
+      "porque as horas do par dependem da duração das alocações, que foi ",
+      "recalibrada. O logaritmo existe porque as horas variam em ordem de ",
       "grandeza entre pares, e sem ele os pares longos dominariam a ",
       "confiança de todos os outros."
     ),
@@ -279,8 +281,8 @@ executar_ii5 <- function(dados, estabilidade = NULL) {
     ),
     paste0(
       "**A decisão habilitada é o sinal implícito do achado II.5.1 para `R` ",
-      "e a margem estrutural para `f`**: a célula de `R` é a ocorrência da ",
-      "alocação, com a confiança decidida pelo teste registrado, e a margem ",
+      "e a margem estrutural para `f`**: a célula de `R` é a ocorrência ",
+      "binária da alocação, e a margem ",
       "entra como objetivo separado no otimizador, calculada de custo ",
       "carregado por horas contra valor de contrato, como direção e não como ",
       "magnitude (II.5.6)."
@@ -290,16 +292,16 @@ executar_ii5 <- function(dados, estabilidade = NULL) {
 
     "II.5.1",
     paste0(
-      "A célula de `R` é feedback implícito: preferência binária pela ",
-      "ocorrência da alocação, e confiança de 1 mais alfa vezes o logaritmo ",
-      "de 1 mais as horas. Alfa igual a 0 contra alfa igual a 1 é decidido ",
-      "pelo teste pareado de McNemar a 5% do protocolo, e sem superioridade ",
-      "fica o binário."
+      "A célula de `R` é a ocorrência binária da alocação."
     ),
     paste0(
       "O sinal implícito mede a ocorrência da alocação, e por isso a prática ",
       "atual de escolha, com o viés de seleção que o bloco II.4 mostrou não ",
-      "ser corrigível nesta base."
+      "ser corrigível nesta base. A confiança por horas, e a comparação entre ",
+      "alfa igual a 0 e alfa igual a 1, ficam como comparação pré-registrada ",
+      "a decidir na wave 3, fora da contagem de decisões: a confiança depende ",
+      "do gerador, porque as horas dependem da duração recalibrada das ",
+      "alocações."
     ),
     "estrutural",
 
