@@ -1,0 +1,56 @@
+# Reconstrói o ambiente do zero a partir do renv.lock, numa máquina limpa, e
+# roda o que o auditor rodaria: testes, pipeline e renderização dos
+# documentos. Tudo sobre os dados sintéticos; nenhum segredo é usado.
+name: reproducao
+
+on:
+  push:
+    branches: [main, "wave-*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reproduzir:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.5.3"
+          use-public-rspm: true
+
+      # Bibliotecas de sistema para os pacotes que o renv precisar compilar
+      # quando a versão fixada não tiver binário pronto.
+      - name: Dependências de sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libglpk-dev libgmp3-dev \
+            libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev \
+            libpng-dev libtiff5-dev libjpeg-dev libicu-dev
+
+      - uses: r-lib/actions/setup-renv@v2
+
+      - name: Estado do renv
+        run: Rscript -e 'renv::status()'
+
+      - name: Testes
+        run: Rscript tests/testthat.R
+
+      - name: Pipeline
+        run: Rscript -e 'targets::tar_make()'
+
+      - name: Renderização dos documentos
+        run: Rscript -e 'source("analysis/_renderizar.R")'
+
+      # Os dados e tabelas regenerados devem bater com os versionados. Diferença
+      # aqui não derruba o job, porque a última casa decimal de ponto flutuante
+      # pode variar entre sistemas operacionais; o relatório fica no log.
+      - name: Dados regenerados contra os versionados
+        continue-on-error: true
+        run: git diff --stat --exit-code -- data/synthetic outputs/tables

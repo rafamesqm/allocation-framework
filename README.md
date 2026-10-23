@@ -2,18 +2,26 @@
 
 Monografia da Especialização em Estatística Computacional Aplicada (UFMG) sobre
 alocação de recursos humanos em projetos de consultoria: um modelo híbrido de
-recomendação e otimização multiobjetivo, desenvolvido sobre um problema real da
-Peers Consulting + Technology.
+recomendação e otimização multiobjetivo, desenvolvido sobre um problema real de
+uma consultoria de negócios e tecnologia.
 
 ## Reprodutibilidade
 
 O ambiente é gerenciado por `renv` (dependências) e `targets` (pipeline). Para
-reconstruir tudo do dado sintético ao resultado:
+reconstruir tudo do dado sintético ao resultado, com R 4.5.3:
 
 ```r
 renv::restore()
+source("tests/testthat.R")
 targets::tar_make()
+source("analysis/_renderizar.R")
 ```
+
+A renderização dos documentos exige o Pandoc, que fica fora do `renv`; sem ele,
+`tar_make()` ainda gera todas as tabelas e figuras em `outputs/`. A mesma
+sequência roda a cada envio numa máquina limpa, pelo fluxo
+`.github/workflows/reproducao.yml`, que também compara os dados regenerados
+com os versionados.
 
 A pipeline roda por padrão sobre `data/synthetic/`, a única fonte de dados
 versionada do repositório. Dado real é consultado ao vivo no Databricks Unity
@@ -72,7 +80,7 @@ candidatos por tarefa, não uma decisão.
 | Multiobjetivo (ε-constraint) | laço de escalarização sobre `ompr` / `ROI` |
 | Explicabilidade (wave 5) | `DALEX`, `fastshap`, `shapviz`, `kernelshap` |
 | Testes | `testthat` |
-| Reprodutibilidade | `renv`, `targets`, `quarto` |
+| Reprodutibilidade | `renv`, `targets`, `rmarkdown` |
 
 ## Esquema dos dados
 
