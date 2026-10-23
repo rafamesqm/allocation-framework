@@ -112,7 +112,7 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
     paste0(
       "Decorre de o gerador construir as satélites a partir das entidades e ",
       "não vale como propriedade do domínio. No dado real, a chave entre ",
-      "entidades e alocação é a mesma (consulta Q4), mas parte dos ",
+      "entidades e alocação é a mesma (consulta de confirmação da chave), mas parte dos ",
       "colaboradores históricos de alocação não tem registro de entidade: a ",
       "view usada na calibração casava 64% deles, e a fonte certa eleva isso a ",
       "cerca de 98%. Nem no melhor caso a integridade é completa."
@@ -183,7 +183,7 @@ executar_i1 <- function(dados, especificacao = especificacao_tabelas(),
       "Nenhuma delas tem calibração real de cobertura, e nenhuma análise ",
       "posterior deve tratá-las como universais no dado real sem dizer que ",
       "essa universalidade é artefato. A única exceção é ",
-      "`idiomas_consultor`, cuja fonte é `vw_apdata_bi_entidades_globais`, ",
+      "`idiomas_consultor`, cuja fonte é a base corporativa de colaboradores, ",
       "base corporativa sem nulo entre os 285 ativos: ali a cobertura ",
       "integral é âncora real, não construção."
     )

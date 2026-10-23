@@ -4,7 +4,7 @@
 #' `capacidade_periodo`, e o vetor `k` da Camada 3 (capacidade por pessoa e
 #' período) não é construível: a soma de `pct_alocacao` por consultor vira um
 #' total sem denominador, que aparenta superalocação generalizada. A fonte
-#' real tem as duas datas por alocação (`vw_gtac_cltv_alocacao`, campos
+#' real tem as duas datas por alocação (fonte de alocações, campos
 #' `Data de início` e `Data de fim`), então a ausência era lacuna do gerador,
 #' não do dado.
 #'

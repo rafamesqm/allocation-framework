@@ -93,7 +93,7 @@ mais distante do alvo é `r pior$variavel_a` x `r pior$variavel_b`, em
 `r formatar_decimal(pior$valor_real, 2)`. Vale lembrar o que isso significa e
 o que não significa: são esses mesmos números que calibraram o gerador, então
 reproduzi-los é verificação de que a calibração sobreviveu às etapas
-seguintes, não evidência sobre a Peers.
+seguintes, não evidência sobre a organização.
 
 A associação induzida mais forte é `r induzida$variavel_a` x
 `r induzida$variavel_b`, em `r formatar_decimal(induzida$medida, 3)`. Ela não
@@ -154,7 +154,7 @@ A ressalva que permanece é sobre o alcance da âncora. Ela determina a base e
 nada além: os 90 não empregados reais não cabem em N0 mais N1, que somam
 apenas 63 pessoas, então não existe de-para documentado no topo da pirâmide.
 Por isso a magnitude `r formatar_decimal(obj$contrato$medida, 3)` é
-propriedade do código, não medida da Peers, e a classificação é `induzida` e
+propriedade do código, não medida da organização, e a classificação é `induzida` e
 não `calibrada`.
 
 ## Achados do bloco

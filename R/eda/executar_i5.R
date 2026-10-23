@@ -202,7 +202,7 @@ executar_i5 <- function(dados, n_replicas = 20, semente = 1) {
     paste0(
       "Formação de time por afinidade de grafo não tem o que dizer sobre os ",
       "consultores isolados, e o fenômeno é real: 48 dos 285 ativos não ",
-      "aparecem em nenhuma linha de alocação no dado da Peers."
+      "aparecem em nenhuma linha de alocação no dado da organização."
     ),
     "fato real"
   )))

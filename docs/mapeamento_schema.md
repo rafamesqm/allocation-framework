@@ -14,9 +14,9 @@ aparece aqui (ver exclusão ética em `dicionario_de_dados.md`).
 
 ## Escopo consultado
 
-Catálogo principal: `databricks_comercial` (schemas `gold`, `silver`,
-`integracoes`, `integracoes_sb`, `default`), confirmado pelo usuário como o
-núcleo real dos dados de alocação. `databricks_alocacao` é protótipo segundo o
+Catálogo principal: o catálogo comercial, com suas camadas de dado,
+confirmado pelo usuário como o
+núcleo real dos dados de alocação. O catálogo de alocação é protótipo segundo o
 usuário e foi consultado só como fonte secundária, quando não havia
 equivalente em `comercial`. Além do Databricks, o espaço de skills tem uma
 fonte externa: planilhas de formulário respondidas pelos colaboradores, que
@@ -31,19 +31,19 @@ respondentes (verificado por e-mail, sem expor identidade aqui):
 
 | Arquivo | Respondentes | Foco | Sobreposição com os outros |
 |---|---|---|---|
-| `CLTV_BD_Digital_Skills.xlsx` | 102 (101 e-mails únicos, 1 duplicata) | Skills técnicas/digitais (~144 ferramentas: frontend, backend, mobile, dados, devops, testes, RPA, agilidade) | 19 em comum com o Formulário 2.1; 20 em comum com o de Tecnologia |
-| `Formulário de Skills 2.1(1-137).xlsx` | 137 (137 e-mails únicos) | Todas as práticas de consultoria (E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking): ferramentas, soft skills de consultoria, experiência setorial, certificações, preferência/restrição de alocação | 19 em comum com o Digital Skills; 0 em comum com o de Tecnologia |
-| `ACTAR Peers Group _ Levantamento Background Tecnologia(1-29).xlsx` | 29 (29 e-mails únicos) | Especialização em segurança/infra (cloud, rede, identidade, OT/IoT, privacidade, resiliência cibernética) | 20 em comum com o Digital Skills; 0 em comum com o Formulário 2.1 |
+| planilha do formulário de skills de Digital | 102 (101 e-mails únicos, 1 duplicata) | Skills técnicas/digitais (~144 ferramentas: frontend, backend, mobile, dados, devops, testes, RPA, agilidade) | 19 em comum com o formulário geral; 20 em comum com o de Tecnologia |
+| planilha do formulário geral de skills | 137 (137 e-mails únicos) | Todas as práticas de consultoria (E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking): ferramentas, soft skills de consultoria, experiência setorial, certificações, preferência/restrição de alocação | 19 em comum com o Digital Skills; 0 em comum com o de Tecnologia |
+| planilha do formulário de skills de Tecnologia | 29 (29 e-mails únicos) | Especialização em segurança/infra (cloud, rede, identidade, OT/IoT, privacidade, resiliência cibernética) | 20 em comum com o de Digital; 0 em comum com o formulário geral |
 
 União das três: **228 e-mails distintos**. Ainda não cruzado contra o total de
-consultores ativos (`vw_apdata_bi_entidades_globais`) para saber a cobertura
+consultores ativos (base corporativa de colaboradores) para saber a cobertura
 percentual real.
 
 **Achados de qualidade, relevantes para o gerador sintético e para o ETL:**
 
 * **Escalas de proficiência inconsistentes entre arquivos.** O Digital Skills
   usa Júnior/Pleno/Sênior/Especialista/N/A (escala de senioridade reaproveitada);
-  o Formulário 2.1 usa Iniciante/Básico/Médio/Avançado. Precisam de um de-para
+  o formulário geral usa Iniciante/Básico/Médio/Avançado. Precisam de um de-para
   de escala antes de virarem uma coluna só de `C`. **Resolvido, ver "Resolvido
   (2026-09-10)" adiante.**
 * **"N/A" é resposta válida, não é o mesmo que célula vazia.** No Digital
@@ -53,8 +53,8 @@ percentual real.
 * **Uma duplicata de respondente** no Digital Skills (102 linhas, 101
   e-mails). Precisa dedup (ex.: manter resposta mais recente por
   `Hora de conclusão`) antes de qualquer análise. **Resolvido, ver adiante.**
-* **Duas abas quase idênticas dentro de `CLTV_BD_Digital_Skills.xlsx`**
-  (`Sheet1` e `BD_DIG_Modificada`): 149 das 150 colunas são idênticas linha a
+* **Duas abas quase idênticas dentro da planilha do formulário de skills de Digital**
+  (a original e a revisada): 149 das 150 colunas são idênticas linha a
   linha; a diferença é uma coluna renomeada e o conteúdo de texto livre de
   certificações levemente editado. Não está claro qual é a canônica: confirmar
   com quem preparou antes de escolher uma para o ETL. **Resolvido, ver adiante.**
@@ -74,10 +74,10 @@ percentual real.
   o nome bruto não é limpo.
 * **Chave de ligação é e-mail/nome (PII direta), não `consultor_id`.** Vai
   precisar de uma tabela de-para nome/e-mail → `consultor_id` (via
-  `vw_apdata_bi_entidades_globais`) para juntar com o resto do modelo. Esse
+  base corporativa de colaboradores) para juntar com o resto do modelo. Esse
   cruzamento por PII merece cuidado de acesso equivalente ao dado real do
   Databricks, mesmo sendo arquivo local.
-* **Achado que não estava no dicionário**: o Formulário 2.1 tem duas colunas de
+* **Achado que não estava no dicionário**: o formulário geral tem duas colunas de
   texto livre, "possui alguma preferência em relação à alocação" e "possui
   alguma restrição em relação à alocação": candidatas diretas a
   `preferencias_dominio` (Camada 3).
@@ -99,21 +99,21 @@ aparece abaixo, só nomes de coluna, categorias de resposta e contagens.
 | Pleno | Digital Skills | Básico |
 | Sênior | Digital Skills | Médio |
 | Especialista | Digital Skills | Avançado |
-| Não possuo conhecimento | ACTAR | ausência de skill (zero, não é nível) |
-| Básico | ACTAR | Básico |
-| Intermed. | ACTAR | Médio |
-| Avançado | ACTAR | Avançado |
-| Iniciante / Básico / Médio / Avançado | Formulário 2.1 | idêntico, sem de-para |
+| Não possuo conhecimento | Tecnologia | ausência de skill (zero, não é nível) |
+| Básico | Tecnologia | Básico |
+| Intermed. | Tecnologia | Médio |
+| Avançado | Tecnologia | Avançado |
+| Iniciante / Básico / Médio / Avançado | formulário geral | idêntico, sem de-para |
 
-A escala do ACTAR não tinha sido documentada antes desta rodada de
+A escala do formulário de Tecnologia não tinha sido documentada antes desta rodada de
 limpeza (achado novo, nenhuma das reconciliações anteriores tinha olhado
 para ela). Ela não distingue "iniciante" de "não possuo": quem marca
-"Básico" no ACTAR pode corresponder tanto a Iniciante quanto a Básico no
+"Básico" no formulário de Tecnologia pode corresponder tanto a Iniciante quanto a Básico no
 gerador, assimetria que fica registrada como limitação, não resolvida por
 suposição.
 
 **Achado lateral, fora do escopo desta limpeza mas relevante para
-`experiencia_setorial[]`:** o Formulário 2.1 usa uma segunda escala,
+`experiencia_setorial[]`:** o formulário geral usa uma segunda escala,
 separada da de proficiência, para as perguntas de experiência setorial por
 prática: "Não tenho experiência" / "Tenho conhecimento sobre o tema mas
 não fiz projeto" / "1 a 3 projetos" / "Mais de 3 projetos" (85 colunas).
@@ -121,12 +121,12 @@ Dá para calibrar `intensidade` em `gerar_experiencia_setorial()` por essa
 escala ordinal, hoje é `runif(0,1)` sem calibração real. Trabalho de
 código futuro.
 
-**Aba canônica de `CLTV_BD_Digital_Skills.xlsx`: `BD_DIG_Modificada`.** As
+**Aba canônica da planilha do formulário de skills de Digital: a revisada.** As
 duas abas têm as mesmas 102 linhas e 149 das 150 colunas idênticas célula
 a célula. A única diferença de conteúdo é o texto livre de certificações
 (3 células), e a única diferença de esquema é uma coluna renomeada
-("Você possui algum certificado?" em `Sheet1`, "Certificados" em
-`BD_DIG_Modificada`). O próprio nome da aba e o conteúdo revisado indicam
+("Você possui algum certificado?" na original, "Certificados" na
+revisada). O próprio nome da aba e o conteúdo revisado indicam
 que é a versão corrigida.
 
 **Taxonomia de skills: limpeza confirmada já correta no gerador.** As 4
@@ -140,7 +140,7 @@ Plataformas/Sistemas Corporativos 9, RPA 6, Tecnologia de dados 19, Testes
 mudança de código necessária aqui, só a confirmação.
 
 **Dedup do respondente duplicado, regra decidida.** O e-mail duplicado em
-`Sheet1`/`BD_DIG_Modificada` (102 linhas, 101 e-mails distintos) tem duas
+nas duas abas (102 linhas, 101 e-mails distintos) tem duas
 respostas cerca de 18 dias de distância uma da outra por `Hora de
 conclusão`. Regra: manter a mais recente, descartar a mais antiga. A linha
 exata fica só no ambiente local, não é necessária para registrar a regra
@@ -158,28 +158,28 @@ e não deve ser citada aqui para não expor a identidade do respondente.
 * **Sem fonte**: nenhuma pista encontrada nesta rodada. Mantém o rótulo
   aspiracional do dicionário.
 * **Confirmado ausente**: o usuário confirmou que o dado não existe como
-  processo de negócio na Peers, não é lacuna de busca. Mais forte que "Sem
+  processo de negócio na organização, não é lacuna de busca. Mais forte que "Sem
   fonte": aqui não é "não achamos ainda", é "não tem o que achar".
 
 ## Tabelas legado ou fora de uso, não usar
 
-Nomes com sufixo `_teste` encontrados em `databricks_comercial`, todos sem
+Nomes com sufixo de teste encontrados no catálogo comercial, todos sem
 atualização recente (a mais nova é de dezembro de 2025, a mais antiga de junho
 de 2025, contra tabelas vigentes atualizadas no dia do levantamento):
 
 | Tabela | Última atualização |
 |--------|---------------------|
-| `gold.apdata_entidades_globais_teste` | 2025-12-02 |
-| `gold.entidades_globais_teste` | 2025-12-05 |
-| `gold.vw_bi_entidades_globais_teste` | 2025-12-15 |
-| `gold.cadastro_faturas_onfly_teste` | 2025-06-04 |
-| `silver.vw_bi_teste_comecial_digital` | 2026-03-13 |
+| primeira tabela de teste do cadastro de pessoas | 2025-12-02 |
+| segunda tabela de teste do cadastro de pessoas | 2025-12-05 |
+| versão de teste da base corporativa de colaboradores | 2025-12-15 |
+| tabela de teste de faturas | 2025-06-04 |
+| view de teste comercial | 2026-03-13 |
 
-A versão vigente do cadastro de pessoas é `gold.vw_apdata_bi_entidades_globais`
+A versão vigente do cadastro de pessoas é a base corporativa de colaboradores
 (view atualizada no dia do levantamento, aponta para
-`gold.apdata_bi_entidades_globais`, não para a tabela `_teste`).
+a tabela vigente do cadastro, não para as de teste).
 
-**Achado à parte, não sobre legado:** a view `gold.vw_apdata_peers_experience`
+**Achado à parte, não sobre legado:** a base de experiência profissional
 tem a definição quebrada: o `SELECT` retorna literais de texto fixos (nomes
 de coluna como string), não as colunas reais da tabela de origem. Aparece como
 "atualizada hoje" nos metadados, mas isso reflete só o redeploy da definição,
@@ -189,78 +189,68 @@ coloque o nome da tabela de origem aqui", sinal de que essa camada de views
 está em manutenção ativa e pode mudar. Vale reconfirmar antes de travar
 qualquer mapeamento na camada de acesso.
 
-**Correção sobre `ft_peers_mind` (databricks_alocacao.silver):** cotada
-inicialmente nesta reconciliação como candidata a `skills_hard[]`/`soft_skills[]`
-pelo formato (entidade-atributo-valor, `des_atributo`/`des_valor`/`num_peso`).
-O usuário corrigiu: não é registro de skills, é registro de
-saúde mental dos colaboradores durante a execução de projetos. Dado sensível.
-Removida como candidata a qualquer campo do dicionário. Pode ser dado
-relevante para alguma análise futura, mas não decidido: não faz parte do
-espaço de skills nem de nenhum objeto algébrico deste documento por ora, e
-qualquer uso exigiria consideração ética própria antes de virar insumo.
-
 ## Camada 1 · Atributos
 
 ### Consultor → linhas de `C`
 
 | Campo | O que o modelo espera | Situação | Formato real | Origem real |
 |---|---|---|---|---|
-| `nivel_senioridade` | categórico ordinal, custo · restrição de mix | Confirmado | STRING (`Cargo`, `Sigla`, `Nivel`, `Vertical`, `Modelo`) | `databricks_comercial.gold.vw_apdata_cargos`, `silver.vw_bi_cargos` |
-| `tempo_casa` · `tempo_nivel` | numérico, objetivo de desenvolvimento | Confirmado, aproximado | DATE por nível (`Data de admissão`, `Intern`, `Trainee`, `Analyst` … `Director`) | `databricks_comercial.gold.vw_apdata_bi_entidades_globais` |
-| `tipo_contrato` | categórico, disponibilidade · custo | Suposto | STRING (`Modelo`) | `vw_apdata_cargos` / `vw_apdata_bi_entidades_globais`, campo `Modelo`; semântica não confirmada |
-| `localizacao` | categórico, restrição geográfica | Confirmado | STRING (`Cidade`, `Estado`, `Base`) | `vw_apdata_bi_entidades_globais` |
+| `nivel_senioridade` | categórico ordinal, custo · restrição de mix | Confirmado | STRING (`Cargo`, `Sigla`, `Nivel`, `Vertical`, `Modelo`) | base de cargos |
+| `tempo_casa` · `tempo_nivel` | numérico, objetivo de desenvolvimento | Confirmado, aproximado | DATE por nível (`Data de admissão`, `Intern`, `Trainee`, `Analyst` … `Director`) | base corporativa de colaboradores |
+| `tipo_contrato` | categórico, disponibilidade · custo | Suposto | STRING (`Modelo`) | base de cargos / base corporativa de colaboradores, campo `Modelo`; semântica não confirmada |
+| `localizacao` | categórico, restrição geográfica | Confirmado | STRING (`Cidade`, `Estado`, `Base`) | base corporativa de colaboradores |
 | `fuso` | categórico, restrição geográfica | Suposto | sem campo próprio | derivável de `Estado`, não fonte direta |
-| `disposicao_viagem` | booleano / escala, restrição dura | Confirmado, aproximado | STRING (resposta de formulário livre, não booleano estruturado) | `vw_apdata_bi_entidades_globais` (`Possui interesse em projetos com viagens nacionais?`, `...internacionais?`, `Possui visto ativo?`) |
-| `skills_hard[]` | vetor skill → proficiência, fit técnico · cold start | Confirmado, aproximado | STRING (escalas de proficiência diferentes por arquivo, ver ressalvas) | `data/raw/skills/CLTV_BD_Digital_Skills.xlsx`, `ACTAR ... Background Tecnologia.xlsx` (fonte externa, fora do Databricks) |
+| `disposicao_viagem` | booleano / escala, restrição dura | Confirmado, aproximado | STRING (resposta de formulário livre, não booleano estruturado) | base corporativa de colaboradores (`Possui interesse em projetos com viagens nacionais?`, `...internacionais?`, `Possui visto ativo?`) |
+| `skills_hard[]` | vetor skill → proficiência, fit técnico · cold start | Confirmado, aproximado | STRING (escalas de proficiência diferentes por arquivo, ver ressalvas) | planilha do formulário de skills de Digital, planilha do formulário de skills de Tecnologia (fonte externa, fora do Databricks) |
 | `certificacoes[]` | lista categórica, restrição dura | Confirmado | STRING (texto livre de certificação) | `data/raw/skills/` (todos os três arquivos têm pergunta de certificação) |
-| `idiomas[]` | lista categórica, restrição dura | Confirmado, aproximado | STRING (resposta de formulário: inglês, espanhol, outras línguas) | `vw_apdata_bi_entidades_globais` |
-| `experiencia_setorial[]` | vetor setor → intensidade, fit de domínio | Confirmado | STRING (texto livre, "em quais segmentos já executou projeto", por prática) | `data/raw/skills/Formulário de Skills 2.1.xlsx` |
-| `expertise_funcional` | categórico / vetor, fit complementar | Confirmado | STRING (formulário organizado por prática: E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking) | `data/raw/skills/Formulário de Skills 2.1.xlsx`; complementa `vw_apdata_bi_entidades_globais` (Vertical, Frente) |
-| `soft_skills[]` | vetor do formulário de skills, fit qualitativo | Confirmado | STRING (bloco de habilidades de consultoria: estruturação de problema, storylining, design thinking, gestão da mudança...) | `data/raw/skills/Formulário de Skills 2.1.xlsx` |
+| `idiomas[]` | lista categórica, restrição dura | Confirmado, aproximado | STRING (resposta de formulário: inglês, espanhol, outras línguas) | base corporativa de colaboradores |
+| `experiencia_setorial[]` | vetor setor → intensidade, fit de domínio | Confirmado | STRING (texto livre, "em quais segmentos já executou projeto", por prática) | planilha do formulário geral de skills |
+| `expertise_funcional` | categórico / vetor, fit complementar | Confirmado | STRING (formulário organizado por prática: E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking) | planilha do formulário geral de skills; complementa base corporativa de colaboradores (Vertical, Frente) |
+| `soft_skills[]` | vetor do formulário de skills, fit qualitativo | Confirmado | STRING (bloco de habilidades de consultoria: estruturação de problema, storylining, design thinking, gestão da mudança...) | planilha do formulário geral de skills |
 | `recencia_skill[]` | vetor skill → data, decaimento | Parcial | POSIXct (`Hora de conclusão` do formulário) | derivável da data de resposta de cada planilha, não é recência por skill individual |
 
 ### Projeto / Demanda → linhas de `P`
 
 | Campo | O que o modelo espera | Situação | Formato real | Origem real |
 |---|---|---|---|---|
-| `setor` · `tipo_projeto` | categórico, espaço de busca de domínio | Confirmado, join validado | STRING (`Segmento`, `Offering`, `Linha de Serviço` de `vw_crm_oportunidades_latest`; `situacao`/`etapa_modalidade` de `vw_bi_tbl_projetos`; `Indústria` de `vw_gtac_com_clientes` descartada, 99,9% nula) | join `vw_bi_tbl_projetos.id_crm` = `vw_crm_oportunidades_latest.\`Negócio Código\`` testado e validado (~98% de cobertura) |
-| `data_inicio` · `data_fim` · `duracao` | data / numérico, janela de capacidade | Confirmado | DATE | `silver.vw_gtac_cltv_alocacao` (`Data de início`, `Data de fim`) |
+| `setor` · `tipo_projeto` | categórico, espaço de busca de domínio | Confirmado, join validado | STRING (`Segmento`, `Offering`, `Linha de Serviço` da base de oportunidades do CRM; `situacao`/`etapa_modalidade` da base de projetos; `Indústria` da base de clientes descartada, 99,9% nula) | join chave de CRM da base de projetos = `base de oportunidades do CRM.\`Negócio Código\`` testado e validado (~98% de cobertura) |
+| `data_inicio` · `data_fim` · `duracao` | data / numérico, janela de capacidade | Confirmado | DATE | fonte de alocações (`Data de início`, `Data de fim`) |
 | `local` · `on_site` | categórico, restrição geográfica | Suposto | - | nenhum candidato identificado nesta rodada |
 | `modelo_precificacao` | categórico, formação da margem | Suposto | - | nenhum candidato identificado nesta rodada |
 | `skills_requeridas[]` | vetor skill → mínimo/peso, alvo do fit técnico | Confirmado ausente | - | usuário confirmou: não existe processo de negócio que capture requisito de skill por demanda, não é lacuna de coleta |
 | `mix_papeis` | estrutura nível → qtd., restrição de composição | Suposto | - | nenhum candidato identificado nesta rodada |
-| `valor_contrato` · `custo_orcado` | numérico (R$), margem (objetivo) | Confirmado | DOUBLE / STRING (`vlr_valor_reais`) | `silver.vw_bi_tbl_projetos`, tabelas `gold.actarnet_*` |
-| `esforco_estimado` | numérico (FTE/horas), necessidade de capacidade | Confirmado | DOUBLE (`Horas Semana`, `horas_mes`), INT (`Duração`) | pré-venda: `silver.vw_crm_pipelines_latest`; pós-venda: `silver.vw_bi_tbl_pps_alocacao_pessoas` |
+| `valor_contrato` · `custo_orcado` | numérico (R$), margem (objetivo) | Confirmado | DOUBLE / STRING (valor em reais) | base de projetos, tabelas do sistema de gestão de projetos |
+| `esforco_estimado` | numérico (FTE/horas), necessidade de capacidade | Confirmado | DOUBLE (`Horas Semana`, `horas_mes`), INT (`Duração`) | pré-venda: base de pipeline do CRM; pós-venda: fonte de alocação de pessoas por projeto |
 | `complexidade` · `importancia_estrategica` | escala ordinal, peso do objetivo | Confirmado ausente | - | usuário confirmou: não existe |
 
 ### Espaço de Skills → `S`
 
 | Campo | O que o modelo espera | Situação | Formato real | Origem real |
 |---|---|---|---|---|
-| `taxonomia_skill` | ontologia hierárquica | Confirmado, aproximado | STRING (144 skills em 14 categorias) | aba `De-para` de `CLTV_BD_Digital_Skills.xlsx`; precisa limpar 4 categorias que são metadado, não skill |
+| `taxonomia_skill` | ontologia hierárquica | Confirmado, aproximado | STRING (144 skills em 14 categorias) | aba `De-para` da planilha do formulário de skills de Digital; precisa limpar 4 categorias que são metadado, não skill |
 | `skill_adjacencia` | matriz skill × skill | Confirmado ausente | - | usuário confirmou: não existe |
 
 ## Camada 2 · Interações → células de `R`
 
 | Campo | O que o modelo espera | Situação | Formato real | Origem real |
 |---|---|---|---|---|
-| `(consultor_id, projeto_id)` | chave de relação, célula da matriz `R` | Confirmado | STRING | `silver.vw_gtac_cltv_alocacao` (`Cód. Colaborador`, `Código`), `silver.vw_bi_tbl_pps_alocacao_pessoas` (`id_pp`, `id_alocacao`) |
-| `papel` · `pct_alocacao` · `horas` | categórico + numérico, peso da interação | Confirmado | DOUBLE (`Percentual de alocação do N1`, `horas_mes`), STRING (`nivel`, `sigla_cargo`) | `vw_gtac_cltv_alocacao`, `vw_bi_tbl_pps_alocacao_pessoas` |
+| `(consultor_id, projeto_id)` | chave de relação, célula da matriz `R` | Confirmado | STRING | fonte de alocações (`Cód. Colaborador`, `Código`), fonte de alocação de pessoas por projeto (chave de projeto e de alocação) |
+| `papel` · `pct_alocacao` · `horas` | categórico + numérico, peso da interação | Confirmado | DOUBLE (`Percentual de alocação do N1`, `horas_mes`), STRING (`nivel`, `sigla_cargo`) | fonte de alocações, fonte de alocação de pessoas por projeto |
 | avaliação de desempenho | fonte não disponibilizada pela organização; o modelo não a considera | Não disponibilizada | - | - |
-| `margem_atribuida` | numérico (R$/%), ponderação econômica | Confirmado, granularidade diferente da esperada | DOUBLE (`peers_total_vlr`, `actar_receita_vlr` etc.) | `silver.vw_bi_custo_frente_mensal`; usuário confirmou que frente/mês é a única granularidade que existe, não há margem por alocação individual em lugar nenhum |
+| `margem_atribuida` | numérico (R$/%), ponderação econômica | Confirmado, granularidade diferente da esperada | DOUBLE (colunas de receita própria, da coligada e outras) | fonte de receita mensal por projeto; usuário confirmou que frente/mês é a única granularidade que existe, não há margem por alocação individual em lugar nenhum |
 | `flag_restaffing` · `solicitacao_nominal` | booleano, feedback implícito | Confirmado ausente | - | usuário confirmou: não é documentado |
 
 ## Camada 3 · Operação
 
 | Campo | O que o modelo espera | Situação | Formato real | Origem real |
 |---|---|---|---|---|
-| `custo_carregado` | numérico (R$/h), margem + restrição orçamentária | Confirmado | DOUBLE (`Taxa`) | `silver.vw_gtac_fin_taxa_hora` (por `Sigla cargo`) |
-| `calendario_alocacao` · `pct_ocupacao` | série temporal, restrição de capacidade | Confirmado | DOUBLE / DATE (`data_mes`, `horas_mes`) | `vw_gtac_cltv_alocacao`, `vw_bi_tbl_pps_alocacao_pessoas` |
-| `ferias` · `ausencias` · `capacidade_periodo` | data / numérico, limite de alocação | Confirmado | DATE, INT, STRING | `gold.vw_apdata_ferias_resumo`, `vw_apdata_gestao_ferias`, `vw_apdata_relacao_ferias_programadas`, `vw_apdata_afastamento`, `vw_apdata_relacao_colaboradores_em_ferias` |
+| `custo_carregado` | numérico (R$/h), margem + restrição orçamentária | Confirmado | DOUBLE (`Taxa`) | tabela de taxa por hora (por `Sigla cargo`) |
+| `calendario_alocacao` · `pct_ocupacao` | série temporal, restrição de capacidade | Confirmado | DOUBLE / DATE (`data_mes`, `horas_mes`) | fonte de alocações, fonte de alocação de pessoas por projeto |
+| `ferias` · `ausencias` · `capacidade_periodo` | data / numérico, limite de alocação | Confirmado | DATE, INT, STRING | base de resumo de férias, base de gestão de férias, base de férias programadas, base de afastamentos, base de colaboradores em férias |
 | `conflito_interesse` | matriz pessoa × cliente, restrição dura | Confirmado ausente | - | usuário confirmou: não existe |
-| `preferencias_dominio` | vetor / ranking, objetivo de satisfação | Confirmado, aproximado | STRING (texto livre, não estruturado) | `data/raw/skills/Formulário de Skills 2.1.xlsx` ("possui alguma preferência/restrição em relação à alocação") |
+| `preferencias_dominio` | vetor / ranking, objetivo de satisfação | Confirmado, aproximado | STRING (texto livre, não estruturado) | planilha do formulário geral de skills ("possui alguma preferência/restrição em relação à alocação") |
 | `objetivos_desenvolvimento` | texto / categórico, objetivo de crescimento | Confirmado ausente | - | usuário confirmou: não existe |
-| `pipeline_demandas` | lista temporal, otimização dinâmica | Confirmado | STRING / DOUBLE / DATE (variados) | `silver.vw_crm_oportunidades_latest`, `silver.vw_crm_pipelines_latest` |
+| `pipeline_demandas` | lista temporal, otimização dinâmica | Confirmado | STRING / DOUBLE / DATE (variados) | base de oportunidades do CRM, base de pipeline do CRM |
 
 ## Camada 4 · Relacional / Time
 
@@ -281,13 +271,13 @@ qualquer uso exigiria consideração ética própria antes de virar insumo.
 * **Suposto, não confirmado:** `tipo_contrato`, `local`/`on_site`,
   `modelo_precificacao`, `mix_papeis`.
 * **Confirmado ausente pelo usuário (não é lacuna de busca, é ausência real
-  de processo ou registro na Peers):** `skills_requeridas[]`,
+  de processo ou registro na organização):** `skills_requeridas[]`,
   `complexidade` · `importancia_estrategica`, `conflito_interesse`,
   `objetivos_desenvolvimento`, `skill_adjacencia`,
   `flag_restaffing`/`solicitacao_nominal`.
 * **`skills_requeridas[]` ausente: decisão tomada (2026-07-31).**
   `skills_requeridas[]` não é lacuna de coleta, é ausência de processo: a
-  Peers não formaliza o requisito técnico de uma demanda no momento da venda
+  organização não formaliza o requisito técnico de uma demanda no momento da venda
   ou alocação. Isso desafiava a arquitetura conceitual que assume `P`
   (projeto × requisito, no mesmo espaço de skills de `C`) como insumo do
   content-based. Decisão: `P` será estimado a partir de
@@ -298,7 +288,7 @@ qualquer uso exigiria consideração ética própria antes de virar insumo.
   wave 3 decidir.
 * **`margem_atribuida`: granularidade confirmada, não é limitação de busca
   (2026-08-01).** Usuário confirmou que frente/mês é a única granularidade de
-  margem que existe na Peers, não há valor por alocação individual em lugar
+  margem que existe na organização, não há valor por alocação individual em lugar
   nenhum. Atribuir margem a uma pessoa dentro de um time exigiria rateio
   estimado (ex.: por `pct_alocacao`/`horas`), não captura real, no mesmo
   espírito da decisão de `skills_requeridas[]`. Isso pesa a favor do candidato
@@ -318,7 +308,7 @@ Números agregados puxados ao vivo via SQL warehouse, exclusivamente `COUNT`/
 `GROUP BY`/`MIN`/`AVG`/`MAX`, nunca linha de dado. Servem para parametrizar o
 gerador sintético com distribuições realistas.
 
-**Headcount (`vw_apdata_bi_entidades_globais`):** 389 registros no total,
+**Headcount (base corporativa de colaboradores):** 389 registros no total,
 por status: EM ATIVIDADE NORMAL 285, DEMITIDO EM MESES ANTERIORES 75,
 GOZANDO FERIAS 15, DEMITIDO NO MES 4, AFASTADO SEM REMUNERACAO 4, GOZANDO
 RECESSO 2, AUXILIO-DOENCA 2, LICENCA-MATERNIDADE 2.
@@ -331,33 +321,33 @@ pirâmide estrita, o nível logo acima da base (N3) é o mais numeroso, maior
 até que a própria base (N4). Não simular como decrescente monotônico da base
 ao topo.
 
-**Projetos por situação (`vw_bi_tbl_projetos`):** Recusada/Cancelada 2799,
+**Projetos por situação (base de projetos):** Recusada/Cancelada 2799,
 Projeto (executando) 952, Proposta 209, Lead 127, Reunião Inicial 123,
 Ideia 92. Funil de vendas com atrição grande, relevante para `pipeline_demandas`.
 
-**Alocações (`vw_gtac_cltv_alocacao`):** 4999 linhas, 511 colaboradores
+**Alocações (fonte de alocações):** 4999 linhas, 511 colaboradores
 distintos (histórico completo, inclui desligados, por isso maior que os 285
 ativos), 1833 códigos de alocação distintos.
 
-**Custo carregado por cargo (`vw_gtac_fin_taxa_hora`, R$/h):** varia de
+**Custo carregado por cargo (tabela de taxa por hora, R$/h):** varia de
 ~85 (estagiário, sigla `SO_INT`) a ~2066 (diretoria sênior, `MD5`), escalando
 de forma monotônica e suave por nível. Tabela completa por sigla salva no
 histórico da sessão, não reproduzida aqui campo a campo; usar a faixa
 mín/média/máx por nível para amostrar `custo_carregado` no sintético.
 
-**Valor de contrato (`actarnet_alocacao_pessoas`, R$, n=3339):** mínimo 0,
+**Valor de contrato (fonte de alocação do sistema de gestão de projetos, R$, n=3339):** mínimo 0,
 média ~431.862, máximo ~38.816.467. Distribuição muito assimétrica à direita,
 não normal, não amostrar como normal no sintético.
 
-**Granularidade confirmada pelo usuário (2026-09-19): `valor_contrato` em
-`actarnet_alocacao_pessoas` é por projeto, não por alocação e pessoa.** O
+**Granularidade confirmada pelo usuário (2026-09-19): `valor_contrato` na
+fonte de alocação do sistema de gestão de projetos é por projeto, não por alocação e pessoa.** O
 bloco II.5 da EDA levantou a hipótese contrária, a partir do nome da tabela
 e do volume de linhas, ao encontrar margem estrutural implausível. A
 hipótese está descartada, e a implausibilidade continua a ser explicada.
-Ver a questão aberta sobre `vw_gtac_fin_taxa_hora` abaixo.
+Ver a questão aberta sobre tabela de taxa por hora abaixo.
 
-**Questão aberta (levantada pelo bloco II.5 da EDA, 2026-09-19): `Taxa` em
-`vw_gtac_fin_taxa_hora` é preço ou custo?** A Quinta rodada registrou a
+**Questão aberta (levantada pelo bloco II.5 da EDA, 2026-09-19): `Taxa` na
+tabela de taxa por hora é preço ou custo?** A Quinta rodada registrou a
 tabela como *rate card*, termo que designa tabela de preço. O dicionário e o
 gerador a tratam como `custo_carregado`, isto é, custo da pessoa para a
 empresa. As duas leituras não são compatíveis, e a EDA achou dois indícios
@@ -370,14 +360,14 @@ de que a coluna é preço:
   sênior, valores plausíveis como faturamento e não como salário mais
   encargos.
 
-Se a coluna for preço, a Peers não tem custo interno por pessoa em lugar
-nenhum além de `peers_custointerns_vlr` (frente/mês, 44,7% zerado), e o
+Se a coluna for preço, a organização não tem custo interno por pessoa em lugar
+nenhum além da coluna de receita de estagiários (frente/mês, 44,7% zerado), e o
 objetivo econômico da wave 4 fica sem base de dados defensável. O acesso ao
 ambiente está encerrado e a distinção não é derivável do que ficou
 registrado, então fica como questão aberta e não como achado.
 
 **Cold start e densidade (join de checagem, não validado a fundo):** 48 dos
-285 consultores ativos não aparecem em nenhuma linha de `vw_gtac_cltv_alocacao`
+285 consultores ativos não aparecem em nenhuma linha da fonte de alocações
 (~17%, primeira estimativa de cold start do lado consultor). 4598 pares
 distintos (colaborador, código de alocação) sobre 511 colaboradores × 1833
 códigos possíveis, densidade bruta ~0,5%, consistente com a esparsidade
@@ -411,11 +401,11 @@ precisa ser lida nessa direção.
 
 | Variável | Fonte | Desvio-padrão | P25 | P50 | P75 | Assimetria |
 |---|---|---|---|---|---|---|
-| Taxa/hora (`custo_carregado`) | `vw_gtac_fin_taxa_hora` | 453,50 | 286,58 | 485,70 | 944,62 | 0,93 (moderada, positiva) |
-| Valor de contrato, só positivos | `actarnet_alocacao_pessoas` | 1.771.644 | 34.814 | 108.300 | 375.054 | 12,68 (extrema, cauda muito pesada) |
-| Horas/mês por pessoa alocada (`horas_mes`; registrada antes como `esforco_estimado`, ver nota abaixo) | `vw_bi_tbl_pps_alocacao_pessoas` | 66,90 | 32 | 120 | 160 | -0,05 (quase simétrica) |
+| Taxa/hora (`custo_carregado`) | tabela de taxa por hora | 453,50 | 286,58 | 485,70 | 944,62 | 0,93 (moderada, positiva) |
+| Valor de contrato, só positivos | fonte de alocação do sistema de gestão de projetos | 1.771.644 | 34.814 | 108.300 | 375.054 | 12,68 (extrema, cauda muito pesada) |
+| Horas/mês por pessoa alocada (`horas_mes`; registrada antes como `esforco_estimado`, ver nota abaixo) | fonte de alocação de pessoas por projeto | 66,90 | 32 | 120 | 160 | -0,05 (quase simétrica) |
 
-Nota da wave 2.5: a linha de horas/mês foi registrada nesta rodada como
+Nota de correção: a linha de horas/mês foi registrada nesta rodada como
 `esforco_estimado` de projeto, e o gerador sorteou o esforço de projeto a
 partir dela. A fonte tem uma linha por pessoa alocada, então as âncoras são de
 `horas_mes` de consultor. O esforço de projeto não tem âncora real e passou a
@@ -448,12 +438,12 @@ saíram idênticos aos já registrados acima.** Schema das 6 tabelas usadas
 anterior; o que muda nesta rodada é a validação dos dois joins pendentes.
 
 **Join `ID` (entidades) = `Cód. Colaborador` (alocação): fraco, usar com
-ressalva.** *Superado pela consulta Q4, mais abaixo: a chave é a mesma, e a
-fonte `gold.apdata_entidades_globais` eleva a cobertura para cerca de 98%. O
-registro abaixo fica como estava na rodada.* Cobertura real: dos 511 colaboradores distintos que aparecem em
-`vw_gtac_cltv_alocacao`, só 327 (64%) têm `ID` correspondente na tabela de
-entidades atual. Testei duas chaves alternativas (`cod_contratado_apdata`,
-`cod_id_datalake`, ambas também presentes em entidades): as duas deram 0% de
+ressalva.** *Superado pela consulta de confirmação da chave, mais abaixo: a chave é a mesma, e a
+versão completa da base corporativa de colaboradores eleva a cobertura para cerca de 98%. O
+registro abaixo fica como estava na rodada.* Cobertura real: dos 511 colaboradores distintos que aparecem na
+fonte de alocações, só 327 (64%) têm `ID` correspondente na tabela de
+entidades atual. Testei duas chaves alternativas (a de contratado e a
+de data lake, ambas também presentes em entidades): as duas deram 0% de
 match, claramente são espaços de chave diferentes, não é isso. `ID` continua
 sendo a melhor chave disponível, mas com 36% dos colaboradores históricos de
 alocação sem correspondência (provavelmente gente desligada há mais tempo,
@@ -464,8 +454,8 @@ enviesadas** (alguém pode parecer "sem alocação" só porque o `ID` dele não
 bate, não porque nunca foi alocado). Tratar como estimativa aproximada, não
 como número final para a EDA.
 
-**Join `id_crm` (`vw_bi_tbl_projetos`) = `Negócio Código`
-(`vw_crm_oportunidades_latest`): forte, pode usar.** Cobertura de `id_crm`
+**Join da chave de CRM (base de projetos) = `Negócio Código`
+(base de oportunidades do CRM): forte, pode usar.** Cobertura da chave de CRM
 nos 952 projetos em execução: 100% (952 de 952 preenchidos). Join contra o
 CRM: ~98% de correspondência (939 de 960; o denominador de 960 em vez de 952
 sugere que `Negócio Código` não é estritamente único no CRM, algum
@@ -474,10 +464,10 @@ suficiente para confiar). **`Offering` e `Linha de Serviço` podem ser usados
 como proxy de `P` para a maioria dos projetos executados**, como já estava
 decidido.
 
-**Achado novo, não esperado: `Indústria` em `vw_gtac_com_clientes` está
+**Achado novo, não esperado: `Indústria` na base de clientes está
 praticamente vazia.** De 1999 registros, 1997 são `NULL`, só 2 preenchidos.
 Esse campo, que eu tinha citado como parte do proxy de `P`, não serve como
-está. **Substituto encontrado: `Segmento` em `vw_crm_oportunidades_latest`**,
+está. **Substituto encontrado: `Segmento` na base de oportunidades do CRM**,
 96,8% preenchido (4086 de 4220), 10 categorias reais:
 
 | Segmento | n |
@@ -497,15 +487,15 @@ E a distribuição de `Offering` (mesma tabela), 12 categorias reais, as duas
 maiores Experience & Efficiency (991) e Strategy and M&A (642), seguidas por
 Data Analytics & AI (530), Supply Chain (524), Tech Consulting (427), Finance
 (424), e mais 6 categorias menores. **Atualizar a decisão de proxy de `P`:
-usar `Segmento` (não `Indústria` de `vw_gtac_com_clientes`) e `Offering`.**
+usar `Segmento` (não `Indústria` da base de clientes) e `Offering`.**
 
 **Duração de projeto: estimativa de baixa confiança, não usar sem
 ressalva.** `AVG(DATEDIFF(dt_alteracao, dt_criacao))` para projetos em
 execução deu 177,6 dias (sd 189,2). `dt_alteracao` é um campo de auditoria
 ("data da última alteração do registro"), não necessariamente a data de fim
 do projeto. Esse número pode servir de teto grosseiro de duração, não como
-duração real calibrada. Não achamos um campo de "data de fim" claro em
-`vw_bi_tbl_projetos` nesta rodada.
+duração real calibrada. Não achamos um campo de "data de fim" claro na
+base de projetos nesta rodada.
 
 ### Quarta rodada (2026-09-01): correlações extras e investigação do join
 
@@ -514,8 +504,8 @@ duração real calibrada. Não achamos um campo de "data de fim" claro em
 * `pct_alocacao` (`Percentual de alocação do N1`) × `nivel_senioridade`:
   **+0,52** (moderada-forte), calculada sobre os 3957 pares onde o join
   `ID`=`Cód. Colaborador` bate (ver ressalva de cobertura acima).
-* `horas_mes` × `nivel_senioridade` (usando a coluna `nivel` própria de
-  `vw_bi_tbl_pps_alocacao_pessoas`, sem depender do join fraco): **-0,55**,
+* `horas_mes` × `nivel_senioridade` (usando a coluna `nivel` própria da
+  fonte de alocação de pessoas por projeto, sem depender do join fraco): **-0,55**,
   moderada-forte e **negativa**: quanto mais sênior, menos horas de execução
   por mês. Faz sentido de negócio (cargos mais seniores dedicam mais tempo a
   venda/gestão, menos a entrega faturável).
@@ -557,7 +547,7 @@ codificar.
 
 ### Quinta rodada (2026-09-02): tabela de taxa por cargo e custo/margem por frente-mês
 
-**Achado: `vw_gtac_fin_taxa_hora` é uma tabela de taxa (rate card), não uma
+**Achado: tabela de taxa por hora é uma tabela de taxa (rate card), não uma
 amostra de custo por pessoa.** O "desvio-padrão" de `Taxa` por `Sigla cargo`
 registrado na Segunda rodada media dispersão *histórica* (reajustes de
 tarifa ao longo do tempo, coluna `Início vigência`, a maioria das siglas com
@@ -596,20 +586,20 @@ cargo granular, mapear nível para uma sigla/taxa representativa é uma
 decisão de projeto (não uma leitura direta do dado), a documentar na
 função geradora.
 
-**Custo e receita por frente-mês (`vw_bi_custo_frente_mensal`, n=5000),
+**Custo e receita por frente-mês (fonte de receita mensal por projeto, n=5000),
 para o candidato (c) de margem:**
 
 | Campo | Fração zero | Média geral | Desvio-padrão geral | Assimetria | P25 dos positivos | P50 dos positivos | P75 dos positivos |
 |---|---|---|---|---|---|---|---|
-| `peers_total_vlr` (receita) | 15,9% (795/5000) | 192.076,84 | 202.058,84 | 1,85 | 46.105,50 | 136.901,46 | 268.683,84 |
-| `peers_custointerns_vlr` (custo interno) | 44,7% (2235/5000) | 14.315,61 | 17.980,01 | 1,75 (skew) | 16.000,00 | 21.000,00 | 26.250,00 |
-| `actar_receita_vlr` | 95,8% (4788/5000) | 716,35 | 4.919,21 | 7,67 | - | - | - |
+| coluna de receita própria (receita) | 15,9% (795/5000) | 192.076,84 | 202.058,84 | 1,85 | 46.105,50 | 136.901,46 | 268.683,84 |
+| coluna de receita de estagiários (custo interno) | 44,7% (2235/5000) | 14.315,61 | 17.980,01 | 1,75 (skew) | 16.000,00 | 21.000,00 | 26.250,00 |
+| coluna de receita da coligada | 95,8% (4788/5000) | 716,35 | 4.919,21 | 7,67 | - | - | - |
 
-`actar_receita_vlr` é quase sempre zero/nulo (só 4,2% dos registros têm
+A coluna de receita da coligada é quase sempre zero/nulo (só 4,2% dos registros têm
 valor), não é uma boa variável primária para compor margem: descartada como
 candidata a insumo direto do gerador, sem prejuízo de retomar se a EDA
-achar relevância nos poucos casos não nulos. `peers_total_vlr` e
-`peers_custointerns_vlr` têm formato *hurdle* semelhante ao de
+achar relevância nos poucos casos não nulos. coluna de receita própria e
+coluna de receita de estagiários têm formato *hurdle* semelhante ao de
 `valor_contrato` (massa em zero mais cauda assimétrica), calibráveis pelo
 mesmo mecanismo já implementado (`gerar_variavel_hurdle_lognormal()`, casamento de
 quantis).
@@ -640,7 +630,7 @@ de dado. Headcount reverificado, segue 285 ativos, dados estáveis. Aplicar
 estes números aos geradores é trabalho de código posterior, feito sobre
 número já registrado aqui.
 
-**`tipo_contrato` (campo `Modelo` de `vw_apdata_bi_entidades_globais`, 285
+**`tipo_contrato` (campo `Modelo` da base corporativa de colaboradores, 285
 ativos). Semântica do campo agora confirmada pela inspeção dos próprios
 valores, não é mais "não confirmada":**
 
@@ -658,7 +648,7 @@ na pirâmide: estagiário e nível de base são o mesmo grupo, o que sugere
 amarrar `tipo_contrato` a `nivel_senioridade` numa revisão futura.
 Substitui a suposição de 50/50 do gerador.
 
-**`idiomas[]` (respostas de formulário em `vw_apdata_bi_entidades_globais`,
+**`idiomas[]` (respostas de formulário na base corporativa de colaboradores,
 285 ativos, sem nulo):**
 
 | Nível | Inglês (n) | Espanhol (n) |
@@ -675,7 +665,7 @@ universal como o gerador já assume. Espanhol: 79,6% têm algum nível, mas
 suposição atual de 0,3. Recalibração: presença de espanhol em algum nível
 sobe de 0,3 para cerca de 0,8, com a massa concentrada em básico.
 
-**Duração real de alocação e de projeto (`vw_gtac_cltv_alocacao`, campos
+**Duração real de alocação e de projeto (fonte de alocações, campos
 `Data de início` e `Data de fim`, sem nulo):**
 
 | Métrica | Alocação individual (n=4999) | Projeto, span das alocações (n=1834) |
@@ -693,7 +683,7 @@ log-normal por casamento de quantis (mediana 18, P75 60) do que com a
 Exponencial de média 177,6 que o gerador de `projetos` usa hoje.
 
 **Funil de vendas: as datas de estágio por oportunidade existem
-(`vw_crm_oportunidades_latest`).** A Quinta rodada registrou que não havia
+(base de oportunidades do CRM).** A Quinta rodada registrou que não havia
 timestamp de estágio. Há: `Data Lead`, `Data Reunião`, `Data Proposta`,
 `Data Projeto`, `Data Rec/Can`. Censo de 4233 oportunidades:
 
@@ -713,7 +703,7 @@ assimétricas). Isso habilita um funil de coorte sequencial real para
 Quinta rodada tinha registrado como única opção. A revisão do gerador é
 trabalho de código posterior.
 
-**Mix de senioridade nas alocações (`vw_bi_tbl_pps_alocacao_pessoas`).** O
+**Mix de senioridade nas alocações (fonte de alocação de pessoas por projeto).** O
 campo `nivel` desta view usa agrupamento grosso (N3 e N4 juntos 10457, N2
 7397, N1 6468, MDs 6452) e tem valores de texto livre sujos misturados,
 não serve para `mix_papeis` fino. O campo `sigla_cargo` (as 44 siglas da
@@ -725,15 +715,15 @@ composição de nível dentro do time segue sem fonte limpa.
 
 **`modelo_precificacao` e `local` / `on_site`: confirmados sem fonte.**
 Varridas as tabelas de projeto e CRM. Para precificação, o único candidato
-próximo é `Negócio Tipo` (`vw_crm_oportunidades_latest`), que é origem do
+próximo é `Negócio Tipo` (base de oportunidades do CRM), que é origem do
 negócio (Selling 3053, UpSelling 1180), não modelo de cobrança.
-`etapa_modalidade` de `vw_bi_tbl_projetos` é 91% vazia. Nenhuma coluna de
+`etapa_modalidade` da base de projetos é 91% vazia. Nenhuma coluna de
 `local` / `on_site` / presencial / remoto em nenhuma das quatro tabelas.
-`faturamento_internacional` de `vw_bi_tbl_projetos` está preenchido em
+`faturamento_internacional` da base de projetos está preenchido em
 2016 de 4799 registros, e desses 99,7% são domésticos. Mantêm o rótulo
 Suposto do dicionário, agora com a busca registrada como feita.
 
-**`esforco_estimado` pré-venda (`vw_crm_pipelines_latest`, n=1845):**
+**`esforco_estimado` pré-venda (base de pipeline do CRM, n=1845):**
 `Horas Semana` tem mediana e P75 ambos exatamente 40, um valor default que
 os usuários não alteram, não informativo. `Duração` (em semanas) tem
 mediana 12, P75 19, assimetria 1,49. Cross-check secundário da duração,
@@ -747,7 +737,7 @@ ambiente: os e-mails das planilhas foram normalizados (minúsculo, sem
 espaço) e transformados em SHA-256 localmente, e só a contagem de hashes
 coincidentes saiu do Databricks, nunca um e-mail. Resultado: **138 dos 285
 ativos (48,4%) têm ao menos uma resposta de skills**, todos batendo contra
-`Email Peers` (corporativo), nenhum contra `Email Pessoal`. Do outro lado,
+o e-mail corporativo, nenhum contra o e-mail pessoal. Do outro lado,
 138 dos 229 respondentes distintos (60,3%) correspondem a um ativo atual,
 o resto provavelmente já não está na empresa ou tem e-mail divergente
 entre as duas fontes. As planilhas não têm data de resposta centralizada
@@ -763,19 +753,19 @@ são declarações do dono do dado sobre semântica e processo, e é isso que
 as torna úteis, porque semântica não é derivável de agregado. Cada item
 abaixo diz o que muda no projeto.
 
-**Cobertura do Formulário de Skills 2.1 isolado: pode assumir 48,4%.**
+**Cobertura do formulário geral de skills isolado: pode assumir 48,4%.**
 Confirma a escolha que `sortear_respondentes_formulario()` já fazia. Deixa
 de ser teto conservador adotado por falta de número e passa a ser
 aproximação sancionada pelo dono do dado.
 
 **Os três formulários tiveram públicos diferentes, e isso contraria o
-gerador.** Um foi geral, um só para ACTAR e um só para pessoas de Digital.
+gerador.** Um foi geral, um só para a empresa coligada e um só para pessoas de Digital.
 O gerador hoje usa **um único** conjunto de respondentes compartilhado por
 todos os sinais de formulário, o que o bloco II.3 adotou justamente para
 corrigir o defeito oposto (cobertura sorteada de forma independente por
 sinal). A verdade está no meio: os sinais do 2.1 (experiência setorial,
 expertise funcional, soft skills) compartilham um público, e `skills_hard`,
-que vem de Digital e ACTAR, tem **outro**, com sobreposição parcial (19 dos
+que vem de Digital e da coligada, tem **outro**, com sobreposição parcial (19 dos
 137 respondentes do 2.1 também responderam o Digital Skills, 0 responderam o
 de Tecnologia). **Fica como questão aberta** a cobertura de cada formulário
 entre os 285 ativos, sem a qual não dá para dimensionar os três públicos.
@@ -793,7 +783,7 @@ registrado em `predefinicoes.md` fica fechado.
 **Candidatos cogitados e preteridos não são registrados: confirmado.**
 Confirma a terceira linha de `verificar_amostra_de_exposicao_aleatoria()`,
 que o bloco II.4 tratava como leitura própria. A ausência de contrafactual
-é fato sobre a Peers, não suposição.
+é fato sobre a organização, não suposição.
 
 **"Frente" é termo sobrecarregado, e nenhum dos sentidos é "projeto".**
 São ao menos dois conceitos distintos, e a diferença importa:
@@ -809,7 +799,7 @@ Consequências. A simplificação de `gerar_margem_frente_mes()`, que colapsa
 frente em projeto, fica registrada como **provavelmente incorreta** e não só
 como falta de número: se frente interna é voluntária e desassociada de
 projeto, custo de frente e custo de projeto não são a mesma coisa. E a qual
-dos sentidos `vw_bi_custo_frente_mensal` se refere passa a ser questão
+dos sentidos fonte de receita mensal por projeto se refere passa a ser questão
 aberta, porque a resposta muda a interpretação da margem.
 
 **A afinidade entre atributo do consultor e offering do projeto é mecanismo
@@ -822,7 +812,7 @@ pelo dono do processo.
 
 ## Segunda consulta ao data owner, bases comerciais (2026-09-20)
 
-Rodada de consultas agregadas sobre `databricks_comercial`, feita a pedido
+Rodada de consultas agregadas sobre o catálogo comercial, feita a pedido
 depois que o bloco II.5 encontrou margem estrutural implausível. Traz
 **errata da consulta anterior**: três leituras daquela rodada estavam
 erradas e são corrigidas aqui. Nada identificável foi transcrito.
@@ -831,17 +821,17 @@ erradas e são corrigidas aqui. Nada identificável foi transcrito.
 
 | Antes | Agora | Prova |
 |---|---|---|
-| `vw_bi_custo_frente_mensal` seria custo mensal | É a **receita** do PP distribuída por mês e origem | Σ(`peers_total` + `subcontratados_total` + `actar_total`) / `vlr_receita_total` = **1,000 de p10 a p90** em 724 versões de PP |
+| fonte de receita mensal por projeto seria custo mensal | É a **receita** do projeto distribuída por mês e origem | soma das colunas de receita própria, de subcontratados e da coligada sobre a receita total = **1,000 de p10 a p90** em 724 versões de projeto |
 | Fator 1,65 seria conflito de escala | É **receita sobre despesa**, `1/(1 − 0,394)` | CRMs com uma versão dão 1,654 e com várias dão 1,629; dupla contagem daria 1,0 contra 2,0 |
-| Truncamento seria prefixo por ID | É **corte cronológico** por data de criação do PP | IDs têm buracos em toda lista, inclusive nas sem teto |
-| Actar e subcontratados seriam repasse de custo | São **componentes de receita** | Decorre da primeira linha |
+| Truncamento seria prefixo por ID | É **corte cronológico** por data de criação do projeto | IDs têm buracos em toda lista, inclusive nas sem teto |
+| Coligada e subcontratados seriam repasse de custo | São **componentes de receita** | Decorre da primeira linha |
 
 Uma razão que fica exatamente em 1,000 do décimo ao nonagésimo percentil é
 identidade contábil, não correlação. A leitura de receita está fechada.
 
-### Q1. `Taxa` é preço de venda (confirmado, e agora com prova direta)
+### `Taxa` é preço de venda (confirmado, e agora com prova direta)
 
-Além dos indícios já registrados, a rodada mediu que a receita mensal do PP
+Além dos indícios já registrados, a rodada mediu que a receita mensal do projeto
 é **0,87 vezes horas planejadas vezes `Taxa`**, com valor implícito por hora
 entre R$255 e R$426. A `Taxa` é o preço pelo qual a receita é apurada, não
 custo. O achado II.5.5 da EDA fica fechado.
@@ -849,10 +839,10 @@ custo. O achado II.5.5 da EDA fica fechado.
 O que o 0,87 representa, se desconto comercial ou outra convenção, não foi
 verificado.
 
-### Q2. Custo por cargo existe, e é **salário base por hora**
+### Custo por cargo existe, e é **salário base por hora**
 
-`silver.bi_tbl_pps_alocacao_custos`, grão sigla de cargo por ano, 26.000
-linhas, 1.137 PPs, 30 siglas, 2023 a 2027. Mediana de 2025 em R$/h:
+tabela de custo por cargo, grão sigla de cargo por ano, 26.000
+linhas, 1.137 projetos, 30 siglas, 2023 a 2027. Mediana de 2025 em R$/h:
 
 | Sigla | R$/h | Sigla | R$/h | Sigla | R$/h |
 |---|---|---|---|---|---|
@@ -878,100 +868,100 @@ ponto decimal (163,2975283 vira 1.632.975.283), afetando AN, CT, INT, MG,
 MD2 entre outras. Média simples fica inutilizável. Usar mediana ou filtrar
 `custo <= 3 * Taxa`.
 
-Custo por pessoa não existe no catálogo comercial. Ficaria em
-`databricks_payroll`, que não foi aberto e não é necessário: por cargo é a
+Custo por pessoa não existe no catálogo comercial. Ficaria no catálogo
+de folha de pagamento, que não foi aberto e não é necessário: por cargo é a
 granularidade que o modelo usa.
 
-### Q3. Zero em `peers_custointerns_vlr` é ausência estrutural de estagiário
+### Zero na coluna de receita de estagiários é ausência estrutural de estagiário
 
-44,7% de zeros e 0% de nulos, com `peers_total_vlr = peers_nf_vlr +
-peers_custointerns_vlr` valendo em 100% das linhas. Em 294 pares de PP e mês
+44,7% de zeros e 0% de nulos, com a receita própria igual à soma das receitas de nota fiscal e de
+estagiários valendo em 100% das linhas. Em 294 pares de projeto e mês
 cruzados com horas planejadas, 112 de 112 zeros não têm nenhuma hora de
 estagiário e nenhum zero aparece onde há hora de estagiário.
 
 Como o campo é receita, zero significa mês sem **receita** de estagiário.
-Persistência por PP, em 597 PPs com três ou mais meses ativos: 29% nunca,
+Persistência por projeto, em 597 projetos com três ou mais meses ativos: 29% nunca,
 47% sempre, 24% mista.
 
 **Isto derruba o achado II.5.3 da EDA**, que lia os 44,7% como incompletude
 de apontamento de custo e concluía que a margem por frente e mês era
 inutilizável. Não é incompletude, e não é custo.
 
-### Q4. `ID` e `Cód. Colaborador` são a mesma chave
+### `ID` e `Cód. Colaborador` são a mesma chave
 
-`ID` da view gold é `cod_id_funcionario`. Em `silver.bi_peers_entidades_globais`
+O `ID` da versão de referência é a chave de funcionário. Na versão intermediária da base corporativa de colaboradores
 casam 432 de 511 códigos, e nos casados o primeiro nome coincide em 100% e o
-nome completo em 98,1%. A view gold perde cerca de 100 códigos; usar
-`gold.apdata_entidades_globais` eleva a cobertura para cerca de 98%. Na base
-silver, 79 códigos, ou 310 linhas de alocação (6%), não casam, e só 9 códigos
+nome completo em 98,1%. A versão de referência perde cerca de 100 códigos; usar a
+versão completa da base corporativa de colaboradores eleva a cobertura para cerca de 98%. Na versão
+intermediária, 79 códigos, ou 310 linhas de alocação (6%), não casam, e só 9 códigos
 não casam em nenhuma tabela testada.
 
-Duas ressalvas. As chaves Starsoft não servem para este join, com 18% de
-coincidência, que são colisões. E a cadeia NetSuite faz o oposto:
-`get_funcionarios.custentity_bit_id_externo` casa com `cod_id_starsoft`, não
-com `cod_id_funcionario`.
+Duas ressalvas. As chaves do sistema contábil não servem para este join,
+com 18% de coincidência, que são colisões. E a cadeia do ERP faz o oposto: o
+identificador externo do cadastro de funcionários do ERP casa com a chave do
+sistema contábil, não com a chave de funcionário.
 
 Fecha a ressalva do bloco II.2, que registrava o join como suposto e nunca
 confirmado.
 
-### Q5. "Frente" em `vw_bi_custo_frente_mensal` é nome enganoso
+### "Frente" na fonte de receita mensal por projeto é nome enganoso
 
-O grão é **PP por mês**, com `id_pp` igual a `pps.cod_pp`. Nenhuma coluna
-nomeia frente; o nome é herdado do SharePoint. `dsc_frente` só existe do
-lado das pessoas.
+O grão é **projeto por mês**, com a chave de projeto igual à da base comercial.
+Nenhuma coluna nomeia frente; o nome é herdado de um sistema anterior. A
+descrição de frente só existe do lado das pessoas.
 
 **Valida a simplificação do gerador** que colapsa frente em projeto, que a
 rodada anterior tinha levado a marcar como provavelmente incorreta. Está
 correta.
 
-### Q6. Teto de 5.000 linhas: da extração, com corte cronológico
+### Teto de 5.000 linhas: da extração, com corte cronológico
 
 O limite é da extração e não da tabela. Nas 199 versões do histórico Delta
 toda escrita foi sobrescrita com exatamente 5.000 linhas. Tabelas com teto
-aparente: `bi_custo_frente_mensal`, `bi_tbl_pp_despesas_mensais`,
-`bi_tbl_pps_comissao_distribuicao`, `bi_tbl_pps_comissao_parcelas` e
-`bi_tbl_projetos_infos` em 5.000; `bi_gtac_cltv_alocacao` em 4.999. Sem teto:
-`bi_tbl_pps_alocacao_pessoas` com 30.948, `bi_tbl_pps_alocacao_custos` com
-26.000 e `bi_tbl_pps_faturamento_parcelas` com 10.878.
+aparente: a fonte de receita mensal por projeto, as tabelas de despesa
+mensal, de distribuição e de parcelas de comissão e a de informações de
+projeto em 5.000; a fonte de alocações em 4.999. Sem teto: a fonte de
+alocação de pessoas por projeto com 30.948, a tabela de custo por cargo com
+26.000 e a de parcelas de faturamento com 10.878.
 
-O corte é por data de criação da versão do PP: a cobertura da view mensal cai
-a zero para PPs criados a partir do terceiro trimestre de 2025, e **nenhum
-dos 772 PPs de 2026 tem valor mensal**.
+O corte é por data de criação da versão do projeto: a cobertura da view mensal cai
+a zero para projetos criados a partir do terceiro trimestre de 2025, e **nenhum
+dos 772 projetos de 2026 tem valor mensal**.
 
-**O viés foi medido, e a conclusão é mista.** Nível de PP não é enviesado:
+**O viés foi medido, e a conclusão é mista.** Nível de projeto não é enviesado:
 receita mediana, semanas, margem líquida e desconto ficam estáveis entre
-coberto e não coberto, em 2024, 2025 e 2026, e a tabela `pps` é completa com
+coberto e não coberto, em 2024, 2025 e 2026, e a base comercial de projetos é completa com
 2.330 linhas. Mas o **mix de offerings muda**: DATA ANALYTICS & AI passa de
 cerca de 3% em 2024 para 10,5% em 2026. Tudo que depende da view mensal, isto
 é, forma da distribuição mensal, participação de estagiários, subcontratados
-e Actar, e meses por PP, representa PPs de 2023 a meados de 2025 e
+e coligada, e meses por projeto, representa projetos de 2023 a meados de 2025 e
 subrepresenta a offering que mais cresce.
 
-### Q7. O fator 1,65 é receita sobre despesa
+### O fator 1,65 é receita sobre despesa
 
 Não é dupla contagem nem diferença de escopo. A soma mensal é a própria
-receita do PP, e a razão contra a despesa sem imposto é `1/(1 − 0,394)`, com
+receita do projeto, e a razão contra a despesa sem imposto é `1/(1 − 0,394)`, com
 0,394 sendo a margem mediana antes de imposto.
 
-**Risco real e separado:** 193 de 227 CRMs têm mais de uma versão de PP na
+**Risco real e separado:** 193 de 227 CRMs têm mais de uma versão de projeto na
 view, somando 696 versões. Agregar por projeto sem escolher uma versão
 duplica receita. Não era a causa do 1,65, mas vale para qualquer agregação
-por `cod_crm`.
+pela chave de CRM.
 
-### Q8. Ponte entre frente e offering: existe como afinidade, é fraca em volume
+### Ponte entre frente e offering: existe como afinidade, é fraca em volume
 
 **Não há de-para documentado.** Há quatro taxonomias de offering em
-circulação, com grafias divergentes, e a do PP carrega rótulos legados como
-"DIGITAL" genérico e "IT STRATEGY". O Pilar Digital de
-`gold.comercial_digital_*` é o mais próximo de um de-para informal.
+circulação, com grafias divergentes, e a do projeto carrega rótulos legados como
+"DIGITAL" genérico e "IT STRATEGY". O pilar digital das
+tabelas comerciais de Digital é o mais próximo de um de-para informal.
 
-**A offering do PP não é a mesma do CRM.** Em 568 projetos casados, a
+**A offering do projeto não é a mesma do CRM.** Em 568 projetos casados, a
 igualdade exata de rótulo é de 24,1%, e sobe a 72,0% depois de normalizar
 seis grafias. O restante são reclassificações reais, não erro de escrita.
 
 **A ponte empírica, ponderada por horas:**
 
-| Frente da pessoa | Offering do PP com maior afinidade | Share das horas | Lift |
+| Frente da pessoa | Offering do projeto com maior afinidade | Share das horas | Lift |
 |---|---|---|---|
 | DATA ANALYTICS | DATA ANALYTICS & AI | 15,9% | 9,94 |
 | TECH CONSULTING | TECH CONSULTING | 42,9% | 4,50 |
@@ -979,8 +969,8 @@ seis grafias. O restante são reclassificações reais, não erro de escrita.
 | DATA SCIENCE | TECH CONSULTING | 16,6% | 1,75 |
 
 Nos dois sentidos, para Data Analytics e Data Science juntas: só **11,6%**
-das horas dessas frentes caem em PPs de DATA ANALYTICS & AI, e das horas de
-PPs dessa offering elas respondem por 21,2% do total.
+das horas dessas frentes caem em projetos de DATA ANALYTICS & AI, e das horas de
+projetos dessa offering elas respondem por 21,2% do total.
 
 **Leitura para o bloco II.6.** A tendência que o dono do dado de RH descreveu
 existe, e o lift confirma: quase dez vezes a base para Data Analytics. Mas a
@@ -995,18 +985,18 @@ linhas de alocação resolvem frente, 42% das horas não têm chave para o RH, e
 os grupos das frentes Digital têm de 5 a 9 pessoas. Frente é vazia para a
 vertical Consulting, e o valor "NENHUMA" cobre 200 pessoas e 47% das horas.
 
-### Calibração de nível de PP, com âncora real
+### Calibração de nível de projeto, com âncora real
 
-Da tabela `pps`, completa e sem teto, última versão por CRM, 556 projetos:
+Da base comercial de projetos, completa e sem teto, última versão por CRM, 556 projetos:
 
 | Grandeza | Calibração |
 |---|---|
 | Receita total | lognormal, mu 13,032, sigma 1,177; p10/50/90 = 88k/457k/1,81M |
 | Semanas | lognormal, mu 2,451, sigma 0,973; p10/50/90 = 3,6/11,6/43,6 |
-| Imposto | 7% em 90% dos PPs, 14% nos 10% restantes; média efetiva 8% da receita |
+| Imposto | 7% em 90% dos projetos, 14% nos 10% restantes; média efetiva 8% da receita |
 | Desconto | quantis 8/23/37 em pontos |
 | **Margem líquida** | p05 0,175 · p25 0,272 · **p50 0,320** · p75 0,345 · p95 0,401 |
-| Prejuízo | cerca de **2%** dos PPs |
+| Prejuízo | cerca de **2%** dos projetos |
 | Margem antes de imposto | p25/50/75 = 0,344/0,394/0,432 |
 | Por offering | mediana entre 0,28 e 0,34, sem diferença material; não segmentar |
 
@@ -1014,8 +1004,8 @@ Da tabela `pps`, completa e sem teto, última versão por CRM, 556 projetos:
 contra julgamento; agora há referência. E o contraste é duro: o sintético
 produz 32,8% de projetos com margem negativa contra 2% reais.
 
-Convenção de sinal a respeitar: em `pps`, `vlr_despesa_total`,
-`vlr_despesa_impostos` e `perc_impostos` são **negativos**, e descontos e
+Convenção de sinal a respeitar: na base comercial de projetos, as colunas de despesa
+total, de despesa com impostos e de percentual de impostos são **negativas**, e descontos e
 gestão vêm em pontos percentuais inteiros. A margem é
 `(receita + despesa) / receita` com despesa negativa.
 
@@ -1023,41 +1013,41 @@ gestão vêm em pontos percentuais inteiros. A margem é
 
 Sobre a view truncada, meses com receita positiva, n = 4.205: lognormal com
 mu 11,856 e sigma 1,377; p05/25/50/75/95 = 19k/90k/172k/304k/589k. A
-decomposição dá sigma entre PPs de cerca de 1,32 e intra PP de 0,39.
+decomposição dá sigma entre projetos de cerca de 1,32 e intra projeto de 0,39.
 
-Forma intra PP, como desvio em log do nível médio do projeto: primeiro mês
+Forma intra projeto, como desvio em log do nível médio do projeto: primeiro mês
 −0,38, segundo +0,19, meio +0,15, último −0,44. Sem sazonalidade de
-calendário. Meses por PP guiados pela duração, com mediana 4, p10 de 1 e p90
+calendário. Meses por projeto guiados pela duração, com mediana 4, p10 de 1 e p90
 de 12. Semanas no mês derivadas do calendário, não sorteadas.
 
 Componentes de receita: subcontratados com Bernoulli 0,065 e lognormal mu
-10,648 sigma 1,185; Actar com Bernoulli 0,05 e lognormal mu 8,987 sigma
+10,648 sigma 1,185; a coligada com Bernoulli 0,05 e lognormal mu 8,987 sigma
 1,225; em ambos o campo de faturamento iguala o total em 100% das linhas.
-Estagiários entram por persistência de PP, com 29% nunca, 47,2% sempre e
+Estagiários entram por persistência de projeto, com 29% nunca, 47,2% sempre e
 23,8% mista, e participação lognormal mu −2,263 sigma 0,683.
 
 Linhas totalmente zeradas somam 15,9%, crescendo de 0,5% em 2023 para 27,8%
-em 2025, e são provável artefato de PPs sem par em `pps`.
+em 2025, e são provável artefato de projetos sem par na base comercial de projetos.
 
 ### Alertas de qualidade que afetam a tese
 
 1. Teto de extração em várias tabelas, com corte cronológico. Elevar o limite
    depende do responsável pelo job de atualização.
-2. `bi_gtac_cltv_alocacao` com 4.999 linhas: a cobertura de chave da Q4 foi
+2. fonte de alocações com 4.999 linhas: a cobertura de chave da consulta de confirmação foi
    medida em base possivelmente truncada.
-3. Corrupção de ponto decimal em `bi_tbl_pps_alocacao_custos`.
-4. Sinais negativos em `pps` para despesa e imposto.
-5. Nome `vw_bi_custo_frente_mensal` engana: é receita.
-6. Múltiplas versões de PP por CRM na view.
+3. Corrupção de ponto decimal na tabela de custo por cargo.
+4. Sinais negativos na base comercial de projetos para despesa e imposto.
+5. O nome da fonte de receita mensal por projeto engana: é receita.
+6. Múltiplas versões de projeto por CRM na view.
 7. `information_schema` defasado para algumas tabelas; usar `DESCRIBE`.
-8. Grafias divergentes de offering entre PP, CRM e NetSuite.
+8. Grafias divergentes de offering entre projeto, CRM e NetSuite.
 9. Frente vazia na vertical Consulting e valor "NENHUMA".
 10. Taxas "Solutions" são cópia das de IT, e há taxas de 2027 que são
     projeção e não série observada.
 
 ### Não verificado nesta rodada
 
-O significado exato de `peers_nf_vlr` e se o fator 0,87 é desconto
+O significado exato da coluna de receita de nota fiscal e se o fator 0,87 é desconto
 comercial. Se o teto está no conector ou em um `limit` no notebook. Custo por
 pessoa. Cronograma real de receita por mês, já que as parcelas de
 faturamento são emissão e vencimento, não alocação por origem. E o gerador
@@ -1088,11 +1078,11 @@ limitação permanente, não pendência.
 
 **Limitação permanente, não pendência (acesso encerrado, nada a reabrir):**
 
-* Confirmação da definição quebrada de `vw_apdata_peers_experience`.
+* Confirmação da definição quebrada da base de experiência profissional.
 * Contagens agregadas de completude/cardinalidade por tabela candidata
   (só existência e tipo de coluna foram confirmados nesta reconciliação).
 * Calibração de `intensidade` em `gerar_experiencia_setorial()` pela
-  escala de experiência do Formulário 2.1: a distribuição populacional
+  escala de experiência do formulário geral: a distribuição populacional
   por essa escala nunca chegou a ser agregada e registrada aqui, só a
   existência da escala. Sem o arquivo, não há mais como extrair esse
   número. `intensidade` segue `runif(0,1)`, suposição documentada.
@@ -1115,7 +1105,7 @@ wave 3.
 
 **Achado à parte, corrigido nesta revisão:** o item anterior desta seção
 pedia testar se `Offering`/`Linha de Serviço` juntam contra
-`vw_bi_tbl_projetos`. Já estava resolvido antes mesmo de ser escrito
-aqui: a Terceira rodada, acima, tinha validado esse join via `id_crm`
+base de projetos. Já estava resolvido antes mesmo de ser escrito
+aqui: a Terceira rodada, acima, tinha validado esse join pela chave de CRM
 com ~98% de cobertura. Item removido por já estar coberto, não por ter
 sido feito agora.

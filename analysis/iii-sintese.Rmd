@@ -127,7 +127,7 @@ nos limites das faixas, ambos precondições e não conclusões.
 
 Esta seção existe por uma pergunta concreta: se o modelo que a wave 4 pode
 prometer é menor do que a ambição das pré-definições, **isso é limitação do
-dado real da Peers ou defeito da sintetização feita neste projeto?**
+dado real da organização ou defeito da sintetização feita neste projeto?**
 
 A pergunta é legítima e a resposta não pode ser retórica. Por isso cada
 decisão declara a proveniência do que a apoia, num eixo separado da etiqueta
@@ -146,7 +146,7 @@ mostrar_tabela(
 ```
 
 Das `r r$n_decisoes` decisões, `r r$fato_real` se apoiam em agregado
-documentado da Peers ou em confirmação do dono do dado, `r r$estrutural` em
+documentado da organização ou em confirmação do dono do dado, `r r$estrutural` em
 propriedade matemática ou definicional que vale em qualquer conjunto, e
 `r r$depende_do_gerador` dependem do gerador.
 
@@ -157,7 +157,7 @@ mais; sem margem dimensionada o objetivo econômico entra como direção,
 porque os agregados reais discordam entre si (II.5.6); sem pirâmide não há
 restrição de composição, porque a regra não está em tabela nenhuma; e sem
 skills requeridas a aderência é grossa, porque o dono do dado confirmou que o
-processo não existe na Peers. Nenhuma delas mudaria se o gerador fosse outro.
+processo não existe na organização. Nenhuma delas mudaria se o gerador fosse outro.
 
 ### As que dependem do gerador
 

@@ -243,7 +243,7 @@ executar_ii1 <- function(dados, estabilidade = NULL) {
     paste0(
       "O gerador foi calibrado com Binomial Negativa, então reproduzir a ",
       "sobredispersão é conferência e não descoberta, e a magnitude do índice ",
-      "não fala sobre a Peers."
+      "não fala sobre a organização."
     ),
     "depende do gerador",
 

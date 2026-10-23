@@ -17,7 +17,7 @@
 #' **A coluna de proveniência responde a uma pergunta de banca**, e é o único
 #' acréscimo ao que o roadmap especificou: se o modelo que a wave 4 pode
 #' prometer é menor do que a ambição das pré-definições, isso é limitação do
-#' dado real da Peers ou defeito da sintetização feita neste projeto. A
+#' dado real da organização ou defeito da sintetização feita neste projeto. A
 #' resposta não é retórica, é uma contagem.
 #'
 #' @param achados_por_bloco Lista com os `achados` de cada bloco.
@@ -130,7 +130,7 @@ executar_iii <- function(achados_por_bloco) {
     paste0(
       "**O que não funciona foi determinado, não escolhido.** Cada eliminação ",
       "responde a uma restrição medida, e a contagem mostra que a maior parte ",
-      "delas se apoia em agregado da Peers ou em propriedade do problema, não ",
+      "delas se apoia em agregado da organização ou em propriedade do problema, não ",
       "no instrumento. O que ordena dentro do filtro, ao contrário, não foi ",
       "determinado, e o achado III.4 diz por quê. O número que importa é o ",
       "último: as decisões que cairiam se o gerador fosse outro são ",

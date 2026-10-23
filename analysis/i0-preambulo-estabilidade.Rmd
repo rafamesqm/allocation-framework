@@ -36,7 +36,7 @@ mostrar_tabela(
 ```
 
 A distribuição final das etiquetas é, por si só, um resultado: ela mede o
-quanto a Parte I fala sobre a Peers e o quanto fala sobre o instrumento. A
+quanto a Parte I fala sobre a organização e o quanto fala sobre o instrumento. A
 resposta honesta é que fala pouco sobre a empresa, e por isso a contribuição
 desta frente é metodológica, não substantiva. A frente direcionada, na Parte
 II, é que carrega as decisões de modelagem.
@@ -54,7 +54,7 @@ Este bloco mede isso, repetindo a geração completa sobre
 
 Uma distinção que precisa ficar explícita, porque confundi-la seria grave.
 **O intervalo aqui mede variabilidade do gerador, não incerteza sobre a
-Peers.** O dado real é o que é; a incerteza sobre ele vem das ressalvas de
+organização.** O dado real é o que é; a incerteza sobre ele vem das ressalvas de
 cobertura das fontes registradas em `mapeamento_schema.md`, como o teto de
 5.000 linhas da extração e os colaboradores históricos sem registro de
 entidade. Ler este

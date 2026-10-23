@@ -18,7 +18,7 @@ test_that("as tres colunas de sintese aparecem mesmo quando o bloco nao as decla
 
 test_that("decisao ou limitacao sem proveniencia e recusada", {
   # E a lacuna que estes campos existem para fechar: e onde a banca pergunta
-  # se a conclusao e da Peers ou do gerador.
+  # se a conclusao e da organização ou do gerador.
   expect_error(
     registrar_achados("I.1", achado_minimo(decisao = "decide algo")),
     "sem proveniência declarada"
@@ -65,18 +65,19 @@ test_that("com_sintese recusa codigo que o bloco nao declara", {
 })
 
 test_that("ordem_de_leitura ordena por numero e nao por texto", {
-  codigos <- c("II.5.10", "II.5.2", "I.1.1", "II.1.1", "III.1")
+  # Codigos hipoteticos: nenhum bloco tem dez achados, e o teste precisa de um.
+  codigos <- c("II.9.10", "II.9.2", "I.1.1", "II.1.1", "III.1")
 
   expect_equal(
     codigos[ordem_de_leitura(codigos)],
-    c("I.1.1", "II.1.1", "II.5.2", "II.5.10", "III.1")
+    c("I.1.1", "II.1.1", "II.9.2", "II.9.10", "III.1")
   )
 })
 
 test_that("registrar_achados devolve o decimo achado depois do segundo", {
-  dez <- achado_minimo(codigo = c("II.5.10", "II.5.2"))
+  dez <- achado_minimo(codigo = c("II.9.10", "II.9.2"))
 
-  expect_equal(registrar_achados("II.5", dez)$codigo, c("II.5.2", "II.5.10"))
+  expect_equal(registrar_achados("II.9", dez)$codigo, c("II.9.2", "II.9.10"))
 })
 
 test_that("consolidar_achados recusa codigo reivindicado por dois blocos", {

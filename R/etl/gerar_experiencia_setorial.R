@@ -1,7 +1,7 @@
 #' Gera experiência setorial de cada consultor (parte de `C`)
 #'
 #' Usa as categorias reais de `Segmento` (ver docs/mapeamento_schema.md,
-#' distribuição de `vw_crm_oportunidades_latest`) como espaço setorial. Cada
+#' distribuição da base de oportunidades do CRM) como espaço setorial. Cada
 #' consultor acumula experiência em 1 a `max_setores` segmentos. Só o espaço
 #' de categorias e seus pesos relativos são reais; a intensidade por pessoa
 #' não tem calibração agregada nesta rodada, é suposição documentada.
@@ -10,7 +10,7 @@
 #' setorial existe na realidade independentemente de ter sido declarada, e é
 #' a ela que a alocação responde: `gerar_alocacoes()` consome esta tabela
 #' como o mecanismo latente do viés de afinidade. O que o modelo enxerga é
-#' outra coisa, a parte observada pelo Formulário de Skills 2.1, e é essa que
+#' outra coisa, a parte observada pelo formulário geral de skills, e é essa que
 #' `_targets.R` salva em `data/synthetic/`, aplicando
 #' `restringir_a_respondentes()`. Separar as duas é o que torna o cold start
 #' de conteúdo um problema de dado faltante, que é o que ele é, e não de

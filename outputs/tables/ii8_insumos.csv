@@ -4,6 +4,6 @@ Margem,objetivo econômico,sim,não,"calculável pela forma estrutural, mas o bl
 Afinidade prevista ŝ,objetivo de afinidade,sim,não,"o otimizador precisa de ŝ para cada par candidato, e é a wave 3 que o produz; o sinal de interação de `R` só existe para pares que aconteceram e serve para treinar e avaliar ŝ, não para substituí-lo. O que ordena dentro do filtro não ficou determinado pela EDA (III.4), e a escala de ŝ é suposição"
 Capacidade mensal,restrição dura,sim,não,"existe e é medida, mas o histórico a viola com frequência, o que a impede de entrar como limite sem tornar infactível o que aconteceu"
 Férias,restrição de disponibilidade,sim,sim,"uma janela por consultor, sem ambiguidade de escala"
-Skills requeridas,restrição de aderência,não,não,"não existe como processo na Peers, confirmado pelo dono do dado; o bloco II.6 decidiu usar categoria do projeto como filtro, que é aderência grossa"
+Skills requeridas,restrição de aderência,não,não,"não existe como processo na organização, confirmado pelo dono do dado; o bloco II.6 decidiu usar categoria do projeto como filtro, que é aderência grossa"
 Pirâmide de senioridade,restrição de composição,não,não,é regra de negócio conhecida e não está em tabela nenhuma; o achado I.5.3 registrou que o gerador também não a reproduz
 Demanda futura,o que se aloca,não,não,"`pipeline_demandas` traz apenas identificador e estágio, sem data, tamanho nem perfil, então não alimenta o otimizador"

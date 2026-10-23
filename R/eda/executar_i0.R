@@ -82,7 +82,7 @@ grandezas_de_diferenca <- function() {
 #'
 #' Declara o status epistêmico dos achados, já que a EDA roda sobre dado cujo
 #' mecanismo gerador é conhecido e foi escrito neste projeto. Sem isso,
-#' achado sobre a Peers e achado sobre o gerador ficam indistinguíveis.
+#' achado sobre a organização e achado sobre o gerador ficam indistinguíveis.
 #'
 #' E quantifica a variabilidade de Monte Carlo. O conjunto versionado é uma
 #' realização, e todo número reportado nos demais blocos vem dela. Este bloco
@@ -206,7 +206,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     i0_etiquetas = tibble::tibble(
       Etiqueta = etiquetas_achado(),
       `O que autoriza afirmar` = c(
-        "Sobre a Peers, com as ressalvas de cobertura das fontes documentadas",
+        "Sobre a organização, com as ressalvas de cobertura das fontes documentadas",
         "Sobre o gerador, nunca sobre a empresa",
         "Sobre a validade do diagnóstico, aplicável ao dado real"
       )
@@ -345,7 +345,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     paste0(
       "Nenhum número do capítulo deve ser lido como propriedade fixa do ",
       "modelo. O intervalo mede quanto o valor se moveria se a população ",
-      "fosse sorteada de novo, e **não** é incerteza sobre a Peers: essa vem ",
+      "fosse sorteada de novo, e **não** é incerteza sobre a organização: essa vem ",
       "das ressalvas de cobertura das fontes, não daqui."
     ),
 
@@ -448,7 +448,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     paste0(
       "Grandeza invariante entre realizações é parâmetro do gerador devolvido ",
       "em forma de resultado, e nenhuma delas sustenta conclusão sobre a ",
-      "Peers."
+      "organização."
     ),
     "depende do gerador",
 

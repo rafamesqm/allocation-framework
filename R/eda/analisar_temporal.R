@@ -94,7 +94,7 @@ serie_vigencias_mensais <- function(data_inicio, data_fim) {
 #' concluir que não há sazonalidade, apenas que estes dados não dão evidência
 #' dela. A distinção importa neste projeto: sabe-se por construção que o
 #' gerador sorteia datas de início de forma uniforme, então a ausência de
-#' sazonalidade é premissa do código, não achado sobre a Peers. O teste vale
+#' sazonalidade é premissa do código, não achado sobre a organização. O teste vale
 #' como instrumento pronto para o dado real, não como conclusão.
 #'
 #' @param datas Vetor de `Date`.

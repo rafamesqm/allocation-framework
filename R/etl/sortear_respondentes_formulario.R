@@ -4,7 +4,7 @@
 #' formulário. Existe porque a alternativa, cada gerador sortear sua própria
 #' cobertura, produz uma estrutura errada: na fonte real
 #' (`data/raw/skills/`), experiência setorial, expertise funcional, soft
-#' skills e certificações vêm todas do mesmo Formulário de Skills 2.1, e as
+#' skills e certificações vêm todas do mesmo formulário geral de skills, e as
 #' skills técnicas das outras duas planilhas da mesma campanha. Quem não
 #' respondeu não tem nenhum desses sinais, e não um subconjunto sorteado à
 #' parte de cada vez.
@@ -23,7 +23,7 @@
 #' escolha feita em `gerar_tipo_contrato()`, pelo mesmo motivo.
 #'
 #' Ressalva de fidelidade: a cobertura de 48,4% é do conjunto das três
-#' planilhas. A cobertura do Formulário 2.1 isolado, que é a fonte de três
+#' planilhas. A cobertura do formulário geral isolado, que é a fonte de três
 #' dos sinais, nunca foi agregada e o acesso ao arquivo está encerrado
 #' (docs/mapeamento_schema.md, fechamento da wave 1). Usar 48,4% para todos
 #' é, portanto, um teto: a cobertura real dos sinais do 2.1 é igual ou menor.

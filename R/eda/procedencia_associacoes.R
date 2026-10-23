@@ -12,7 +12,7 @@
 #'   registrado em `docs/mapeamento_schema.md` para confrontar. Reproduzir o
 #'   alvo é verificação de que a calibração sobreviveu, não descoberta.
 #' * `induzida`: o gerador cria a associação por construção, mas não há alvo
-#'   real. A magnitude é propriedade do código, não da Peers, e não deve ser
+#'   real. A magnitude é propriedade do código, não da organização, e não deve ser
 #'   citada como característica do domínio.
 #' * `livre`: nenhum mecanismo liga as duas variáveis, que são sorteadas de
 #'   forma independente. **A expectativa é associação nula**, e um valor

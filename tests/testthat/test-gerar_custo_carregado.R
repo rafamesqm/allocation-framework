@@ -6,7 +6,7 @@ test_that("custo_carregado fica dentro da faixa real por nível", {
   expect_equal(nrow(custo), nrow(consultores))
   expect_false(anyNA(custo))
   # Faixa da tabela de custo por cargo, nao do rate card: a fonte de custo
-  # passou a ser bi_tbl_pps_alocacao_custos, salario base por hora.
+  # passou a ser a tabela de custo por cargo, salario base por hora.
   expect_true(all(custo$custo_hora_base >= 70 & custo$custo_hora_base <= 1093))
 })
 

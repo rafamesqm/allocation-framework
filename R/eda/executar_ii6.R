@@ -1,7 +1,7 @@
 #' Executa o bloco II.6 da EDA, poder discriminante do perfil
 #'
 #' **Âncora no projeto, não na literatura.** A pergunta vem do obstáculo de
-#' `skills_requeridas[]` registrado em `docs/predefinicoes.md`: como a Peers
+#' `skills_requeridas[]` registrado em `docs/predefinicoes.md`: como a organização
 #' não formaliza o requisito técnico da demanda, `P` precisa ser estimado, e a
 #' decisão de 2026-07-31 deixou o **mecanismo** de estimação em aberto para a
 #' EDA. Os dois candidatos são o one-hot das categorias do projeto e o perfil

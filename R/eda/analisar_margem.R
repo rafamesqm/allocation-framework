@@ -58,7 +58,7 @@ medir_atribuibilidade_da_margem <- function(dados,
     custo_zero_estrutural_sem_alocacao = all(
       (estrutural$custo_total == 0) == sem_alocacao
     ),
-    # Identidade da fonte: a receita total é a soma das duas origens Peers.
+    # Identidade da fonte: a receita total é a soma das duas origens próprias.
     identidade_receita = max(abs(
       receita_mes$receita_total - receita_mes$receita_nf - receita_mes$receita_interns
     ))
@@ -164,11 +164,11 @@ avaliar_formas_da_margem <- function(margem_atribuivel,
 #' O bloco II.5 encontrou margem estrutural implausível e levantou duas
 #' hipóteses. A primeira, de que `valor_contrato` teria grão de alocação e
 #' pessoa e não de projeto, **foi descartada**: o usuário confirmou que em
-#' `actarnet_alocacao_pessoas` o valor é por projeto. A segunda é a que esta
+#' fonte de alocação do sistema de gestão de projetos, o valor é por projeto. A segunda é a que esta
 #' função mede.
 #'
 #' **A hipótese medida: a taxa usada como custo é preço, não custo.** A fonte
-#' de `custo_carregado` é `vw_gtac_fin_taxa_hora`, que a Quinta rodada
+#' de `custo_carregado` é a tabela de taxa por hora, que a Quinta rodada
 #' registrou textualmente como *rate card*, isto é, tabela de preço por
 #' cargo. Preço é o que o cliente paga; custo carregado é o que a pessoa
 #' custa à empresa. Se a tabela for preço, calcular margem como contrato
@@ -242,7 +242,7 @@ diagnosticar_escala_da_margem <- function(dados, jornada_mensal = 120) {
 #'
 #' **O resultado é desconfortável e é para ficar assim.** Encargos,
 #' benefícios, décimo terceiro, férias e FGTS levariam o fator para 1,7 ou
-#' 2,0 no Brasil, e o teto medido fica bem abaixo. Ou a margem que o PP
+#' 2,0 no Brasil, e o teto medido fica bem abaixo. Ou a margem que o projeto
 #' declara é bruta sobre salário direto, ou alguma das três âncoras não
 #' significa o que o nome diz. Não dá para decidir com o acesso encerrado, e
 #' medir o teto é o que separa a constatação da especulação.

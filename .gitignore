@@ -12,7 +12,7 @@ docs/registro_fase1_gerador_sintetico.md
 # =========================================================
 #  DADOS SENSÍVEIS: nunca versionar
 #  Margens, avaliações individuais e histórico de alocação
-#  da Peers não podem entrar no repositório sob hipótese alguma.
+#  da organização não podem entrar no repositório sob hipótese alguma.
 # =========================================================
 data/raw/
 data/interim/
@@ -104,3 +104,6 @@ Thumbs.db
 .vscode/
 *.swp
 *~
+
+# Correspondência local entre pseudônimos e nomes reais de fontes.
+docs/pseudonimos_fontes.md

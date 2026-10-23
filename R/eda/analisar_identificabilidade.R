@@ -86,7 +86,7 @@ medir_identificabilidade <- function(alocacoes, consultores, projetos,
 #' @param alocacoes,consultores,projetos Dados deste projeto.
 #' @param fatores Número de fatores usado na comparação.
 #' @param referencias tibble de `referencias_identificabilidade()`.
-#' @param incluir_real Se `TRUE`, acrescenta a escala real da Peers medida no
+#' @param incluir_real Se `TRUE`, acrescenta a escala real da organização medida no
 #'   Unity Catalog, de `escala_real_alocacao()`.
 #' @return tibble com `conjunto`, `interacoes`, `usuarios`, `itens`,
 #'   `parametros` e `obs_por_parametro`, incluindo este projeto na primeira
@@ -116,7 +116,7 @@ comparar_porte_com_referencias <- function(alocacoes, consultores, projetos,
     )
 }
 
-#' Escala real da matriz de alocação da Peers, medida no Unity Catalog
+#' Escala real da matriz de alocação da organização, medida no Unity Catalog
 #'
 #' Muda o estatuto da conclusão do bloco II.2. Sem esta linha, a razão de
 #' observações por parâmetro é calculada sobre o sintético, e a afirmação de
@@ -126,7 +126,7 @@ comparar_porte_com_referencias <- function(alocacoes, consultores, projetos,
 #' nada.
 #'
 #' Os três números estão em `docs/mapeamento_schema.md` (Primeira rodada,
-#' `vw_gtac_cltv_alocacao`): 4.598 pares distintos entre 511 colaboradores e
+#' fonte de alocações): 4.598 pares distintos entre 511 colaboradores e
 #' 1.833 códigos de alocação. Note que 511 é o histórico completo, com
 #' desligados, e não os 285 ativos, e que o código de alocação não é a mesma
 #' coisa que projeto; é a granularidade que o dado real oferece.
@@ -134,10 +134,10 @@ comparar_porte_com_referencias <- function(alocacoes, consultores, projetos,
 #' **A ressalva da chave está resolvida, e a favor.** Este bloco registrava
 #' que o join supunha `ID` em entidades e `Cód. Colaborador` em alocação
 #' serem a mesma chave, sem confirmação. A segunda consulta comercial
-#' confirmou que são: `ID` é `cod_id_funcionario`, e o nome completo coincide
+#' confirmou que são: `ID` é a chave de funcionário, e o nome completo coincide
 #' em 98,1% dos códigos casados. Duas notas ficam. A cobertura sobe para
-#' cerca de 98% usando `gold.apdata_entidades_globais` em vez da view que
-#' perde cerca de cem códigos. Na base silver, 79 códigos, ou 310 linhas de
+#' cerca de 98% usando a versão completa da base corporativa de colaboradores em vez da view que
+#' perde cerca de cem códigos. Na versão intermediária da base corporativa, 79 códigos, ou 310 linhas de
 #' alocação (6%), não casam; só 9 não casam em nenhuma tabela testada.
 #' As chaves Starsoft **não** servem para este join, com 18% de coincidência
 #' de nome, que são colisões.

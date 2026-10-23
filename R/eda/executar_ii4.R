@@ -24,7 +24,7 @@
 #' O bloco é construído para não depender disso. As três conclusões que ele
 #' habilita se apoiam em: a cobertura da covariável, que é âncora real de
 #' 48,4%; a ausência de amostra de exposição aleatória, que é fato sobre a
-#' Peers e não sobre o código; e a cegueira estrutural da propensão por
+#' organização e não sobre o código; e a cegueira estrutural da propensão por
 #' popularidade a qualquer mecanismo de afinidade, que é propriedade do
 #' estimador e valeria com qualquer magnitude de viés. A magnitude do viés
 #' aparece etiquetada como consequência do gerador e não sustenta decisão
@@ -209,13 +209,13 @@ executar_ii4 <- function(dados, estabilidade = NULL, limite_ess = 0.5) {
       }
     ),
     paste0(
-      "**A magnitude não diz nada sobre a Peers.** O viés foi plantado em ",
+      "**A magnitude não diz nada sobre a organização.** O viés foi plantado em ",
       "`gerar_alocacoes()` com `prob_vies = 0,7`, e qualquer modelo de ",
       "propensão ajustado aqui reencontra um mecanismo escrito neste projeto. ",
       "O número entra para tornar auditável a circularidade, não para ",
       "sustentar decisão. O que os achados seguintes usam dele é apenas que ",
       "**existe** um mecanismo de afinidade dominando a seleção, o que na ",
-      "Peers é fato conhecido: a alocação é centralizada e subjetiva, e é esse ",
+      "organização é fato conhecido: a alocação é centralizada e subjetiva, e é esse ",
       "o problema que motiva a monografia."
     ),
 
@@ -253,7 +253,7 @@ executar_ii4 <- function(dados, estabilidade = NULL, limite_ess = 0.5) {
       "Um modelo de propensão com covariável, que enxergaria o que a ",
       "popularidade não enxerga, não tem entrada para mais da metade da ",
       "matriz. A limitação é de dado real e não do gerador: os 48,4% são ",
-      "medida da Peers, registrada em `docs/mapeamento_schema.md`. Fecha a ",
+      "medida da organização, registrada em `docs/mapeamento_schema.md`. Fecha a ",
       "segunda saída: nem a propensão estimável serve, nem a que serviria é ",
       "estimável."
     ),
@@ -266,7 +266,7 @@ executar_ii4 <- function(dados, estabilidade = NULL, limite_ess = 0.5) {
       "nesta base."
     ),
     paste0(
-      "É o achado decisivo do bloco, e é sobre a Peers, não sobre o código. ",
+      "É o achado decisivo do bloco, e é sobre a organização, não sobre o código. ",
       "Marlin e Zemel (2009) mostram que sem uma dessas fontes um modelo de ",
       "ausência correto e um errado explicam igualmente bem o que foi ",
       "observado, e Schnabel et al. (2016) validam propensão exatamente ",
@@ -316,14 +316,14 @@ executar_ii4 <- function(dados, estabilidade = NULL, limite_ess = 0.5) {
       "observada e a conclusão é enunciada sobre ela, sem a pretensão de valer ",
       "para os pares que nunca tiveram chance de aparecer. O lado do consultor ",
       "dessa falha de positividade é âncora real: 48 dos 285 ativos não ",
-      "aparecem em nenhuma linha de alocação no dado da Peers."
+      "aparecem em nenhuma linha de alocação no dado da organização."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
 
     "II.4.1", NA,
     paste0(
-      "A magnitude do viés de afinidade setorial não diz nada sobre a Peers, ",
+      "A magnitude do viés de afinidade setorial não diz nada sobre a organização, ",
       "porque foi plantada no gerador: o número entra para tornar auditável a ",
       "circularidade, e o que os achados seguintes usam dele é apenas que ",
       "existe um mecanismo de seleção por atributo."

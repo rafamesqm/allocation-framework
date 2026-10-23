@@ -22,7 +22,7 @@ test_that("setor e tipo_projeto ficam dentro do espaço real de categorias", {
     "Data Analytics & Artificial Intelligence", "Supply Chain",
     "Tech Consulting", "Finance", "Talent & Organization",
     "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Peers.AI", "Educação Pública"
+    "Produtos de IA", "Educação Pública"
   )
   expect_true(all(projetos$setor %in% segmentos_esperados))
   expect_true(all(projetos$tipo_projeto %in% offerings_esperados))
@@ -44,7 +44,7 @@ test_that("datas são coerentes: data_fim nunca antes de data_inicio", {
 })
 
 test_that("duracao_dias aproxima a mediana real da segunda consulta comercial", {
-  # Recalibrada de 18 para 81 dias: a fonte passou a ser silver.pps, tabela
+  # Recalibrada de 18 para 81 dias: a fonte passou a ser a base comercial de projetos, tabela
   # completa, com mediana de 11,6 semanas. A anterior media outra coisa e
   # deixava o projeto curto demais para acumular as horas que o contrato
   # implica.

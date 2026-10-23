@@ -1,7 +1,7 @@
 #' Gera a expertise funcional primária de cada consultor (parte de `C`)
 #'
 #' Usa as categorias reais de `Offering` (ver docs/mapeamento_schema.md,
-#' distribuição de `vw_crm_oportunidades_latest`) como espaço de expertise
+#' distribuição da base de oportunidades do CRM) como espaço de expertise
 #' funcional, já que não existe taxonomia própria do lado do consultor.
 #' `expertise_funcional` é especificado no dicionário como categórico, não
 #' vetor: cada consultor tem uma área primária só.
@@ -21,7 +21,7 @@ gerar_expertise_funcional <- function(consultores) {
     "Data Analytics & Artificial Intelligence", "Supply Chain",
     "Tech Consulting", "Finance", "Talent & Organization",
     "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Peers.AI", "Educação Pública"
+    "Produtos de IA", "Educação Pública"
   )
   pesos_offering <- c(991, 642, 530, 524, 427, 424, 192, 155, 119, 114, 49, 47)
 

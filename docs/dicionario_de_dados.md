@@ -80,14 +80,14 @@ Montagem de `P`: as colunas de skill de `P` ocupam o mesmo subespaço das de `C`
 match viver num espaço comum. `skills_requeridas` traz o mínimo (restrição) e o peso
 (coeficiente no fit).
 
-**Achado de processo, não de coleta:** a Peers não formaliza `skills_requeridas[]`
+**Achado de processo, não de coleta:** a organização não formaliza `skills_requeridas[]`
 no momento da venda ou alocação (confirmado com o usuário, não é lacuna de busca).
 `P` não pode ser construído a partir de captura real. Decisão de projeto:
 `P` será estimado a partir de `setor`/`tipo_projeto`/
 Offering/Linha de Serviço/Segmento do projeto, como proxy, nunca como requisito
-real capturado (`Indústria` de `vw_gtac_com_clientes`, cotada inicialmente,
+real capturado (`Indústria` da base de clientes, cotada inicialmente,
 foi descartada por estar quase inteiramente nula; `Segmento`, de
-`vw_crm_oportunidades_latest`, é o substituto validado). A monografia deve
+base de oportunidades do CRM, é o substituto validado). A monografia deve
 registrar essa ausência como achado de
 pesquisa, não maquiar como se fosse dado observado.
 
@@ -219,7 +219,7 @@ pela regra 7 do `CLAUDE.md`: o campo existe na fonte real e faltava no
 sintético, então o sintético estava incompleto.
 
 * **Janela de datas por alocação.** `alocacoes` não tinha `data_inicio` /
-  `data_fim`, embora `vw_gtac_cltv_alocacao` tenha as duas e a
+  `data_fim`, embora a fonte de alocações tenha as duas e a
   temporalidade já estivesse na lista de expectativas acima. Sem elas o
   vetor `k` não é construível: a soma de `pct_alocacao` por consultor não
   tem denominador, e o histórico inteiro aparenta superalocação.

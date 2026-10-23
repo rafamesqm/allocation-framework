@@ -48,7 +48,7 @@ list(
   # estrutural de sortear cobertura por sinal, que é o que se fazia antes.
   #
   # `idiomas_consultor` fica de fora da restrição de propósito: sua fonte é
-  # `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os 285
+  # a base corporativa de colaboradores, sem nulo entre os 285
   # ativos, e não o formulário. É o único sinal de conteúdo genuinamente
   # universal, e tratá-lo como os demais apagaria a única cobertura completa
   # que os dados reais oferecem.

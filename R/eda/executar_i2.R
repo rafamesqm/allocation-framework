@@ -203,7 +203,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
       "análise que dependa de média, desvio ou de comportamento de cauda ",
       "extrema não é. **A ausência de âncora para média e assimetria é ",
       "informação, e não lacuna a preencher:** a segunda consulta comercial ",
-      "recalibrou contrato e duração pela tabela `pps`, que dá quantis e não ",
+      "recalibrou contrato e duração pela base comercial de projetos, que dá quantis e não ",
       "momentos. Reportar diferença contra um momento que a fonte nova não ",
       "publica seria confrontar o sintético com a fonte antiga."
     ),

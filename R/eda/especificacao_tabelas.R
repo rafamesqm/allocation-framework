@@ -103,7 +103,7 @@ especificacao_tabelas <- function() {
     "receita_projeto_mes", "receita_nf", "numerico", "atributo", NA_character_,
     "receita_projeto_mes", "receita_interns", "numerico", "atributo", NA_character_,
     "receita_projeto_mes", "receita_subcontratados", "numerico", "atributo", NA_character_,
-    "receita_projeto_mes", "receita_actar", "numerico", "atributo", NA_character_,
+    "receita_projeto_mes", "receita_coligada", "numerico", "atributo", NA_character_,
 
     "margem_estrutural", "projeto_id", "texto", "chave", "projetos.projeto_id",
     "margem_estrutural", "valor_contrato", "numerico", "atributo", NA_character_,

@@ -7,7 +7,7 @@
 #' concentrada por especialidade observada na prática (alguém de backend não
 #' costuma saber RPA), não uma amostra uniforme do catálogo inteiro.
 #'
-#' Escala de proficiência usa os rótulos do Formulário de Skills 2.1
+#' Escala de proficiência usa os rótulos do formulário geral de skills
 #' (Iniciante/Básico/Médio/Avançado). As planilhas reais têm duas escalas
 #' diferentes que ainda precisam de de-para (ver docs/mapeamento_schema.md);
 #' até isso ser resolvido, o sintético usa só uma, documentado aqui.

@@ -82,7 +82,7 @@ respondentes, não um grupo à parte.
 
 Idiomas cobre `r formatar_pct(obj$cobertura_idiomas)` dos consultores, e essa
 é a única cobertura integral do lado do consultor que **não** é artefato: a
-fonte é `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os
+fonte é a base corporativa de colaboradores, sem nulo entre os
 285 ativos. Do lado do projeto, setor e offering cobrem 100% por construção
 do proxy de `P`.
 
@@ -111,7 +111,7 @@ entra numa lista ordenada por ela.
 candidato tem de ser uma regra de exposição declarada fora dele, como rodízio
 ou inclusão explícita, e essa regra é decisão de negócio, não estatística. O
 fenômeno é real: 48 dos 285 ativos não aparecem em nenhuma linha de alocação
-no dado da Peers.
+no dado da organização.
 
 Duas ressalvas sobre este número. A primeira é de realização: o gerador
 sorteia a ausência de histórico independentemente da ausência de resposta, e

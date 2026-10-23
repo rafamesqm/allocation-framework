@@ -50,7 +50,7 @@ O bloco foi construído para não depender disso. As conclusões que ele habilit
 se apoiam em três coisas, e nenhuma delas é a magnitude do viés:
 
 * a **cobertura da covariável**, que é âncora real de 48,4%;
-* a **ausência de amostra de exposição aleatória**, que é fato sobre a Peers;
+* a **ausência de amostra de exposição aleatória**, que é fato sobre a organização;
 * a **cegueira estrutural** da propensão por popularidade a qualquer
   mecanismo de afinidade, que é propriedade do estimador e valeria com
   qualquer magnitude de viés.
@@ -111,7 +111,7 @@ taxa de pareamento, por isso, só é calculável em
 `r formatar_pct(vies$cobertura_covariavel_alocacoes)` das alocações, e um
 modelo com essa covariável não tem entrada para mais da metade da matriz.
 
-A limitação é de dado real, não de gerador: os 48,4% são medida da Peers,
+A limitação é de dado real, não de gerador: os 48,4% são medida da organização,
 registrada em `docs/mapeamento_schema.md`. Nem a propensão estimável serve,
 nem a que serviria é estimável.
 
@@ -137,7 +137,7 @@ Ela falha em `r formatar_pct(pos$fracao_pares_sem_positividade)` da matriz,
 vinda de `r pos$consultores_grau_zero` consultores e
 `r pos$projetos_grau_zero` projetos sem nenhuma alocação. O lado do consultor
 é âncora real: 48 dos 285 ativos não aparecem em nenhuma linha de alocação no
-dado da Peers, o que está registrado no crosswalk de schema.
+dado da organização, o que está registrado no crosswalk de schema.
 
 Onde a positividade vale, reponderar custa variância. O peso é o inverso da
 propensão, então observação rara vira peso grande e o estimador passa a

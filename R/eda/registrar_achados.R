@@ -2,11 +2,11 @@
 #'
 #' Toda conclusão deste capítulo declara o que ela é capaz de afirmar, porque
 #' a EDA roda sobre dado cujo mecanismo gerador é conhecido e foi escrito
-#' neste projeto. Sem a etiqueta, achado sobre a Peers e achado sobre o
+#' neste projeto. Sem a etiqueta, achado sobre a organização e achado sobre o
 #' gerador ficam indistinguíveis para quem lê.
 #'
 #' * `âncora real`: o número é calibrado contra agregado documentado em
-#'   `docs/mapeamento_schema.md`. Fala sobre a Peers, com as ressalvas de
+#'   `docs/mapeamento_schema.md`. Fala sobre a organização, com as ressalvas de
 #'   cobertura das fontes já registradas.
 #' * `consequência do gerador`: decorre de suposição de modelagem, não de
 #'   observação. Fala sobre o instrumento, não sobre a empresa.
@@ -26,7 +26,7 @@ etiquetas_achado <- function() {
 #'
 #' São ortogonais de propósito: um achado pode ser `instrumento`, porque o
 #' valor está no diagnóstico e não na medida, e ainda assim ter proveniência
-#' `fato real`, porque a decisão se apoia num agregado da Peers e não no
+#' `fato real`, porque a decisão se apoia num agregado da organização e não no
 #' sorteio do gerador. É exatamente esse cruzamento que a síntese da Parte III
 #' precisa exibir, e que a etiqueta sozinha não expressa.
 #'
@@ -164,7 +164,7 @@ registrar_achados <- function(bloco, achados) {
   }
 
   # Decisão ou limitação sem proveniência é a lacuna que estes campos existem
-  # para fechar: é onde a banca pergunta se a conclusão é da Peers ou do
+  # para fechar: é onde a banca pergunta se a conclusão é da organização ou do
   # gerador, e onde a omissão passaria despercebida.
   sem_proveniencia <- achados$codigo[
     (!is.na(achados$decisao) | !is.na(achados$limitacao)) &

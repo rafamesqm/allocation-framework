@@ -3,7 +3,7 @@
 #' Sem proporção real calibrada: as planilhas de skills têm campo de texto
 #' livre para certificação, sem contagem agregada extraída nesta rodada (ver
 #' docs/mapeamento_schema.md). Usa uma probabilidade de posse e um catálogo
-#' genérico, ambos suposição documentada, não catálogo real da Peers.
+#' genérico, ambos suposição documentada, não catálogo real da organização.
 #'
 #' A pergunta de certificação está dentro dos três formulários de skills
 #' (docs/mapeamento_schema.md), e não numa base corporativa à parte. Quem não

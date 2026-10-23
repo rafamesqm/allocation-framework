@@ -153,7 +153,7 @@ executar_i4 <- function(dados,
     ),
     paste0(
       "Resultado esperado por construção, já que o gerador sorteia a data de ",
-      "início de forma uniforme, e por isso não é achado sobre a Peers. O ",
+      "início de forma uniforme, e por isso não é achado sobre a organização. O ",
       "valor está no teste existir com o esperado corrigido pelo comprimento ",
       "de cada mês, pronto para o dado real, onde sazonalidade de venda é ",
       "plausível."
@@ -213,7 +213,7 @@ executar_i4 <- function(dados,
     paste0(
       "A ausência de sazonalidade é esperada por construção, já que o gerador ",
       "sorteia a data de início de forma uniforme, e não é achado sobre a ",
-      "Peers."
+      "organização."
     ),
     "depende do gerador",
 

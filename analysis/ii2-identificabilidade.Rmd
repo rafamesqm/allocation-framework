@@ -103,9 +103,9 @@ A ressalva da chave, que este bloco carregava desde que foi escrito, **está
 resolvida e a favor**. O join que produziu os
 `r formatar_inteiro(obj$real$interacoes)` pares supunha que `ID` em entidades
 e `Cód. Colaborador` em alocação fossem a mesma chave, sem confirmação. A
-segunda consulta comercial confirmou que são: `ID` é `cod_id_funcionario`, e
+segunda consulta comercial confirmou que são: `ID` é a chave de funcionário, e
 entre os códigos casados o nome completo coincide em 98,1%. A cobertura chega
-a cerca de 98% usando `gold.apdata_entidades_globais`. Na base silver, 79
+a cerca de 98% usando a versão completa da base corporativa de colaboradores. Na versão intermediária da base corporativa, 79
 códigos, ou 310 linhas de alocação (6%), não casam, e só 9 códigos não casam
 em nenhuma tabela testada.
 

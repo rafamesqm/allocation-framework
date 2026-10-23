@@ -173,7 +173,7 @@ registrar_insumos_do_otimizador <- function(margem_calibrada = FALSE,
     "uma janela por consultor, sem ambiguidade de escala",
 
     "Skills requeridas", "restrição de aderência", FALSE, FALSE,
-    "não existe como processo na Peers, confirmado pelo dono do dado; o bloco II.6 decidiu usar categoria do projeto como filtro, que é aderência grossa",
+    "não existe como processo na organização, confirmado pelo dono do dado; o bloco II.6 decidiu usar categoria do projeto como filtro, que é aderência grossa",
 
     "Pirâmide de senioridade", "restrição de composição", FALSE, FALSE,
     "é regra de negócio conhecida e não está em tabela nenhuma; o achado I.5.3 registrou que o gerador também não a reproduz",

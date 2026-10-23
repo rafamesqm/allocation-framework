@@ -130,7 +130,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     ),
     paste0(
       "Verifica que a estrutura de dependência calibrada sobreviveu às etapas ",
-      "seguintes do gerador. Não é descoberta sobre a Peers: foram esses ",
+      "seguintes do gerador. Não é descoberta sobre a organização: foram esses ",
       "números que calibraram o gerador. ",
       if (is.null(estabilidade)) {
         ""
@@ -156,7 +156,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     ),
     paste0(
       "A magnitude é propriedade do código, não do domínio, e não pode ser ",
-      "citada como característica da Peers nem usada para justificar escolha ",
+      "citada como característica da organização nem usada para justificar escolha ",
       "de modelagem."
     ),
 
@@ -242,7 +242,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
       "âncora real determina apenas a base, porque os 90 não empregados reais ",
       "não cabem em N0 mais N1, que somam 63. Acima da base o contrato é ",
       "marginal calibrada, então a magnitude 0,291 é propriedade do código e ",
-      "não medida da Peers."
+      "não medida da organização."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -250,7 +250,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     "I.3.1", NA,
     paste0(
       "Reproduzir correlação que calibrou o gerador não é descoberta sobre a ",
-      "Peers, e a comparação pontual contra o alvo só vale onde a estabilidade ",
+      "organização, e a comparação pontual contra o alvo só vale onde a estabilidade ",
       "entre realizações é alta."
     ),
     "depende do gerador",
@@ -258,7 +258,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     "I.3.2", NA,
     paste0(
       "A associação induzida mais forte fora das calibradas é propriedade do ",
-      "código, e não pode ser citada como característica da Peers nem usada ",
+      "código, e não pode ser citada como característica da organização nem usada ",
       "para justificar escolha de modelagem."
     ),
     "depende do gerador",
