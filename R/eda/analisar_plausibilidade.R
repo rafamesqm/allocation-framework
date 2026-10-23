@@ -50,6 +50,25 @@ selecionar_recomendado_comparado <- function(recomendados, projeto_id, mes, aloc
   })
 }
 
+#' Separa as discordâncias que têm consultor comparável das que não têm
+#'
+#' Quando todos os recomendados já estavam no time no mês,
+#' `selecionar_recomendado_comparado()` devolve `NA`, e o mesmo acontece com
+#' lista de recomendação vazia. Essas discordâncias não têm com quem comparar
+#' o realizado: ficam fora da comparação por dominância e da leitura
+#' qualitativa, e são contadas à parte para o número não sumir.
+#'
+#' @param discordancias tibble com `consultor_recomendado`.
+#' @return Lista com `comparaveis`, as discordâncias com consultor
+#'   comparável, e `sem_comparavel`, quantas ficaram de fora.
+separar_discordancias_comparaveis <- function(discordancias) {
+  tem_comparavel <- !is.na(discordancias$consultor_recomendado)
+  list(
+    comparaveis = discordancias[tem_comparavel, ],
+    sem_comparavel = sum(!tem_comparavel)
+  )
+}
+
 #' Mede a folga de capacidade de consultores num mês, sem a alocação em análise
 #'
 #' A folga é a capacidade do consultor no mês menos as horas das demais
@@ -163,6 +182,14 @@ comparar_setor <- function(setor_consultor, setor_projeto) {
 #'   `realizado`, e `sem_time_no_mes`.
 medir_criterios_da_discordancia <- function(discordancias, dados,
                                             capacidade_mensal_horas = 168) {
+  if (anyNA(discordancias$consultor_recomendado)) {
+    stop(
+      sum(is.na(discordancias$consultor_recomendado)),
+      " discordância(s) sem consultor comparável chegaram à medição dos ",
+      "critérios. Separe-as antes com separar_discordancias_comparaveis().",
+      call. = FALSE
+    )
+  }
   mes <- format(discordancias$data_inicio, "%Y-%m")
   setor_projeto <- dados$projetos$setor[
     match(discordancias$projeto_id, dados$projetos$projeto_id)

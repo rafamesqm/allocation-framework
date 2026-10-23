@@ -94,6 +94,22 @@ test_that("setor nao declarado fica desconhecido, e nao incompativel", {
   )
 })
 
+test_that("discordancia sem consultor comparavel sai e e contada a parte", {
+  discordancias <- tibble::tibble(
+    discordancia_id = 1:3,
+    consultor_recomendado = c("c2", NA, "c3")
+  )
+
+  separadas <- separar_discordancias_comparaveis(discordancias)
+
+  expect_equal(separadas$comparaveis$discordancia_id, c(1L, 3L))
+  expect_equal(separadas$sem_comparavel, 1L)
+  expect_error(
+    medir_criterios_da_discordancia(discordancias, list()),
+    "sem consultor comparável"
+  )
+})
+
 test_that("projeto sem setor tambem fica desconhecido", {
   expect_equal(
     comparar_setor(c("Varejo", NA), NA_character_),

@@ -262,8 +262,10 @@ critérios de sucesso fixados acima.
 **Segundo nível, plausibilidade das discordâncias.** Quando o realizado não
 está entre os recomendados, a discordância compara com o realizado o primeiro
 recomendado que não estava alocado ao projeto no mês de início da alocação
-realizada. Recomendar quem já está no time não é alternativa ao realizado. A
-comparação usa quatro critérios:
+realizada. Recomendar quem já está no time não é alternativa ao realizado.
+Quando todos os recomendados já estavam no time, não há com quem comparar: a
+discordância fica fora da comparação e da leitura qualitativa, e é contada à
+parte. A comparação usa quatro critérios:
 
 * **folga de capacidade no mês**: a capacidade do consultor no mês, já
   descontadas as férias pelos dias que caem nele, menos as horas das demais
