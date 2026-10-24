@@ -306,5 +306,12 @@ list(
   tar_target(bloco_iii_figuras, salvar_figuras_bloco(
     bloco_iii$figuras, list(iii_proveniencia = c(19, 10))
   ), format = "file"),
-  tar_target(bloco_iii_achados, salvar_tabela(bloco_iii$achados, "achados_iii"), format = "file")
+  tar_target(bloco_iii_achados, salvar_tabela(bloco_iii$achados, "achados_iii"), format = "file"),
+
+  # Wave 3, scoring híbrido ---------------------------------------------------
+  # O pré-registro fixa a avaliação antes de qualquer modelo. Todo alvo da
+  # wave 3 recebe dele sementes, divisões, grades e regras, e o arquivo é
+  # rastreado para que qualquer mudança nele invalide o que veio depois.
+  tar_target(pre_registro_arquivo, here::here("config", "pre_registro.yml"), format = "file"),
+  tar_target(pre_registro, ler_pre_registro(pre_registro_arquivo))
 )

@@ -1,0 +1,223 @@
+# Pré-registro da avaliação da wave 3 (scoring híbrido).
+#
+# Fixa tudo o que decide a avaliação antes de existir qualquer modelo
+# ajustado. O commit deste arquivo é a prova de que o protocolo antecede o
+# resultado: nenhum valor aqui pode mudar depois de o primeiro modelo ser
+# ajustado, e os testes em tests/testthat/test-pre_registro.R falham se a
+# pipeline usar valor diferente.
+#
+# Origem de cada bloco: achados da EDA (outputs/tables/achados_*.csv) e as
+# decisões registradas pelo autor em 2026-10-24.
+
+versao: 1
+data_registro: "2026-10-24"
+
+dados:
+  fonte: synthetic
+  # Achado I.4.1. Intervalo semiaberto [inicio, fim): fica o que começa antes
+  # de `fim`, e o que atravessa o fim é censurado no último dia observado.
+  janela:
+    inicio: "2024-09-01"
+    fim: "2026-09-01"
+
+sementes:
+  # Semente de divisão, separada da de desempate e da de fatoração. É a que
+  # atribui cada consultor do quadro a um dos cinco grupos da validação
+  # cruzada por consultor; a divisão temporal não sorteia nada, e a recebe só
+  # por uniformidade. É a semente padrão de dividir_interacoes(), a mesma da
+  # EDA.
+  divisao: 1
+  # Desempate aleatório dos empates, no piso e no modelo, para cada par ter
+  # acerto de zero ou um no McNemar. Uma ordem aleatória por projeto.
+  desempate: 20261024
+  # Inicialização da fatoração.
+  fatoracao: 20261024
+  # Sorteio da leitura qualitativa do segundo nível (achado II.7.8).
+  leitura_qualitativa: 20261022
+  # Realizações do gerador para a estabilidade (bloco I.0).
+  realizacoes: [1, 100]
+
+divisoes:
+  temporal:
+    # Corte no quantil 0,7 da data de início do histórico da janela
+    # (quantil tipo 1), como em dividir_interacoes().
+    fracao_teste: 0.3
+    data_corte_verificacao: "2026-02-13"
+    # Validação interna: a mesma regra aplicada só ao período de estimação.
+    fracao_validacao: 0.3
+  por_consultor:
+    # Validação cruzada em grupos de consultores. O grupo de cada consultor do
+    # quadro sai da ordem dos consultor_id e da semente de divisão, e não da
+    # ordem das linhas de alocacoes.csv. Cada respondente entra no teste uma
+    # vez, e as predições de todos os grupos são reunidas antes do McNemar.
+    grupos: 5
+    universo: todos os consultores do quadro
+    # Validação interna, para os hiperparâmetros: dentro dos quatro grupos de
+    # estimação de cada partição, cada um deles faz a vez de validação contra
+    # os outros três, e o critério é medido na união das quatro validações.
+    validacao_interna: os quatro grupos de estimação, em rodízio
+
+metrica:
+  nome: acerto em lista
+  lista_decisoria: 20
+  listas_descritivas: [5, 10, 50]
+
+colaborativo:
+  modelo: fatoração para feedback implícito por mínimos quadrados alternados (Hu, Koren e Volinsky, 2008)
+  celula: ocorrência binária da alocação
+  # Confiança 1 + alfa * log(1 + horas), horas censuradas na janela.
+  alfas: [0, 1]
+  grade:
+    fatores: [2, 5, 10, 20]
+    lambda: [0.1, 1.0, 10.0, 100.0]
+    iteracoes: [10, 20]
+  # Cada alfa tem a sua escolha de hiperparâmetros, feita só na estimação.
+  escolha: maior acerto em lista de 20 nos pares avaliáveis da validação temporal interna
+  # Empate no critério: o modelo mais parcimonioso, nesta ordem.
+  desempate_da_escolha: [menos fatores, maior lambda, menos iteracoes]
+  piso: popularidade contada só na estimação, empates desfeitos ao acaso
+  avaliacao: pares do teste temporal cujo consultor e projeto aparecem na estimação, sem filtro de setor
+
+conteudo:
+  filtro: codificação indicadora do setor predominante declarado, aplicada só a quem declarou setor
+  # Atributos fora de C: fuso (sem variância) e localização (agrupada se rara).
+  # Não entram no mapeamento abaixo.
+  ordenacao:
+    modelo: mapeamento de atributos para fatores (Gantner et al., 2010, ICDM, p. 176-185, DOI 10.1109/ICDM.2010.129)
+    descricao: >-
+      fatoração implícita binária ajustada na estimação; regressão ridge dos
+      atributos declarados para os fatores dos consultores de estimação que
+      têm histórico e atributo; o consultor de teste é pontuado pelo fator
+      previsto contra o fator do projeto
+    atributos:
+      - setor predominante declarado, codificação indicadora
+      - competências declaradas, codificação indicadora por skill, sem peso de proficiência
+    atributos_proibidos: qualquer atributo derivado das alocações
+    atributos_excluidos:
+      - atributo: recência das competências
+        motivo: >-
+          as datas das ondas de formulário são suposição declarada, e não
+          medida (decisão I.4.3), então a recência não pode ponderar
+          competência nenhuma
+    # Projeto sem alocação na estimação não tem fator: todos os candidatos
+    # empatam e a ordem é ao acaso.
+    grade:
+      fatores: [2, 5, 10, 20]
+      lambda: [0.1, 1.0, 10.0, 100.0]
+      iteracoes: [10, 20]
+      lambda_mapeamento: [0.1, 1.0, 10.0, 100.0]
+    escolha: maior acerto em lista de 20 dentro do filtro, na validação interna por consultor (divisoes.por_consultor.validacao_interna)
+    desempate_da_escolha: [menos fatores, maior lambda, maior lambda_mapeamento, menos iteracoes]
+  excluidas:
+    - alternativa: similaridade de competências
+      motivo: >-
+        exigiria um perfil de competências do projeto derivado dos alocados, o
+        que viola a restrição de que P nunca é estimada das competências dos
+        alocados e reproduz o perfil médio rejeitado no achado II.6.6
+  piso: filtro de setor com ordem ao acaso dentro dele
+  verificacao_descritiva: acaso puro, sem função decisória
+  avaliacao: pares de teste da validação cruzada por consultor cujo consultor declarou setor, reunidos os cinco grupos
+
+teste:
+  nome: McNemar pareado exato, binomial sobre os pares discordantes
+  nivel: 0.05
+  lateralidade: bilateral
+  # Rejeitar só conta como superar o piso se o acerto do modelo for maior.
+  superioridade: rejeição com acerto do modelo maior que o do piso
+  ganho_minimo:
+    # Calculado sob o mesmo teste, pelo poder exato do McNemar bilateral, e
+    # não pela aproximação normal de Connor (1987).
+    calculo: poder exato do McNemar bilateral
+    poder: 0.8
+    cenarios: [dominancia, independencia]
+    # Reportado ao lado de cada teste. Orienta a leitura, não o veredito.
+
+regras_de_adocao:
+  conteudo:
+    teste_unico: mapeamento contra filtro com acaso
+    se_rejeitar: o mapeamento ordena dentro do filtro
+    se_nao_rejeitar: a ordem dentro do filtro é ao acaso
+  colaborativo:
+    # Sequência fixa, cada teste a 5%, parando na primeira não rejeição.
+    sequencia:
+      - codigo: H1
+        teste: fatoração binária (alfa = 0) contra popularidade na estimação
+      - codigo: H2
+        teste: fatoração com alfa = 1 contra alfa = 0
+        condicao: só se H1 for rejeitada
+    se_h1_nao_rejeitar: a ordenação é a popularidade, o sinal fica binário e a comparação de alfa é só descritiva
+    se_h2_nao_rejeitar: fica o sinal binário
+  entre_ramos: sem correção para comparações múltiplas, por serem perguntas distintas sobre populações distintas
+  leitura_do_colaborativo: com poucos pares avaliáveis, a não rejeição não é lida como ausência de efeito
+
+hibrido:
+  quadrantes:
+    tem_historico: alguma alocação no período de estimação
+    tem_formulario: declarou setor
+  ramos:
+    historico_e_formulario: o filtro restringe e o colaborativo adotado ordena
+    so_historico: o colaborativo adotado ordena, sem filtro
+    so_formulario: o filtro restringe e a ordenação adotada no conteúdo ordena
+    zona_morta: não recomendável pelo modelo
+  # Medida descritiva, sem teste e sem função decisória.
+  medida_descritiva:
+    divisao: temporal, com os quadrantes definidos na estimação
+    pares: todos os pares do teste temporal; o consultor da zona morta conta como erro, e a fração deles é reportada
+    candidatos: quem declarou setor e casa com o setor do projeto, mais quem tem histórico e não declarou setor
+    metrica: acerto em lista de 20, dentro do filtro
+    # Na lista, quem tem histórico vem antes de quem só tem formulário, que é
+    # a mesma ordem que o piso composto produz: popularidade na estimação é
+    # pelo menos 1 para quem tem histórico e 0 para quem não tem.
+    ordem_na_lista: quem tem histórico, pelo colaborativo adotado; depois quem só tem formulário, pela ordenação adotada no conteúdo
+    piso_composto:
+      historico_e_formulario: popularidade dentro do filtro
+      so_historico: popularidade
+      so_formulario: acaso dentro do filtro
+    # A mesma medida, separada pelo quadrante do consultor realizado, cada
+    # quadrante contra o seu piso. A zona morta fica fora da separação e é
+    # reportada só pela fração.
+    por_quadrante:
+      historico_e_formulario: acerto do híbrido contra popularidade dentro do filtro
+      so_historico: acerto do híbrido contra popularidade
+      so_formulario: acerto do híbrido contra acaso dentro do filtro
+    limitacao: >-
+      com quem tem histórico antes de quem só tem formulário, estes raramente
+      entram na lista de 20, e a inclusão deles depende da regra de exposição
+      definida fora do modelo, como na zona morta
+  # s_hat é saída da pipeline e insumo da wave 4; não entra em nenhuma
+  # decisão desta wave.
+
+segundo_nivel:
+  comparado: primeiro recomendado fora da equipe do projeto no mês
+  criterios: [folga de capacidade, custo por hora, setor, senioridade]
+  capacidade_mensal_horas: 168
+  desempate: maior tempo de casa
+  estratos: componente x classe, seis estratos, sem a zona morta
+  casos_por_estrato: 2
+  vereditos: [plausível, plausível com ressalva, implausível, indeterminável]
+  avaliador: o autor; a planilha sai em branco
+
+estabilidade:
+  nivel: 0.9
+  grandezas: [acertos, pisos, diferenças, ganhos mínimos, proporções de dominância]
+
+# Valores do protocolo na realização versionada, sob a janela, calculados
+# antes de qualquer modelo. A Etapa 1 da wave 3 precisa reproduzi-los.
+verificacao:
+  colaborativo:
+    pares_avaliaveis: 86
+    piso: 0.1977
+    piso_intervalo: [0.1382, 0.2810]
+    ganho_minimo_dominancia: 0.0904
+    ganho_minimo_independencia: 0.2062
+  popularidade_todos_os_pares_temporais:
+    piso: 0.2221
+    piso_intervalo: [0.1694, 0.2227]
+  conteudo:
+    pares_avaliaveis: 1301
+    piso_filtro_acaso: 0.5589
+    piso_intervalo: [0.4821, 0.5691]
+    fracao_passa_filtro: 0.5972
+    acaso_puro: 0.0702
+    ganho_minimo_dominancia: 0.0061
+    ganho_minimo_independencia: 0.0549
