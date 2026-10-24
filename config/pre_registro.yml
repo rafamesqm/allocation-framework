@@ -221,3 +221,38 @@ verificacao:
     acaso_puro: 0.0702
     ganho_minimo_dominancia: 0.0061
     ganho_minimo_independencia: 0.0549
+
+# Emendas. Cada uma é datada, registrada antes do teste a que se refere, e
+# não altera nenhum valor acima.
+emendas:
+  - data: "2026-10-24"
+    anterior_ao_teste: true
+    contexto: >-
+      hiperparâmetros do mapeamento escolhidos na validação interna e revistos
+      pelo autor; nenhum grupo de teste do conteúdo foi tocado
+    hiperparametros_do_conteudo_na_realizacao_versionada:
+      - {grupo: 1, fatores: 5, lambda: 100.0, iteracoes: 20, lambda_mapeamento: 0.1}
+      - {grupo: 2, fatores: 2, lambda: 100.0, iteracoes: 10, lambda_mapeamento: 100.0}
+      - {grupo: 3, fatores: 2, lambda: 100.0, iteracoes: 20, lambda_mapeamento: 0.1}
+      - {grupo: 4, fatores: 5, lambda: 1.0, iteracoes: 20, lambda_mapeamento: 10.0}
+      - {grupo: 5, fatores: 20, lambda: 100.0, iteracoes: 10, lambda_mapeamento: 10.0}
+    pontuacao_no_filtro: >-
+      dentro do filtro, todos os candidatos são pontuados pelo fator previsto a
+      partir dos atributos declarados, inclusive os que têm histórico; o
+      projeto sem fator na estimação leva à ordem ao acaso
+    diagnostico:
+      funcao: descritivo, sem teste e sem função decisória
+      objetivo: distinguir sinal de afinidade com o projeto de popularidade prevista por atributos
+      spearman: >-
+        correlação de Spearman entre o escore do mapeamento e a popularidade
+        do consultor contada na estimação, sobre os pares de candidato e
+        projeto dos conjuntos filtrados dos projetos de teste, por grupo e
+        reunida nos cinco grupos
+      escore_constante: >-
+        acerto em lista de 20 de uma variante em que cada consultor recebe, em
+        todo projeto, um escore constante igual à média do seu escore do
+        mapeamento sobre os projetos, contra o mesmo piso de filtro com acaso
+    realizacoes: >-
+      cada realização refaz o procedimento inteiro, inclusive a escolha de
+      hiperparâmetros por validação interna; os valores da realização
+      versionada nunca são reaproveitados
