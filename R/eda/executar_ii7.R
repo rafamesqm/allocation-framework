@@ -27,12 +27,22 @@
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
                           tamanhos = c(5, 10, 20, 50)) {
+  # O protocolo inteiro roda sobre o histórico da janela do achado I.4.1. Uma
+  # versão anterior dividia o conjunto inteiro, e 18% do teste temporal eram
+  # alocações começando depois da data de referência, que são projeção da
+  # cauda do gerador e não histórico. A linha de base otimista, comparada
+  # abaixo com a do protocolo, é refeita sobre o mesmo histórico para as duas
+  # medirem o mesmo universo.
+  dados <- com_historico_da_janela(dados)
   com_atributo <- unique(dados$experiencia_setorial$consultor_id)
   formas <- c("temporal", "aleatoria", "por_consultor", "por_projeto")
 
   divisoes <- purrr::map(formas, function(forma) {
     medir_divisao(
-      dividir_interacoes(dados$alocacoes, forma, fracao_teste = fracao_teste),
+      dividir_interacoes(
+        dados$alocacoes, forma, fracao_teste = fracao_teste,
+        universo = dados$consultores$consultor_id
+      ),
       com_atributo
     )
   }) |>
@@ -192,7 +202,7 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       dplyr::transmute(
         `Tamanho da lista` = n_recomendados,
         `Sob o protocolo` = formatar_pct(recall_protocolo),
-        `Versão do bloco II.1` = formatar_pct(recall_otimista),
+        `Versão do bloco II.1, na janela` = formatar_pct(recall_otimista),
         `Diferença` = formatar_pct(diferenca)
       )
   )
@@ -366,8 +376,11 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
 
     "II.7.5", "instrumento",
     paste0(
-      "Sob divisão por consultor, o piso de popularidade do componente de ",
-      "conteúdo é de ", formatar_pct(popularidade_no_conteudo$valor_piso),
+      "Sob divisão por consultor, feita como validação cruzada em ",
+      "cinco grupos, com o grupo de cada consultor fixado pelo identificador e ",
+      "pela semente e cada respondente no teste uma vez, o piso de popularidade ",
+      "do componente de conteúdo é de ",
+      formatar_pct(popularidade_no_conteudo$valor_piso),
       " em lista de ", lista, ", sobre ",
       formatar_inteiro(popularidade_no_conteudo$n_avaliavel), " pares: nenhum ",
       "consultor de teste tem alocação no treino, e todos ficam empatados em ",
@@ -398,8 +411,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       sobre_realizacoes("n_avaliavel_colaborativo", formatar_inteiro),
       ", e contra o piso de popularidade de ",
       formatar_pct(poder_colaborativo$valor_piso),
-      " um ganho só seria distinguível, num teste pareado a 5% com poder de ",
-      "80%, se chegasse a ", pontos(poder_colaborativo$ganho_dominancia),
+      " um ganho só seria distinguível, no McNemar exato bilateral a 5% com ",
+      "poder de 80%, se chegasse a ", pontos(poder_colaborativo$ganho_dominancia),
       " pontos percentuais no cenário otimista e a ",
       pontos(poder_colaborativo$ganho_independencia), " no conservador",
       sobre_realizacoes("ganho_minimo_colaborativo", pontos, " pontos percentuais"),
@@ -438,7 +451,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     paste0(
       "**O critério de sucesso fica fixado antes do modelo, e é um teste, não ",
       "um número.** O conteúdo é considerado superior ao piso se o teste ",
-      "pareado de McNemar rejeitar a igualdade a 5%, com os empates do piso ",
+      "pareado de McNemar, na forma exata e bilateral, rejeitar a igualdade a ",
+      "5% na direção do modelo, com os empates do piso ",
       "desfeitos ao acaso sob semente declarada, para cada par ter um acerto ",
       "de zero ou um. O ganho mínimo serve para planejar e não para julgar: ",
       "ele diz que, no cenário conservador, o teste só enxerga ganhos a partir ",

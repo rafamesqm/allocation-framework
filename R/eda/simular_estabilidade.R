@@ -90,7 +90,14 @@ medir_grandezas <- function(dados) {
   espaco_skills <- dados$espaco_skills
   skills <- dados$skills_consultor
   grafo <- dados$grafo_coalocacao
-  ocupacao <- dados$ocupacao_consultor
+
+  # Leituras de calendário respeitam a janela do achado I.4.1: ocupação,
+  # divisões temporais, meses do porte e o poder do protocolo. As grandezas
+  # estruturais, como densidade, grau e cold start, seguem sobre o conjunto
+  # inteiro, que é a escala em que o gerador foi calibrado.
+  na_janela <- com_historico_da_janela(dados)
+  historico <- na_janela$alocacoes
+  ocupacao <- na_janela$ocupacao_consultor
 
   nivel_num <- senioridade_numerica(consultores$nivel_senioridade)
   nivel_alocacao <- nivel_num[match(alocacoes$consultor_id, consultores$consultor_id)]
@@ -146,7 +153,7 @@ medir_grandezas <- function(dados) {
   # sobre ela que o bloco II.6 estima o one-hot: usar a latente mediria um
   # setor que o analista não enxerga.
   discriminacao <- comparar_mecanismos_de_p(list(
-    alocacoes = alocacoes,
+    alocacoes = historico,
     projetos = projetos,
     consultores = consultores,
     skills_consultor = skills,
@@ -165,20 +172,23 @@ medir_grandezas <- function(dados) {
   # protocolo adota para o colaborativo. `dividir_interacoes()` chama
   # `set.seed()` mesmo no ramo temporal, o que é inofensivo aqui porque nada
   # depois dele consome aleatoriedade.
-  divisao_temporal <- dividir_interacoes(alocacoes, "temporal", fracao_teste = 0.3)
+  divisao_temporal <- dividir_interacoes(historico, "temporal", fracao_teste = 0.3)
   avaliabilidade_temporal <- medir_divisao(
     divisao_temporal, unique(experiencia_observada$consultor_id)
   )
   linha_base_protocolo <- medir_linha_base_sob_protocolo(
     divisao_temporal$treino, divisao_temporal$teste, consultores, tamanhos = 20
   )
+  # A correção do achado II.7.3 compara as duas linhas de base sobre o mesmo
+  # histórico; `linha_base`, acima, é a do bloco II.1, estrutural.
+  linha_base_na_janela <- medir_linha_base_popularidade(historico, consultores, tamanhos = 20)
   linha_base_50 <- medir_linha_base_popularidade(alocacoes, consultores, tamanhos = 50)
   identificabilidade_k10 <- medir_identificabilidade(
     alocacoes, consultores, projetos, fatores = 10
   )
   filtro <- medir_reducao_pelo_filtro(consultores, projetos, experiencia_observada)
   porte <- medir_porte_do_problema(
-    consultores, projetos, alocacoes, dplyr::n_distinct(ocupacao$ano_mes),
+    consultores, na_janela$projetos_janela, historico, dplyr::n_distinct(ocupacao$ano_mes),
     fracao_candidatos = filtro$fracao_candidatos
   )
   variaveis_de <- function(formulacao) porte$variaveis[porte$formulacao == formulacao]
@@ -186,10 +196,10 @@ medir_grandezas <- function(dados) {
   # Poder por componente, do bloco II.7. O número de pares avaliáveis do
   # colaborativo varia bastante entre realizações, e calcular o ganho mínimo
   # sobre uma só repetiria o erro que estas réplicas existem para evitar. A
-  # divisão por consultor sorteia, mas `dividir_interacoes()` fixa a própria
-  # semente e nada depois dela consome aleatoriedade.
+  # validação cruzada por consultor sorteia os grupos sob semente própria, sem
+  # mexer no fluxo aleatório da realização.
   poder <- planejar_poder_por_componente(
-    alocacoes, consultores, projetos, experiencia_observada
+    historico, consultores, projetos, experiencia_observada
   )
   poder_de <- function(componente, piso) {
     poder[poder$componente == componente & poder$piso == piso, ]
@@ -258,7 +268,7 @@ medir_grandezas <- function(dados) {
     recall_protocolo_20 = linha_base_protocolo$recall,
     # Medida como grandeza própria pelo mesmo motivo da folga do one-hot: o
     # achado II.7.3 afirma que a correção morde, que é afirmar um sinal.
-    correcao_linha_base_20 = linha_base$recall - linha_base_protocolo$recall,
+    correcao_linha_base_20 = linha_base_na_janela$recall - linha_base_protocolo$recall,
     reducao_porte_filtro = variaveis_de("Trio consultor, projeto e mês") /
       variaveis_de("Trio, restrito ao conjunto candidato"),
     n_avaliavel_colaborativo = poder_colaborativo$n_avaliavel,
@@ -540,6 +550,32 @@ contar_fora_por_replica <- function(replicas, medidas, nivel = 0.90) {
     superior <- apply(demais, 2, stats::quantile, probs = 1 - margem, na.rm = TRUE)
     sum(valores[i, ] < inferior | valores[i, ] > superior, na.rm = TRUE)
   }, integer(1))
+}
+
+#' Tabula a distribuição de referência da tipicidade, para o texto
+#'
+#' É a mesma informação da figura de tipicidade do bloco I.0, em forma de
+#' tabela: para cada contagem de grandezas fora do intervalo, quantas
+#' réplicas a tiveram e que fração tem pelo menos tanto. A linha da contagem
+#' do conjunto versionado vem marcada, e a fração acumulada dela é o valor-p
+#' empírico de `julgar_tipicidade_do_versionado()`.
+#'
+#' @param referencia Vetor de `contar_fora_por_replica()`.
+#' @param n_fora Contagem do conjunto versionado.
+#' @return tibble com uma linha por contagem, de zero ao maior valor
+#'   observado, formatada para `salvar_tabela()`.
+tabular_fora_por_replica <- function(referencia, n_fora) {
+  contagens <- 0:max(c(referencia, n_fora))
+  replicas <- vapply(contagens, \(k) sum(referencia == k), integer(1))
+  tantas_ou_mais <- vapply(contagens, \(k) mean(referencia >= k), numeric(1))
+
+  tibble::tibble(
+    `Grandezas fora do intervalo` = contagens,
+    `Réplicas` = replicas,
+    `Fração das réplicas` = formatar_pct(replicas / length(referencia)),
+    `Fração com tantas ou mais` = formatar_pct(tantas_ou_mais),
+    `Conjunto versionado` = dplyr::if_else(contagens == n_fora, "sim", "")
+  )
 }
 
 #' Julga se o conjunto versionado é uma realização típica

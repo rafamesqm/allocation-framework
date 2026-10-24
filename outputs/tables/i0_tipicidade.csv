@@ -5,6 +5,7 @@ pares_sem_positividade,II.4,"0,3457","0,3222 a 0,3415",100%,acima
 ess_relativo_ips,II.4,"0,2425","0,2538 a 0,3669",2%,abaixo
 gini_grau_consultor,II.1,"0,4036","0,3624 a 0,4029",96%,acima
 recall_popularidade_20,II.1,"0,2461","0,1847 a 0,2360",98%,acima
-recall_protocolo_20,II.7.3,"0,2273","0,1695 a 0,2257",95%,acima
 reducao_porte_filtro,II.8.1,"1,7228","1,6877 a 1,7213",95%,acima
-piso_conteudo_filtro,"II.7.5, II.7.7","0,5857","0,4733 a 0,5828",95%,acima
+n_avaliavel_conteudo,II.7.7,"1.301,0000","1.014,5500 a 1.238,6000",100%,acima
+ganho_minimo_conteudo,II.7.7,"0,0549","0,0564 a 0,0625",0%,abaixo
+ganho_minimo_conteudo_dominancia,II.7.7,"0,0061","0,0064 a 0,0078",0%,abaixo

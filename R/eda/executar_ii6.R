@@ -49,7 +49,9 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
   }) |>
     purrr::list_rbind()
 
-  comparacao <- comparar_mecanismos_de_p(dados)
+  # A comparação corta o histórico pela data mediana, o que é leitura de
+  # calendário e respeita a janela do achado I.4.1.
+  comparacao <- comparar_mecanismos_de_p(com_historico_da_janela(dados))
   ponte <- referencias_ponte_frente_offering()
 
   resultados <- comparacao$resultados

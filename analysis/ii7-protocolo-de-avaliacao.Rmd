@@ -124,7 +124,7 @@ dois.
 ```{r linha-base}
 mostrar_tabela(
   bloco$tabelas$ii7_linha_base,
-  "Tabela II.7.3: acerto da popularidade, sob o protocolo e na versão do bloco II.1.",
+  "Tabela II.7.3: acerto da popularidade, sob o protocolo e na versão do bloco II.1, as duas sobre o histórico da janela de análise.",
   c("r", "r", "r", "r")
 )
 ```

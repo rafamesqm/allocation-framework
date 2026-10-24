@@ -39,11 +39,13 @@ jobs:
       - name: Estado do renv
         run: Rscript -e 'renv::status()'
 
-      - name: Testes
-        run: Rscript tests/testthat.R
-
+      # A pipeline vem antes dos testes porque parte deles lê o store do
+      # targets, que numa máquina limpa só existe depois do tar_make().
       - name: Pipeline
         run: Rscript -e 'targets::tar_make()'
+
+      - name: Testes
+        run: Rscript tests/testthat.R
 
       - name: Renderização dos documentos
         run: Rscript -e 'source("analysis/_renderizar.R")'

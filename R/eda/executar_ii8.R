@@ -17,15 +17,20 @@
 #' @param margem_calibrada Se a escala da margem fecha com a âncora real.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
-  meses_ativos <- dplyr::n_distinct(dados$ocupacao_consultor$ano_mes)
+  # Meses ativos, meses de projeto e ocupação são leituras de calendário e
+  # respeitam a janela do achado I.4.1. Sem ela o horizonte ia até 2030, 76
+  # meses de que só 24 são histórico, e a wave 4 é exercício retrospectivo
+  # sobre o histórico (II.8.4).
+  dados <- aplicar_janela_de_analise(dados)
+  meses_ativos <- dplyr::n_distinct(dados$ocupacao_janela$ano_mes)
   filtro <- medir_reducao_pelo_filtro(
     dados$consultores, dados$projetos, dados$experiencia_setorial
   )
   porte <- medir_porte_do_problema(
-    dados$consultores, dados$projetos, dados$alocacoes, meses_ativos,
+    dados$consultores, dados$projetos_janela, dados$alocacoes_janela, meses_ativos,
     fracao_candidatos = filtro$fracao_candidatos
   )
-  capacidade <- medir_violacao_de_capacidade(dados$ocupacao_consultor)
+  capacidade <- medir_violacao_de_capacidade(dados$ocupacao_janela)
 
   insumos <- registrar_insumos_do_otimizador(
     margem_calibrada = margem_calibrada,

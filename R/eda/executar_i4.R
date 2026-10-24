@@ -26,19 +26,34 @@ executar_i4 <- function(dados,
   # análise vale e censurar o resto, que é prática padrão em análise de
   # sobrevivência. O período com entrada de projetos vai do primeiro início
   # até a data de referência; além dela só há projeção da cauda.
-  inicio_janela <- min(dados$projetos$data_inicio)
-  janela_analise <- c(inicio_janela, data_referencia)
-
-  dentro_da_janela <- dados$alocacoes$data_inicio <= data_referencia
-  fracao_alem_da_janela <- mean(!dentro_da_janela)
+  #
+  # A janela fica num só lugar, `janela_de_analise()`, e as séries de
+  # vigência e de ocupação abaixo já são lidas dentro dela. O que este bloco
+  # ainda lê no conjunto inteiro é justamente o que mede a cauda: o fim mais
+  # distante e a fração que fica de fora.
+  dados <- aplicar_janela_de_analise(dados)
+  janela_analise <- unname(dados$janela)
+  fracao_alem_da_janela <- 1 - nrow(dados$alocacoes_janela) / nrow(dados$alocacoes)
+  # As leituras estruturais do capítulo ficam no conjunto inteiro; esta
+  # tabela mostra quanto elas mudariam na janela, para a escolha ter custo
+  # declarado.
+  estruturais <- comparar_leituras_estruturais_na_janela(dados)
+  formatar_estrutural <- function(medida, valor) {
+    dplyr::case_when(
+      medida == "Alocações" ~ formatar_inteiro(valor),
+      medida %in% c("Densidade de R", "Gini do grau do consultor",
+                    "Observações por parâmetro, 10 fatores") ~ formatar_decimal(valor, 4),
+      .default = formatar_pct(valor)
+    )
+  }
 
   inicios_projeto <- serie_mensal_eventos(dados$projetos$data_inicio)
   vigencias <- serie_vigencias_mensais(
-    dados$alocacoes$data_inicio, dados$alocacoes$data_fim
+    dados$alocacoes_janela$data_inicio, dados$alocacoes_janela$data_fim
   )
   sazonalidade <- testar_sazonalidade_mensal(dados$projetos$data_inicio)
 
-  ocupacao_mensal <- dados$ocupacao_consultor |>
+  ocupacao_mensal <- dados$ocupacao_janela |>
     dplyr::summarise(
       pct_ocupacao_medio = mean(pct_ocupacao),
       consultores = dplyr::n(),
@@ -73,7 +88,8 @@ executar_i4 <- function(dados,
     inicio_alocacao_mais_tardio = inicio_alocacao_mais_tardio,
     data_referencia = data_referencia,
     janela_analise = janela_analise,
-    fracao_alem_da_janela = fracao_alem_da_janela
+    fracao_alem_da_janela = fracao_alem_da_janela,
+    estruturais = estruturais
   )
 
   tabelas <- list(
@@ -90,6 +106,12 @@ executar_i4 <- function(dados,
         Observado = observado,
         Esperado = formatar_decimal(esperado, 1),
         `Razão` = formatar_decimal(razao, 3)
+      ),
+    i4_janela_estruturais = estruturais |>
+      dplyr::transmute(
+        Medida = medida,
+        `Conjunto inteiro` = formatar_estrutural(medida, conjunto_inteiro),
+        `Na janela de análise` = formatar_estrutural(medida, janela)
       )
   )
 
@@ -183,8 +205,8 @@ executar_i4 <- function(dados,
     "I.4.4", "instrumento",
     paste0(
       "A vigência mensal de alocações vai de ", min(vigencias$n_vigentes),
-      " a ", max(vigencias$n_vigentes), " alocações simultâneas ao longo de ",
-      nrow(vigencias), " meses, com mediana ",
+      " a ", max(vigencias$n_vigentes), " alocações simultâneas ao longo dos ",
+      nrow(vigencias), " meses da janela de análise, com mediana ",
       formatar_inteiro(stats::median(vigencias$n_vigentes)), "."
     ),
     paste0(

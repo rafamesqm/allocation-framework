@@ -226,6 +226,9 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
         Percentil = formatar_pct(.data$percentil, 0),
         `Posição` = .data$posicao
       )
+    tabelas$i0_fora_por_replica <- tabular_fora_por_replica(
+      tipicidade$referencia, tipicidade$n_fora
+    )
   }
 
   figuras <- list(

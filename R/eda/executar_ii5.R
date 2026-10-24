@@ -16,8 +16,13 @@
 #'   assinatura dos blocos.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_ii5 <- function(dados, estabilidade = NULL) {
-  sinal_binario <- construir_sinal_implicito(dados$alocacoes, alfa = 0)
-  sinal_confianca <- construir_sinal_implicito(dados$alocacoes, alfa = 1)
+  # O sinal é o que a wave 3 vai consumir, então é medido sobre o histórico
+  # observado até a data de referência, com as horas censuradas nela. A
+  # margem, abaixo, continua sobre o conjunto inteiro: ela confronta as horas
+  # do projeto todo com o contrato do projeto todo.
+  historico <- aplicar_janela_de_analise(dados)$alocacoes_janela
+  sinal_binario <- construir_sinal_implicito(historico, alfa = 0)
+  sinal_confianca <- construir_sinal_implicito(historico, alfa = 1)
   horas_quantis <- stats::quantile(sinal_confianca$horas, c(0.1, 0.5, 0.9), names = FALSE)
   confianca_quantis <- stats::quantile(sinal_confianca$confianca, c(0, 0.5, 1), names = FALSE)
 

@@ -85,12 +85,14 @@ test_that("a sazonalidade acusa concentracao real quando ela existe", {
 test_that("executar_i4 devolve as quatro partes do bloco", {
   dados <- carregar_dados(tabelas = c(
     "projetos", "alocacoes", "ocupacao_consultor", "skills_consultor",
-    "ferias_consultor"
+    "ferias_consultor", "consultores", "experiencia_setorial"
   ))
 
   bloco <- executar_i4(dados)
 
   expect_named(bloco, c("objetos", "tabelas", "figuras", "achados"))
+  expect_equal(nrow(bloco$tabelas$i4_janela_estruturais), 7)
+  expect_equal(nrow(bloco$objetos$vigencias), 24)
   expect_true(all(vapply(bloco$figuras, ggplot2::is_ggplot, logical(1))))
   expect_equal(nrow(bloco$achados), 4)
 })
