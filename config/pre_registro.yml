@@ -256,3 +256,21 @@ emendas:
       cada realização refaz o procedimento inteiro, inclusive a escolha de
       hiperparâmetros por validação interna; os valores da realização
       versionada nunca são reaproveitados
+  - data: "2026-10-24"
+    anterior_ao_teste: true
+    contexto: >-
+      hiperparâmetros do colaborativo escolhidos na validação temporal interna
+      e revistos pelo autor; nenhum par do teste temporal foi tocado
+    hiperparametros_do_colaborativo_na_realizacao_versionada:
+      - {alfa: 0, fatores: 2, lambda: 1.0, iteracoes: 10}
+      - {alfa: 1, fatores: 20, lambda: 10.0, iteracoes: 20}
+    # A escolha saiu de poucos pares, e os achados dizem isso.
+    pares_avaliaveis_na_validacao: 58
+    lista_do_colaborativo: >-
+      consultores sem fator na estimação, isto é, sem alocação nela, vão para
+      o fim da lista, em ordem aleatória pela chave da semente de desempate,
+      como no piso de popularidade
+    realizacoes: >-
+      cada realização refaz o procedimento inteiro, inclusive a escolha de
+      hiperparâmetros por validação interna; os valores da realização
+      versionada nunca são reaproveitados
