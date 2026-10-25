@@ -313,5 +313,58 @@ list(
   # wave 3 recebe dele sementes, divisões, grades e regras, e o arquivo é
   # rastreado para que qualquer mudança nele invalide o que veio depois.
   tar_target(pre_registro_arquivo, here::here("config", "pre_registro.yml"), format = "file"),
-  tar_target(pre_registro, ler_pre_registro(pre_registro_arquivo))
+  tar_target(pre_registro, ler_pre_registro(pre_registro_arquivo)),
+
+  # Etapa 1: os pisos sob o protocolo, conferidos contra os valores de
+  # verificação do pré-registro. A conferência para a pipeline se algum não
+  # reproduzir, e a tabela só é salva depois dela.
+  tar_target(w3_pisos, medir_pisos_pre_registrados(dados_eda, pre_registro)),
+  tar_target(w3_pisos_conferencia, conferir_pisos(w3_pisos, pre_registro)),
+  tar_target(w3_pisos_tabela, {
+    w3_pisos_conferencia
+    salvar_tabela(tabelar_pisos(w3_pisos, estabilidade), "w3_pisos")
+  }, format = "file"),
+
+  # Etapa 2, conteúdo: escolha dos hiperparâmetros do mapeamento na
+  # validação interna, só nos grupos de estimação. O teste contra o piso
+  # entra depois de a escolha ser revista.
+  tar_target(w3_conteudo_selecao, selecionar_hiperparametros_do_conteudo(dados_eda, pre_registro)),
+  tar_target(w3_conteudo_hiperparametros_tabela, salvar_tabela(
+    tabelar_hiperparametros_do_conteudo(w3_conteudo_selecao), "w3_conteudo_hiperparametros"
+  ), format = "file"),
+
+  # O teste único do conteúdo, com a escolha conferida contra a registrada na
+  # emenda de 2026-10-24: se a escolha mudar, a pipeline para antes do teste.
+  tar_target(w3_conteudo_selecao_conferida, conferir_escolha_registrada(w3_conteudo_selecao, pre_registro)),
+  tar_target(w3_conteudo_avaliacao, avaliar_componente_de_conteudo(
+    dados_eda, pre_registro, w3_conteudo_selecao_conferida
+  )),
+  tar_target(w3_conteudo_resumo, resumir_avaliacao_do_conteudo(w3_conteudo_avaliacao, pre_registro)),
+
+  # Realizações: cada uma refaz o procedimento inteiro, inclusive a escolha
+  # de hiperparâmetros. Uma semente por ramo, para uma corrida interrompida
+  # retomar de onde parou.
+  tar_target(w3_conteudo_sementes, seq(pre_registro$sementes$realizacoes[1], pre_registro$sementes$realizacoes[2])),
+  tar_target(
+    w3_conteudo_replicas,
+    simular_avaliacao_do_conteudo(
+      w3_conteudo_sementes, pre_registro,
+      n_consultores = parametros$n_consultores, n_projetos = parametros$n_projetos,
+      data_referencia = parametros$data_referencia
+    ),
+    pattern = map(w3_conteudo_sementes)
+  ),
+
+  # Achados das Etapas 1 e 2, no formato da EDA, com tabelas e figura.
+  tar_target(w3_pisos_achados, salvar_tabela(
+    registrar_achados_w3_pisos(w3_pisos_conferencia, w3_pisos, estabilidade), "achados_w3_1"
+  ), format = "file"),
+  tar_target(bloco_w3_conteudo, executar_w3_conteudo(
+    w3_conteudo_avaliacao, w3_conteudo_replicas, pre_registro
+  )),
+  tar_target(bloco_w3_conteudo_tabelas, salvar_tabelas_bloco(bloco_w3_conteudo$tabelas), format = "file"),
+  tar_target(bloco_w3_conteudo_figuras, salvar_figuras_bloco(
+    bloco_w3_conteudo$figuras, list(w3_conteudo_diferencas = c(18, 9))
+  ), format = "file"),
+  tar_target(bloco_w3_conteudo_achados, salvar_tabela(bloco_w3_conteudo$achados, "achados_w3_2"), format = "file")
 )

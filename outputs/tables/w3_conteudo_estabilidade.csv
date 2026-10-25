@@ -1,0 +1,24 @@
+Medida,Realização versionada,Mediana,Inferior,Superior,Posição da versionada,Réplicas
+diferenca_mapeamento,"0,0100","0,0004","-0,0243","0,0367",dentro,100
+diferenca_constante,"0,0184","0,0051","-0,0339","0,0481",dentro,100
+mapeamento_menos_constante,"-0,0085","-0,0039","-0,0221","0,0190",dentro,100
+grade_mediana_menos_piso,"0,0029","0,0034","-0,0104","0,0227",dentro,100
+valor_p_mcnemar,"0,1539","0,2257","0,0001","1,0000",dentro,100
+grade_empatadas_no_maximo,"7,6000","7,5000","1,8000","13,9100",dentro,100
+grade_maximo_menos_piso,"0,0175","0,0240","0,0109","0,0442",dentro,100
+spearman_reunida,"0,0664","0,1010","0,0403","0,1599",dentro,100
+discordantes_contra,"29,0000","58,5000","28,9500","97,0500",dentro,100
+escolha_fatores_distintos,"3,0000","2,0000","1,0000","3,0500",dentro,100
+grade_maximo_menos_mediana,"0,0145","0,0198","0,0126","0,0315",dentro,100
+discordantes_a_favor,"42,0000","60,5000","33,9500","90,8000",dentro,100
+escolha_lambda_mapa_distintos,"3,0000","3,0000","2,0000","4,0000",dentro,100
+escolha_configuracoes_distintas,"5,0000","5,0000","3,0000","5,0000",dentro,100
+acerto_constante,"0,5819","0,5352","0,4753","0,5836",dentro,100
+ganho_minimo_dominancia,"0,0061","0,0070","0,0064","0,0078",abaixo,100
+n_pares_conteudo,"1.301,0000","1.127,5000","1.014,5500","1.238,6000",acima,100
+acerto_mapeamento,"0,5734","0,5327","0,4738","0,5774",dentro,100
+acerto_piso_filtro,"0,5634","0,5285","0,4827","0,5741",dentro,100
+ganho_minimo_independencia,"0,0548","0,0596","0,0564","0,0625",abaixo,100
+fracao_passa_filtro,"0,5972","0,6207","0,5886","0,6514",dentro,100
+acaso_puro,"0,0702","0,0702","0,0702","0,0702",dentro,100
+supera_piso,"0,0000","0,0000","0,0000","1,0000",dentro,100
