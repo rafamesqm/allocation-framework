@@ -4,7 +4,7 @@ Etapa,Grandeza,Realização versionada,Mediana,Intervalo de 90%,Posição da ver
 "Conteúdo, emenda 2",Mapeamento menos piso,"0,0031","0,0027","-0,0244 a 0,0240",dentro,100
 "Conteúdo, emenda 2","Ganho mínimo, otimista","0,0061","0,0070","0,0064 a 0,0078",abaixo,100
 "Conteúdo, emenda 2","Ganho mínimo, conservador","0,0548","0,0596","0,0564 a 0,0625",abaixo,100
-"Conteúdo, emenda 2",Rejeição a favor do mapeamento,"0,0000","0,0000","0,0000 a 1,0000",dentro,100
+"Conteúdo, emenda 2",Rejeição a favor do mapeamento,"0,0000",--,frequência de 14%,não se aplica,100
 Colaborativo,Fração avaliável,"0,1243","0,1258","0,0857 a 0,1618",dentro,100
 Colaborativo,"Piso, acerto esperado","0,1977","0,2021","0,1382 a 0,2810",dentro,100
 Colaborativo,"Piso, empates sorteados","0,1977","0,2000","0,1332 a 0,2878",dentro,100
@@ -13,7 +13,7 @@ Colaborativo,H1: binária menos piso,"0,0116","0,0126","-0,0737 a 0,1009",dentro
 Colaborativo,H2: confiança menos binária,"0,0000","0,0000","-0,0741 a 0,0725",dentro,100
 Colaborativo,"Ganho mínimo de H1, otimista","0,0904","0,0894","0,0662 a 0,1287",dentro,100
 Colaborativo,"Ganho mínimo de H1, conservador","0,2062","0,2062","0,1672 a 0,2506",dentro,100
-Colaborativo,Rejeição em H1,"0,0000","0,0000","0,0000 a 0,0000",dentro,100
+Colaborativo,Rejeição em H1,"0,0000",--,frequência de 2%,não se aplica,100
 Híbrido,Acerto do híbrido,"0,3078","0,2359","0,2057 a 0,2711",acima,100
 Híbrido,Híbrido menos piso composto,"0,0000","0,0000","0,0000 a 0,0000",dentro,100
 Híbrido,"Acerto, histórico e formulário","0,2617","0,1708","0,1132 a 0,2500",acima,100

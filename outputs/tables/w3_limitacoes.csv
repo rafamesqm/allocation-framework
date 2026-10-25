@@ -4,12 +4,16 @@ W3.2.2,"O diagnóstico é descritivo e, no sintético, separa o que o gerador pl
 W3.2.3,"Os hiperparâmetros do mapeamento não são identificados pela validação interna nesta escala; o resultado vale para o procedimento de escolha, e não para uma configuração.",depende do gerador
 W3.2.4,"Escolher o máximo de uma grade plana infla a vantagem na validação, e nenhuma vantagem medida ali deve ser citada como ganho do modelo.",estrutural
 W3.2.8,"O diagnóstico é descritivo; no sintético ele mede o que o gerador plantou, e não como o mapa se comportaria com o vínculo real entre competência e projeto.",depende do gerador
+W3.2.9,"Escolher o máximo de uma grade plana infla a vantagem na validação, também sob a emenda 2, e nenhuma vantagem medida ali deve ser citada como ganho do modelo.",estrutural
+W3.2.10,"A análise é posterior ao resultado e descritiva; o intervalo de Newcombe e o ganho mínimo do conteúdo, que supõem pares independentes, ficam otimistas.",estrutural
+W3.2.11,"O tamanho do filtro é do sintético; no dado real o espaço setorial é mais fino (II.6.1), e o espaço que a lista deixa para ordenar precisa ser recontado.",depende do gerador
 W3.3.1,"O colaborativo só fala sobre a fração avaliável do teste, porque projeto de consultoria raramente volta; o número de pares é do sintético e precisa ser recontado no dado real.",fato real
 W3.3.3,"As horas que definem a confiança dependem da duração recalibrada das alocações, então a comparação de alfa fala do gerador.",depende do gerador
-W3.3.4,"A escolha dos hiperparâmetros do colaborativo saiu de 58 pares de validação, e por isso é instável; o resultado vale para o procedimento de escolha, e não para uma configuração.",fato real
+W3.3.4,"A escolha dos hiperparâmetros do colaborativo saiu de 58 pares de validação, e por isso é instável; o resultado vale para o procedimento de escolha, e não para uma configuração.",depende do gerador
 W3.3.5,"O diagnóstico foi pedido depois do teste e não tem função decisória; a magnitude da correlação é do sintético, e a previsão que ele confere, a do achado II.2.4, se apoia em agregado real.",depende do gerador
-W3.4.1,"A medida é descritiva e vale para a população observada: um híbrido que reproduz a popularidade filtrada adere ao processo atual de alocação, com o viés de seleção que ele carrega (II.4.5), e não mostra adequação.",fato real
+W3.4.1,"A medida é descritiva e vale para a população observada: um híbrido que reproduz a popularidade filtrada adere ao processo atual de alocação, com o viés de seleção que ele carrega (II.4.5), e não mostra adequação.",estrutural
 W3.4.2,"Com quem tem histórico antes de quem só tem formulário, estes raramente entram na lista de 20, e a inclusão deles depende da regra de exposição definida fora do modelo, como na zona morta.",estrutural
+W3.4.4,"A assimetria entre quem respondeu e quem não respondeu o formulário vem da comutação decidida na EDA (II.3.3), e a inclusão de quem só tem formulário depende da regra de exposição definida fora do modelo.",estrutural
 W3.5.1,"A classificação por dominância depende de folga, custo e senioridade sintéticos, e o desempate por tempo de casa favorece veteranos; as frações valem para o gerador e para a população observada.",depende do gerador
 W3.5.4,"A leitura tem um avaliador único, o autor; no ramo de conteúdo o recomendado é um sorteio dentro do filtro; e nos meses da janela anteriores a 2026 a folga é calculada sem férias, porque as férias sintéticas só cobrem 2026.",depende do gerador
 W3.6.1,"Os intervalos medem quanto cada número se moveria se a população sintética fosse sorteada de novo, e não incerteza sobre a organização (I.0.1).",estrutural

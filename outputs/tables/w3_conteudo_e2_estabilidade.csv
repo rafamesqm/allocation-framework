@@ -1,11 +1,13 @@
 Medida,Realização versionada,Mediana,Inferior,Superior,Posição da versionada,Réplicas
 grade_mediana_menos_piso,"0,0024","-0,0002","-0,0176","0,0185",dentro,100
 mapeamento_menos_constante,"-0,0131","0,0024","-0,0174","0,0284",dentro,100
+mcnemar_padronizado,"0,4650","0,2792","-2,2656","3,0895",dentro,100
 diferenca_mapeamento,"0,0031","0,0027","-0,0244","0,0240",dentro,100
 spearman_reunida,"0,0195","0,0127","-0,0238","0,0484",dentro,100
 valor_p_mcnemar,"0,7275","0,2649","0,0007","1,0000",dentro,100
 grade_empatadas_no_maximo,"5,2000","4,8000","1,2000","12,2200",dentro,100
 r2_mapa_fora,"-0,3840","-0,2105","-0,4865","-0,0194",dentro,100
+agrupado_valor_p,"0,7548","0,5223","0,0505","0,9288",dentro,100
 grade_maximo_menos_piso,"0,0139","0,0229","0,0081","0,0406",dentro,100
 discordantes_contra,"35,0000","58,0000","29,9000","96,1500",dentro,100
 r2_mapa_dentro,"0,8090","0,5486","0,2546","0,8359",dentro,100
@@ -13,6 +15,10 @@ escolha_fatores_distintos,"2,0000","3,0000","1,0000","4,0000",dentro,100
 escolha_lambda_mapa_distintos,"3,0000","3,0000","1,0000","4,0000",dentro,100
 discordantes_a_favor,"39,0000","61,0000","34,9000","87,0500",dentro,100
 grade_maximo_menos_mediana,"0,0116","0,0212","0,0141","0,0311",abaixo,100
+lista_acerto_modelo_5,"0,2414","0,2074","0,1704","0,2523",dentro,100
+lista_acerto_modelo_10,"0,3997","0,3609","0,3095","0,4135",dentro,100
+lista_acerto_piso_10,"0,3497","0,3557","0,3102","0,3907",dentro,100
+lista_acerto_piso_5,"0,2006","0,1965","0,1735","0,2171",dentro,100
 escolha_configuracoes_distintas,"5,0000","5,0000","3,9500","5,0000",dentro,100
 acerto_constante,"0,5796","0,5257","0,4707","0,5772",acima,100
 ganho_minimo_dominancia,"0,0061","0,0070","0,0064","0,0078",abaixo,100
@@ -21,6 +27,13 @@ acerto_mapeamento,"0,5665","0,5275","0,4772","0,5782",dentro,100
 acerto_piso_filtro,"0,5634","0,5285","0,4827","0,5741",dentro,100
 ganho_minimo_independencia,"0,0548","0,0596","0,0564","0,0625",abaixo,100
 fracao_passa_filtro,"0,5972","0,6207","0,5886","0,6514",dentro,100
+lista_acerto_modelo_50,"0,6426","0,6647","0,6356","0,6918",dentro,100
+lista_acerto_piso_50,"0,6426","0,6647","0,6356","0,6918",dentro,100
+consultores_de_teste,"118,0000","114,0000","109,9500","119,0500",dentro,100
 acaso_puro,"0,0702","0,0702","0,0702","0,0702",dentro,100
 supera_piso,"0,0000","0,0000","0,0000","1,0000",dentro,100
 diferenca_constante,"0,0161","0,0000","-0,0398","0,0337",dentro,100
+comum_rejeita_a_favor,"0,0000","0,0000","0,0000","1,0000",dentro,100
+comum_rejeita_contra,"0,0000","0,0000","0,0000","1,0000",dentro,100
+agrupado_rejeita_a_favor,"0,0000","0,0000","0,0000","0,0000",dentro,100
+agrupado_rejeita_contra,"0,0000","0,0000","0,0000","0,0000",dentro,100
