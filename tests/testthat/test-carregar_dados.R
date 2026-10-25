@@ -41,3 +41,18 @@ test_that("diretório sem csv falha com mensagem acionável", {
 
   expect_error(carregar_dados(diretorio = diretorio_vazio), "tar_make")
 })
+
+test_that("par consultor e projeto repetido para a leitura", {
+  diretorio <- withr::local_tempdir()
+  alocacoes <- tibble::tibble(
+    consultor_id = c("consultor_0001", "consultor_0001", "consultor_0002"),
+    projeto_id = c("projeto_0001", "projeto_0001", "projeto_0001")
+  )
+  readr::write_csv(alocacoes, file.path(diretorio, "alocacoes.csv"))
+
+  expect_error(carregar_dados(diretorio = diretorio), "repetido")
+})
+
+test_that("as alocações sintéticas não repetem par consultor e projeto", {
+  expect_no_error(carregar_dados(tabelas = "alocacoes"))
+})
