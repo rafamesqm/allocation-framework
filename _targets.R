@@ -401,5 +401,15 @@ list(
   tar_target(bloco_w3_colaborativo_figuras, salvar_figuras_bloco(
     bloco_w3_colaborativo$figuras, list(w3_colaborativo_diferencas = c(18, 9))
   ), format = "file"),
-  tar_target(bloco_w3_colaborativo_achados, salvar_tabela(bloco_w3_colaborativo$achados, "achados_w3_3"), format = "file")
+  tar_target(bloco_w3_colaborativo_achados, salvar_tabela(bloco_w3_colaborativo$achados, "achados_w3_3"), format = "file"),
+
+  # Etapa 4: o híbrido montado com o que os testes adotaram, a medida
+  # descritiva contra o piso composto e ŝ, insumo da wave 4. ŝ fica só no
+  # store do targets; nenhuma avaliação desta wave o lê.
+  tar_target(w3_adocao, consolidar_adocao(w3_conteudo_avaliacao, w3_colaborativo_avaliacao)),
+  tar_target(w3_hibrido_avaliacao, avaliar_hibrido(dados_eda, pre_registro, w3_adocao)),
+  tar_target(w3_s_hat, calcular_s_hat(dados_eda, pre_registro, w3_adocao)),
+  tar_target(bloco_w3_hibrido, executar_w3_hibrido(w3_hibrido_avaliacao, w3_s_hat, pre_registro)),
+  tar_target(bloco_w3_hibrido_tabelas, salvar_tabelas_bloco(bloco_w3_hibrido$tabelas), format = "file"),
+  tar_target(bloco_w3_hibrido_achados, salvar_tabela(bloco_w3_hibrido$achados, "achados_w3_4"), format = "file")
 )

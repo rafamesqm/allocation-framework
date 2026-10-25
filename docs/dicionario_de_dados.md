@@ -186,6 +186,41 @@ popularidade, e para quem não tem, só o perfil de skills, que não pôde ser
 avaliado. A avaliação de `ŝ` tem dois níveis, aderência ao processo e
 plausibilidade das discordâncias entre recomendado e realizado (II.7.8).
 
+**Definido na wave 3** (achados W3.2 a W3.4). Nenhum dos dois testes rejeitou:
+o mapeamento de atributos não superou o filtro com acaso (W3.2.1) e a
+fatoração não superou a popularidade (W3.3.2). O híbrido ordena então pela
+popularidade para quem tem histórico e ao acaso dentro do filtro para quem só
+tem formulário, e `ŝ` é definido sobre a lista que ele monta:
+
+| Campo | Tipo | Definição |
+|-------|------|-----------|
+| `projeto_id`, `consultor_id` | chave | um par por candidato e projeto, mais os pares da zona morta |
+| `quadrante` | categórico | histórico e formulário, só histórico, só formulário ou zona morta, diante daquele projeto |
+| `ramo` | categórico | `colaborativo` para quem tem histórico, `conteúdo` para quem só tem formulário; ausente na zona morta |
+| `passa_filtro` | lógico | `TRUE` para quem declarou o setor do projeto; ausente para quem não declarou setor, a quem o filtro não se aplica |
+| `posicao`, `n_candidatos` | inteiro | posição na lista do projeto e tamanho dela |
+| `s_hat` | numérico em [0, 1] | percentil na lista, `1 - (posicao - 1) / (n_candidatos - 1)`; o primeiro vale 1 e o último 0 |
+
+* **A lista** de um projeto tem quem declarou o setor dele e quem tem
+  histórico sem ter declarado setor. Quem tem histórico vem antes, ordenado
+  pela popularidade; depois vem quem só tem formulário, em ordem aleatória.
+  Os empates são desfeitos por uma ordem aleatória por projeto, com a semente
+  de desempate do pré-registro.
+* **A popularidade é contada sem o próprio projeto**, sobre o histórico
+  inteiro da janela de análise. Sem isso, `ŝ` de um projeto histórico
+  carregaria a alocação que a wave 4 vai reproduzir ou contestar. Quem tem
+  alocação só naquele projeto fica, diante dele, sem histórico.
+* **Zona morta**: o par existe, com `s_hat` ausente (`NA`). O modelo não a
+  recomenda, e o ausente não é convertido em zero na wave 3; o que fazer com
+  ele é decisão da wave 4.
+* **Fora do filtro**: quem declarou setor diferente do setor do projeto não
+  tem linha para aquele projeto.
+
+`ŝ` vive no alvo `w3_s_hat` da pipeline e não é usado em nenhuma avaliação da
+wave 3. Para quem tem histórico ele é popularidade, e para quem só tem
+formulário, acaso: carrega aderência ao processo atual, e não adequação da
+pessoa ao projeto (W3.4.3).
+
 ---
 
 ## Camada 4 · Relacional / Time
