@@ -274,3 +274,54 @@ emendas:
       cada realização refaz o procedimento inteiro, inclusive a escolha de
       hiperparâmetros por validação interna; os valores da realização
       versionada nunca são reaproveitados
+  - data: "2026-10-25"
+    nome: emenda 2 do conteúdo
+    # A emenda 1 do conteúdo é a primeira desta lista, de 2026-10-24, que
+    # registrou a escolha de hiperparâmetros e a pontuação dentro do filtro.
+    anterior_ao_teste: true
+    posterior_ao_resultado_da_emenda_1: true
+    contexto: >-
+      a revisão de ponta a ponta, feita depois do teste do conteúdo sob a
+      emenda 1 (McNemar exato, p = 0,154, sem rejeição), identificou um
+      defeito na pontuação dentro do filtro; esta emenda é escrita antes de
+      qualquer ajuste sob a regra nova
+    defeito: >-
+      sob a emenda 1, os candidatos do filtro com histórico na estimação eram
+      pontuados pela previsão do mapa dentro da amostra, e o consultor de
+      teste pela previsão fora dela; com pouca regularização do mapa, a
+      previsão dentro da amostra quase reproduz o fator ajustado pelo
+      histórico (R² de 0,999 nos grupos 1 e 3), e os candidatos não ficam na
+      mesma escala
+    previsoes_cruzadas:
+      subgrupos: 5
+      atribuicao: >-
+        em cada grupo da validação cruzada, os consultores da estimação, isto
+        é, do quadro fora do grupo reservado, são divididos em 5 subgrupos
+        fixos pela ordem dos consultor_id e pela semente de divisão
+      regra: >-
+        o mapa é ajustado sem cada subgrupo e prevê os fatores dele; quem não
+        está na estimação, inclusive o consultor de teste, recebe a previsão do
+        mapa ajustado com toda a estimação; todo candidato do filtro passa a
+        ser pontuado por previsão fora da amostra
+      limitacao_residual: >-
+        só o mapa é cruzado: a fatoração continua ajustada com toda a
+        estimação, e o fator de cada projeto carrega as alocações dos
+        candidatos da estimação naquele projeto
+    hiperparametros: >-
+      a escolha é refeita na validação interna com a mesma regra de previsões
+      cruzadas, porque a validação interna tinha o mesmo defeito; a grade, o
+      critério e o desempate são os do pré-registro
+    decisao: >-
+      a decisão do conteúdo passa a ser o McNemar exato contra o filtro com
+      acaso sob esta emenda; o resultado sob a emenda 1 é preservado e
+      reportado como análise conforme a emenda 1, mas não decide
+    diagnostico:
+      funcao: descritivo, sem teste e sem função decisória
+      r2_do_mapa: >-
+        R² do mapa sobre os consultores da estimação com histórico, dentro da
+        amostra (mapa ajustado com toda a estimação) e fora dela (previsões
+        cruzadas), por grupo
+      popularidade_prevista: o diagnóstico da emenda 1 recalculado sob esta emenda
+    realizacoes: >-
+      cada realização refaz o procedimento inteiro sob esta emenda, inclusive
+      a escolha de hiperparâmetros por validação interna
