@@ -333,6 +333,21 @@ list(
     tabelar_hiperparametros_do_conteudo(w3_conteudo_selecao), "w3_conteudo_hiperparametros"
   ), format = "file"),
 
+  # Emenda 2 do conteúdo: a escolha refeita com previsões cruzadas do mapa.
+  # Os alvos da emenda 1, acima e abaixo, ficam preservados e reportados.
+  tar_target(w3_conteudo_e2_selecao, selecionar_hiperparametros_do_conteudo_cruzado(dados_eda, pre_registro)),
+  tar_target(w3_conteudo_e2_hiperparametros_tabela, salvar_tabela(
+    tabelar_hiperparametros_do_conteudo(w3_conteudo_e2_selecao), "w3_conteudo_e2_hiperparametros"
+  ), format = "file"),
+  # O teste único da emenda 2, que decide o conteúdo, com a escolha conferida
+  # contra a registrada antes dele.
+  tar_target(w3_conteudo_e2_selecao_conferida, conferir_escolha_do_conteudo_cruzado(
+    w3_conteudo_e2_selecao, pre_registro
+  )),
+  tar_target(w3_conteudo_e2_avaliacao, avaliar_componente_de_conteudo_cruzado(
+    dados_eda, pre_registro, w3_conteudo_e2_selecao_conferida
+  )),
+
   # O teste único do conteúdo, com a escolha conferida contra a registrada na
   # emenda de 2026-10-24: se a escolha mudar, a pipeline para antes do teste.
   tar_target(w3_conteudo_selecao_conferida, conferir_escolha_registrada(w3_conteudo_selecao, pre_registro)),
@@ -366,6 +381,36 @@ list(
     bloco_w3_conteudo$figuras, list(w3_conteudo_diferencas = c(18, 9))
   ), format = "file"),
   tar_target(bloco_w3_conteudo_achados, salvar_tabela(bloco_w3_conteudo$achados, "achados_w3_2"), format = "file"),
+
+  # Emenda 2: as realizações refazem o procedimento inteiro com as previsões
+  # cruzadas, inclusive a escolha, e o bloco traz o achado do defeito e da
+  # correção. É a avaliação da emenda 2 que decide o conteúdo daqui em diante.
+  tar_target(
+    w3_conteudo_e2_replicas,
+    simular_avaliacao_do_conteudo_cruzado(
+      w3_conteudo_sementes, pre_registro,
+      n_consultores = parametros$n_consultores, n_projetos = parametros$n_projetos,
+      data_referencia = parametros$data_referencia
+    ),
+    pattern = map(w3_conteudo_sementes)
+  ),
+  tar_target(w3_conteudo_e2_correlacao, medir_correlacao_do_mapa(
+    dados_eda, pre_registro, w3_conteudo_e2_selecao_conferida
+  )),
+  tar_target(w3_conteudo_e2_dispersao, medir_dispersao_da_lista(
+    dados_eda, pre_registro, w3_conteudo_selecao_conferida, w3_conteudo_e2_selecao_conferida
+  )),
+  tar_target(bloco_w3_conteudo_e2, executar_w3_conteudo_e2(
+    w3_conteudo_e2_avaliacao, w3_conteudo_e2_replicas, w3_conteudo_selecao, w3_conteudo_avaliacao,
+    w3_conteudo_e2_correlacao, w3_conteudo_e2_dispersao, pre_registro
+  )),
+  tar_target(bloco_w3_conteudo_e2_tabelas, salvar_tabelas_bloco(bloco_w3_conteudo_e2$tabelas), format = "file"),
+  tar_target(bloco_w3_conteudo_e2_figuras, salvar_figuras_bloco(
+    bloco_w3_conteudo_e2$figuras, list(w3_conteudo_e2_diferencas = c(18, 9))
+  ), format = "file"),
+  tar_target(bloco_w3_conteudo_e2_achados, salvar_tabela(
+    bloco_w3_conteudo_e2$achados, "achados_w3_2_emenda_2"
+  ), format = "file"),
 
   # Etapa 3, colaborativo: escolha dos hiperparâmetros de cada alfa na
   # validação temporal interna, só no período de estimação. O teste entra
@@ -405,7 +450,7 @@ list(
   # Etapa 4: o híbrido montado com o que os testes adotaram, a medida
   # descritiva contra o piso composto e ŝ, insumo da wave 4. ŝ fica só no
   # store do targets; nenhuma avaliação desta wave o lê.
-  tar_target(w3_adocao, consolidar_adocao(w3_conteudo_avaliacao, w3_colaborativo_avaliacao)),
+  tar_target(w3_adocao, consolidar_adocao(w3_conteudo_e2_avaliacao, w3_colaborativo_avaliacao)),
   tar_target(w3_hibrido_avaliacao, avaliar_hibrido(dados_eda, pre_registro, w3_adocao)),
   tar_target(w3_s_hat, calcular_s_hat(dados_eda, pre_registro, w3_adocao)),
   tar_target(bloco_w3_hibrido, executar_w3_hibrido(w3_hibrido_avaliacao, w3_s_hat, pre_registro)),
@@ -415,7 +460,7 @@ list(
   # Etapa 5: plausibilidade das discordâncias, com as funções do bloco II.7.
   # A planilha da rubrica sai em branco; os vereditos são do autor.
   tar_target(w3_plausibilidade, avaliar_plausibilidade_das_discordancias(
-    dados_eda, pre_registro, w3_conteudo_avaliacao, w3_colaborativo_avaliacao, w3_adocao
+    dados_eda, pre_registro, w3_conteudo_e2_avaliacao, w3_colaborativo_avaliacao, w3_adocao
   )),
   tar_target(bloco_w3_plausibilidade, executar_w3_plausibilidade(w3_plausibilidade, pre_registro)),
   tar_target(bloco_w3_plausibilidade_tabelas, salvar_tabelas_bloco(bloco_w3_plausibilidade$tabelas), format = "file"),
@@ -439,11 +484,11 @@ list(
   ),
   tar_target(bloco_w3_estabilidade, executar_w3_estabilidade(
     dplyr::bind_cols(
-      dplyr::rename_with(resumir_avaliacao_do_conteudo(w3_conteudo_avaliacao, pre_registro), \(n) paste0("conteudo_", n)),
+      dplyr::rename_with(resumir_avaliacao_do_conteudo_cruzado(w3_conteudo_e2_avaliacao, pre_registro), \(n) paste0("conteudo_", n)),
       dplyr::rename_with(resumir_avaliacao_do_colaborativo(w3_colaborativo_avaliacao, pre_registro), \(n) paste0("colaborativo_", n)),
       w3_segundo_nivel_versionado
     ),
-    juntar_realizacoes_w3(w3_conteudo_replicas, w3_colaborativo_replicas, w3_segundo_nivel_replicas),
+    juntar_realizacoes_w3(w3_conteudo_e2_replicas, w3_colaborativo_replicas, w3_segundo_nivel_replicas),
     pre_registro
   )),
   tar_target(bloco_w3_estabilidade_tabelas, salvar_tabelas_bloco(bloco_w3_estabilidade$tabelas), format = "file"),
@@ -454,7 +499,7 @@ list(
   # Síntese da wave 3: empilha os achados das seis etapas e tira deles as
   # tabelas de decisões e limitações do Capítulo 5. Não recalcula nada.
   tar_target(bloco_w3_sintese, executar_w3_sintese(list(
-    w3_achados_pisos, bloco_w3_conteudo$achados, bloco_w3_colaborativo$achados,
+    w3_achados_pisos, bloco_w3_conteudo$achados, bloco_w3_conteudo_e2$achados, bloco_w3_colaborativo$achados,
     bloco_w3_hibrido$achados, bloco_w3_plausibilidade$achados, bloco_w3_estabilidade$achados
   ))),
   tar_target(bloco_w3_sintese_tabelas, salvar_tabelas_bloco(bloco_w3_sintese$tabelas), format = "file")

@@ -1,0 +1,29 @@
+Medida,Realização versionada,Entre realizações
+"R² do mapa no grupo 1, dentro / fora da amostra","1,00 / -0,46",--
+"R² do mapa no grupo 2, dentro / fora da amostra","0,77 / -0,09",--
+"R² do mapa no grupo 3, dentro / fora da amostra","1,00 / -0,75",--
+"R² do mapa no grupo 4, dentro / fora da amostra","0,27 / -0,01",--
+"R² do mapa no grupo 5, dentro / fora da amostra","1,00 / -0,61",--
+"R² médio do mapa, dentro da amostra","0,81","0,55 (0,25 a 0,84)"
+"R² médio do mapa, fora da amostra","-0,38","-0,21 (-0,49 a -0,02)"
+"Correlação do fator previsto com o ajustado, grupo 1, dimensão 1, fora / dentro da amostra","0,03 / 1,00",--
+"Correlação do fator previsto com o ajustado, grupo 1, dimensão 2, fora / dentro da amostra","0,17 / 1,00",--
+"Correlação do fator previsto com o ajustado, grupo 2, dimensão 1, fora / dentro da amostra","-0,02 / 0,92",--
+"Correlação do fator previsto com o ajustado, grupo 2, dimensão 2, fora / dentro da amostra","0,16 / 0,94",--
+"Correlação do fator previsto com o ajustado, grupo 3, dimensão 1, fora / dentro da amostra","0,09 / 1,00",--
+"Correlação do fator previsto com o ajustado, grupo 3, dimensão 2, fora / dentro da amostra","0,09 / 1,00",--
+"Correlação do fator previsto com o ajustado, grupo 4, dimensão 1, fora / dentro da amostra","-0,05 / 0,81",--
+"Correlação do fator previsto com o ajustado, grupo 4, dimensão 2, fora / dentro da amostra","0,14 / 0,78",--
+"Correlação do fator previsto com o ajustado, grupo 4, dimensão 3, fora / dentro da amostra","-0,04 / 0,79",--
+"Correlação do fator previsto com o ajustado, grupo 4, dimensão 4, fora / dentro da amostra","-0,07 / 0,77",--
+"Correlação do fator previsto com o ajustado, grupo 4, dimensão 5, fora / dentro da amostra","0,05 / 0,79",--
+"Correlação do fator previsto com o ajustado, grupo 5, dimensão 1, fora / dentro da amostra","0,16 / 1,00",--
+"Correlação do fator previsto com o ajustado, grupo 5, dimensão 2, fora / dentro da amostra","0,14 / 1,00",--
+"Spearman do escore com a popularidade, grupo 1","0,054",--
+"Spearman do escore com a popularidade, grupo 2","0,009",--
+"Spearman do escore com a popularidade, grupo 3","-0,004",--
+"Spearman do escore com a popularidade, grupo 4","0,008",--
+"Spearman do escore com a popularidade, grupo 5","0,068",--
+"Spearman do escore com a popularidade, reunida","0,020","0,013 (-0,024 a 0,048)"
+Acerto da variante de escore constante,"58,0%","52,6% (47,1% a 57,7%)"
+Mapeamento menos a variante (pontos),"-1,3","0,2 (-1,7 a 2,8)"

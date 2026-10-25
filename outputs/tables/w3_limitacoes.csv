@@ -1,7 +1,9 @@
 Achado,Limitação que impõe,Proveniência
+W3.2.1,"O teste roda sobre o sintético, em que o gerador não planta vínculo entre competência e projeto (II.6.4): o desfecho mede o gerador, e a mesma regra precisa ser aplicada ao dado real antes de valer para a organização.",depende do gerador
 W3.2.2,"O diagnóstico é descritivo e, no sintético, separa o que o gerador plantou: não diz como o escore se comportaria com o vínculo real entre competência e projeto, que não existe em registro nenhum (II.6.6).",depende do gerador
 W3.2.3,"Os hiperparâmetros do mapeamento não são identificados pela validação interna nesta escala; o resultado vale para o procedimento de escolha, e não para uma configuração.",depende do gerador
 W3.2.4,"Escolher o máximo de uma grade plana infla a vantagem na validação, e nenhuma vantagem medida ali deve ser citada como ganho do modelo.",estrutural
+W3.2.8,"O diagnóstico é descritivo; no sintético ele mede o que o gerador plantou, e não como o mapa se comportaria com o vínculo real entre competência e projeto.",depende do gerador
 W3.3.1,"O colaborativo só fala sobre a fração avaliável do teste, porque projeto de consultoria raramente volta; o número de pares é do sintético e precisa ser recontado no dado real.",fato real
 W3.3.3,"As horas que definem a confiança dependem da duração recalibrada das alocações, então a comparação de alfa fala do gerador.",depende do gerador
 W3.3.4,"A escolha dos hiperparâmetros do colaborativo saiu de 58 pares de validação, e por isso é instável; o resultado vale para o procedimento de escolha, e não para uma configuração.",fato real

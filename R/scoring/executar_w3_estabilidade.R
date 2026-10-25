@@ -8,12 +8,12 @@
 listar_grandezas_centrais_w3 <- function() {
   tibble::tribble(
     ~medida, ~etapa, ~rotulo,
-    "conteudo_acerto_mapeamento", "Conteúdo", "Acerto do mapeamento",
-    "conteudo_acerto_piso_filtro", "Conteúdo", "Piso de filtro com acaso",
-    "conteudo_diferenca_mapeamento", "Conteúdo", "Mapeamento menos piso",
-    "conteudo_ganho_minimo_dominancia", "Conteúdo", "Ganho mínimo, otimista",
-    "conteudo_ganho_minimo_independencia", "Conteúdo", "Ganho mínimo, conservador",
-    "conteudo_supera_piso", "Conteúdo", "Rejeição a favor do mapeamento",
+    "conteudo_acerto_mapeamento", "Conteúdo, emenda 2", "Acerto do mapeamento",
+    "conteudo_acerto_piso_filtro", "Conteúdo, emenda 2", "Piso de filtro com acaso",
+    "conteudo_diferenca_mapeamento", "Conteúdo, emenda 2", "Mapeamento menos piso",
+    "conteudo_ganho_minimo_dominancia", "Conteúdo, emenda 2", "Ganho mínimo, otimista",
+    "conteudo_ganho_minimo_independencia", "Conteúdo, emenda 2", "Ganho mínimo, conservador",
+    "conteudo_supera_piso", "Conteúdo, emenda 2", "Rejeição a favor do mapeamento",
     "colaborativo_fracao_avaliavel", "Colaborativo", "Fração avaliável",
     "colaborativo_acerto_popularidade_esperado", "Colaborativo", "Piso, acerto esperado",
     "colaborativo_acerto_popularidade", "Colaborativo", "Piso, empates sorteados",
@@ -174,7 +174,7 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
     paste0(
       "Os intervalos do segundo nível e do híbrido medem a variabilidade do modelo ",
       "adotado, e não a da decisão. A estabilidade da decisão é a das frequências de ",
-      "rejeição, já reportadas nos achados W3.2.1 e W3.3.2."
+      "rejeição, já reportadas nos achados W3.2.7 e W3.3.2."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,

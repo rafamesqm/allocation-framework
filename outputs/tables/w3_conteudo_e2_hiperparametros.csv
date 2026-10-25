@@ -1,0 +1,6 @@
+Grupo,Fatores,Lambda da fatoração,Iterações,Lambda do mapa,Acerto na validação interna,Pares de validação,Configurações empatadas no máximo
+1,2,"1,0",20,"0,1","57,5%",1.026,1 de 128
+2,2,"1,0",10,"10,0","58,4%",960,4 de 128
+3,2,"100,0",10,"0,1","57,7%",1.032,16 de 128
+4,5,"1,0",20,"100,0","57,7%",1.065,3 de 128
+5,2,"1,0",10,"0,1","57,4%",1.121,2 de 128

@@ -363,5 +363,9 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
     "estrutural"
   )))
 
+  # A emenda 2 passou a decidir o conteúdo: estes achados ficam preservados,
+  # identificados como análise conforme a emenda 1, e o W3.2.1 sem decidir.
+  achados <- marcar_como_emenda_1(achados)
+
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)
 }
