@@ -149,14 +149,16 @@ executar_w3_plausibilidade <- function(plausibilidade, registro) {
     paste0(
       "O primeiro nível media aderência ao processo; este olha o que ele não vê. A ",
       "assimetria entre os ramos vem do que cada lista põe no topo. No conteúdo, o ",
-      "recomendado é um sorteio dentro do filtro de setor, e ganha sobretudo no setor, ",
-      "porque o realizado dessas discordâncias quase sempre declarou outro setor. No ",
-      "colaborativo, o recomendado é o mais popular fora da equipe, e tem menos folga ",
-      "que o realizado em ", formatar_pct(criterio("colaborativo", "folga")$realizado),
-      " das comparações (W3.5.2): reproduzir a popularidade é recomendar quem já está ",
-      "ocupado. A comparação é por ",
-      "dominância e não pesa um critério contra outro, então incomparável não é empate: ",
-      "é discordância que depende de quanto se valoriza cada critério."
+      "recomendado é um sorteio dentro do filtro de setor, e o critério de setor repete o ",
+      "filtro: o recomendado ganha no setor por construção, porque o realizado dessas ",
+      "discordâncias quase sempre declarou outro setor. No colaborativo, a leitura é a do ",
+      "componente sem filtro, e não a do híbrido: o recomendado é o mais popular fora ",
+      "da equipe, e tem menos folga que o realizado em ",
+      formatar_pct(criterio("colaborativo", "folga")$realizado), " das comparações ",
+      "(W3.5.2): reproduzir a popularidade é recomendar quem já está ocupado. A ",
+      "comparação é por dominância e não pesa um critério contra outro, então ",
+      "incomparável não é empate: é discordância que depende de quanto se valoriza cada ",
+      "critério."
     ),
 
     "W3.5.2", "instrumento",
@@ -174,8 +176,8 @@ executar_w3_plausibilidade <- function(plausibilidade, registro) {
       " das comparações, contra ", concentrado("conteúdo")$distintos, " distintos no ",
       "conteúdo, com o mais frequente em ", formatar_pct(concentrado("conteúdo")$mais_frequente),
       ". O recomendado do conteúdo vence no setor em ",
-      formatar_pct(criterio("conteúdo", "setor")$recomendado), " das comparações e na ",
-      "folga em ", formatar_pct(criterio("conteúdo", "folga")$recomendado), "."
+      formatar_pct(criterio("conteúdo", "setor")$recomendado), " das comparações, por construção ",
+      "do filtro, e na folga em ", formatar_pct(criterio("conteúdo", "folga")$recomendado), "."
     ),
     paste0(
       "É o desdobramento que explica as classes do W3.5.1. **No colaborativo, a ",

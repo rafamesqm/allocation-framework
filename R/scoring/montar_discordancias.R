@@ -54,7 +54,7 @@ montar_discordancias_do_componente <- function(pares, alocacoes, contexto, escor
 #' do bloco II.7 e com a ordenação que cada componente adotou:
 #'
 #' * **conteúdo**: os pares de teste da validação cruzada por consultor. A
-#'   ordem dentro do filtro ficou ao acaso (W3.2.1), então **o primeiro
+#'   ordem dentro do filtro ficou ao acaso (W3.2.7), então **o primeiro
 #'   recomendado é um sorteio dentro do filtro**, com a chave de desempate;
 #' * **colaborativo**: os pares avaliáveis do teste temporal, com a lista
 #'   ordenada pela popularidade na estimação (W3.3.2) e quem não tem fator no

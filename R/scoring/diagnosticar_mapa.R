@@ -12,7 +12,9 @@
 #' @param registro Lista de `ler_pre_registro()`.
 #' @param selecao_emenda_1,selecao_emenda_2 Listas das escolhas de
 #'   hiperparâmetros das duas emendas.
-#' @return tibble com uma linha por emenda e grupo.
+#' @return tibble com uma linha por emenda e grupo, com `extremos_sob_acaso`, a
+#'   fração esperada nos extremos sob posição ao acaso, nos tamanhos reais
+#'   das listas.
 medir_dispersao_da_lista <- function(dados, registro, selecao_emenda_1, selecao_emenda_2) {
   historico <- com_historico_da_janela(dados, janela_do_pre_registro(registro))
   contexto <- montar_contexto_do_conteudo(historico, registro)
@@ -57,7 +59,14 @@ medir_dispersao_da_lista <- function(dados, registro, selecao_emenda_1, selecao_
           dp_estimacao = stats::sd(s[estimacao]),
           dp_teste = if (length(de_teste) > 1) stats::sd(s[de_teste]) else NA_real_,
           z_focal = (s[i[k]] - mean(s[estimacao])) / stats::sd(s[estimacao]),
-          percentil = 1 - (posicao - 1) / (length(filtrados) - 1)
+          percentil = 1 - (posicao - 1) / (length(filtrados) - 1),
+          # Fração das posições da lista que caem nos extremos: é o que se
+          # esperaria nos extremos se a posição do consultor de teste fosse ao
+          # acaso, no tamanho real desta lista.
+          extremos_sob_acaso = local({
+            todas <- 1 - (seq_along(filtrados) - 1) / (length(filtrados) - 1)
+            mean(todas > 0.9 | todas < 0.1)
+          })
         )
       }) |>
         purrr::list_rbind()
@@ -67,7 +76,8 @@ medir_dispersao_da_lista <- function(dados, registro, selecao_emenda_1, selecao_
         razao_dispersao = stats::median(por_par$dp_teste, na.rm = TRUE) / stats::median(por_par$dp_estimacao, na.rm = TRUE),
         distancia_focal = stats::median(abs(por_par$z_focal), na.rm = TRUE),
         percentil_mediana = stats::median(por_par$percentil),
-        nos_extremos = mean(por_par$percentil > 0.9 | por_par$percentil < 0.1)
+        nos_extremos = mean(por_par$percentil > 0.9 | por_par$percentil < 0.1),
+        extremos_sob_acaso = mean(por_par$extremos_sob_acaso)
       )
     }) |>
       purrr::list_rbind()

@@ -503,11 +503,27 @@ list(
     bloco_w3_estabilidade$achados, "achados_w3_6"
   ), format = "file"),
 
+  # Revisão da wave 3, só descritiva: a dependência entre pares do mesmo
+  # consultor, as listas de 5, 10 e 50, o tamanho do filtro e a ocupação das
+  # listas de ŝ. Nada aqui muda decisão.
+  tar_target(w3_tamanho_do_filtro, medir_tamanho_do_filtro(dados_eda, pre_registro)),
+  tar_target(w3_ocupacao_das_listas, medir_ocupacao_das_listas(w3_s_hat, dados_eda, pre_registro)),
+  tar_target(bloco_w3_revisao, executar_w3_revisao(
+    list(avaliacao = w3_conteudo_avaliacao, replicas = w3_conteudo_replicas),
+    list(avaliacao = w3_conteudo_e2_avaliacao, replicas = w3_conteudo_e2_replicas),
+    list(avaliacao = w3_colaborativo_avaliacao, replicas = w3_colaborativo_replicas),
+    list(versionado = w3_segundo_nivel_versionado, replicas = w3_segundo_nivel_replicas),
+    w3_tamanho_do_filtro, w3_ocupacao_das_listas, pre_registro
+  )),
+  tar_target(bloco_w3_revisao_tabelas, salvar_tabelas_bloco(bloco_w3_revisao$tabelas), format = "file"),
+  tar_target(bloco_w3_revisao_achados, salvar_tabela(bloco_w3_revisao$achados, "achados_w3_revisao"), format = "file"),
+
   # Síntese da wave 3: empilha os achados das seis etapas e tira deles as
   # tabelas de decisões e limitações do Capítulo 5. Não recalcula nada.
   tar_target(bloco_w3_sintese, executar_w3_sintese(list(
     w3_achados_pisos, bloco_w3_conteudo$achados, bloco_w3_conteudo_e2$achados, bloco_w3_colaborativo$achados,
-    bloco_w3_hibrido$achados, bloco_w3_plausibilidade$achados, bloco_w3_estabilidade$achados
+    bloco_w3_hibrido$achados, bloco_w3_plausibilidade$achados, bloco_w3_estabilidade$achados,
+    bloco_w3_revisao$achados
   ))),
   tar_target(bloco_w3_sintese_tabelas, salvar_tabelas_bloco(bloco_w3_sintese$tabelas), format = "file")
 )

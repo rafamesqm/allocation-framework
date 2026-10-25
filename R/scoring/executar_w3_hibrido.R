@@ -115,7 +115,9 @@ executar_w3_hibrido <- function(avaliacao, s_hat, registro) {
       "Quem só respondeu o formulário ocupa ", formatar_pct(fracao_topo_formulario),
       " das ", lista, " primeiras posições das listas dos projetos de teste, e dos ",
       formatar_inteiro(so_formulario$pares), " pares cujo consultor realizado está nesse ",
-      "quadrante, ", formatar_pct(so_formulario$acerto_hibrido), " entram na lista de ", lista, "."
+      "quadrante, ", formatar_pct(so_formulario$acerto_hibrido), " entram na lista de ", lista, ". ",
+      "A medida é sobre as listas do teste temporal; sobre todas as listas de `ŝ`, a ",
+      "ocupação está no achado W3.4.4."
     ),
     paste0(
       "É a consequência da ordem da lista, que põe quem tem histórico antes de quem só ",
@@ -148,7 +150,7 @@ executar_w3_hibrido <- function(avaliacao, s_hat, registro) {
       "reproduz a popularidade filtrada adere ao processo atual de alocação, com o ",
       "viés de seleção que ele carrega (II.4.5), e não mostra adequação."
     ),
-    "fato real",
+    "estrutural",
 
     "W3.4.2", NA,
     paste0(
@@ -167,7 +169,9 @@ executar_w3_hibrido <- function(avaliacao, s_hat, registro) {
     paste0(
       "Para quem tem histórico, `ŝ` é popularidade, e para quem só tem formulário, ",
       "acaso dentro do filtro: na wave 4 ele carrega aderência ao processo atual, e ",
-      "não adequação da pessoa ao projeto."
+      "não adequação da pessoa ao projeto. A popularidade é contada sobre o histórico ",
+      "inteiro da janela, inclusive alocações posteriores ao início do projeto; ",
+      "contá-la só até a data de início é decisão da wave 4."
     ),
     "estrutural"
   )))

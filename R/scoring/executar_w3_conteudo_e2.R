@@ -50,7 +50,7 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
   pontos <- \(x) formatar_decimal(100 * x, 1)
   decimal <- \(x) formatar_decimal(x, 2)
   intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(estabilidade, medida, formatador)
-  intervalo_pontos <- \(medida) paste0(intervalo(medida, pontos), " pontos")
+  intervalo_pontos <- \(medida) formatar_intervalo_em_pontos(estabilidade, medida)
   separa <- \(medida) intervalo_separa_de_zero(estabilidade, medida)
   supera <- v$supera_piso == 1
   rejeicoes <- mean(replicas$supera_piso)
@@ -59,13 +59,13 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
   # escore híbrido de Newcombe (1998).
   newcombe <- intervalo_da_diferenca_pareada(avaliacao$pares$acerto_modelo, avaliacao$pares$acerto_piso)
   faixa_newcombe <- paste0(
-    pontos(newcombe$diferenca), " pontos (", pontos(newcombe$inferior), " a ", pontos(newcombe$superior), ")"
+    formatar_pontos(newcombe$diferenca), " (", pontos(newcombe$inferior), " a ", pontos(newcombe$superior), ")"
   )
   newcombe_e1 <- intervalo_da_diferenca_pareada(
     avaliacao_emenda_1$pares$acerto_modelo, avaliacao_emenda_1$pares$acerto_piso
   )
   faixa_newcombe_e1 <- paste0(
-    pontos(newcombe_e1$diferenca), " pontos (", pontos(newcombe_e1$inferior), " a ",
+    formatar_pontos(newcombe_e1$diferenca), " (", pontos(newcombe_e1$inferior), " a ",
     pontos(newcombe_e1$superior), ")"
   )
 
@@ -78,6 +78,11 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
   extremos_e1 <- na_emenda("emenda 1", "nos_extremos")
   extremos_e2 <- na_emenda("emenda 2", "nos_extremos")
   mecanismo_confirmado <- razao_e1 > 1 && razao_e1 > razao_e2 && extremos_e1 > extremos_e2
+  extremos_acaso <- mean(dispersao$extremos_sob_acaso)
+  faixa_percentil <- \(emenda) {
+    x <- dispersao$percentil_mediana[dispersao$emenda == emenda]
+    paste0(formatar_decimal(min(x), 2), " a ", formatar_decimal(max(x), 2))
+  }
 
   faixa_correlacao <- \(coluna) paste0(
     formatar_decimal(min(correlacao[[coluna]], na.rm = TRUE), 2), " a ",
@@ -133,7 +138,7 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       tibble::tibble(
         Medida = "Diferença pareada, IC 95% de Newcombe (descritivo)",
         `Realização versionada` = faixa_newcombe,
-        `Entre realizações` = paste0(intervalo("diferenca_mapeamento", pontos), " pontos")
+        `Entre realizações` = formatar_intervalo_em_pontos(estabilidade, "diferenca_mapeamento")
       )
     ),
     w3_conteudo_e2_diagnostico = dplyr::bind_rows(
@@ -175,7 +180,8 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
         `Dispersão dos candidatos de teste sobre a da estimação` = decimal(razao_dispersao),
         `Distância do consultor de teste à média da estimação (desvios)` = decimal(distancia_focal),
         `Percentil mediano do consultor de teste` = decimal(percentil_mediana),
-        `Consultor de teste nos extremos da lista` = formatar_pct(nos_extremos)
+        `Consultor de teste nos extremos da lista` = formatar_pct(nos_extremos),
+        `Esperado nos extremos sob posição ao acaso` = formatar_pct(extremos_sob_acaso)
       ),
     w3_conteudo_emendas = tibble::tibble(
       Medida = c(
@@ -232,14 +238,17 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       " discordantes a favor do mapeamento e ", e1$discordantes_contra, " contra, uma ",
       "diferença de ", faixa_newcombe_e1, " pelo intervalo de 95% de Newcombe. Sob a ",
       "emenda 2, ", v$discordantes_a_favor, " a favor e ", v$discordantes_contra,
-      " contra, uma diferença de ", pontos(v$diferenca_mapeamento), " pontos. Na validação ",
+      " contra, uma diferença de ", formatar_pontos(v$diferenca_mapeamento), ". Na validação ",
       "interna do grupo 1, a melhor configuração caiu de ", formatar_pct(grupo_1_e1),
       " para ", formatar_pct(grupo_1_e2), "."
     ),
     paste0(
-      "Um defeito de escala não tem direção determinada por construção: ele faz a posição ",
-      "do consultor de teste depender da dispersão das previsões, e não da informação que ",
-      "elas carregam. Aqui ele ",
+      "**O defeito quebrou a escala comum que a regra exige**: a posição do consultor de ",
+      "teste deixou de ser comparável à dos candidatos da estimação. A direção do efeito ",
+      "sobre o teste é empírica, e não de construção, e variou entre grupos: o percentil ",
+      "mediano do consultor de teste na lista vai de ", faixa_percentil("emenda 1"),
+      " entre grupos sob a emenda 1 e de ", faixa_percentil("emenda 2"), " sob a emenda 2. ",
+      "No conjunto, o defeito ",
       if (e1$diferenca_mapeamento > v$diferenca_mapeamento) "favoreceu" else "desfavoreceu",
       " o mapeamento, e a correção ",
       if (e1$diferenca_mapeamento > v$diferenca_mapeamento) "reduziu a vantagem" else "aumentou a vantagem",
@@ -260,19 +269,22 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       "Sob a emenda 2, sobre os ", formatar_inteiro(v$n_pares_conteudo), " pares de ",
       "respondentes, o mapeamento acerta ", formatar_pct(v$acerto_mapeamento),
       " em lista de 20, contra ", formatar_pct(v$acerto_piso_filtro), " do filtro com ",
-      "acaso, uma diferença de ", pontos(v$diferenca_mapeamento), " pontos. Dos pares ",
+      "acaso, uma diferença de ", formatar_pontos(v$diferenca_mapeamento), ". Dos pares ",
       "discordantes, ", v$discordantes_a_favor, " favorecem o mapeamento e ",
       v$discordantes_contra, " o piso, e o McNemar exato bilateral dá p = ",
       formatar_decimal(v$valor_p_mcnemar, 3), ": o mapeamento ",
       if (supera) "supera" else "não supera", " o piso a 5%. Sob a emenda 1 o valor-p era ",
       formatar_decimal(e1$valor_p_mcnemar, 3), ". O ganho mínimo detectável é de ",
-      pontos(v$ganho_minimo_dominancia), " pontos no cenário otimista e de ",
+      formatar_pontos(v$ganho_minimo_dominancia), " no cenário otimista e de ",
       pontos(v$ganho_minimo_independencia), " no conservador. Entre ", nrow(replicas),
       " realizações, com a escolha refeita em cada uma, a diferença fica em ",
       intervalo_pontos("diferenca_mapeamento"), ", e o teste rejeita a favor do mapeamento ",
-      "em ", formatar_pct(rejeicoes, 0), " delas. Como medida descritiva, a diferença ",
-      "pareada é de ", faixa_newcombe, ", pelo intervalo de 95% de escore híbrido de ",
-      "Newcombe (1998) para proporções pareadas."
+      "em ", formatar_pct(rejeicoes, 0), " delas e contra em ", formatar_pct(mean(replicas$comum_rejeita_contra), 0),
+      ", quando sem efeito cada direção ficaria em até 2,5%: o excesso nas duas direções vem ",
+      "de o teste ser anticonservador, com os pares agrupados por consultor (W3.2.10), e não ",
+      "de o mapeamento ordenar algo em parte das realizações. Como medida descritiva, a ",
+      "diferença pareada é de ", faixa_newcombe, ", pelo intervalo de 95% de escore híbrido ",
+      "de Newcombe (1998) para proporções pareadas, otimista pelo mesmo motivo."
     ),
     paste0(
       if (supera) {
@@ -282,7 +294,7 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       },
       "A não rejeição não autoriza dizer que nada ordena dentro do filtro: o teste só ",
       "enxergaria, no cenário conservador, um ganho a partir de ",
-      pontos(v$ganho_minimo_independencia), " pontos",
+      formatar_pontos(v$ganho_minimo_independencia),
       if (isFALSE(separa("diferenca_mapeamento"))) {
         ", e entre realizações a diferença não se separa de zero."
       } else {
@@ -323,10 +335,11 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       } else {
         "Os atributos declarados preveem pouco dos fatores fora da amostra, muito menos do que o ajuste dentro dela sugeria. "
       },
-      "Sem ",
-      "o defeito, o escore deixa de carregar a popularidade, e o que sobra é ruído em ",
-      "torno do piso. É a forma que se espera no sintético, em que o gerador não planta ",
-      "vínculo entre competência e projeto (II.6.4)."
+      "Sem o defeito, a correlação do escore com a popularidade, que já era fraca sob a ",
+      "emenda 1 (", formatar_decimal(e1$spearman_reunida, 2), "), fica ainda menor (",
+      formatar_decimal(v$spearman_reunida, 2), "), e o que sobra é ruído em torno do piso. É a ",
+      "forma que se espera no sintético, em que o gerador não planta vínculo entre ",
+      "competência e projeto (II.6.4)."
     ),
 
     "W3.2.9", "instrumento",
@@ -336,8 +349,8 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       max(escolhidos$fatores), " fatores e regularização do mapa de ",
       formatar_decimal(min(escolhidos$lambda_mapeamento), 1), " a ",
       formatar_decimal(max(escolhidos$lambda_mapeamento), 1), ". A melhor configuração ",
-      "supera a mediana da grade em ", pontos(v$grade_maximo_menos_mediana), " pontos, em ",
-      "média, e a mediana fica a ", pontos(v$grade_mediana_menos_piso), " pontos do piso ",
+      "supera a mediana da grade em ", formatar_pontos(v$grade_maximo_menos_mediana), ", em ",
+      "média, e a mediana fica a ", formatar_pontos(v$grade_mediana_menos_piso), " do piso ",
       "nos mesmos pares. Entre realizações, a melhor fica ",
       intervalo_pontos("grade_maximo_menos_piso"), " acima do piso na validação."
     ),
@@ -361,7 +374,8 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       "candidatos da estimação fica em ", decimal(razao_e1), " na emenda 1 e em ",
       decimal(razao_e2), " na emenda 2, na mediana entre grupos, e o consultor de teste ",
       "cai nos extremos da lista em ", formatar_pct(extremos_e1), " e ", formatar_pct(extremos_e2),
-      " das listas", if (mecanismo_confirmado) "." else ", o contrário do que a hipótese da dispersão previa. A investigação parou nessa medida única.",
+      " das listas, contra cerca de ", formatar_pct(extremos_acaso, 0), " sob posição ao acaso, ",
+      "nos tamanhos reais das listas", if (mecanismo_confirmado) "." else ", o contrário do que a hipótese da dispersão previa. A investigação parou nessa medida única.",
       " Só o mapa é cruzado: a fatoração segue ajustada com toda a estimação, e o fator de ",
       "cada projeto carrega as alocações dos candidatos da estimação naquele projeto. O ",
       "canal pelo qual esse resíduo chega ao escore é o fator previsto pelos atributos, e ",
@@ -390,7 +404,14 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
       "O diagnóstico é descritivo; no sintético ele mede o que o gerador plantou, e não ",
       "como o mapa se comportaria com o vínculo real entre competência e projeto."
     ),
-    "depende do gerador"
+    "depende do gerador",
+
+    "W3.2.9", NA,
+    paste0(
+      "Escolher o máximo de uma grade plana infla a vantagem na validação, também sob a ",
+      "emenda 2, e nenhuma vantagem medida ali deve ser citada como ganho do modelo."
+    ),
+    "estrutural"
   )))
 
   list(objetos = objetos, tabelas = tabelas, figuras = figuras, achados = achados)

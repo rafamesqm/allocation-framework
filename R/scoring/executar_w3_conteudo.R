@@ -50,7 +50,7 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
   v <- as.list(versionado)
   pontos <- \(x) formatar_decimal(100 * x, 1)
   intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(estabilidade, medida, formatador)
-  intervalo_pontos <- \(medida) paste0(intervalo(medida, pontos), " pontos")
+  intervalo_pontos <- \(medida) formatar_intervalo_em_pontos(estabilidade, medida)
   fora <- \(rotulos) descrever_ponto_fora(vapply(
     names(rotulos), \(m) posicao_no_intervalo(estabilidade, m, v[[m]]), character(1)
   ) |> stats::setNames(rotulos))
@@ -65,6 +65,7 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
     dplyr::left_join(escolhidos |> dplyr::select(grupo, fatores, lambda, iteracoes, lambda_mapeamento), by = "grupo")
   rho_grupos <- avaliacao$spearman[avaliacao$spearman$grupo != "reunida", ]
   rejeicoes <- mean(replicas$supera_piso)
+  rejeicoes_contra <- mean(replicas$comum_rejeita_contra)
   supera <- v$supera_piso == 1
   separa_constante <- intervalo_separa_de_zero(estabilidade, "mapeamento_menos_constante")
   separa_diferenca <- intervalo_separa_de_zero(estabilidade, "diferenca_mapeamento")
@@ -179,14 +180,14 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
       "respondentes reunidos dos cinco grupos, o mapeamento de atributos para fatores ",
       "acerta ", formatar_pct(v$acerto_mapeamento), " em lista de 20, contra ",
       formatar_pct(v$acerto_piso_filtro), " do filtro com acaso, uma diferença de ",
-      pontos(v$diferenca_mapeamento), " pontos percentuais. O piso aqui é binário, com ",
+      formatar_pontos(v$diferenca_mapeamento, percentual = TRUE), ". O piso aqui é binário, com ",
       "os empates desfeitos pela semente de desempate, e difere dos ",
       formatar_pct(registro$verificacao$conteudo$piso_filtro_acaso), " esperados do ",
       "pré-registro só pelo sorteio dos empates. Dos pares discordantes, ",
       v$discordantes_a_favor, " favorecem o mapeamento e ", v$discordantes_contra,
       " o piso, e o McNemar exato bilateral dá p = ", formatar_decimal(v$valor_p_mcnemar, 3),
       ": o mapeamento ", if (supera) "supera" else "não supera", " o piso a 5%. O ganho ",
-      "mínimo detectável é de ", pontos(v$ganho_minimo_dominancia), " pontos no cenário ",
+      "mínimo detectável é de ", formatar_pontos(v$ganho_minimo_dominancia), " no cenário ",
       "otimista e de ", pontos(v$ganho_minimo_independencia), " no conservador. Entre ",
       nrow(replicas), " realizações, com a escolha de hiperparâmetros refeita em cada uma, ",
       "a diferença fica em ", intervalo_pontos("diferenca_mapeamento"), ", e o teste ",
@@ -206,7 +207,7 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
         "**Pela regra pré-registrada, a ordem dentro do filtro fica ao acaso** no ramo ",
         "de quem só respondeu o formulário. A não rejeição não autoriza dizer que nada ",
         "ordena dentro do filtro: o teste só enxergaria, no cenário conservador, um ganho ",
-        "a partir de ", pontos(v$ganho_minimo_independencia), " pontos. O que o resultado ",
+        "a partir de ", formatar_pontos(v$ganho_minimo_independencia), ". O que o resultado ",
         "sustenta é que o mapeamento não mostrou vantagem detectável",
         if (isFALSE(separa_diferenca)) {
           paste0(
@@ -222,17 +223,12 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
         } else {
           "."
         },
-        " A frequência de rejeição entre realizações, de ", formatar_pct(rejeicoes, 0),
-        ", fica ", if (rejeicoes > 0.025) "acima" else "dentro", " dos 2,5% que o teste ",
-        "bilateral daria a favor do modelo sem efeito nenhum",
-        if (rejeicoes > 0.025) {
-          paste0(
-            ": em parte das realizações o mapeamento ordena algo dentro do filtro, mas ",
-            "a realização típica não, e a regra decide sobre a versionada."
-          )
-        } else {
-          "."
-        },
+        " Entre realizações, o teste rejeita a favor do mapeamento em ",
+        formatar_pct(rejeicoes, 0), " e contra em ", formatar_pct(rejeicoes_contra, 0),
+        ", quando sem efeito cada direção ficaria em até 2,5%. O excesso nas duas ",
+        "direções não indica que o mapeamento ordene algo em parte das realizações: ",
+        "indica que o teste é anticonservador, porque os pares se agrupam por consultor ",
+        "(W3.2.10).",
         " É o desfecho que a síntese da EDA anteviu como possível (III.4): o perfil de ",
         "competências não carrega, nesta base, sinal de ordem dentro do filtro que o ",
         "teste consiga ver."
@@ -249,9 +245,9 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
       intervalo("spearman_reunida", \(x) formatar_decimal(x, 2)), " entre realizações. ",
       "A variante de escore constante, que dá a cada consultor a média do seu escore ",
       "em todo projeto, acerta ", formatar_pct(v$acerto_constante), ", ou ",
-      pontos(v$diferenca_constante), " pontos sobre o piso, contra ",
+      formatar_pontos(v$diferenca_constante), " sobre o piso, contra ",
       pontos(v$diferenca_mapeamento), " do mapeamento; a distância entre o mapeamento ",
-      "e a variante é de ", pontos(v$mapeamento_menos_constante), " pontos, ou ",
+      "e a variante é de ", formatar_pontos(v$mapeamento_menos_constante), ", ou ",
       intervalo_pontos("mapeamento_menos_constante"), " entre realizações."
     ),
     paste0(
@@ -295,9 +291,9 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
     "W3.2.4", "instrumento",
     paste0(
       "A grade de ", superficie$configuracoes[1], " configurações é plana. Em cada grupo, ",
-      "a melhor supera a mediana da grade em ", pontos(v$grade_maximo_menos_mediana),
-      " pontos, em média, e a mediana fica a ", pontos(v$grade_mediana_menos_piso),
-      " pontos do piso medido nos mesmos pares de validação; empatam no máximo, em ",
+      "a melhor supera a mediana da grade em ", formatar_pontos(v$grade_maximo_menos_mediana),
+      ", em média, e a mediana fica a ", formatar_pontos(v$grade_mediana_menos_piso),
+      " do piso medido nos mesmos pares de validação; empatam no máximo, em ",
       "média, ", formatar_decimal(v$grade_empatadas_no_maximo, 1), " configurações por ",
       "grupo. Entre realizações, a melhor fica ", intervalo_pontos("grade_maximo_menos_piso"),
       " acima do piso na validação, e a mediana, ", intervalo_pontos("grade_mediana_menos_piso"), "."
@@ -305,7 +301,7 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
     paste0(
       "A vantagem da melhor configuração na validação é o máximo de muitas medidas ",
       "feitas nos mesmos pares, e por isso otimista: na validação ela passava do piso ",
-      "por ", pontos(v$grade_maximo_menos_piso), " pontos, e no teste a diferença foi de ",
+      "por ", formatar_pontos(v$grade_maximo_menos_piso), ", e no teste a diferença foi de ",
       pontos(v$diferenca_mapeamento), ". A configuração típica da grade não se afasta do ",
       "piso, que é a forma esperada quando o atributo carrega pouco sinal de ordem ",
       "dentro do filtro, como o bloco II.6 antecipou (II.6.6)."

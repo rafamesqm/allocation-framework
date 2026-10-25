@@ -76,21 +76,30 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
       versionado = purrr::map_dbl(medida, \(m) v[[m]]),
       posicao = purrr::map2_chr(medida, versionado, \(m, x) posicao_no_intervalo(estabilidade, m, x))
     )
-  fora <- situacao[situacao$posicao != "dentro", ]
+  # As indicadoras de rejeição valem 0 ou 1 em cada realização: o resumo
+  # delas é a frequência, e um intervalo de 90% não diz nada.
+  indicadoras <- c("conteudo_supera_piso", "colaborativo_supera_h1")
+  frequencia <- purrr::map_dbl(stats::setNames(indicadoras, indicadoras), \(m) mean(replicas[[m]]))
+  continuas <- situacao[!situacao$medida %in% indicadoras, ]
+  fora <- continuas[continuas$posicao != "dentro", ]
   pct <- \(m) formatar_intervalo(estabilidade, m)
-  pontos <- \(x) formatar_decimal(100 * x, 1)
   ponto_de <- \(m) formatar_pct(v[[m]])
 
-  objetos <- list(estabilidade = estabilidade, situacao = situacao, fora = fora)
+  objetos <- list(estabilidade = estabilidade, situacao = situacao, fora = fora, frequencia = frequencia)
 
   tabelas <- list(
     w3_estabilidade = situacao |>
+      dplyr::mutate(indicadora = medida %in% indicadoras) |>
       dplyr::transmute(
         Etapa = etapa, Grandeza = rotulo,
         `Realização versionada` = formatar_decimal(versionado, 4),
-        Mediana = formatar_decimal(mediana, 4),
-        `Intervalo de 90%` = paste0(formatar_decimal(inferior, 4), " a ", formatar_decimal(superior, 4)),
-        `Posição da versionada` = posicao,
+        Mediana = dplyr::if_else(indicadora, "--", formatar_decimal(mediana, 4)),
+        `Intervalo de 90%` = dplyr::if_else(
+          indicadora,
+          paste0("frequência de ", formatar_pct(frequencia[medida], 0)),
+          paste0(formatar_decimal(inferior, 4), " a ", formatar_decimal(superior, 4))
+        ),
+        `Posição da versionada` = dplyr::if_else(indicadora, "não se aplica", posicao),
         `Réplicas` = n_replicas
       )
   )
@@ -101,15 +110,20 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
 
     "W3.6.1", "instrumento",
     paste0(
-      "Das ", nrow(situacao), " grandezas centrais da wave 3, a realização versionada cai ",
-      "fora do intervalo de 90% entre ", nrow(replicas), " realizações em ", nrow(fora),
+      "Das ", nrow(continuas), " grandezas centrais contínuas da wave 3, a realização ",
+      "versionada cai fora do intervalo de 90% entre ", nrow(replicas), " realizações em ",
+      nrow(fora),
       if (nrow(fora) == 0) {
         "."
       } else {
         paste0(
           ": ", paste(paste0(fora$rotulo, " (", fora$etapa, ", ", fora$posicao, ")"), collapse = "; "), "."
         )
-      }
+      },
+      " As duas indicadoras de rejeição entram como frequência, e não como intervalo: o ",
+      "teste rejeita a favor do modelo em ", formatar_pct(frequencia[["conteudo_supera_piso"]], 0),
+      " das realizações no conteúdo e em ", formatar_pct(frequencia[["colaborativo_supera_h1"]], 0),
+      " no colaborativo."
     ),
     paste0(
       "Um sorteio em cada dez cai fora de um intervalo de 90% por definição, e grandezas ",
@@ -144,7 +158,7 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
         "acerto do híbrido" = posicao_no_intervalo(estabilidade, "hibrido_acerto", v$hibrido_acerto)
       )),
       ". A maior diferença entre o híbrido e o piso composto, em todas as realizações, é ",
-      "de ", pontos(diferenca_maxima), " pontos."
+      "de ", formatar_pontos(diferenca_maxima), "."
     ),
     paste0(
       if (diferenca_maxima == 0) {
@@ -167,14 +181,19 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
     "W3.6.4", "instrumento",
     paste0(
       "A adoção é a da realização versionada, popularidade no colaborativo e acaso no ",
-      "conteúdo, e não é decidida de novo em cada realização. A decisão teria mudado em ",
-      formatar_pct(mean(replicas$conteudo_supera_piso), 0), " das realizações no conteúdo e em ",
-      formatar_pct(mean(replicas$colaborativo_supera_h1), 0), " no colaborativo."
+      "conteúdo, e não é decidida de novo em cada realização. O teste pré-registrado ",
+      "rejeitaria a favor do modelo em ", formatar_pct(frequencia[["conteudo_supera_piso"]], 0),
+      " das realizações no conteúdo e em ", formatar_pct(frequencia[["colaborativo_supera_h1"]], 0),
+      " no colaborativo, contra até 2,5% sem efeito."
     ),
     paste0(
       "Os intervalos do segundo nível e do híbrido medem a variabilidade do modelo ",
-      "adotado, e não a da decisão. A estabilidade da decisão é a das frequências de ",
-      "rejeição, já reportadas nos achados W3.2.7 e W3.3.2."
+      "adotado, e não a da decisão. No conteúdo, a frequência de rejeição acima de 2,5% ",
+      "não mede a fragilidade da decisão: o teste também rejeita contra o mapeamento ",
+      "acima do acaso, e o excesso nas duas direções vem de ele ser anticonservador, com ",
+      "os pares agrupados por consultor (W3.2.10). No colaborativo, a frequência fica ",
+      if (frequencia[["colaborativo_supera_h1"]] <= 0.025) "dentro" else "acima",
+      " do que o acaso daria (W3.3.2)."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,

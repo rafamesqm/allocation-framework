@@ -17,7 +17,7 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
 
   pontos <- \(x) formatar_decimal(100 * x, 1)
   intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(estabilidade, medida, formatador)
-  intervalo_pontos <- \(medida) paste0(intervalo(medida, pontos), " pontos")
+  intervalo_pontos <- \(medida) formatar_intervalo_em_pontos(estabilidade, medida)
   fora <- \(rotulos) descrever_ponto_fora(vapply(
     names(rotulos), \(m) posicao_no_intervalo(estabilidade, m, v[[m]]), character(1)
   ) |> stats::setNames(rotulos))
@@ -172,7 +172,7 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
       "H1: nos ", formatar_inteiro(v$n_avaliavel), " pares avaliáveis, a fatoração binária ",
       "acerta ", formatar_pct(v$acerto_binario), " em lista de 20, contra ",
       formatar_pct(v$acerto_popularidade), " da popularidade contada na estimação, uma ",
-      "diferença de ", pontos(v$diferenca_h1), " pontos. O piso tem duas medidas, e as ",
+      "diferença de ", formatar_pontos(v$diferenca_h1), ". O piso tem duas medidas, e as ",
       "duas são reportadas: o acerto esperado sob desempate aleatório, que é o ",
       "pré-registrado, fica em ", formatar_pct(v$acerto_popularidade_esperado), ", ou ",
       intervalo("acerto_popularidade_esperado"), " entre realizações; com os empates ",
@@ -182,7 +182,7 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
       v$discordantes_h1_a_favor, " favorecem a fatoração e ", v$discordantes_h1_contra,
       " a popularidade, e o McNemar exato bilateral dá p = ", valor_p(v$valor_p_h1),
       ": a fatoração ", if (supera_h1) "supera" else "não supera", " a popularidade a 5%. ",
-      "O ganho mínimo detectável é de ", pontos(v$ganho_minimo_h1_dominancia), " pontos no ",
+      "O ganho mínimo detectável é de ", formatar_pontos(v$ganho_minimo_h1_dominancia), " no ",
       "cenário otimista e de ", pontos(v$ganho_minimo_h1_independencia), " no ",
       "conservador. Entre ", nrow(replicas), " realizações, a diferença fica em ",
       intervalo_pontos("diferenca_h1"), ", e H1 rejeita a favor da fatoração em ",
@@ -202,8 +202,8 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
         "popularidade, o sinal fica binário e a comparação de alfa é só descritiva.** ",
         "A não rejeição não é lida como ausência de efeito (II.7.6): com ",
         formatar_inteiro(v$n_avaliavel), " pares o teste só enxerga, no cenário ",
-        "conservador, ganho a partir de ", pontos(v$ganho_minimo_h1_independencia),
-        " pontos. ",
+        "conservador, ganho a partir de ", formatar_pontos(v$ganho_minimo_h1_independencia),
+        ". ",
         if (isFALSE(separa("diferenca_h1"))) {
           "Entre realizações a diferença não se separa de zero, então o desfecho não é peculiaridade desta realização. "
         } else if (isTRUE(separa("diferenca_h1"))) {
@@ -214,8 +214,9 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
         "A frequência de rejeição entre realizações, de ", formatar_pct(rejeicoes_h1, 0),
         ", fica ", if (rejeicoes_h1 > 0.025) "acima" else "dentro", " dos 2,5% que o teste ",
         "bilateral daria a favor da fatoração sem efeito nenhum. ",
-        "É o desfecho que a EDA declarou esperado: onde falta evidência, a fatoração ",
-        "reproduz a popularidade (II.2.4)."
+        "O desfecho que a EDA declarou esperado se confirmou, mas o mecanismo que ela ",
+        "previa, a fatoração reproduzir a popularidade onde falta evidência (II.2.4), não ",
+        "se confirmou (W3.3.5)."
       )
     },
 
@@ -224,7 +225,7 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
       if (supera_h1) "H2" else "A comparação de alfa, descritiva porque H1 não rejeitou",
       ": a fatoração com confiança por horas acerta ", formatar_pct(v$acerto_confianca),
       ", contra ", formatar_pct(v$acerto_binario), " da binária, uma diferença de ",
-      pontos(v$diferenca_h2), " pontos, com ", v$discordantes_h2_a_favor, " discordantes a ",
+      formatar_pontos(v$diferenca_h2), ", com ", v$discordantes_h2_a_favor, " discordantes a ",
       "favor da confiança e ", v$discordantes_h2_contra, " a favor do binário (McNemar ",
       "exato, p = ", valor_p(v$valor_p_h2), "). Entre realizações, a diferença fica em ",
       intervalo_pontos("diferenca_h2"), ", e a confiança supera o binário a 5% em ",
@@ -248,12 +249,12 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
     paste0(
       "A escolha de hiperparâmetros saiu de ", validacao$avaliaveis, " pares avaliáveis de ",
       "validação, entre os ", formatar_inteiro(validacao$pares), " da validação temporal ",
-      "interna: cada acerto vale ", pontos(1 / validacao$avaliaveis), " pontos. A ",
+      "interna: cada acerto vale ", formatar_pontos(1 / validacao$avaliaveis), ". A ",
       "binária escolhida tem ", escolhidos$fatores[escolhidos$alfa == 0], " fatores, e a ",
       "com confiança, ", escolhidos$fatores[escolhidos$alfa == 1], ". Na validação, a ",
-      "melhor binária passa da popularidade por ", pontos(v$validacao_binario_menos_piso),
-      " pontos, e a mediana da grade fica ", pontos(abs(v$validacao_mediana_binario_menos_piso)),
-      " pontos ", if (v$validacao_mediana_binario_menos_piso < 0) "abaixo" else "acima",
+      "melhor binária passa da popularidade por ", formatar_pontos(v$validacao_binario_menos_piso),
+      ", e a mediana da grade fica ", formatar_pontos(abs(v$validacao_mediana_binario_menos_piso)),
+      " ", if (v$validacao_mediana_binario_menos_piso < 0) "abaixo" else "acima",
       " dela. Entre realizações, os pares avaliáveis de validação ficam em ",
       intervalo("validacao_avaliaveis", formatar_inteiro), ", e a mediana da grade binária ",
       "menos a popularidade, em ", intervalo_pontos("validacao_mediana_binario_menos_piso"), "."
@@ -330,7 +331,7 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
       " pares de validação, e por isso é instável; o resultado vale para o procedimento ",
       "de escolha, e não para uma configuração."
     ),
-    "fato real",
+    "depende do gerador",
 
     "W3.3.5", NA,
     paste0(
