@@ -154,13 +154,19 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
   )
 
   figuras <- list(
-    w3_conteudo_diferencas = figura_diferenca_do_conteudo(
+    w3_conteudo_diferencas = figura_diferencas_entre_realizacoes(
       replicas, versionado,
+      rotulos = c(
+        diferenca_mapeamento = "Mapeamento de atributos",
+        diferenca_constante = "Variante de escore constante"
+      ),
+      coluna_ganho = "ganho_minimo_independencia",
       titulo = "Diferença para o filtro com acaso, entre realizações",
       subtitulo = paste(
         "Cada ponto é uma realização com a escolha de hiperparâmetros refeita;",
         "o losango é a versionada, e a linha tracejada o ganho mínimo conservador"
-      )
+      ),
+      eixo_x = "Diferença de acerto em lista de 20 para o filtro com acaso (pontos percentuais)"
     )
   )
 

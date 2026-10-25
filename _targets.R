@@ -366,5 +366,40 @@ list(
   tar_target(bloco_w3_conteudo_figuras, salvar_figuras_bloco(
     bloco_w3_conteudo$figuras, list(w3_conteudo_diferencas = c(18, 9))
   ), format = "file"),
-  tar_target(bloco_w3_conteudo_achados, salvar_tabela(bloco_w3_conteudo$achados, "achados_w3_2"), format = "file")
+  tar_target(bloco_w3_conteudo_achados, salvar_tabela(bloco_w3_conteudo$achados, "achados_w3_2"), format = "file"),
+
+  # Etapa 3, colaborativo: escolha dos hiperparâmetros de cada alfa na
+  # validação temporal interna, só no período de estimação. O teste entra
+  # depois de a escolha ser revista.
+  tar_target(w3_colaborativo_selecao, selecionar_hiperparametros_do_colaborativo(dados_eda, pre_registro)),
+  tar_target(w3_colaborativo_hiperparametros_tabela, salvar_tabela(
+    tabelar_hiperparametros_do_colaborativo(w3_colaborativo_selecao), "w3_colaborativo_hiperparametros"
+  ), format = "file"),
+
+  # A sequência H1 e H2, com a escolha conferida contra a emenda: se a
+  # escolha mudar, a pipeline para antes do teste. As realizações usam as
+  # mesmas sementes do conteúdo e refazem a escolha em cada uma.
+  tar_target(w3_colaborativo_selecao_conferida, conferir_escolha_do_colaborativo(
+    w3_colaborativo_selecao, pre_registro
+  )),
+  tar_target(w3_colaborativo_avaliacao, avaliar_componente_colaborativo(
+    dados_eda, pre_registro, w3_colaborativo_selecao_conferida
+  )),
+  tar_target(
+    w3_colaborativo_replicas,
+    simular_avaliacao_do_colaborativo(
+      w3_conteudo_sementes, pre_registro,
+      n_consultores = parametros$n_consultores, n_projetos = parametros$n_projetos,
+      data_referencia = parametros$data_referencia
+    ),
+    pattern = map(w3_conteudo_sementes)
+  ),
+  tar_target(bloco_w3_colaborativo, executar_w3_colaborativo(
+    w3_colaborativo_avaliacao, w3_colaborativo_replicas, pre_registro
+  )),
+  tar_target(bloco_w3_colaborativo_tabelas, salvar_tabelas_bloco(bloco_w3_colaborativo$tabelas), format = "file"),
+  tar_target(bloco_w3_colaborativo_figuras, salvar_figuras_bloco(
+    bloco_w3_colaborativo$figuras, list(w3_colaborativo_diferencas = c(18, 9))
+  ), format = "file"),
+  tar_target(bloco_w3_colaborativo_achados, salvar_tabela(bloco_w3_colaborativo$achados, "achados_w3_3"), format = "file")
 )
