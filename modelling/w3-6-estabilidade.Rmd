@@ -1,5 +1,5 @@
 ---
-title: "Etapa 6 Estabilidade entre realizações"
+title: "Etapa 6. Estabilidade entre realizações"
 subtitle: "Wave 3, scoring híbrido"
 lang: pt-BR
 output:

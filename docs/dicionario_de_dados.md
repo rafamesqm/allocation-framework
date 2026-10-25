@@ -187,7 +187,7 @@ avaliado. A avaliação de `ŝ` tem dois níveis, aderência ao processo e
 plausibilidade das discordâncias entre recomendado e realizado (II.7.8).
 
 **Definido na wave 3** (achados W3.2 a W3.4). Nenhum dos dois testes rejeitou:
-o mapeamento de atributos não superou o filtro com acaso (W3.2.1) e a
+o mapeamento de atributos não superou o filtro com acaso (W3.2.7) e a
 fatoração não superou a popularidade (W3.3.2). O híbrido ordena então pela
 popularidade para quem tem histórico e ao acaso dentro do filtro para quem só
 tem formulário, e `ŝ` é definido sobre a lista que ele monta:
@@ -210,6 +210,10 @@ tem formulário, e `ŝ` é definido sobre a lista que ele monta:
   inteiro da janela de análise. Sem isso, `ŝ` de um projeto histórico
   carregaria a alocação que a wave 4 vai reproduzir ou contestar. Quem tem
   alocação só naquele projeto fica, diante dele, sem histórico.
+* **A popularidade conta projetos distintos** por consultor. A leitura dos
+  dados (`carregar_dados()`) para a pipeline se algum par consultor e projeto
+  aparecer duas vezes nas alocações, e essa verificação garante que contar
+  projetos distintos coincida com contar alocações.
 * **Zona morta**: o par existe, com `s_hat` ausente (`NA`). O modelo não a
   recomenda, e o ausente não é convertido em zero na wave 3; o que fazer com
   ele é decisão da wave 4.

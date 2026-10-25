@@ -1,5 +1,5 @@
 ---
-title: "Etapa 4 O híbrido montado e o escore de afinidade"
+title: "Etapa 4. O híbrido montado e o escore de afinidade"
 subtitle: "Wave 3, scoring híbrido"
 lang: pt-BR
 output:
@@ -18,6 +18,7 @@ resumo <- obj$resumo
 adocao <- ler_bloco("w3_adocao")
 estabilidade <- ler_bloco("bloco_w3_estabilidade")$objetos$estabilidade
 total <- resumo[resumo$quadrante == "todos", ]
+revisao <- ler_bloco("bloco_w3_revisao")
 ```
 
 ## Propósito
@@ -59,6 +60,26 @@ dos projetos de teste. Os consultores com histórico e sem setor declarado
 entram em toda lista e vêm antes, e a inclusão de quem só tem formulário
 depende da regra de exposição definida fora do modelo.
 
+**A ocupação, sobre todas as listas de `ŝ`.** A medida acima é sobre as listas
+do teste temporal. Sobre todas as listas de `ŝ`, quem não respondeu o
+formulário entra em todas, sem filtro, e quem respondeu só nas do próprio
+setor:
+
+```{r ocupacao}
+mostrar_tabela(
+  revisao$tabelas$w3_hibrido_ocupacao,
+  "Tabela W3.8a: fração das 20 primeiras posições e listas em que cada consultor entra, por quadrante, sobre todas as listas de ŝ."
+)
+```
+
+```{r listas}
+listas <- revisao$tabelas$w3_listas_descritivas
+mostrar_tabela(
+  listas[listas$Componente == "Híbrido", ],
+  "Tabela W3.8b: acerto do híbrido e do piso composto em listas de 5, 10, 20 e 50, no teste temporal."
+)
+```
+
 ## O escore de afinidade
 
 ```{r s-hat}
@@ -76,5 +97,7 @@ fica no alvo `w3_s_hat` e não entra em nenhuma avaliação desta wave.
 ## Achados
 
 ```{r achados, results = "asis"}
-cat(mostrar_achados(bloco$achados))
+cat(mostrar_achados(dplyr::bind_rows(
+  bloco$achados, revisao$achados[startsWith(revisao$achados$codigo, "W3.4"), ]
+)))
 ```

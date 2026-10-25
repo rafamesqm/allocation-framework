@@ -1,5 +1,5 @@
 ---
-title: "Etapa 3 Componente colaborativo"
+title: "Etapa 3. Componente colaborativo"
 subtitle: "Wave 3, scoring híbrido"
 lang: pt-BR
 output:
@@ -17,7 +17,7 @@ obj <- bloco$objetos
 v <- obj$versionado
 selecao <- ler_bloco("w3_colaborativo_selecao")
 intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(obj$estabilidade, medida, formatador)
-pontos <- \(x) formatar_decimal(100 * x, 1)
+revisao <- ler_bloco("bloco_w3_revisao")
 ```
 
 ## Propósito
@@ -47,7 +47,7 @@ mostrar_tabela(
 
 A escolha saiu de `r selecao$validacao$avaliaveis` pares avaliáveis de
 validação, e cada acerto vale
-`r pontos(1 / selecao$validacao$avaliaveis)` pontos: é quase ruído, e nenhum
+`r formatar_pontos(1 / selecao$validacao$avaliaveis)`: é quase ruído, e nenhum
 hiperparâmetro escolhido deve ser lido como propriedade do problema.
 
 ## H1 e H2
@@ -77,8 +77,25 @@ coincidem.
 bloco$figuras$w3_colaborativo_diferencas
 ```
 
+## Listas descritivas
+
+Análise descritiva da revisão, sem teste de decisão.
+
+```{r listas}
+listas <- revisao$tabelas$w3_listas_descritivas
+mostrar_tabela(
+  listas[listas$Componente == "Colaborativo", ],
+  "Tabela W3.7a: acerto em listas de 5, 10, 20 e 50, fatoração binária contra popularidade, nos pares avaliáveis."
+)
+```
+
+A dependência entre pares do mesmo consultor, pelo McNemar agrupado, está na
+Tabela W3.2g, ao lado do conteúdo.
+
 ## Achados
 
 ```{r achados, results = "asis"}
-cat(mostrar_achados(bloco$achados))
+cat(mostrar_achados(dplyr::bind_rows(
+  bloco$achados, revisao$achados[startsWith(revisao$achados$codigo, "W3.3"), ]
+)))
 ```

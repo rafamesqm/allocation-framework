@@ -1,5 +1,5 @@
 ---
-title: "Etapa 2 Componente de conteúdo"
+title: "Etapa 2. Componente de conteúdo"
 subtitle: "Wave 3, scoring híbrido"
 lang: pt-BR
 output:
@@ -20,10 +20,11 @@ e2 <- ler_bloco("bloco_w3_conteudo_e2")
 o2 <- e2$objetos
 v2 <- o2$versionado
 selecao_e2 <- ler_bloco("w3_conteudo_e2_selecao")
+revisao <- ler_bloco("bloco_w3_revisao")
+dependencia_e2 <- revisao$objetos$dependencia[revisao$objetos$dependencia$componente == "conteúdo, emenda 2", ]
 lista <- ler_bloco("pre_registro")$metrica$lista_decisoria
-intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(obj$estabilidade, medida, formatador)
 intervalo_e2 <- \(medida, formatador = formatar_pct) formatar_intervalo(o2$estabilidade, medida, formatador)
-pontos <- \(x) formatar_decimal(100 * x, 1)
+achados_da_revisao <- \(prefixo) revisao$achados[startsWith(revisao$achados$codigo, prefixo), ]
 ```
 
 ## Propósito
@@ -85,8 +86,11 @@ O mapeamento acerta `r formatar_pct(v2$acerto_mapeamento)` em lista de
 e o McNemar exato dá p = `r formatar_decimal(v2$valor_p_mcnemar, 3)`:
 `r if (v2$supera_piso == 1) "**o mapeamento supera o piso**" else "**o mapeamento não supera o piso**, e a ordem dentro do filtro fica ao acaso"`.
 Entre realizações, a diferença fica em
-`r intervalo_e2("diferenca_mapeamento", pontos)` pontos, e o teste rejeita a
-favor do mapeamento em `r formatar_pct(o2$rejeicoes, 0)` delas.
+`r formatar_intervalo_em_pontos(o2$estabilidade, "diferenca_mapeamento")`, e o
+teste rejeita a favor do mapeamento em `r formatar_pct(o2$rejeicoes, 0)` delas e
+contra em `r formatar_pct(dependencia_e2$comum_contra, 0)`. O excesso
+nas duas direções vem de os pares se agruparem por consultor, e não de o
+mapeamento ordenar algo em parte das realizações (achado W3.2.10, adiante).
 
 ```{r emendas}
 mostrar_tabela(
@@ -114,21 +118,21 @@ realizações, contra `r intervalo_e2("r2_mapa_dentro", \(x) formatar_decimal(x,
 dentro dela: o ajuste que o mapa mostrava dentro da amostra era memória do
 histórico.
 
-A direção que o defeito tomou não tem explicação por construção. Uma medida
-descritiva única da hipótese de que ele fazia a posição do consultor de teste
-depender da dispersão das previsões:
+O defeito quebrou a escala comum, e a direção do efeito dele sobre o teste é
+empírica, e não de construção. Uma medida descritiva única da hipótese de que
+ele fazia a posição do consultor de teste depender da dispersão das previsões:
 
 ```{r dispersao-e2}
 mostrar_tabela(
   e2$tabelas$w3_conteudo_e2_dispersao,
-  "Tabela W3.2j: dispersão dos escores na lista e posição do consultor de teste, sob as emendas 1 e 2."
+  "Tabela W3.2e: dispersão dos escores na lista e posição do consultor de teste, sob as emendas 1 e 2."
 )
 ```
 
 ```{r superficie-e2}
 mostrar_tabela(
   e2$tabelas$w3_conteudo_e2_superficie,
-  "Tabela W3.2e: a grade em cada grupo sob a emenda 2, contra o piso nos mesmos pares de validação."
+  "Tabela W3.2f: a grade em cada grupo sob a emenda 2, contra o piso nos mesmos pares de validação."
 )
 ```
 
@@ -138,6 +142,39 @@ mostrar_tabela(
 cat(mostrar_achados(e2$achados))
 ```
 
+## Dependência entre pares e listas descritivas
+
+Análise descritiva, posterior ao resultado, sem efeito na decisão. O McNemar
+comum trata cada par de teste como independente, mas os pares de um mesmo
+consultor se agrupam. O McNemar agrupado de Durkalski et al. (2003) usa o
+consultor de teste como unidade.
+
+```{r dependencia}
+mostrar_tabela(
+  revisao$tabelas$w3_dependencia_dos_pares,
+  "Tabela W3.2g: McNemar comum e agrupado por consultor, na versionada e entre realizações, nas duas emendas do conteúdo e no colaborativo."
+)
+```
+
+```{r listas}
+listas <- revisao$tabelas$w3_listas_descritivas
+mostrar_tabela(
+  listas[startsWith(listas$Componente, "Conteúdo"), ],
+  "Tabela W3.2h: acerto em listas de 5, 10, 20 e 50, mapeamento contra filtro com acaso, nas duas emendas."
+)
+```
+
+```{r tamanho-do-filtro}
+mostrar_tabela(
+  revisao$tabelas$w3_tamanho_do_filtro,
+  "Tabela W3.2i: pares de teste que passam o filtro, pelo tamanho do filtro."
+)
+```
+
+```{r achados-revisao, results = "asis"}
+cat(mostrar_achados(achados_da_revisao("W3.2")))
+```
+
 ## Análise conforme a emenda 1
 
 Preservada como rodou, com os números originais. Não decide.
@@ -145,28 +182,28 @@ Preservada como rodou, com os números originais. Não decide.
 ```{r hiperparametros}
 mostrar_tabela(
   tabelar_hiperparametros_do_conteudo(selecao),
-  "Tabela W3.2f: configuração escolhida em cada grupo sob a emenda 1."
+  "Tabela W3.2j: configuração escolhida em cada grupo sob a emenda 1."
 )
 ```
 
 ```{r superficie}
 mostrar_tabela(
   bloco$tabelas$w3_conteudo_superficie,
-  "Tabela W3.2g: a grade em cada grupo sob a emenda 1."
+  "Tabela W3.2k: a grade em cada grupo sob a emenda 1."
 )
 ```
 
 ```{r teste}
 mostrar_tabela(
   bloco$tabelas$w3_conteudo_teste,
-  "Tabela W3.2h: teste único sob a emenda 1, na realização versionada e entre realizações."
+  "Tabela W3.2l: teste único sob a emenda 1, na realização versionada e entre realizações."
 )
 ```
 
 Sob a emenda 1, o mapeamento acertava `r formatar_pct(v$acerto_mapeamento)`
 contra `r formatar_pct(v$acerto_piso_filtro)` do filtro com acaso, com p =
 `r formatar_decimal(v$valor_p_mcnemar, 3)`, e a diferença entre realizações
-ficava em `r intervalo("diferenca_mapeamento", pontos)` pontos.
+ficava em `r formatar_intervalo_em_pontos(obj$estabilidade, "diferenca_mapeamento")`.
 
 ```{r figura, fig.width = 7.5, fig.height = 3.8}
 bloco$figuras$w3_conteudo_diferencas
@@ -175,7 +212,7 @@ bloco$figuras$w3_conteudo_diferencas
 ```{r diagnostico}
 mostrar_tabela(
   bloco$tabelas$w3_conteudo_diagnostico,
-  "Tabela W3.2i: diagnóstico de popularidade prevista sob a emenda 1."
+  "Tabela W3.2m: diagnóstico de popularidade prevista sob a emenda 1."
 )
 ```
 

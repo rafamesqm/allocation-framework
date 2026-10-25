@@ -1,5 +1,5 @@
 ---
-title: "Etapas 0 e 1 Pré-registro e pisos"
+title: "Etapas 0 e 1. Pré-registro e pisos"
 subtitle: "Wave 3, scoring híbrido"
 lang: pt-BR
 output:
@@ -53,6 +53,14 @@ e anteriores ao teste a que se referem: cada uma registra os hiperparâmetros
 escolhidos na validação interna e revistos pelo autor antes de qualquer grupo
 de teste ser tocado, e as regras de implementação que o texto original não
 fixava.
+
+**A emenda 2 do conteúdo é uma correção posterior a um resultado.** Ela foi
+registrada depois do teste sob a emenda 1, quando se viu que a emenda 1
+pontuava os candidatos da estimação dentro da amostra do mapa e o consultor de
+teste fora dela, sem a escala comum que a regra exige. A emenda 2 corrigiu a
+pontuação com previsões cruzadas, foi registrada antes do teste novo, e é ela
+que decide o conteúdo. O resultado sob a emenda 1 fica preservado e
+identificado (Etapa 2, achado W3.2.6).
 
 ## Etapa 1: os pisos reproduzem
 
