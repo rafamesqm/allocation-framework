@@ -411,5 +411,16 @@ list(
   tar_target(w3_s_hat, calcular_s_hat(dados_eda, pre_registro, w3_adocao)),
   tar_target(bloco_w3_hibrido, executar_w3_hibrido(w3_hibrido_avaliacao, w3_s_hat, pre_registro)),
   tar_target(bloco_w3_hibrido_tabelas, salvar_tabelas_bloco(bloco_w3_hibrido$tabelas), format = "file"),
-  tar_target(bloco_w3_hibrido_achados, salvar_tabela(bloco_w3_hibrido$achados, "achados_w3_4"), format = "file")
+  tar_target(bloco_w3_hibrido_achados, salvar_tabela(bloco_w3_hibrido$achados, "achados_w3_4"), format = "file"),
+
+  # Etapa 5: plausibilidade das discordâncias, com as funções do bloco II.7.
+  # A planilha da rubrica sai em branco; os vereditos são do autor.
+  tar_target(w3_plausibilidade, avaliar_plausibilidade_das_discordancias(
+    dados_eda, pre_registro, w3_conteudo_avaliacao, w3_colaborativo_avaliacao, w3_adocao
+  )),
+  tar_target(bloco_w3_plausibilidade, executar_w3_plausibilidade(w3_plausibilidade, pre_registro)),
+  tar_target(bloco_w3_plausibilidade_tabelas, salvar_tabelas_bloco(bloco_w3_plausibilidade$tabelas), format = "file"),
+  tar_target(bloco_w3_plausibilidade_achados, salvar_tabela(
+    bloco_w3_plausibilidade$achados, "achados_w3_5"
+  ), format = "file")
 )
