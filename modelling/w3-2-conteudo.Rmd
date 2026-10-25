@@ -16,7 +16,13 @@ bloco <- ler_bloco("bloco_w3_conteudo")
 obj <- bloco$objetos
 v <- obj$versionado
 selecao <- ler_bloco("w3_conteudo_selecao")
+e2 <- ler_bloco("bloco_w3_conteudo_e2")
+o2 <- e2$objetos
+v2 <- o2$versionado
+selecao_e2 <- ler_bloco("w3_conteudo_e2_selecao")
+lista <- ler_bloco("pre_registro")$metrica$lista_decisoria
 intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(obj$estabilidade, medida, formatador)
+intervalo_e2 <- \(medida, formatador = formatar_pct) formatar_intervalo(o2$estabilidade, medida, formatador)
 pontos <- \(x) formatar_decimal(100 * x, 1)
 ```
 
@@ -29,78 +35,149 @@ melhor que o acaso, que é a pergunta que a EDA deixou aberta (III.4).
 **Alternativa testada.** O mapeamento de atributos para fatores (Gantner et
 al., 2010): uma fatoração binária ajustada na estimação, uma regressão ridge
 dos atributos declarados, setor predominante e competências, para os fatores
-dos consultores com histórico, e o consultor de teste pontuado pelo fator
-previsto. A similaridade de competências foi excluída no pré-registro, porque
-exigiria um perfil de competências do projeto derivado dos alocados, o perfil
-médio que o achado II.6.6 rejeitou.
+dos consultores com histórico, e os candidatos pontuados pelo fator previsto.
+A similaridade de competências foi excluída no pré-registro, porque exigiria
+um perfil de competências do projeto derivado dos alocados, o perfil médio
+que o achado II.6.6 rejeitou.
 
 **Protocolo.** Validação cruzada em cinco grupos de consultores. Em cada grupo,
 os hiperparâmetros são escolhidos nos outros quatro, em rodízio, e o grupo
-reservado só é tocado no teste. As predições dos cinco grupos são reunidas
-antes do McNemar.
+reservado só é tocado no teste.
 
-## A escolha de hiperparâmetros
+**Duas análises, uma decisão.** O teste rodou primeiro sob a emenda 1. A
+revisão de ponta a ponta achou, depois desse resultado, um defeito na
+pontuação dentro do filtro. A emenda 2 o corrigiu antes de qualquer ajuste
+sob a regra nova e passou a decidir. As duas análises são reportadas; só a da
+emenda 2 decide.
+
+## O resultado que decide: emenda 2
+
+### O defeito e a correção
+
+Sob a emenda 1, os candidatos do filtro com histórico na estimação eram
+pontuados pela previsão do mapa **dentro da amostra**, e o consultor de teste
+pela previsão **fora** dela. Com pouca regularização do mapa, a previsão
+dentro da amostra reproduz o fator ajustado pelo histórico, e os candidatos
+não ficam na mesma escala. A emenda 2 pontua todo candidato fora da amostra,
+por previsões cruzadas em cinco subgrupos, e refaz a escolha de
+hiperparâmetros com a mesma regra. Na validação interna, a melhor
+configuração do grupo 1 tinha `r formatar_pct(o2$grupo_1_e1)` sob a emenda 1 e
+caiu para `r formatar_pct(o2$grupo_1_e2)` com a pontuação cruzada.
+
+```{r hiperparametros-e2}
+mostrar_tabela(
+  tabelar_hiperparametros_do_conteudo(selecao_e2),
+  "Tabela W3.2a: configuração escolhida em cada grupo sob a emenda 2, registrada em emenda antes do teste."
+)
+```
+
+### O teste único
+
+```{r teste-e2}
+mostrar_tabela(
+  e2$tabelas$w3_conteudo_e2_teste,
+  "Tabela W3.2b: teste único do mapeamento contra o filtro com acaso sob a emenda 2."
+)
+```
+
+O mapeamento acerta `r formatar_pct(v2$acerto_mapeamento)` em lista de
+`r lista`, contra `r formatar_pct(v2$acerto_piso_filtro)` do filtro com acaso,
+e o McNemar exato dá p = `r formatar_decimal(v2$valor_p_mcnemar, 3)`:
+`r if (v2$supera_piso == 1) "**o mapeamento supera o piso**" else "**o mapeamento não supera o piso**, e a ordem dentro do filtro fica ao acaso"`.
+Entre realizações, a diferença fica em
+`r intervalo_e2("diferenca_mapeamento", pontos)` pontos, e o teste rejeita a
+favor do mapeamento em `r formatar_pct(o2$rejeicoes, 0)` delas.
+
+```{r emendas}
+mostrar_tabela(
+  e2$tabelas$w3_conteudo_emendas,
+  "Tabela W3.2c: o teste sob as duas emendas, lado a lado."
+)
+```
+
+```{r figura-e2, fig.width = 7.5, fig.height = 3.8}
+e2$figuras$w3_conteudo_e2_diferencas
+```
+
+### Diagnóstico
+
+```{r diagnostico-e2}
+mostrar_tabela(
+  e2$tabelas$w3_conteudo_e2_diagnostico,
+  "Tabela W3.2d: R² do mapa dentro e fora da amostra, popularidade prevista e variante de escore constante, sob a emenda 2."
+)
+```
+
+Fora da amostra, o R² médio do mapa fica em
+`r intervalo_e2("r2_mapa_fora", \(x) formatar_decimal(x, 2))` entre
+realizações, contra `r intervalo_e2("r2_mapa_dentro", \(x) formatar_decimal(x, 2))`
+dentro dela: o ajuste que o mapa mostrava dentro da amostra era memória do
+histórico.
+
+A direção que o defeito tomou não tem explicação por construção. Uma medida
+descritiva única da hipótese de que ele fazia a posição do consultor de teste
+depender da dispersão das previsões:
+
+```{r dispersao-e2}
+mostrar_tabela(
+  e2$tabelas$w3_conteudo_e2_dispersao,
+  "Tabela W3.2j: dispersão dos escores na lista e posição do consultor de teste, sob as emendas 1 e 2."
+)
+```
+
+```{r superficie-e2}
+mostrar_tabela(
+  e2$tabelas$w3_conteudo_e2_superficie,
+  "Tabela W3.2e: a grade em cada grupo sob a emenda 2, contra o piso nos mesmos pares de validação."
+)
+```
+
+### Achados da emenda 2
+
+```{r achados-e2, results = "asis"}
+cat(mostrar_achados(e2$achados))
+```
+
+## Análise conforme a emenda 1
+
+Preservada como rodou, com os números originais. Não decide.
 
 ```{r hiperparametros}
 mostrar_tabela(
   tabelar_hiperparametros_do_conteudo(selecao),
-  "Tabela W3.2: configuração escolhida em cada grupo na validação interna, registrada em emenda antes do teste."
+  "Tabela W3.2f: configuração escolhida em cada grupo sob a emenda 1."
 )
 ```
 
 ```{r superficie}
 mostrar_tabela(
   bloco$tabelas$w3_conteudo_superficie,
-  "Tabela W3.3: a grade de 128 configurações em cada grupo, contra o piso medido nos mesmos pares de validação."
+  "Tabela W3.2g: a grade em cada grupo sob a emenda 1."
 )
 ```
-
-A escolha muda de grupo para grupo, de 2 a 20 fatores, e muitas configurações
-empatam no máximo. A configuração típica da grade fica no nível do piso: a
-superfície é plana, e a melhor configuração vence por ser o máximo de muitas
-medidas nos mesmos pares.
-
-## O teste único
 
 ```{r teste}
 mostrar_tabela(
   bloco$tabelas$w3_conteudo_teste,
-  "Tabela W3.4: teste único do mapeamento contra o filtro com acaso, na realização versionada e entre realizações."
+  "Tabela W3.2h: teste único sob a emenda 1, na realização versionada e entre realizações."
 )
 ```
 
-O mapeamento acerta `r formatar_pct(v$acerto_mapeamento)` em lista de
-`r ler_bloco("pre_registro")$metrica$lista_decisoria`, contra
-`r formatar_pct(v$acerto_piso_filtro)` do filtro com acaso, e o McNemar exato
-dá p = `r formatar_decimal(v$valor_p_mcnemar, 3)`: **o mapeamento não supera o
-piso**, e pela regra pré-registrada a ordem dentro do filtro fica ao acaso.
-Entre realizações, a diferença fica em
-`r intervalo("diferenca_mapeamento", pontos)` pontos, e o teste rejeita a favor
-do mapeamento em `r formatar_pct(obj$rejeicoes, 0)` delas.
+Sob a emenda 1, o mapeamento acertava `r formatar_pct(v$acerto_mapeamento)`
+contra `r formatar_pct(v$acerto_piso_filtro)` do filtro com acaso, com p =
+`r formatar_decimal(v$valor_p_mcnemar, 3)`, e a diferença entre realizações
+ficava em `r intervalo("diferenca_mapeamento", pontos)` pontos.
 
 ```{r figura, fig.width = 7.5, fig.height = 3.8}
 bloco$figuras$w3_conteudo_diferencas
 ```
 
-## Diagnóstico de popularidade prevista
-
-Registrado em emenda antes do teste, sem função decisória: a variante que dá a
-cada consultor um escore constante entre projetos, a média do seu escore,
-separa o que o mapeamento diz do consultor do que ele diz da afinidade com o
-projeto.
-
 ```{r diagnostico}
 mostrar_tabela(
   bloco$tabelas$w3_conteudo_diagnostico,
-  "Tabela W3.5: correlação do escore com a popularidade e a variante de escore constante."
+  "Tabela W3.2i: diagnóstico de popularidade prevista sob a emenda 1."
 )
 ```
-
-A distância entre o mapeamento e a variante fica em
-`r intervalo("mapeamento_menos_constante", pontos)` pontos entre realizações:
-o mapeamento ordena o consultor, e não a afinidade dele com o projeto.
-
-## Achados
 
 ```{r achados, results = "asis"}
 cat(mostrar_achados(bloco$achados))

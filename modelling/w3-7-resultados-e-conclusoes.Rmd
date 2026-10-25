@@ -16,7 +16,8 @@ sintese <- ler_bloco("bloco_w3_sintese")
 achados <- sintese$objetos$achados
 estabilidade <- ler_bloco("bloco_w3_estabilidade")$objetos$estabilidade
 estabilidade_eda <- ler_bloco("estabilidade")
-conteudo <- ler_bloco("bloco_w3_conteudo")$objetos$versionado
+conteudo <- ler_bloco("bloco_w3_conteudo_e2")$objetos$versionado
+conteudo_e1 <- ler_bloco("bloco_w3_conteudo")$objetos$versionado
 colaborativo <- ler_bloco("bloco_w3_colaborativo")$objetos$versionado
 hibrido <- ler_bloco("bloco_w3_hibrido")$objetos
 pisos <- ler_bloco("w3_pisos")
@@ -45,7 +46,7 @@ por que podia ser pouco.
 | Etapa | O que foi medido | Resultado | O que decide | O que fica em aberto |
 |---|---|---|---|---|
 | 1. Pisos | os pisos do protocolo, conferidos contra o pré-registro | colaborativo `r formatar_intervalo(estabilidade_eda, "piso_colaborativo")`, conteúdo `r formatar_intervalo(estabilidade_eda, "piso_conteudo_filtro")`, no acerto esperado pré-registrado | a comparação é contra os pisos fixados antes do modelo | os pisos são do sintético e precisam ser recontados no dado real |
-| 2. Conteúdo | mapeamento de atributos contra o filtro com acaso | diferença de `r intervalo("conteudo_diferenca_mapeamento", pontos)` pontos; p = `r formatar_decimal(conteudo$valor_p_mcnemar, 3)` | ordem ao acaso dentro do filtro | o gerador não cria vínculo entre competência e projeto (II.6.4) |
+| 2. Conteúdo | mapeamento de atributos contra o filtro com acaso, sob a emenda 2, com previsões cruzadas | diferença de `r intervalo("conteudo_diferenca_mapeamento", pontos)` pontos; p = `r formatar_decimal(conteudo$valor_p_mcnemar, 3)` | ordem ao acaso dentro do filtro | o gerador não cria vínculo entre competência e projeto (II.6.4) |
 | 3. Colaborativo | H1, fatoração contra popularidade; H2 descritiva | H1: `r intervalo("colaborativo_diferenca_h1", pontos)` pontos; p = `r formatar_decimal(colaborativo$valor_p_h1, 3)` | popularidade e sinal binário | com `r colaborativo$n_avaliavel` pares, só ganho grande seria visto |
 | 4. Híbrido | o híbrido montado contra o piso composto | acerto de `r intervalo("hibrido_acerto")`; diferença para o piso de `r intervalo("hibrido_menos_piso_composto", pontos)` pontos | `ŝ` como percentil na lista | quem só tem formulário quase não entra no topo |
 | 5. Plausibilidade | as discordâncias por dominância | colaborativo: recomendado pior em `r intervalo("colaborativo_recomendado_pior")` | nenhuma; é leitura descritiva | os vereditos da leitura qualitativa são do autor |
@@ -83,13 +84,14 @@ morta tem `ŝ` ausente, e a regra de exposição que a põe no conjunto candidat
 ## Questões em aberto
 
 * **A leitura qualitativa** dos casos sorteados, pelo autor (Etapa 5).
-* **A pontuação dentro do filtro no teste do conteúdo.** A emenda de
-  2026-10-24 manda pontuar todo candidato do filtro pelo fator previsto. Os
-  candidatos dos grupos de estimação recebem a previsão dentro da amostra do
-  mapa, e o consultor de teste, fora dela; com pouca regularização do mapa, a
-  previsão dentro da amostra quase reproduz o fator ajustado pelo histórico. A
-  revisão de ponta a ponta apontou a assimetria depois do teste, e o
-  tratamento dela é decisão do autor.
+* **O resíduo da correção do conteúdo.** A revisão de ponta a ponta achou,
+  depois do resultado da emenda 1, que os candidatos com histórico eram
+  pontuados por previsão do mapa dentro da amostra (W3.2.6). A emenda 2
+  cruzou o mapa e passou a decidir, com p =
+  `r formatar_decimal(conteudo$valor_p_mcnemar, 3)` contra
+  `r formatar_decimal(conteudo_e1$valor_p_mcnemar, 3)` sob a emenda 1. Fica
+  um resíduo declarado: a fatoração segue ajustada com toda a estimação, e o
+  fator de cada projeto carrega as alocações dos candidatos da estimação.
 * **O dado real.** Os pisos, os números de pares e as magnitudes do segundo
   nível são do sintético, e precisam ser recalculados no dado real, sob o
   mesmo protocolo, antes de valerem para a organização.
