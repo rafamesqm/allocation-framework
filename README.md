@@ -12,10 +12,15 @@ reconstruir tudo do dado sintético ao resultado, com R 4.5.3:
 
 ```r
 renv::restore()
-source("tests/testthat.R")
 targets::tar_make()
+source("tests/testthat.R")
 source("analysis/_renderizar.R")
+source("modelling/_renderizar.R")
 ```
+
+A pipeline vem antes dos testes porque parte deles lê o store do `targets`.
+As realizações da wave 3 refazem a escolha de hiperparâmetros em cada uma, e o
+`tar_make()` completo leva cerca de duas horas.
 
 A renderização dos documentos exige o Pandoc, que fica fora do `renv`; sem ele,
 `tar_make()` ainda gera todas as tabelas e figuras em `outputs/`. A mesma
@@ -38,10 +43,14 @@ Catalog e nunca é persistido em disco.
 │   ├── data/                  # camada de acesso: fonte = synthetic | databricks
 │   ├── etl/                   # constrói as camadas
 │   ├── features/               # C, P, S, R
-│   ├── scoring/                 # wave 3, não iniciado
+│   ├── scoring/               # wave 3: fatoração, mapeamento, híbrido, s chapéu
 │   ├── optim/                    # wave 4, não iniciado
 │   └── viz/
 ├── analysis/                     # documentos Quarto/Rmd, EDA como capítulo
+├── modelling/                    # documentos Rmd da modelagem (wave 3), um por etapa
+│   └── leitura/                  # leitura qualitativa do autor, nunca escrita pela pipeline
+├── config/
+│   └── pre_registro.yml          # protocolo da wave 3, commitado antes de qualquer modelo
 ├── data/
 │   └── synthetic/                # única fonte de dados versionada
 ├── tests/
@@ -59,7 +68,7 @@ Catalog e nunca é persistido em disco.
 |------|----------|--------|
 | 1 | Setup e sintetizador (ETL) | Concluído |
 | 2 | EDA | Concluído |
-| 3 | Scoring híbrido (content-based + colaborativo) | A seguir |
+| 3 | Scoring híbrido (content-based + colaborativo) | Concluído, em revisão |
 | 4 | Otimização multiobjetivo com restrições (ILP, ε-constraint / AUGMECON2) | A seguir |
 | 5 | Explicabilidade (SHAP / XAI) | Opcional |
 | 6 | Agente conversacional | Trabalho futuro, não implementado |

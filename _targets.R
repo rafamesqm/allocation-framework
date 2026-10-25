@@ -356,9 +356,8 @@ list(
   ),
 
   # Achados das Etapas 1 e 2, no formato da EDA, com tabelas e figura.
-  tar_target(w3_pisos_achados, salvar_tabela(
-    registrar_achados_w3_pisos(w3_pisos_conferencia, w3_pisos, estabilidade), "achados_w3_1"
-  ), format = "file"),
+  tar_target(w3_achados_pisos, registrar_achados_w3_pisos(w3_pisos_conferencia, w3_pisos, estabilidade)),
+  tar_target(w3_pisos_achados, salvar_tabela(w3_achados_pisos, "achados_w3_1"), format = "file"),
   tar_target(bloco_w3_conteudo, executar_w3_conteudo(
     w3_conteudo_avaliacao, w3_conteudo_replicas, pre_registro
   )),
@@ -450,5 +449,13 @@ list(
   tar_target(bloco_w3_estabilidade_tabelas, salvar_tabelas_bloco(bloco_w3_estabilidade$tabelas), format = "file"),
   tar_target(bloco_w3_estabilidade_achados, salvar_tabela(
     bloco_w3_estabilidade$achados, "achados_w3_6"
-  ), format = "file")
+  ), format = "file"),
+
+  # Síntese da wave 3: empilha os achados das seis etapas e tira deles as
+  # tabelas de decisões e limitações do Capítulo 5. Não recalcula nada.
+  tar_target(bloco_w3_sintese, executar_w3_sintese(list(
+    w3_achados_pisos, bloco_w3_conteudo$achados, bloco_w3_colaborativo$achados,
+    bloco_w3_hibrido$achados, bloco_w3_plausibilidade$achados, bloco_w3_estabilidade$achados
+  ))),
+  tar_target(bloco_w3_sintese_tabelas, salvar_tabelas_bloco(bloco_w3_sintese$tabelas), format = "file")
 )
