@@ -33,10 +33,14 @@ testar_mcnemar_exato <- function(acerto_modelo, acerto_piso, alfa = 0.05) {
 #' @param configuracao Linha escolhida, com `fatores`, `lambda`, `iteracoes`
 #'   e `lambda_mapeamento`.
 #' @param semente Semente da fatoração.
-#' @return Lista com `pares` (os pares de teste e os três acertos) e
-#'   `entradas` (escore e popularidade de cada candidato filtrado dos
-#'   projetos de teste, para a correlação de Spearman).
-testar_conteudo_no_grupo <- function(contexto, divisao, grupo, configuracao, semente) {
+#' @param listas_descritivas Tamanhos das listas descritivas do
+#'   pré-registro, além da decisória.
+#' @return Lista com `pares` (os pares de teste e os três acertos, mais os
+#'   do modelo e do piso nas listas descritivas) e `entradas` (escore e
+#'   popularidade de cada candidato filtrado dos projetos de teste, para a
+#'   correlação de Spearman).
+testar_conteudo_no_grupo <- function(contexto, divisao, grupo, configuracao, semente,
+                                     listas_descritivas = integer(0)) {
   alocacoes <- contexto$dados$alocacoes
   grupo_da_linha <- divisao$grupo_do_consultor$grupo[
     match(alocacoes$consultor_id, divisao$grupo_do_consultor$consultor_id)
@@ -64,6 +68,10 @@ testar_conteudo_no_grupo <- function(contexto, divisao, grupo, configuracao, sem
       acerto_modelo = acertar_na_lista(teste, contexto, escores),
       acerto_piso = acertar_na_lista(teste, contexto),
       acerto_constante = acertar_na_lista(teste, contexto, constante)
+    ) |>
+    dplyr::bind_cols(
+      acertar_em_listas(teste, contexto, escores, listas_descritivas, "acerto_modelo"),
+      acertar_em_listas(teste, contexto, NULL, listas_descritivas, "acerto_piso")
     )
 
   popularidade <- as.numeric(table(factor(treino$consultor_id, levels = contexto$consultores)))
@@ -106,7 +114,7 @@ avaliar_componente_de_conteudo <- function(dados, registro, selecao = NULL) {
   por_grupo <- purrr::map(selecao$escolhidos$grupo, function(g) {
     testar_conteudo_no_grupo(
       contexto, divisao, g, selecao$escolhidos[selecao$escolhidos$grupo == g, ],
-      registro$sementes$fatoracao
+      registro$sementes$fatoracao, listas_descritivas = registro$metrica$listas_descritivas
     )
   })
   pares <- purrr::list_rbind(purrr::map(por_grupo, "pares"))
@@ -194,7 +202,13 @@ resumir_avaliacao_do_conteudo <- function(avaliacao, registro) {
     escolha_configuracoes_distintas = nrow(dplyr::distinct(
       escolhidos, fatores, lambda, iteracoes, lambda_mapeamento
     ))
-  )
+  ) |>
+    # Descritivos acrescentados na revisão da wave 3, sem efeito na decisão:
+    # a dependência entre pares do mesmo consultor e as listas descritivas.
+    dplyr::bind_cols(
+      resumir_dependencia_dos_pares(pares$acerto_modelo, pares$acerto_piso, pares$consultor_id, registro$teste$nivel),
+      resumir_acertos_em_listas(pares, c("acerto_modelo", "acerto_piso"), registro$metrica$listas_descritivas)
+    )
 }
 
 #' Refaz a avaliação do conteúdo inteira sobre realizações do gerador

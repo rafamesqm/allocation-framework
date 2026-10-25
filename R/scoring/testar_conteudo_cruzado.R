@@ -70,6 +70,10 @@ testar_conteudo_cruzado_no_grupo <- function(contexto, divisao, grupo, configura
       acerto_modelo = acertar_na_lista(teste, contexto, escores),
       acerto_piso = acertar_na_lista(teste, contexto),
       acerto_constante = acertar_na_lista(teste, contexto, constante)
+    ) |>
+    dplyr::bind_cols(
+      acertar_em_listas(teste, contexto, escores, registro$metrica$listas_descritivas, "acerto_modelo"),
+      acertar_em_listas(teste, contexto, NULL, registro$metrica$listas_descritivas, "acerto_piso")
     )
 
   popularidade <- as.numeric(table(factor(treino$consultor_id, levels = contexto$consultores)))

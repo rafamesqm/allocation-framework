@@ -195,6 +195,13 @@ avaliar_hibrido <- function(dados, registro, adocao) {
   e_candidato <- candidatos[cbind(i, match(teste$projeto_id, contexto$projetos))]
   pares$acerto_piso_composto <- acertar_na_lista(teste, contexto_do_piso, popularidade) * e_candidato
 
+  # Listas descritivas do pré-registro, pelos mesmos dois caminhos.
+  for (n in registro$metrica$listas_descritivas) {
+    pares[[paste0("acerto_hibrido_", n)]] <- as.integer(!is.na(pares$posicao) & pares$posicao <= n)
+    contexto_do_piso$lista <- n
+    pares[[paste0("acerto_piso_composto_", n)]] <- acertar_na_lista(teste, contexto_do_piso, popularidade) * e_candidato
+  }
+
   list(pares = pares, listas = listas, adocao = adocao)
 }
 

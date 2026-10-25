@@ -75,7 +75,8 @@ medir_segundo_nivel <- function(dados, registro, adocao) {
   plausibilidade <- avaliar_plausibilidade_das_discordancias(
     dados, registro, list(pares = pares_conteudo), list(pares = pares_colaborativo), adocao
   )
-  hibrido <- resumir_hibrido_por_quadrante(avaliar_hibrido(dados, registro, adocao)$pares)
+  pares_do_hibrido <- avaliar_hibrido(dados, registro, adocao)$pares
+  hibrido <- resumir_hibrido_por_quadrante(pares_do_hibrido)
 
   classificadas <- plausibilidade$classificadas
   fracao_da_classe <- function(ramo, classe) {
@@ -106,7 +107,10 @@ medir_segundo_nivel <- function(dados, registro, adocao) {
     hibrido_acerto_so_historico = hibrido_de("só histórico", "acerto_hibrido"),
     hibrido_fracao_so_formulario = hibrido_de("só formulário", "fracao"),
     hibrido_fracao_zona_morta = hibrido_de("zona morta", "fracao")
-  )
+  ) |>
+    dplyr::bind_cols(resumir_acertos_em_listas(
+      pares_do_hibrido, c("acerto_hibrido", "acerto_piso_composto"), registro$metrica$listas_descritivas
+    ))
 }
 
 #' Refaz o segundo nível e o híbrido sobre realizações do gerador

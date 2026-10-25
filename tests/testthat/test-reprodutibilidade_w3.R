@@ -6,13 +6,16 @@
 # arredondamento da ida e volta pelo CSV.
 
 comparar_com_referencia <- function(alvo) {
+  skip_if(realizacoes_w3() != realizacoes_registradas_w3(), "corrida reduzida: W3_REALIZACOES")
   store <- here::here("_targets")
   atual <- as.data.frame(targets::tar_read_raw(alvo, store = store))
   referencia <- as.data.frame(readr::read_csv(
     testthat::test_path("referencias", paste0(alvo, ".csv")), show_col_types = FALSE
   ))
 
-  expect_identical(names(atual), names(referencia), info = alvo)
+  # A revisão acrescentou colunas descritivas às realizações; as que já
+  # existiam precisam continuar presentes e iguais.
+  expect_true(all(names(referencia) %in% names(atual)), info = alvo)
   # A semente sai inteira do store e em ponto flutuante do CSV: compara o
   # valor, e não o tipo.
   expect_identical(as.integer(atual$semente), as.integer(referencia$semente), info = alvo)

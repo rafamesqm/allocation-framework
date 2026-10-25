@@ -278,6 +278,10 @@ avaliar_componente_colaborativo <- function(dados, registro, selecao = NULL) {
       acerto_popularidade = acertar_na_lista(avaliaveis, contexto, popularidade),
       acerto_binario = acertar_na_lista(avaliaveis, contexto, binario),
       acerto_confianca = acertar_na_lista(avaliaveis, contexto, escores_da_fatoracao(1))
+    ) |>
+    dplyr::bind_cols(
+      acertar_em_listas(avaliaveis, contexto, binario, registro$metrica$listas_descritivas, "acerto_binario"),
+      acertar_em_listas(avaliaveis, contexto, popularidade, registro$metrica$listas_descritivas, "acerto_popularidade")
     )
 
   nivel <- registro$teste$nivel
@@ -361,7 +365,14 @@ resumir_avaliacao_do_colaborativo <- function(avaliacao, registro) {
     validacao_avaliaveis = avaliacao$selecao$validacao$avaliaveis,
     validacao_binario_menos_piso = grade$maximo[grade$alfa == 0] - piso_validacao,
     validacao_mediana_binario_menos_piso = grade$mediana[grade$alfa == 0] - piso_validacao
-  )
+  ) |>
+    # Descritivos acrescentados na revisão da wave 3, sem efeito na decisão:
+    # a dependência entre pares do mesmo consultor, em H1, e as listas
+    # descritivas.
+    dplyr::bind_cols(
+      resumir_dependencia_dos_pares(pares$acerto_binario, pares$acerto_popularidade, pares$consultor_id, registro$teste$nivel),
+      resumir_acertos_em_listas(pares, c("acerto_binario", "acerto_popularidade"), registro$metrica$listas_descritivas)
+    )
 }
 
 #' Refaz a avaliação do colaborativo inteira sobre realizações do gerador
