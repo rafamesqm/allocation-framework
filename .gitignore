@@ -40,6 +40,9 @@ data/processed/
 # `_raw` de propósito: em .gitignore a última regra que casa é a que vale,
 # então `_raw` continua excluído mesmo estando o CSV reincluído aqui.
 !outputs/tables/*.csv
+# Referências do teste de reprodutibilidade da wave 3: grandezas resumidas das
+# realizações do gerador sintético, sem nenhuma pessoa real.
+!tests/testthat/referencias/*.csv
 
 outputs/figures/*_raw*
 outputs/tables/*_raw*
