@@ -422,5 +422,33 @@ list(
   tar_target(bloco_w3_plausibilidade_tabelas, salvar_tabelas_bloco(bloco_w3_plausibilidade$tabelas), format = "file"),
   tar_target(bloco_w3_plausibilidade_achados, salvar_tabela(
     bloco_w3_plausibilidade$achados, "achados_w3_5"
+  ), format = "file"),
+
+  # Etapa 6: estabilidade das grandezas centrais. O segundo nível e o híbrido
+  # são refeitos em cada realização, com férias de semente derivada da
+  # semente da realização e a adoção fixada na da versionada.
+  tar_target(w3_segundo_nivel_versionado, medir_segundo_nivel(dados_eda, pre_registro, w3_adocao)),
+  tar_target(
+    w3_segundo_nivel_replicas,
+    simular_segundo_nivel(
+      w3_conteudo_sementes, pre_registro, w3_adocao,
+      dias_ferias = parametros$dias_ferias, ano_ferias = parametros$ano_ferias,
+      n_consultores = parametros$n_consultores, n_projetos = parametros$n_projetos,
+      data_referencia = parametros$data_referencia
+    ),
+    pattern = map(w3_conteudo_sementes)
+  ),
+  tar_target(bloco_w3_estabilidade, executar_w3_estabilidade(
+    dplyr::bind_cols(
+      dplyr::rename_with(resumir_avaliacao_do_conteudo(w3_conteudo_avaliacao, pre_registro), \(n) paste0("conteudo_", n)),
+      dplyr::rename_with(resumir_avaliacao_do_colaborativo(w3_colaborativo_avaliacao, pre_registro), \(n) paste0("colaborativo_", n)),
+      w3_segundo_nivel_versionado
+    ),
+    juntar_realizacoes_w3(w3_conteudo_replicas, w3_colaborativo_replicas, w3_segundo_nivel_replicas),
+    pre_registro
+  )),
+  tar_target(bloco_w3_estabilidade_tabelas, salvar_tabelas_bloco(bloco_w3_estabilidade$tabelas), format = "file"),
+  tar_target(bloco_w3_estabilidade_achados, salvar_tabela(
+    bloco_w3_estabilidade$achados, "achados_w3_6"
   ), format = "file")
 )

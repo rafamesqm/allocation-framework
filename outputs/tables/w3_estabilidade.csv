@@ -1,0 +1,28 @@
+Etapa,Grandeza,Realização versionada,Mediana,Intervalo de 90%,Posição da versionada,Réplicas
+Conteúdo,Acerto do mapeamento,"0,5734","0,5327","0,4738 a 0,5774",dentro,100
+Conteúdo,Piso de filtro com acaso,"0,5634","0,5285","0,4827 a 0,5741",dentro,100
+Conteúdo,Mapeamento menos piso,"0,0100","0,0004","-0,0243 a 0,0367",dentro,100
+Conteúdo,"Ganho mínimo, otimista","0,0061","0,0070","0,0064 a 0,0078",abaixo,100
+Conteúdo,"Ganho mínimo, conservador","0,0548","0,0596","0,0564 a 0,0625",abaixo,100
+Conteúdo,Rejeição a favor do mapeamento,"0,0000","0,0000","0,0000 a 1,0000",dentro,100
+Colaborativo,Fração avaliável,"0,1243","0,1258","0,0857 a 0,1618",dentro,100
+Colaborativo,"Piso, acerto esperado","0,1977","0,2021","0,1382 a 0,2810",dentro,100
+Colaborativo,"Piso, empates sorteados","0,1977","0,2000","0,1332 a 0,2878",dentro,100
+Colaborativo,Acerto da fatoração binária,"0,2093","0,2140","0,1403 a 0,2956",dentro,100
+Colaborativo,H1: binária menos piso,"0,0116","0,0126","-0,0737 a 0,1009",dentro,100
+Colaborativo,H2: confiança menos binária,"0,0000","0,0000","-0,0741 a 0,0725",dentro,100
+Colaborativo,"Ganho mínimo de H1, otimista","0,0904","0,0894","0,0662 a 0,1287",dentro,100
+Colaborativo,"Ganho mínimo de H1, conservador","0,2062","0,2062","0,1672 a 0,2506",dentro,100
+Colaborativo,Rejeição em H1,"0,0000","0,0000","0,0000 a 0,0000",dentro,100
+Híbrido,Acerto do híbrido,"0,3078","0,2359","0,2057 a 0,2711",acima,100
+Híbrido,Híbrido menos piso composto,"0,0000","0,0000","0,0000 a 0,0000",dentro,100
+Híbrido,"Acerto, histórico e formulário","0,2617","0,1708","0,1132 a 0,2500",acima,100
+Híbrido,"Acerto, só histórico","0,3733","0,2980","0,2566 a 0,3577",acima,100
+Segundo nível,Conteúdo: recomendado melhor,"0,3574","0,3172","0,2755 a 0,3642",dentro,100
+Segundo nível,Conteúdo: recomendado pior,"0,0158","0,0407","0,0183 a 0,0619",abaixo,100
+Segundo nível,Conteúdo: incomparáveis,"0,6268","0,6376","0,5981 a 0,6861",dentro,100
+Segundo nível,Colaborativo: recomendado melhor,"0,0000","0,0305","0,0000 a 0,1677",dentro,100
+Segundo nível,Colaborativo: recomendado pior,"0,3043","0,3594","0,0916 a 0,6244",dentro,100
+Segundo nível,Colaborativo: incomparáveis,"0,6957","0,5614","0,3464 a 0,8814",dentro,100
+Segundo nível,Colaborativo: peso do recomendado mais frequente,"0,9855","0,9538","0,5478 a 1,0000",dentro,100
+Segundo nível,Colaborativo: realizado com mais folga,"1,0000","0,8694","0,5344 a 1,0000",dentro,100
