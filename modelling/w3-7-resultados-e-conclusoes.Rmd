@@ -1,0 +1,101 @@
+---
+title: "Resultados e conclusões da modelagem"
+subtitle: "Wave 3, scoring híbrido"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("modelling", "_comum.R"))
+
+sintese <- ler_bloco("bloco_w3_sintese")
+achados <- sintese$objetos$achados
+estabilidade <- ler_bloco("bloco_w3_estabilidade")$objetos$estabilidade
+estabilidade_eda <- ler_bloco("estabilidade")
+conteudo <- ler_bloco("bloco_w3_conteudo")$objetos$versionado
+colaborativo <- ler_bloco("bloco_w3_colaborativo")$objetos$versionado
+hibrido <- ler_bloco("bloco_w3_hibrido")$objetos
+pisos <- ler_bloco("w3_pisos")
+intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(estabilidade, medida, formatador)
+pontos <- \(x) formatar_decimal(100 * x, 1)
+decisoes <- achados[!is.na(achados$decisao), ]
+```
+
+## A cadeia, em uma leitura
+
+A EDA determinou o que não funciona e deixou uma pergunta aberta: o que
+ordena consultores dentro do filtro de setor (III.4). A wave 3 respondeu com
+dois testes pré-registrados, e **nenhum dos dois rejeitou**. O mapeamento de
+atributos não ordena dentro do filtro melhor que o acaso, e a fatoração não
+ordena quem tem histórico melhor que a popularidade. O híbrido montado é, por
+isso, a popularidade filtrada para quem tem histórico e o acaso dentro do
+filtro para quem só tem formulário, exatamente o piso composto.
+
+Esse é o desfecho que o pré-registro declarou aceitável antes de existir
+modelo. Não é falha a corrigir com ajuste: é a medida de quanto sinal estes
+dados carregam para ordenar consultores, e o capítulo da EDA já tinha mostrado
+por que podia ser pouco.
+
+## Resumo por etapa
+
+| Etapa | O que foi medido | Resultado | O que decide | O que fica em aberto |
+|---|---|---|---|---|
+| 1. Pisos | os pisos do protocolo, conferidos contra o pré-registro | colaborativo `r formatar_intervalo(estabilidade_eda, "piso_colaborativo")`, conteúdo `r formatar_intervalo(estabilidade_eda, "piso_conteudo_filtro")`, no acerto esperado pré-registrado | a comparação é contra os pisos fixados antes do modelo | os pisos são do sintético e precisam ser recontados no dado real |
+| 2. Conteúdo | mapeamento de atributos contra o filtro com acaso | diferença de `r intervalo("conteudo_diferenca_mapeamento", pontos)` pontos; p = `r formatar_decimal(conteudo$valor_p_mcnemar, 3)` | ordem ao acaso dentro do filtro | o gerador não cria vínculo entre competência e projeto (II.6.4) |
+| 3. Colaborativo | H1, fatoração contra popularidade; H2 descritiva | H1: `r intervalo("colaborativo_diferenca_h1", pontos)` pontos; p = `r formatar_decimal(colaborativo$valor_p_h1, 3)` | popularidade e sinal binário | com `r colaborativo$n_avaliavel` pares, só ganho grande seria visto |
+| 4. Híbrido | o híbrido montado contra o piso composto | acerto de `r intervalo("hibrido_acerto")`; diferença para o piso de `r intervalo("hibrido_menos_piso_composto", pontos)` pontos | `ŝ` como percentil na lista | quem só tem formulário quase não entra no topo |
+| 5. Plausibilidade | as discordâncias por dominância | colaborativo: recomendado pior em `r intervalo("colaborativo_recomendado_pior")` | nenhuma; é leitura descritiva | os vereditos da leitura qualitativa são do autor |
+| 6. Estabilidade | as grandezas centrais em realizações | ver a etapa | onde citar o intervalo, e não o ponto | a adoção é fixada na da versionada |
+
+## Decisões e limitações
+
+```{r decisoes}
+mostrar_tabela(
+  sintese$tabelas$w3_decisoes,
+  "Tabela W3.15: decisões que a wave 3 tomou, com a ressalva e a proveniência de cada uma."
+)
+```
+
+```{r limitacoes}
+mostrar_tabela(
+  sintese$tabelas$w3_limitacoes,
+  "Tabela W3.16: limitações que a wave 3 impõe, sem decisão associada."
+)
+```
+
+Das `r nrow(achados)` conclusões da wave 3, `r nrow(decisoes)` habilitam
+decisão. A proveniência das decisões é
+`r paste(names(table(decisoes$proveniencia)), table(decisoes$proveniencia), sep = ": ", collapse = "; ")`.
+
+## O que a wave 3 entrega à wave 4
+
+`ŝ` sai para todo par candidato, com o ramo, o quadrante e o filtro de cada
+linha, e com a popularidade contada sem o próprio projeto. Para quem tem
+histórico ele é popularidade, e para quem só tem formulário, acaso: carrega
+aderência ao processo atual, e não adequação da pessoa ao projeto. A zona
+morta tem `ŝ` ausente, e a regra de exposição que a põe no conjunto candidato
+é decisão da wave 4.
+
+## Questões em aberto
+
+* **A leitura qualitativa** dos casos sorteados, pelo autor (Etapa 5).
+* **A pontuação dentro do filtro no teste do conteúdo.** A emenda de
+  2026-10-24 manda pontuar todo candidato do filtro pelo fator previsto. Os
+  candidatos dos grupos de estimação recebem a previsão dentro da amostra do
+  mapa, e o consultor de teste, fora dela; com pouca regularização do mapa, a
+  previsão dentro da amostra quase reproduz o fator ajustado pelo histórico. A
+  revisão de ponta a ponta apontou a assimetria depois do teste, e o
+  tratamento dela é decisão do autor.
+* **O dado real.** Os pisos, os números de pares e as magnitudes do segundo
+  nível são do sintético, e precisam ser recalculados no dado real, sob o
+  mesmo protocolo, antes de valerem para a organização.
+
+## Registro integral dos achados
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(achados))
+```

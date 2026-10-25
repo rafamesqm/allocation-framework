@@ -1,0 +1,78 @@
+---
+title: "Etapas 0 e 1 Pré-registro e pisos"
+subtitle: "Wave 3, scoring híbrido"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("modelling", "_comum.R"))
+
+registro <- ler_bloco("pre_registro")
+pisos <- ler_bloco("w3_pisos")
+conferencia <- ler_bloco("w3_pisos_conferencia")
+estabilidade <- ler_bloco("estabilidade")
+emendas <- registro$emendas
+```
+
+## Propósito
+
+A wave 3 implementa e mede o que a EDA decidiu, sem reabrir decisões. O risco
+de uma etapa de modelagem é ajustar a avaliação ao resultado, e a defesa é
+fixar a avaliação antes de existir modelo. É o que `config/pre_registro.yml`
+faz, commitado antes de qualquer ajuste: o commit é a prova de que o protocolo
+antecede o resultado.
+
+## O que o pré-registro fixa
+
+* **Dados:** a janela de análise de `r registro$dados$janela$inicio` a
+  `r registro$dados$janela$fim`, semiaberta, com censura à direita.
+* **Divisões:** temporal para o colaborativo, com fração de teste de
+  `r formatar_pct(registro$divisoes$temporal$fracao_teste, 0)`, e validação
+  cruzada em `r registro$divisoes$por_consultor$grupos` grupos por consultor
+  para o conteúdo, com o grupo de cada consultor fixado pelo identificador e
+  pela semente, e não pela ordem das linhas.
+* **Métrica:** acerto em lista de `r registro$metrica$lista_decisoria`, dentro
+  do filtro de setor.
+* **Teste:** McNemar exato e bilateral a
+  `r formatar_pct(registro$teste$nivel, 0)`, com o ganho mínimo calculado pelo
+  poder exato do mesmo teste e reportado ao lado.
+* **Regras de adoção:** teste único no conteúdo, o mapeamento de atributos
+  para fatores contra o filtro com acaso; sequência fixa no colaborativo, H1 e
+  depois H2, parando na primeira não rejeição.
+* **Sementes:** `r registro$sementes$divisao` para as divisões,
+  `r registro$sementes$desempate` para os desempates e a fatoração, e
+  `r registro$sementes$leitura_qualitativa` para a leitura qualitativa.
+
+**Emendas.** O pré-registro recebeu `r length(emendas)` emendas, todas datadas
+e anteriores ao teste a que se referem: cada uma registra os hiperparâmetros
+escolhidos na validação interna e revistos pelo autor antes de qualquer grupo
+de teste ser tocado, e as regras de implementação que o texto original não
+fixava.
+
+## Etapa 1: os pisos reproduzem
+
+Os pisos são refeitos na pipeline da modelagem com os parâmetros do
+pré-registro, e conferidos contra os valores de verificação dele. A
+conferência para a execução se algum não reproduzir.
+
+```{r pisos}
+mostrar_tabela(
+  tabelar_pisos(pisos, estabilidade),
+  "Tabela W3.1: pisos de cada componente sob o protocolo, com o intervalo de 90% entre realizações."
+)
+```
+
+Os `r nrow(conferencia)` valores conferem. O piso do colaborativo é a
+grandeza mais instável do capítulo entre realizações, e é por isso que ele é
+citado como intervalo, e não como ponto.
+
+## Achados
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(ler_bloco("w3_achados_pisos")))
+```

@@ -1,0 +1,80 @@
+---
+title: "Etapa 4 O híbrido montado e o escore de afinidade"
+subtitle: "Wave 3, scoring híbrido"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("modelling", "_comum.R"))
+
+bloco <- ler_bloco("bloco_w3_hibrido")
+obj <- bloco$objetos
+resumo <- obj$resumo
+adocao <- ler_bloco("w3_adocao")
+estabilidade <- ler_bloco("bloco_w3_estabilidade")$objetos$estabilidade
+total <- resumo[resumo$quadrante == "todos", ]
+```
+
+## Propósito
+
+Montar a comutação por quadrante com o que as Etapas 2 e 3 adotaram, medir o
+híbrido contra o piso composto, e produzir `ŝ` para todo par candidato, o
+insumo da wave 4.
+
+**O que foi adotado.** No colaborativo, `r adocao$colaborativo`; no conteúdo,
+`r adocao$conteudo` dentro do filtro. A lista de um projeto tem quem declarou
+o setor dele e quem tem histórico sem ter declarado setor. Quem tem histórico
+vem antes, pela popularidade; depois vem quem só tem formulário, em ordem
+aleatória. A zona morta não entra.
+
+## A medida descritiva
+
+```{r quadrantes}
+mostrar_tabela(
+  bloco$tabelas$w3_hibrido_quadrantes,
+  "Tabela W3.8: acerto do híbrido e do piso composto, por quadrante do consultor realizado, no teste temporal."
+)
+```
+
+`r if (obj$coincide) "**O híbrido coincide com o piso composto em todos os quadrantes.**" else "**O híbrido diverge do piso composto em algum quadrante.**"`
+Com os dois testes sem rejeição, isso vale por construção, e um teste da
+pipeline acusa qualquer divergência entre as duas implementações. É o
+desfecho que o pré-registro aceitou: popularidade filtrada para quem tem
+histórico e acaso dentro do filtro para quem não tem. Não é falha a corrigir
+com ajuste, é a medida do sinal disponível.
+
+**O valor típico não é o da versionada.** A realização versionada acerta
+`r formatar_pct(total$acerto_hibrido)`, mas entre realizações o acerto do
+híbrido fica em `r formatar_intervalo(estabilidade, "hibrido_acerto")`: a
+versionada é um sorteio favorável (achado W3.6.3).
+
+**Quem só respondeu o formulário quase não entra no topo.** Ocupa
+`r formatar_pct(obj$fracao_topo_formulario)` das primeiras posições das listas
+dos projetos de teste. Os consultores com histórico e sem setor declarado
+entram em toda lista e vêm antes, e a inclusão de quem só tem formulário
+depende da regra de exposição definida fora do modelo.
+
+## O escore de afinidade
+
+```{r s-hat}
+mostrar_tabela(
+  bloco$tabelas$w3_s_hat_resumo,
+  "Tabela W3.9: pares com escore de afinidade por quadrante, sobre o histórico inteiro da janela."
+)
+```
+
+`ŝ` é o percentil do consultor na lista do projeto, com a popularidade contada
+sem o próprio projeto; a zona morta tem `ŝ` ausente, e os pares fora do filtro
+não têm linha. A definição completa está em `docs/dicionario_de_dados.md`. Ele
+fica no alvo `w3_s_hat` e não entra em nenhuma avaliação desta wave.
+
+## Achados
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

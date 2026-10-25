@@ -1,0 +1,107 @@
+---
+title: "Etapa 2 Componente de conteúdo"
+subtitle: "Wave 3, scoring híbrido"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("modelling", "_comum.R"))
+
+bloco <- ler_bloco("bloco_w3_conteudo")
+obj <- bloco$objetos
+v <- obj$versionado
+selecao <- ler_bloco("w3_conteudo_selecao")
+intervalo <- \(medida, formatador = formatar_pct) formatar_intervalo(obj$estabilidade, medida, formatador)
+pontos <- \(x) formatar_decimal(100 * x, 1)
+```
+
+## Propósito
+
+**Pergunta.** O filtro de setor decide quem entra na lista de quem só
+respondeu o formulário. A pergunta da etapa é se algo ordena dentro do filtro
+melhor que o acaso, que é a pergunta que a EDA deixou aberta (III.4).
+
+**Alternativa testada.** O mapeamento de atributos para fatores (Gantner et
+al., 2010): uma fatoração binária ajustada na estimação, uma regressão ridge
+dos atributos declarados, setor predominante e competências, para os fatores
+dos consultores com histórico, e o consultor de teste pontuado pelo fator
+previsto. A similaridade de competências foi excluída no pré-registro, porque
+exigiria um perfil de competências do projeto derivado dos alocados, o perfil
+médio que o achado II.6.6 rejeitou.
+
+**Protocolo.** Validação cruzada em cinco grupos de consultores. Em cada grupo,
+os hiperparâmetros são escolhidos nos outros quatro, em rodízio, e o grupo
+reservado só é tocado no teste. As predições dos cinco grupos são reunidas
+antes do McNemar.
+
+## A escolha de hiperparâmetros
+
+```{r hiperparametros}
+mostrar_tabela(
+  tabelar_hiperparametros_do_conteudo(selecao),
+  "Tabela W3.2: configuração escolhida em cada grupo na validação interna, registrada em emenda antes do teste."
+)
+```
+
+```{r superficie}
+mostrar_tabela(
+  bloco$tabelas$w3_conteudo_superficie,
+  "Tabela W3.3: a grade de 128 configurações em cada grupo, contra o piso medido nos mesmos pares de validação."
+)
+```
+
+A escolha muda de grupo para grupo, de 2 a 20 fatores, e muitas configurações
+empatam no máximo. A configuração típica da grade fica no nível do piso: a
+superfície é plana, e a melhor configuração vence por ser o máximo de muitas
+medidas nos mesmos pares.
+
+## O teste único
+
+```{r teste}
+mostrar_tabela(
+  bloco$tabelas$w3_conteudo_teste,
+  "Tabela W3.4: teste único do mapeamento contra o filtro com acaso, na realização versionada e entre realizações."
+)
+```
+
+O mapeamento acerta `r formatar_pct(v$acerto_mapeamento)` em lista de
+`r ler_bloco("pre_registro")$metrica$lista_decisoria`, contra
+`r formatar_pct(v$acerto_piso_filtro)` do filtro com acaso, e o McNemar exato
+dá p = `r formatar_decimal(v$valor_p_mcnemar, 3)`: **o mapeamento não supera o
+piso**, e pela regra pré-registrada a ordem dentro do filtro fica ao acaso.
+Entre realizações, a diferença fica em
+`r intervalo("diferenca_mapeamento", pontos)` pontos, e o teste rejeita a favor
+do mapeamento em `r formatar_pct(obj$rejeicoes, 0)` delas.
+
+```{r figura, fig.width = 7.5, fig.height = 3.8}
+bloco$figuras$w3_conteudo_diferencas
+```
+
+## Diagnóstico de popularidade prevista
+
+Registrado em emenda antes do teste, sem função decisória: a variante que dá a
+cada consultor um escore constante entre projetos, a média do seu escore,
+separa o que o mapeamento diz do consultor do que ele diz da afinidade com o
+projeto.
+
+```{r diagnostico}
+mostrar_tabela(
+  bloco$tabelas$w3_conteudo_diagnostico,
+  "Tabela W3.5: correlação do escore com a popularidade e a variante de escore constante."
+)
+```
+
+A distância entre o mapeamento e a variante fica em
+`r intervalo("mapeamento_menos_constante", pontos)` pontos entre realizações:
+o mapeamento ordena o consultor, e não a afinidade dele com o projeto.
+
+## Achados
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

@@ -52,6 +52,9 @@ jobs:
       - name: Renderização dos documentos
         run: Rscript -e 'source("analysis/_renderizar.R")'
 
+      - name: Renderização dos documentos da modelagem
+        run: Rscript -e 'source("modelling/_renderizar.R")'
+
       # Os dados e tabelas regenerados devem bater com os versionados. Diferença
       # aqui não derruba o job, porque a última casa decimal de ponto flutuante
       # pode variar entre sistemas operacionais; o relatório fica no log.
