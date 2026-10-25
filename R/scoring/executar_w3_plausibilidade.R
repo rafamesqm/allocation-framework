@@ -114,9 +114,11 @@ executar_w3_plausibilidade <- function(plausibilidade, registro) {
         `Sorteados` = sorteados, `Sorteados por desempate` = sorteados_por_desempate,
         Vazio = ifelse(vazio, "sim", "não")
       ),
-    # A planilha da leitura sai em branco: o avaliador é o autor, e os campos
-    # da rubrica são preenchidos por ele, fora da pipeline.
-    w3_rubrica_leitura = plausibilidade$rubrica |>
+    # A planilha da leitura sai em branco, como modelo: o avaliador é o autor.
+    # A cópia preenchida vive em modelling/leitura/rubrica_preenchida.csv,
+    # que a pipeline nunca escreve; preencher este arquivo seria perder os
+    # vereditos no próximo tar_make().
+    w3_rubrica_leitura_modelo = plausibilidade$rubrica |>
       dplyr::transmute(
         `Discordância` = discordancia_id, Projeto = projeto_id,
         `Consultor recomendado` = consultor_recomendado, `Consultor realizado` = consultor_realizado,

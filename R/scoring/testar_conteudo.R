@@ -223,8 +223,12 @@ simular_avaliacao_do_conteudo <- function(sementes, registro, ...) {
 #' @param registro Lista de `ler_pre_registro()`.
 #' @return `selecao`, inalterada. Erro se a escolha divergir.
 conferir_escolha_registrada <- function(selecao, registro) {
-  emenda <- registro$emendas[[1]]$hiperparametros_do_conteudo_na_realizacao_versionada
-  registrada <- purrr::map(emenda, tibble::as_tibble) |>
+  # A emenda é achada pela chave, e não pela posição na lista: uma emenda
+  # nova inserida antes não pode desarmar esta trava em silêncio.
+  chave <- "hiperparametros_do_conteudo_na_realizacao_versionada"
+  emenda <- purrr::detect(registro$emendas, \(e) !is.null(e[[chave]]))
+  if (is.null(emenda)) stop("Nenhuma emenda registra a escolha do conteúdo.", call. = FALSE)
+  registrada <- purrr::map(emenda[[chave]], tibble::as_tibble) |>
     purrr::list_rbind() |>
     dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
   escolhida <- selecao$escolhidos |>

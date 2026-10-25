@@ -23,8 +23,9 @@ test_that("sem discordantes o valor-p é um e nada supera", {
 
 test_that("a escolha que diverge da emenda para a pipeline", {
   registro <- ler_pre_registro()
-  emenda <- registro$emendas[[1]]$hiperparametros_do_conteudo_na_realizacao_versionada
-  escolhidos <- purrr::map(emenda, tibble::as_tibble) |> purrr::list_rbind()
+  chave <- "hiperparametros_do_conteudo_na_realizacao_versionada"
+  emenda <- purrr::detect(registro$emendas, \(e) !is.null(e[[chave]]))
+  escolhidos <- purrr::map(emenda[[chave]], tibble::as_tibble) |> purrr::list_rbind()
   selecao <- list(escolhidos = escolhidos)
 
   expect_identical(conferir_escolha_registrada(selecao, registro), selecao)
