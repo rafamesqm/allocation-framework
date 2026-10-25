@@ -12,9 +12,15 @@ on:
 jobs:
   reproduzir:
     runs-on: ubuntu-24.04
-    # As realizações da wave 3 refazem a escolha de hiperparâmetros em cada
-    # uma e levam mais de uma hora; o limite acompanha.
-    timeout-minutes: 240
+    # As 100 realizações da wave 3 refazem a escolha de hiperparâmetros em
+    # cada uma e levam cerca de quatro horas. No push e no pull request roda
+    # uma corrida reduzida, de 5 realizações; a completa só por disparo manual.
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && 360 || 120 }}
+    env:
+      W3_REALIZACOES: ${{ github.event_name == 'workflow_dispatch' && '100' || '5' }}
+      # Na corrida reduzida, a trava de diretorio_de_saida() desvia tabelas e
+      # figuras para cá, e outputs/ fica intocada.
+      W3_SAIDA_REDUZIDA: ${{ github.workspace }}/../saida_reduzida
 
     steps:
       - uses: actions/checkout@v4
@@ -60,4 +66,15 @@ jobs:
       # pode variar entre sistemas operacionais; o relatório fica no log.
       - name: Dados regenerados contra os versionados
         continue-on-error: true
-        run: git diff --stat --exit-code -- data/synthetic outputs/tables
+        run: |
+          git diff --stat --exit-code -- data/synthetic outputs/tables
+          # Na corrida reduzida, as tabelas fora da wave 3 saem iguais às
+          # versionadas; as da wave 3 dependem do número de realizações.
+          if [ "$W3_REALIZACOES" != "100" ]; then
+            for arquivo in "$W3_SAIDA_REDUZIDA"/tables/*.csv; do
+              nome=$(basename "$arquivo")
+              case "$nome" in w3_*|achados_w3*) continue ;; esac
+              diff -q "$arquivo" "outputs/tables/$nome" || status=1
+            done
+            exit ${status:-0}
+          fi

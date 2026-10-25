@@ -31,6 +31,10 @@ parametros <- list(
   n_replicas_estabilidade = 100 # realizações para o intervalo de Monte Carlo do bloco I.0
 )
 
+# Realizações da wave 3 nesta corrida. Como objeto global, entra no hash dos
+# alvos que o usam: trocar W3_REALIZACOES invalida as realizações.
+n_realizacoes_w3 <- realizacoes_w3()
+
 list(
   # Camada 1: Atributos -------------------------------------------------
   tar_target(espaco_skills, gerar_espaco_skills()),
@@ -359,7 +363,10 @@ list(
   # Realizações: cada uma refaz o procedimento inteiro, inclusive a escolha
   # de hiperparâmetros. Uma semente por ramo, para uma corrida interrompida
   # retomar de onde parou.
-  tar_target(w3_conteudo_sementes, seq(pre_registro$sementes$realizacoes[1], pre_registro$sementes$realizacoes[2])),
+  # W3_REALIZACOES reduz o número de realizações (integração contínua no
+  # push); nesse caso a trava de diretorio_de_saida() desvia as tabelas e
+  # figuras para uma pasta temporária.
+  tar_target(w3_conteudo_sementes, seq(pre_registro$sementes$realizacoes[1], length.out = n_realizacoes_w3)),
   tar_target(
     w3_conteudo_replicas,
     simular_avaliacao_do_conteudo(

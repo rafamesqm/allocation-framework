@@ -19,12 +19,16 @@ source("modelling/_renderizar.R")
 ```
 
 A pipeline vem antes dos testes porque parte deles lê o store do `targets`.
-As realizações da wave 3 refazem a escolha de hiperparâmetros em cada uma, e o
-`tar_make()` completo leva cerca de duas horas.
+As 100 realizações da wave 3 refazem a escolha de hiperparâmetros em cada uma, e
+o `tar_make()` completo leva cerca de quatro horas. Para uma corrida rápida,
+`Sys.setenv(W3_REALIZACOES = 5)` antes do `tar_make()` reduz as realizações;
+nesse modo a pipeline não grava em `outputs/tables/` nem em `outputs/figures/`,
+e sim numa pasta temporária (`W3_SAIDA_REDUZIDA`, ou dentro de `tempdir()`).
 
 A renderização dos documentos exige o Pandoc, que fica fora do `renv`; sem ele,
 `tar_make()` ainda gera todas as tabelas e figuras em `outputs/`. A mesma
-sequência roda a cada envio numa máquina limpa, pelo fluxo
+sequência roda a cada envio numa máquina limpa, com 5 realizações, e a corrida
+completa roda por disparo manual, pelo fluxo
 `.github/workflows/reproducao.yml`, que também compara os dados regenerados
 com os versionados.
 
