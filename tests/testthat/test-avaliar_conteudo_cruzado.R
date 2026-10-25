@@ -46,3 +46,13 @@ test_that("a emenda 2 do conteúdo é achada pelo nome", {
   expect_equal(emenda$previsoes_cruzadas$subgrupos, 5)
   expect_true(emenda$posterior_ao_resultado_da_emenda_1)
 })
+
+test_that("a fração de pares com projeto com fator soma os grupos e fica entre 0 e 1", {
+  medida <- medir_projetos_com_fator(carregar_dados(), ler_pre_registro())
+  grupos <- medida[medida$grupo != "reunida", ]
+  reunida <- medida[medida$grupo == "reunida", ]
+
+  expect_equal(reunida$pares, sum(grupos$pares))
+  expect_equal(reunida$com_fator, sum(grupos$com_fator))
+  expect_true(all(medida$fracao >= 0 & medida$fracao <= 1))
+})

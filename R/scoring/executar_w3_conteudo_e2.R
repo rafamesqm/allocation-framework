@@ -36,10 +36,13 @@ marcar_como_emenda_1 <- function(achados) {
 #' @param avaliacao_emenda_1 Lista de `avaliar_componente_de_conteudo()`.
 #' @param correlacao tibble de `medir_correlacao_do_mapa()`.
 #' @param dispersao tibble de `medir_dispersao_da_lista()`.
+#' @param projetos_com_fator Lista com `versionado`, de
+#'   `medir_projetos_com_fator()`, e `replicas`, de
+#'   `simular_projetos_com_fator()`.
 #' @param registro Lista de `ler_pre_registro()`.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avaliacao_emenda_1,
-                                    correlacao, dispersao, registro) {
+                                    correlacao, dispersao, projetos_com_fator, registro) {
   versionado <- resumir_avaliacao_do_conteudo_cruzado(avaliacao, registro) |>
     dplyr::mutate(mapeamento_menos_constante = acerto_mapeamento - acerto_constante)
   replicas <- dplyr::mutate(replicas, mapeamento_menos_constante = acerto_mapeamento - acerto_constante)
@@ -77,8 +80,26 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
   razao_e2 <- na_emenda("emenda 2", "razao_dispersao")
   extremos_e1 <- na_emenda("emenda 1", "nos_extremos")
   extremos_e2 <- na_emenda("emenda 2", "nos_extremos")
-  mecanismo_confirmado <- razao_e1 > 1 && razao_e1 > razao_e2 && extremos_e1 > extremos_e2
+  # As duas medidas são lidas em separado. A razão confirma a hipótese se for
+  # maior que 1 na emenda 1 e maior que na emenda 2. A fração nos extremos só
+  # a confirma se passar do que o acaso daria, aqui 3 pontos acima.
+  razao_confirma <- razao_e1 > 1 && razao_e1 > razao_e2
   extremos_acaso <- mean(dispersao$extremos_sob_acaso)
+  extremos_no_acaso <- all(abs(c(extremos_e1, extremos_e2) - extremos_acaso) <= 0.03)
+
+  com_fator <- projetos_com_fator$versionado
+  com_fator_grupos <- com_fator[com_fator$grupo != "reunida", ]
+  com_fator_reunida <- com_fator[com_fator$grupo == "reunida", ]
+  intervalo_com_fator <- formatar_intervalo(
+    resumir_estabilidade(projetos_com_fator$replicas, nivel = registro$estabilidade$nivel),
+    "fracao_com_fator"
+  )
+  texto_com_fator <- paste0(
+    formatar_pct(com_fator_reunida$fracao), " dos ", formatar_inteiro(com_fator_reunida$pares),
+    " pares de teste têm projeto com fator na estimação, de ", formatar_pct(min(com_fator_grupos$fracao)),
+    " a ", formatar_pct(max(com_fator_grupos$fracao)), " entre grupos, ou ", intervalo_com_fator,
+    " entre realizações"
+  )
   faixa_percentil <- \(emenda) {
     x <- dispersao$percentil_mediana[dispersao$emenda == emenda]
     paste0(formatar_decimal(min(x), 2), " a ", formatar_decimal(max(x), 2))
@@ -365,24 +386,32 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
     "W3.2.6",
     "A decisão do conteúdo passa à emenda 2.",
     paste0(
-      if (mecanismo_confirmado) {
-        "O mecanismo da direção foi medido de forma descritiva: "
+      if (razao_confirma && !extremos_no_acaso) {
+        "O mecanismo da direção foi medido de forma descritiva, em duas medidas. "
       } else {
-        "O mecanismo da direção não foi identificado: "
+        "O mecanismo da direção não foi identificado, e as duas medidas descritivas são lidas em separado. "
       },
-      "na lista, a dispersão dos escores dos candidatos de teste dividida pela dos ",
+      "Na lista, a dispersão dos escores dos candidatos de teste dividida pela dos ",
       "candidatos da estimação fica em ", decimal(razao_e1), " na emenda 1 e em ",
-      decimal(razao_e2), " na emenda 2, na mediana entre grupos, e o consultor de teste ",
-      "cai nos extremos da lista em ", formatar_pct(extremos_e1), " e ", formatar_pct(extremos_e2),
-      " das listas, contra cerca de ", formatar_pct(extremos_acaso, 0), " sob posição ao acaso, ",
-      "nos tamanhos reais das listas", if (mecanismo_confirmado) "." else ", o contrário do que a hipótese da dispersão previa. A investigação parou nessa medida única.",
+      decimal(razao_e2), " na emenda 2, na mediana entre grupos: ",
+      if (razao_confirma) "é o que a hipótese da dispersão previa. " else "é o contrário do que a hipótese da dispersão previa. ",
+      "A fração de listas em que o consultor de teste cai nos extremos fica em ",
+      formatar_pct(extremos_e1), " e ", formatar_pct(extremos_e2), ", contra cerca de ",
+      formatar_pct(extremos_acaso, 0), " sob posição ao acaso, nos tamanhos reais das listas: ",
+      if (extremos_no_acaso) {
+        "fica no que o acaso daria e não confirma a hipótese. "
+      } else {
+        "passa do que o acaso daria. "
+      },
+      "A investigação parou nessas medidas.",
       " Só o mapa é cruzado: a fatoração segue ajustada com toda a estimação, e o fator de ",
       "cada projeto carrega as alocações dos candidatos da estimação naquele projeto. O ",
       "canal pelo qual esse resíduo chega ao escore é o fator previsto pelos atributos, e ",
       "ele é fraco: fora da amostra, a correlação entre o fator previsto e o ajustado vai ",
       "de ", faixa_correlacao("correlacao_fora"), ", e o R² do mapa, de ",
-      decimal(min(r2$r2_fora)), " a ", decimal(max(r2$r2_fora)), ". No uso real, o projeto ",
-      "a alocar ainda não tem alocações, e por isso o fator dele não carrega esse resíduo."
+      decimal(min(r2$r2_fora)), " a ", decimal(max(r2$r2_fora)), ". Projeto sem ",
+      "alocações não tem fator, e nele o mapeamento não ordena; a avaliação sob separação ",
+      "por consultor mede o caso de projetos que já têm equipe."
     ),
     "estrutural",
 
@@ -395,7 +424,10 @@ executar_w3_conteudo_e2 <- function(avaliacao, replicas, selecao_emenda_1, avali
     paste0(
       "O teste roda sobre o sintético, em que o gerador não planta vínculo entre ",
       "competência e projeto (II.6.4): o desfecho mede o gerador, e a mesma regra precisa ",
-      "ser aplicada ao dado real antes de valer para a organização."
+      "ser aplicada ao dado real antes de valer para a organização. Limitação de escopo: ",
+      "o teste vale para acrescentar alguém a um projeto em andamento, e não para alocar ",
+      "num projeto novo. ", texto_com_fator, "; no restante, o projeto não tem fator e a ",
+      "ordem sai do desempate."
     ),
     "depende do gerador",
 

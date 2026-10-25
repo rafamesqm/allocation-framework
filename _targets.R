@@ -407,9 +407,23 @@ list(
   tar_target(w3_conteudo_e2_dispersao, medir_dispersao_da_lista(
     dados_eda, pre_registro, w3_conteudo_selecao_conferida, w3_conteudo_e2_selecao_conferida
   )),
+  # Que parte do teste tem projeto com fator na estimação: depende só dos
+  # dados e da divisão, e por isso as realizações não refazem o modelo.
+  tar_target(w3_projetos_com_fator, medir_projetos_com_fator(dados_eda, pre_registro)),
+  tar_target(
+    w3_projetos_com_fator_replicas,
+    simular_projetos_com_fator(
+      w3_conteudo_sementes, pre_registro,
+      n_consultores = parametros$n_consultores, n_projetos = parametros$n_projetos,
+      data_referencia = parametros$data_referencia
+    ),
+    pattern = map(w3_conteudo_sementes)
+  ),
   tar_target(bloco_w3_conteudo_e2, executar_w3_conteudo_e2(
     w3_conteudo_e2_avaliacao, w3_conteudo_e2_replicas, w3_conteudo_selecao, w3_conteudo_avaliacao,
-    w3_conteudo_e2_correlacao, w3_conteudo_e2_dispersao, pre_registro
+    w3_conteudo_e2_correlacao, w3_conteudo_e2_dispersao,
+    list(versionado = w3_projetos_com_fator, replicas = w3_projetos_com_fator_replicas),
+    pre_registro
   )),
   tar_target(bloco_w3_conteudo_e2_tabelas, salvar_tabelas_bloco(bloco_w3_conteudo_e2$tabelas), format = "file"),
   tar_target(bloco_w3_conteudo_e2_figuras, salvar_figuras_bloco(

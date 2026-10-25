@@ -142,3 +142,58 @@ medir_correlacao_do_mapa <- function(dados, registro, selecao) {
   }) |>
     purrr::list_rbind()
 }
+
+#' Fração dos pares de teste do conteúdo cujo projeto tem fator na estimação
+#'
+#' O fator de um projeto vem das alocações dele na estimação. Projeto sem
+#' alocação ali não tem fator, todo candidato recebe o mesmo escore nele, e a
+#' ordem sai do desempate: o mapeamento não ordena. A medida diz que parte do
+#' teste avalia o caso de projeto que já tem equipe. Depende só dos dados e
+#' da divisão por consultor, e não da configuração escolhida.
+#'
+#' @param dados Lista nomeada de tibbles.
+#' @param registro Lista de `ler_pre_registro()`.
+#' @return tibble com `grupo` (os cinco e "reunida"), `pares`, `com_fator` e
+#'   `fracao`.
+medir_projetos_com_fator <- function(dados, registro) {
+  historico <- com_historico_da_janela(dados, janela_do_pre_registro(registro))
+  contexto <- montar_contexto_do_conteudo(historico, registro)
+  divisao <- dividir_por_consultor_em_grupos(
+    historico$alocacoes, n_grupos = registro$divisoes$por_consultor$grupos,
+    semente = registro$sementes$divisao, universo = contexto$consultores
+  )
+  alocacoes <- historico$alocacoes
+  grupo_da_linha <- divisao$grupo_do_consultor$grupo[
+    match(alocacoes$consultor_id, divisao$grupo_do_consultor$consultor_id)
+  ]
+
+  por_grupo <- purrr::map(sort(unique(divisao$grupo_do_consultor$grupo)), function(g) {
+    treino <- alocacoes[grupo_da_linha != g, ]
+    teste <- alocacoes[grupo_da_linha == g & alocacoes$consultor_id %in% contexto$com_atributo, ]
+    tibble::tibble(
+      grupo = as.character(g), pares = nrow(teste),
+      com_fator = sum(teste$projeto_id %in% treino$projeto_id)
+    )
+  }) |>
+    purrr::list_rbind()
+
+  dplyr::bind_rows(
+    por_grupo,
+    tibble::tibble(grupo = "reunida", pares = sum(por_grupo$pares), com_fator = sum(por_grupo$com_fator))
+  ) |>
+    dplyr::mutate(fracao = com_fator / pares)
+}
+
+#' Fração reunida de pares com projeto com fator, em cada realização
+#'
+#' @param sementes Vetor de sementes das realizações.
+#' @param registro Lista de `ler_pre_registro()`.
+#' @param ... Repassado a `gerar_realizacao()`.
+#' @return tibble com `semente` e `fracao_com_fator`.
+simular_projetos_com_fator <- function(sementes, registro, ...) {
+  purrr::map(sementes, function(semente) {
+    medida <- medir_projetos_com_fator(gerar_realizacao(semente, ...), registro)
+    tibble::tibble(semente = semente, fracao_com_fator = medida$fracao[medida$grupo == "reunida"])
+  }) |>
+    purrr::list_rbind()
+}

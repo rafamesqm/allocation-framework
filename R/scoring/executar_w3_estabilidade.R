@@ -184,7 +184,10 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
       "conteúdo, e não é decidida de novo em cada realização. O teste pré-registrado ",
       "rejeitaria a favor do modelo em ", formatar_pct(frequencia[["conteudo_supera_piso"]], 0),
       " das realizações no conteúdo e em ", formatar_pct(frequencia[["colaborativo_supera_h1"]], 0),
-      " no colaborativo, contra até 2,5% sem efeito."
+      " no colaborativo, contra até 2,5% sem efeito. No conteúdo, o McNemar agrupado por ",
+      "consultor rejeita em ", formatar_pct(mean(replicas$conteudo_agrupado_rejeita_a_favor), 0),
+      " a favor e ", formatar_pct(mean(replicas$conteudo_agrupado_rejeita_contra), 0),
+      " contra (W3.2.10)."
     ),
     paste0(
       "Os intervalos do segundo nível e do híbrido medem a variabilidade do modelo ",
