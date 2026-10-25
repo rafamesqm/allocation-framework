@@ -1,3 +1,10 @@
+#' Partes do registro de achados, na ordem de leitura
+#'
+#' @return Vetor de texto: as três partes da EDA e a da wave 3.
+partes_de_achado <- function() {
+  c("I", "II", "III", "W3")
+}
+
 #' Ordem de leitura dos códigos de achado
 #'
 #' A ordenação alfabética que `registrar_achados()` aplica dentro de cada
@@ -9,6 +16,8 @@
 #' A parte romana é resolvida por correspondência numa lista fixa, e não por
 #' conversão de numeral romano, porque só existem três partes e inventar um
 #' conversor geral aqui seria resolver um problema que o projeto não tem.
+#' Depois das três partes da EDA vem `W3`, a dos achados da modelagem da
+#' wave 3, numerados por etapa (`W3.2.1` é o primeiro achado da Etapa 2).
 #'
 #' @param codigo Vetor de códigos na forma `"II.5.10"`.
 #' @return Vetor de índices que ordena `codigo` na ordem de leitura.
@@ -19,7 +28,7 @@ ordem_de_leitura <- function(codigo) {
   bloco <- as.integer(vapply(partes, `[`, character(1), 2))
   achado <- as.integer(vapply(partes, `[`, character(1), 3))
 
-  desconhecidas <- setdiff(parte, c("I", "II", "III"))
+  desconhecidas <- setdiff(parte, partes_de_achado())
   if (length(desconhecidas) > 0) {
     stop(
       "Parte de código de achado não reconhecida: ",
@@ -28,7 +37,7 @@ ordem_de_leitura <- function(codigo) {
     )
   }
 
-  order(match(parte, c("I", "II", "III")), bloco, achado)
+  order(match(parte, partes_de_achado()), bloco, achado)
 }
 
 #' Empilha os achados dos catorze blocos num registro único
