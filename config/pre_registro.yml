@@ -325,3 +325,23 @@ emendas:
     realizacoes: >-
       cada realização refaz o procedimento inteiro sob esta emenda, inclusive
       a escolha de hiperparâmetros por validação interna
+  - data: "2026-10-25"
+    nome: escolha sob a emenda 2 do conteúdo
+    anterior_ao_teste: true
+    contexto: >-
+      hiperparâmetros do mapeamento escolhidos na validação interna com as
+      previsões cruzadas da emenda 2 e revistos pelo autor; nenhum grupo de
+      teste foi tocado sob a emenda 2
+    hiperparametros_do_conteudo_na_realizacao_versionada:
+      - {grupo: 1, fatores: 2, lambda: 1.0, iteracoes: 20, lambda_mapeamento: 0.1}
+      - {grupo: 2, fatores: 2, lambda: 1.0, iteracoes: 10, lambda_mapeamento: 10.0}
+      - {grupo: 3, fatores: 2, lambda: 100.0, iteracoes: 10, lambda_mapeamento: 0.1}
+      - {grupo: 4, fatores: 5, lambda: 1.0, iteracoes: 20, lambda_mapeamento: 100.0}
+      - {grupo: 5, fatores: 2, lambda: 1.0, iteracoes: 10, lambda_mapeamento: 0.1}
+    # A regra é a de conteudo.ordenacao.desempate_da_escolha, aplicada em
+    # ordem: menos fatores, maior lambda, maior lambda_mapeamento, menos
+    # iteracoes. No grupo 3, 16 configurações empataram no maior acerto, todas
+    # com lambda_mapeamento 0,1; decidiram menos fatores (2), maior lambda
+    # (100) e menos iterações (10).
+    desempate: [menos fatores, maior lambda, maior lambda_mapeamento, menos iteracoes]
+    empatadas_no_maximo: [1, 4, 16, 3, 2]
