@@ -1,13 +1,13 @@
 Etapa,Grandeza,Realização versionada,Mediana,Intervalo de 90%,Posição da versionada,Réplicas
 "Conteúdo, emenda 2",Acerto do mapeamento,"0,5665","0,5275","0,4772 a 0,5782",dentro,100
-"Conteúdo, emenda 2",Piso de filtro com acaso,"0,5634","0,5285","0,4827 a 0,5741",dentro,100
+"Conteúdo, emenda 2","Piso do teste, filtro com acaso e empates sorteados","0,5634","0,5285","0,4827 a 0,5741",dentro,100
 "Conteúdo, emenda 2",Mapeamento menos piso,"0,0031","0,0027","-0,0244 a 0,0240",dentro,100
 "Conteúdo, emenda 2","Ganho mínimo, otimista","0,0061","0,0070","0,0064 a 0,0078",abaixo,100
 "Conteúdo, emenda 2","Ganho mínimo, conservador","0,0548","0,0596","0,0564 a 0,0625",abaixo,100
 "Conteúdo, emenda 2",Rejeição a favor do mapeamento,"0,0000",--,frequência de 14%,não se aplica,100
 Colaborativo,Fração avaliável,"0,1243","0,1258","0,0857 a 0,1618",dentro,100
-Colaborativo,"Piso, acerto esperado","0,1977","0,2021","0,1382 a 0,2810",dentro,100
-Colaborativo,"Piso, empates sorteados","0,1977","0,2000","0,1332 a 0,2878",dentro,100
+Colaborativo,"Piso de verificação, acerto esperado sob desempate aleatório","0,1977","0,2021","0,1382 a 0,2810",dentro,100
+Colaborativo,"Piso do teste, empates sorteados","0,1977","0,2000","0,1332 a 0,2878",dentro,100
 Colaborativo,Acerto da fatoração binária,"0,2093","0,2140","0,1403 a 0,2956",dentro,100
 Colaborativo,H1: binária menos piso,"0,0116","0,0126","-0,0737 a 0,1009",dentro,100
 Colaborativo,H2: confiança menos binária,"0,0000","0,0000","-0,0741 a 0,0725",dentro,100

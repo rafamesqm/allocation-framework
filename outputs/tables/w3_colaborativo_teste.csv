@@ -2,8 +2,8 @@ Medida,Realização versionada,Entre realizações
 Pares do teste temporal,692,705 (676 a 736)
 Pares avaliáveis pelo colaborativo,86,87 (59 a 118)
 Fração avaliável,"12,4%","12,6% (8,6% a 16,2%)"
-"Piso de popularidade, acerto esperado sob desempate aleatório (o pré-registrado)","19,8%","20,2% (13,8% a 28,1%)"
-"Piso de popularidade, empates desfeitos por sorteio (o usado no McNemar)","19,8%","20,0% (13,3% a 28,8%)"
+"Piso de verificação, acerto esperado sob desempate aleatório","19,8%","20,2% (13,8% a 28,1%)"
+"Piso do teste, empates sorteados","19,8%","20,0% (13,3% a 28,8%)"
 Acerto da fatoração binária (alfa = 0),"20,9%","21,4% (14,0% a 29,6%)"
 Acerto da fatoração com confiança (alfa = 1),"20,9%","21,2% (14,3% a 29,4%)"
 H1: binária menos popularidade (pontos),"1,2","1,3 (-7,4 a 10,1)"
