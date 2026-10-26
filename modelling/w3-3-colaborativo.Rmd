@@ -67,11 +67,11 @@ da popularidade, e o McNemar exato dá p = `r formatar_decimal(v$valor_p_h1, 3)`
 ordenado pela popularidade, o sinal fica binário e a comparação de alfa é só
 descritiva.
 
-**O piso tem duas medidas.** O acerto esperado sob desempate aleatório, que é
-o pré-registrado, fica em `r intervalo("acerto_popularidade_esperado")` entre
-realizações; com os empates sorteados, como o McNemar exige, em
-`r intervalo("acerto_popularidade")`. Na realização versionada as duas
-coincidem.
+**O piso tem duas medidas.** O piso de verificação, acerto esperado sob
+desempate aleatório, fica em `r intervalo("acerto_popularidade_esperado")` entre
+realizações; o piso do teste, empates sorteados, que é o do McNemar e o do
+ganho mínimo, fica em `r intervalo("acerto_popularidade")`. Na realização
+versionada os dois coincidem.
 
 ```{r figura, fig.width = 7.5, fig.height = 3.8}
 bloco$figuras$w3_colaborativo_diferencas

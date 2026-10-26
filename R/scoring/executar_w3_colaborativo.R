@@ -81,11 +81,11 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
       linha_estavel("fracao_avaliavel", "Fração avaliável"),
       linha_estavel(
         "acerto_popularidade_esperado",
-        "Piso de popularidade, acerto esperado sob desempate aleatório (o pré-registrado)"
+        "Piso de verificação, acerto esperado sob desempate aleatório"
       ),
       linha_estavel(
         "acerto_popularidade",
-        "Piso de popularidade, empates desfeitos por sorteio (o usado no McNemar)"
+        "Piso do teste, empates sorteados"
       ),
       linha_estavel("acerto_binario", "Acerto da fatoração binária (alfa = 0)"),
       linha_estavel("acerto_confianca", "Acerto da fatoração com confiança (alfa = 1)"),
@@ -173,10 +173,10 @@ executar_w3_colaborativo <- function(avaliacao, replicas, registro) {
       "acerta ", formatar_pct(v$acerto_binario), " em lista de 20, contra ",
       formatar_pct(v$acerto_popularidade), " da popularidade contada na estimação, uma ",
       "diferença de ", formatar_pontos(v$diferenca_h1), ". O piso tem duas medidas, e as ",
-      "duas são reportadas: o acerto esperado sob desempate aleatório, que é o ",
-      "pré-registrado, fica em ", formatar_pct(v$acerto_popularidade_esperado), ", ou ",
-      intervalo("acerto_popularidade_esperado"), " entre realizações; com os empates ",
-      "desfeitos por sorteio, como o McNemar exige, fica em ",
+      "duas são reportadas: o piso de verificação, acerto esperado sob desempate ",
+      "aleatório, fica em ", formatar_pct(v$acerto_popularidade_esperado), ", ou ",
+      intervalo("acerto_popularidade_esperado"), " entre realizações; o piso do teste, ",
+      "empates sorteados, que é o do McNemar e o do ganho mínimo, fica em ",
       formatar_pct(v$acerto_popularidade), ", ou ", intervalo("acerto_popularidade"),
       ". Dos pares discordantes, ",
       v$discordantes_h1_a_favor, " favorecem a fatoração e ", v$discordantes_h1_contra,

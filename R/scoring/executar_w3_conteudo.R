@@ -96,7 +96,7 @@ executar_w3_conteudo <- function(avaliacao, replicas, registro) {
     w3_conteudo_teste = dplyr::bind_rows(
       linha_estavel("n_pares_conteudo", "Pares de respondentes, cinco grupos reunidos", formatar_inteiro),
       linha_estavel("acerto_mapeamento", "Acerto do mapeamento em lista de 20"),
-      linha_estavel("acerto_piso_filtro", "Acerto do filtro com acaso"),
+      linha_estavel("acerto_piso_filtro", "Piso do teste, filtro com acaso e empates sorteados"),
       linha_estavel("diferenca_mapeamento", "Diferença, em pontos percentuais", pontos),
       linha_estavel("discordantes_a_favor", "Pares discordantes a favor do mapeamento", formatar_inteiro),
       linha_estavel("discordantes_contra", "Pares discordantes a favor do piso", formatar_inteiro),
