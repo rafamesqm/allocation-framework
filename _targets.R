@@ -510,6 +510,7 @@ list(
       w3_segundo_nivel_versionado
     ),
     juntar_realizacoes_w3(w3_conteudo_e2_replicas, w3_colaborativo_replicas, w3_segundo_nivel_replicas),
+    estabilidade,
     pre_registro
   )),
   tar_target(bloco_w3_estabilidade_tabelas, salvar_tabelas_bloco(bloco_w3_estabilidade$tabelas), format = "file"),

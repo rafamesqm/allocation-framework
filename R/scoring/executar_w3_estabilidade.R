@@ -63,9 +63,11 @@ juntar_realizacoes_w3 <- function(conteudo, colaborativo, segundo_nivel) {
 #' @param versionado tibble de uma linha, com as mesmas colunas de
 #'   `juntar_realizacoes_w3()` menos `semente`.
 #' @param replicas tibble de `juntar_realizacoes_w3()`.
+#' @param estabilidade_eda tibble da estabilidade do bloco I.0, para comparar
+#'   o ganho mínimo do W3, com piso sorteado, ao do I.0, com piso esperado.
 #' @param registro Lista de `ler_pre_registro()`.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
-executar_w3_estabilidade <- function(versionado, replicas, registro) {
+executar_w3_estabilidade <- function(versionado, replicas, estabilidade_eda, registro) {
   centrais <- listar_grandezas_centrais_w3()
   estabilidade <- resumir_estabilidade(replicas[, c("semente", centrais$medida)], nivel = registro$estabilidade$nivel)
   v <- as.list(versionado)
@@ -83,6 +85,19 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
   continuas <- situacao[!situacao$medida %in% indicadoras, ]
   fora <- continuas[continuas$posicao != "dentro", ]
   pct <- \(m) formatar_intervalo(estabilidade, m)
+  # O ganho mínimo conservador do W3 usa o piso do teste, com os empates
+  # sorteados, e o do I.0, o piso de verificação, esperado sob desempate
+  # aleatório. É a única diferença entre os dois cálculos.
+  comparar_ganho <- function(medida_w3, medida_i0, nome) {
+    quatro_casas <- \(x) formatar_decimal(x, 4)
+    faixa_w3 <- formatar_intervalo(estabilidade, medida_w3, quatro_casas)
+    faixa_i0 <- formatar_intervalo(estabilidade_eda, medida_i0, quatro_casas)
+    paste0(
+      "O ganho mínimo conservador ", nome, " fica em ", faixa_w3, " aqui e em ", faixa_i0,
+      " no bloco I.0: os dois cálculos diferem só pelo piso, sorteado no W3 e esperado no I.0",
+      if (identical(faixa_w3, faixa_i0)) ", e as faixas coincidem nas quatro casas." else "."
+    )
+  }
   ponto_de <- \(m) formatar_pct(v[[m]])
 
   objetos <- list(estabilidade = estabilidade, situacao = situacao, fora = fora, frequencia = frequencia)
@@ -123,7 +138,8 @@ executar_w3_estabilidade <- function(versionado, replicas, registro) {
       " As duas indicadoras de rejeição entram como frequência, e não como intervalo: o ",
       "teste rejeita a favor do modelo em ", formatar_pct(frequencia[["conteudo_supera_piso"]], 0),
       " das realizações no conteúdo e em ", formatar_pct(frequencia[["colaborativo_supera_h1"]], 0),
-      " no colaborativo."
+      " no colaborativo. ", comparar_ganho("colaborativo_ganho_minimo_h1_independencia", "ganho_minimo_colaborativo", "de H1"),
+      " ", comparar_ganho("conteudo_ganho_minimo_independencia", "ganho_minimo_conteudo", "do conteúdo")
     ),
     paste0(
       "Um sorteio em cada dez cai fora de um intervalo de 90% por definição, e grandezas ",
