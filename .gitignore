@@ -43,6 +43,9 @@ data/processed/
 # Referências do teste de reprodutibilidade da wave 3: grandezas resumidas das
 # realizações do gerador sintético, sem nenhuma pessoa real.
 !tests/testthat/referencias/*.csv
+# Leitura qualitativa da wave 3: contém só identificadores sintéticos e os
+# vereditos do autor, sem nenhuma pessoa real.
+!modelling/leitura/rubrica_preenchida.csv
 
 outputs/figures/*_raw*
 outputs/tables/*_raw*
