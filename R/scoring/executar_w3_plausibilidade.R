@@ -42,10 +42,18 @@ desdobrar_criterios_por_ramo <- function(classificadas) {
 #' Executa o bloco da Etapa 5, a plausibilidade das discordâncias
 #'
 #' @param plausibilidade Lista de `avaliar_plausibilidade_das_discordancias()`.
+#' @param dados Lista nomeada de tibbles, para as duas medidas de carga.
 #' @param registro Lista de `ler_pre_registro()`.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
-executar_w3_plausibilidade <- function(plausibilidade, registro) {
+executar_w3_plausibilidade <- function(plausibilidade, dados, registro) {
   classificadas <- plausibilidade$classificadas
+  # A folga do segundo nível usa as horas, e a ocupação do Capítulo 4, o
+  # percentual: a discordância entre as duas entra como limitação.
+  horas_e_percentual <- medir_discordancia_horas_percentual(
+    com_historico_da_janela(dados, janela_do_pre_registro(registro))$alocacoes
+  )
+  sobrecarga <- medir_sobrecarga_do_mais_recomendado(plausibilidade, dados)
+  faixa <- \(x, formatador) paste0(formatador(min(x)), " a ", formatador(max(x)))
   classes <- c("recomendado melhor", "recomendado pior", "incomparáveis", "empate")
   ramos <- c("conteúdo", "colaborativo")
 
@@ -89,7 +97,10 @@ executar_w3_plausibilidade <- function(plausibilidade, registro) {
     )
   }
 
-  objetos <- list(por_ramo = por_ramo, extras = extras, criterios = criterios)
+  objetos <- list(
+    por_ramo = por_ramo, extras = extras, criterios = criterios,
+    horas_e_percentual = horas_e_percentual, sobrecarga = sobrecarga
+  )
 
   pct <- \(x) formatar_pct(x)
   tabelas <- list(
@@ -227,7 +238,17 @@ executar_w3_plausibilidade <- function(plausibilidade, registro) {
     paste0(
       "A classificação por dominância depende de folga, custo e senioridade sintéticos, ",
       "e o desempate por tempo de casa favorece veteranos; as frações valem para o ",
-      "gerador e para a população observada."
+      "gerador e para a população observada. A folga do segundo nível usa as horas por ",
+      "mês das alocações, e a ocupação do Capítulo 4 usa o percentual de alocação, e as ",
+      "duas medidas discordam no sintético: nas ", formatar_inteiro(horas_e_percentual$alocacoes),
+      " alocações da janela, a correlação entre as horas e as horas que o percentual ",
+      "implica (168 vezes o percentual) é de ", formatar_decimal(horas_e_percentual$correlacao, 2),
+      ", e ", formatar_pct(horas_e_percentual$acima_da_capacidade), " das alocações passam ",
+      "de 168 horas por mês. Para o recomendado mais frequente do colaborativo, a ",
+      "sobrecarga se confirma pelas duas medidas: nos meses dos casos lidos, ele fica de ",
+      faixa(sobrecarga$horas_alem_da_capacidade, \(x) formatar_decimal(x, 0)),
+      " horas além da capacidade pelas horas e de ",
+      faixa(sobrecarga$pct_ocupacao, \(x) formatar_pct(x, 0)), " da capacidade pelo percentual."
     ),
     "depende do gerador",
 

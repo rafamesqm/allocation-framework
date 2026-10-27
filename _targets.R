@@ -483,7 +483,7 @@ list(
   tar_target(w3_plausibilidade, avaliar_plausibilidade_das_discordancias(
     dados_eda, pre_registro, w3_conteudo_e2_avaliacao, w3_colaborativo_avaliacao, w3_adocao
   )),
-  tar_target(bloco_w3_plausibilidade, executar_w3_plausibilidade(w3_plausibilidade, pre_registro)),
+  tar_target(bloco_w3_plausibilidade, executar_w3_plausibilidade(w3_plausibilidade, dados_eda, pre_registro)),
   tar_target(bloco_w3_plausibilidade_tabelas, salvar_tabelas_bloco(bloco_w3_plausibilidade$tabelas), format = "file"),
   tar_target(bloco_w3_plausibilidade_achados, salvar_tabela(
     bloco_w3_plausibilidade$achados, "achados_w3_5"
