@@ -43,10 +43,24 @@ desdobrar_criterios_por_ramo <- function(classificadas) {
 #'
 #' @param plausibilidade Lista de `avaliar_plausibilidade_das_discordancias()`.
 #' @param dados Lista nomeada de tibbles, para as duas medidas de carga.
+#' @param vereditos tibble da rubrica preenchida, de `ler_vereditos()`, ou
+#'   `NULL` enquanto a leitura não foi feita.
 #' @param registro Lista de `ler_pre_registro()`.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
-executar_w3_plausibilidade <- function(plausibilidade, dados, registro) {
+executar_w3_plausibilidade <- function(plausibilidade, dados, vereditos, registro) {
   classificadas <- plausibilidade$classificadas
+  # Leituras da rubrica que o W3.5.4 cita, quando ela existe: onde os
+  # implausíveis se concentram, se no conteúdo o veredito acompanha a classe,
+  # e se os plausíveis do conteúdo recomendam quem nunca foi alocado.
+  if (!is.null(vereditos)) {
+    implausiveis <- table(factor(vereditos$Ramo[vereditos$Veredito == "implausível"], levels = c("conteúdo", "colaborativo")))
+    do_conteudo <- vereditos[vereditos$Ramo == "conteúdo", ]
+    acompanha_a_classe <- all(do_conteudo$Veredito[do_conteudo$Classe == "recomendado pior"] == "implausível") &&
+      !any(do_conteudo$Veredito[do_conteudo$Classe == "recomendado melhor"] == "implausível")
+    alocados <- unique(com_historico_da_janela(dados, janela_do_pre_registro(registro))$alocacoes$consultor_id)
+    plausiveis <- do_conteudo$`Consultor recomendado`[do_conteudo$Veredito == "plausível"]
+    plausivel_nunca_alocado <- length(plausiveis) == 1 && !plausiveis %in% alocados
+  }
   # A folga do segundo nível usa as horas, e a ocupação do Capítulo 4, o
   # percentual: a discordância entre as duas entra como limitação.
   horas_e_percentual <- medir_discordancia_horas_percentual(
@@ -220,16 +234,47 @@ executar_w3_plausibilidade <- function(plausibilidade, dados, registro) {
     paste0(
       "A leitura qualitativa sorteou ", sorteados, " casos, com a semente ",
       registro$sementes$leitura_qualitativa, " e até ", registro$segundo_nivel$casos_por_estrato,
-      " por estrato de ramo e classe, sem a zona morta; ", texto_vazios, ". A planilha da ",
-      "rubrica sai em branco, com o ramo, o filtro e a posição na lista já preenchidos ",
-      "como explicação da arquitetura. No conteúdo, o primeiro recomendado é um sorteio ",
-      "dentro do filtro, e ", formatar_pct(extra("conteúdo")$antes_de_2026), " das ",
-      "comparações dele caem em mês anterior a 2026, em que a folga é calculada sem férias."
+      " por estrato de ramo e classe, sem a zona morta; ", texto_vazios, ". A rubrica traz, ",
+      "para cada caso, o ramo, o filtro e a posição na lista, como explicação da arquitetura. ",
+      if (is.null(vereditos)) {
+        "A leitura ainda não foi registrada."
+      } else {
+        paste0(
+          "Na leitura do autor, ", descrever_vereditos_do_ramo(vereditos, "colaborativo"), ", e ",
+          descrever_vereditos_do_ramo(vereditos, "conteúdo"), "."
+        )
+      }
     ),
     paste0(
-      "Os vereditos são do autor, fora da pipeline. Sobre dados sintéticos, a leitura ",
-      "julga a coerência do gerador, e não o processo real de alocação: demonstra o ",
-      "instrumento sem validar o modelo."
+      if (is.null(vereditos)) {
+        "Os vereditos são do autor, fora da pipeline. "
+      } else {
+        paste0(
+          if (implausiveis[["colaborativo"]] > implausiveis[["conteúdo"]]) {
+            paste0(
+              "**Os implausíveis se concentram no colaborativo**, em que o recomendado é, nos ",
+              escrever_por_extenso(nrow(sobrecarga)), " casos, o consultor mais alocado, de ",
+              faixa(sobrecarga$pct_ocupacao, \(x) formatar_pct(x, 0)), " da capacidade nos meses ",
+              "lidos, o que nenhuma vantagem de custo compensaria. "
+            )
+          } else {
+            ""
+          },
+          if (acompanha_a_classe) "No conteúdo, os vereditos acompanham a classe" else "No conteúdo, os vereditos não acompanham a classe",
+          if (plausivel_nunca_alocado) {
+            paste0(
+              ", e o único caso plausível é o de um consultor que nunca havia sido alocado e ",
+              "que a popularidade não recomendaria. "
+            )
+          } else {
+            ". "
+          },
+          "Como a amostra tem o mesmo número de casos por estrato, qualquer que seja o ",
+          "tamanho do estrato, os vereditos não estimam proporções. "
+        )
+      },
+      "Sobre dados sintéticos, a leitura julga a coerência do gerador, e não o processo ",
+      "real de alocação: demonstra o instrumento sem validar o modelo."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -256,7 +301,8 @@ executar_w3_plausibilidade <- function(plausibilidade, dados, registro) {
     paste0(
       "A leitura tem um avaliador único, o autor; no ramo de conteúdo o recomendado é um ",
       "sorteio dentro do filtro; e nos meses da janela anteriores a 2026 a folga é ",
-      "calculada sem férias, porque as férias sintéticas só cobrem 2026."
+      "calculada sem férias, porque as férias sintéticas só cobrem 2026, situação de ",
+      formatar_pct(extra("conteúdo")$antes_de_2026), " das comparações do conteúdo."
     ),
     "depende do gerador"
   )))

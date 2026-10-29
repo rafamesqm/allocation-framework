@@ -32,7 +32,5 @@ caminho_da_rubrica_preenchida <- function() {
 #'
 #' @return tibble com a rubrica, ou `NULL` enquanto a leitura não foi feita.
 ler_rubrica_preenchida <- function() {
-  caminho <- caminho_da_rubrica_preenchida()
-  if (!file.exists(caminho)) return(NULL)
-  readr::read_csv(caminho, show_col_types = FALSE)
+  ler_vereditos(caminho_da_rubrica_preenchida())
 }
