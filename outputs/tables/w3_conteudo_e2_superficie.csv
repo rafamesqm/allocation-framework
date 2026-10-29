@@ -1,0 +1,6 @@
+Grupo,"Escolha (fatores, lambda, iterações, lambda do mapa)",Melhor da grade,Mediana da grade,Piso na mesma validação,Empatadas no máximo
+1,"2; 1,0; 20; 0,1","57,5%","56,4%","56,2%",1 de 128
+2,"2; 1,0; 10; 10,0","58,4%","57,3%","57,6%",4 de 128
+3,"2; 100,0; 10; 0,1","57,7%","56,3%","55,8%",16 de 128
+4,"5; 1,0; 20; 100,0","57,7%","56,5%","56,0%",3 de 128
+5,"2; 1,0; 10; 0,1","57,4%","56,5%","56,2%",2 de 128

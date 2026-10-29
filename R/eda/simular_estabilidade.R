@@ -22,12 +22,6 @@
 #' correta é que o conjunto versionado é um sorteio da mesma distribuição que
 #' estas réplicas caracterizam, e não um elemento desta amostra.
 #'
-#' `avaliacoes_desempenho` entra sem a coluna de comentário. O texto livre
-#' respondia por praticamente todo o tempo de geração da tabela e não alimenta
-#' grandeza nenhuma, então dispensá-lo torna barato incluir as grandezas do
-#' rótulo que o bloco II.5 mede. Antes desta mudança a tabela ficava de fora
-#' inteira, e as grandezas do rótulo não teriam intervalo.
-#'
 #' @param semente Inteiro que identifica a realização.
 #' @param n_consultores,n_projetos Escala da população.
 #' @param data_referencia Data de referência da geração.
@@ -58,10 +52,6 @@ gerar_realizacao <- function(semente,
   )
   grafo <- gerar_grafo_coalocacao(alocacoes)
   ocupacao <- agregar_ocupacao_consultor(alocacoes)
-  avaliacoes <- gerar_avaliacoes_desempenho(
-    alocacoes, com_comentario = FALSE, consultores = consultores,
-    semente = semente
-  )
 
   list(
     consultores = consultores,
@@ -73,8 +63,7 @@ gerar_realizacao <- function(semente,
     espaco_skills = espaco_skills,
     skills_consultor = skills,
     grafo_coalocacao = grafo,
-    ocupacao_consultor = ocupacao,
-    avaliacoes_desempenho = avaliacoes
+    ocupacao_consultor = ocupacao
   )
 }
 
@@ -101,16 +90,14 @@ medir_grandezas <- function(dados) {
   espaco_skills <- dados$espaco_skills
   skills <- dados$skills_consultor
   grafo <- dados$grafo_coalocacao
-  ocupacao <- dados$ocupacao_consultor
-  avaliacoes <- dados$avaliacoes_desempenho
 
-  divergencia <- medir_divergencia_entre_avaliadores(avaliacoes)
-  dimensionalidade <- medir_dimensionalidade_dos_itens(avaliacoes)
-  variancia_escore <- decompor_variancia_do_escore(avaliacoes)
-  par_individual_gestor <- divergencia$pares[
-    divergencia$pares$etapa_a == "individual" &
-      divergencia$pares$etapa_b == "gestor_cegas",
-  ]
+  # Leituras de calendário respeitam a janela do achado I.4.1: ocupação,
+  # divisões temporais, meses do porte e o poder do protocolo. As grandezas
+  # estruturais, como densidade, grau e cold start, seguem sobre o conjunto
+  # inteiro, que é a escala em que o gerador foi calibrado.
+  na_janela <- com_historico_da_janela(dados)
+  historico <- na_janela$alocacoes
+  ocupacao <- na_janela$ocupacao_consultor
 
   nivel_num <- senioridade_numerica(consultores$nivel_senioridade)
   nivel_alocacao <- nivel_num[match(alocacoes$consultor_id, consultores$consultor_id)]
@@ -166,7 +153,7 @@ medir_grandezas <- function(dados) {
   # sobre ela que o bloco II.6 estima o one-hot: usar a latente mediria um
   # setor que o analista não enxerga.
   discriminacao <- comparar_mecanismos_de_p(list(
-    alocacoes = alocacoes,
+    alocacoes = historico,
     projetos = projetos,
     consultores = consultores,
     skills_consultor = skills,
@@ -185,20 +172,23 @@ medir_grandezas <- function(dados) {
   # protocolo adota para o colaborativo. `dividir_interacoes()` chama
   # `set.seed()` mesmo no ramo temporal, o que é inofensivo aqui porque nada
   # depois dele consome aleatoriedade.
-  divisao_temporal <- dividir_interacoes(alocacoes, "temporal", fracao_teste = 0.3)
+  divisao_temporal <- dividir_interacoes(historico, "temporal", fracao_teste = 0.3)
   avaliabilidade_temporal <- medir_divisao(
     divisao_temporal, unique(experiencia_observada$consultor_id)
   )
   linha_base_protocolo <- medir_linha_base_sob_protocolo(
     divisao_temporal$treino, divisao_temporal$teste, consultores, tamanhos = 20
   )
+  # A correção do achado II.7.3 compara as duas linhas de base sobre o mesmo
+  # histórico; `linha_base`, acima, é a do bloco II.1, estrutural.
+  linha_base_na_janela <- medir_linha_base_popularidade(historico, consultores, tamanhos = 20)
   linha_base_50 <- medir_linha_base_popularidade(alocacoes, consultores, tamanhos = 50)
   identificabilidade_k10 <- medir_identificabilidade(
     alocacoes, consultores, projetos, fatores = 10
   )
   filtro <- medir_reducao_pelo_filtro(consultores, projetos, experiencia_observada)
   porte <- medir_porte_do_problema(
-    consultores, projetos, alocacoes, dplyr::n_distinct(ocupacao$ano_mes),
+    consultores, na_janela$projetos_janela, historico, dplyr::n_distinct(ocupacao$ano_mes),
     fracao_candidatos = filtro$fracao_candidatos
   )
   variaveis_de <- function(formulacao) porte$variaveis[porte$formulacao == formulacao]
@@ -206,10 +196,10 @@ medir_grandezas <- function(dados) {
   # Poder por componente, do bloco II.7. O número de pares avaliáveis do
   # colaborativo varia bastante entre realizações, e calcular o ganho mínimo
   # sobre uma só repetiria o erro que estas réplicas existem para evitar. A
-  # divisão por consultor sorteia, mas `dividir_interacoes()` fixa a própria
-  # semente e nada depois dela consome aleatoriedade.
+  # validação cruzada por consultor sorteia os grupos sob semente própria, sem
+  # mexer no fluxo aleatório da realização.
   poder <- planejar_poder_por_componente(
-    alocacoes, consultores, projetos, experiencia_observada
+    historico, consultores, projetos, experiencia_observada
   )
   poder_de <- function(componente, piso) {
     poder[poder$componente == componente & poder$piso == piso, ]
@@ -254,14 +244,6 @@ medir_grandezas <- function(dados) {
     projetos_subdeterminados_k5 = identificabilidade_k5$fracao_projetos_subdeterminados,
     consultores_subdeterminados_k5 = identificabilidade_k5$fracao_consultores_subdeterminados,
     zona_morta_skills = mean(sem_interacao & sem_skills),
-    cobertura_rotulo_pares = dplyr::n_distinct(
-      paste(avaliacoes$consultor_id, avaliacoes$projeto_id)
-    ) / nrow(alocacoes),
-    concordancia_individual_gestor = par_individual_gestor$concordancia,
-    correlacao_individual_gestor = par_individual_gestor$correlacao,
-    alfa_cronbach_itens = dimensionalidade$alfa_cronbach,
-    variancia_primeiro_componente = dimensionalidade$variancia_primeiro_componente,
-    fracao_variancia_entre_consultores = variancia_escore$fracao_entre_consultores,
     cobertura_setor_observada = mean(!sem_setor_observado),
     zona_morta_setor = mean(sem_interacao & sem_setor_observado),
     massa_pct_alocacao_em_1 = mean(alocacoes$pct_alocacao == 1),
@@ -286,7 +268,7 @@ medir_grandezas <- function(dados) {
     recall_protocolo_20 = linha_base_protocolo$recall,
     # Medida como grandeza própria pelo mesmo motivo da folga do one-hot: o
     # achado II.7.3 afirma que a correção morde, que é afirmar um sinal.
-    correcao_linha_base_20 = linha_base$recall - linha_base_protocolo$recall,
+    correcao_linha_base_20 = linha_base_na_janela$recall - linha_base_protocolo$recall,
     reducao_porte_filtro = variaveis_de("Trio consultor, projeto e mês") /
       variaveis_de("Trio, restrito ao conjunto candidato"),
     n_avaliavel_colaborativo = poder_colaborativo$n_avaliavel,
@@ -326,7 +308,7 @@ simular_estabilidade <- function(sementes = 1:40, ...) {
 #'
 #' **O que este intervalo é, e o que não é.** Ele mede quanto cada número se
 #' moveria se a população sintética fosse sorteada de novo. Não é incerteza
-#' sobre a Peers: o dado real é o que é, e a incerteza sobre ele vem das
+#' sobre a organização: o dado real é o que é, e a incerteza sobre ele vem das
 #' ressalvas de cobertura das fontes registradas em `mapeamento_schema.md`, não
 #' daqui. Confundir os dois transformaria variabilidade de código em margem
 #' de erro sobre a empresa, que seria exatamente o tipo de afirmação que este
@@ -568,6 +550,32 @@ contar_fora_por_replica <- function(replicas, medidas, nivel = 0.90) {
     superior <- apply(demais, 2, stats::quantile, probs = 1 - margem, na.rm = TRUE)
     sum(valores[i, ] < inferior | valores[i, ] > superior, na.rm = TRUE)
   }, integer(1))
+}
+
+#' Tabula a distribuição de referência da tipicidade, para o texto
+#'
+#' É a mesma informação da figura de tipicidade do bloco I.0, em forma de
+#' tabela: para cada contagem de grandezas fora do intervalo, quantas
+#' réplicas a tiveram e que fração tem pelo menos tanto. A linha da contagem
+#' do conjunto versionado vem marcada, e a fração acumulada dela é o valor-p
+#' empírico de `julgar_tipicidade_do_versionado()`.
+#'
+#' @param referencia Vetor de `contar_fora_por_replica()`.
+#' @param n_fora Contagem do conjunto versionado.
+#' @return tibble com uma linha por contagem, de zero ao maior valor
+#'   observado, formatada para `salvar_tabela()`.
+tabular_fora_por_replica <- function(referencia, n_fora) {
+  contagens <- 0:max(c(referencia, n_fora))
+  replicas <- vapply(contagens, \(k) sum(referencia == k), integer(1))
+  tantas_ou_mais <- vapply(contagens, \(k) mean(referencia >= k), numeric(1))
+
+  tibble::tibble(
+    `Grandezas fora do intervalo` = contagens,
+    `Réplicas` = replicas,
+    `Fração das réplicas` = formatar_pct(replicas / length(referencia)),
+    `Fração com tantas ou mais` = formatar_pct(tantas_ou_mais),
+    `Conjunto versionado` = dplyr::if_else(contagens == n_fora, "sim", "")
+  )
 }
 
 #' Julga se o conjunto versionado é uma realização típica

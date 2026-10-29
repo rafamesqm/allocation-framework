@@ -130,7 +130,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     ),
     paste0(
       "Verifica que a estrutura de dependência calibrada sobreviveu às etapas ",
-      "seguintes do gerador. Não é descoberta sobre a Peers: foram esses ",
+      "seguintes do gerador. Não é descoberta sobre a organização: foram esses ",
       "números que calibraram o gerador. ",
       if (is.null(estabilidade)) {
         ""
@@ -151,12 +151,12 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
       "A associação induzida mais forte fora das calibradas é ",
       induzida_forte$variavel_a, " x ", induzida_forte$variavel_b, ", em ",
       formatar_decimal(induzida_forte$medida, 3),
-      ", que nasce de as duas dependerem do nível de senioridade em direções ",
-      "opostas, sem nenhum alvo real por trás."
+      ", sem nenhum alvo real por trás. O mecanismo declarado é este: ",
+      induzida_forte$mecanismo, "."
     ),
     paste0(
       "A magnitude é propriedade do código, não do domínio, e não pode ser ",
-      "citada como característica da Peers nem usada para justificar escolha ",
+      "citada como característica da organização nem usada para justificar escolha ",
       "de modelagem."
     ),
 
@@ -171,9 +171,21 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
         )
       } else if (objetos$maior_livre <= limite_livre) {
         paste0(
-          "Nenhum dos ", nrow(livres), " pares sem mecanismo declarado se ",
-          "afasta de zero: o maior valor absoluto é ",
-          formatar_decimal(objetos$maior_livre, 3),
+          if (nrow(livres) == 1) {
+            # O valor com sinal, e não o absoluto: com um par só, o absoluto
+            # escrito como medida trocava -0,003 por 0,003.
+            paste0(
+              "O único par sem mecanismo declarado, ", livres$variavel_a, " e ",
+              livres$variavel_b, ", não se afasta de zero: mede ",
+              formatar_decimal(livres$medida, 3)
+            )
+          } else {
+            paste0(
+              "Nenhum dos ", nrow(livres), " pares sem mecanismo declarado se ",
+              "afasta de zero: o maior valor absoluto é ",
+              formatar_decimal(objetos$maior_livre, 3)
+            )
+          },
           ". O gerador não introduziu dependência não intencional entre ",
           "variáveis que deveriam ser independentes."
         )
@@ -204,12 +216,14 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
       "A verificação roda a cada execução e passa a acusar dependência ",
       "acidental introduzida por mudança futura no gerador, que é o tipo de ",
       "defeito que nenhum teste unitário de peça isolada pega. **Ela já ",
-      "pegou uma**: quando o bloco II.5 acoplou contrato e esforço estimado ",
-      "ao esforço de fato alocado, os três pares de projeto deixaram de ser ",
-      "independentes e este achado passou a acusá-los. A resposta correta ",
-      "não foi afrouxar o limite, foi reclassificar os três de `livre` para ",
-      "`induzida` em `procedencia_associacoes()`, porque eles passaram a ter ",
-      "mecanismo declarado. O enunciado acima é condicional de propósito: ",
+      "serviu nos dois sentidos.** Quando o bloco II.5 acoplou contrato e ",
+      "esforço estimado ao esforço de fato alocado, os três pares de projeto ",
+      "deixaram de ser independentes, este achado passou a acusá-los, e a ",
+      "resposta foi reclassificá-los para `induzida`, porque ganharam ",
+      "mecanismo declarado, e não afrouxar o limite. Na correção que ",
+      "recalibrou a duração das alocações, o esforço passou a ser derivado das alocações, o par entre esforço e duração ",
+      "perdeu o mecanismo, e voltou para `livre`, onde a medida perto de zero ",
+      "é a confirmação. O enunciado acima é condicional de propósito: ",
       "afirmar que nada se afasta de zero enquanto o número diz o contrário ",
       "seria a incoerência que este capítulo existe para não cometer."
     ),
@@ -228,7 +242,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
       "âncora real determina apenas a base, porque os 90 não empregados reais ",
       "não cabem em N0 mais N1, que somam 63. Acima da base o contrato é ",
       "marginal calibrada, então a magnitude 0,291 é propriedade do código e ",
-      "não medida da Peers."
+      "não medida da organização."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -236,7 +250,7 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     "I.3.1", NA,
     paste0(
       "Reproduzir correlação que calibrou o gerador não é descoberta sobre a ",
-      "Peers, e a comparação pontual contra o alvo só vale onde a estabilidade ",
+      "organização, e a comparação pontual contra o alvo só vale onde a estabilidade ",
       "entre realizações é alta."
     ),
     "depende do gerador",
@@ -244,15 +258,26 @@ executar_i3 <- function(dados, estabilidade = NULL, limite_livre = 0.15) {
     "I.3.2", NA,
     paste0(
       "A associação induzida mais forte fora das calibradas é propriedade do ",
-      "código, e não pode ser citada como característica da Peers nem usada ",
+      "código, e não pode ser citada como característica da organização nem usada ",
       "para justificar escolha de modelagem."
     ),
     "depende do gerador",
 
     "I.3.3", NA,
     paste0(
-      "Com a categoria de pares sem mecanismo vazia, a verificação passa a não ",
-      "vigiar nada, e o silêncio dela não pode ser lido como aprovação."
+      if (nrow(livres) == 0) {
+        paste0(
+          "Com a categoria de pares sem mecanismo vazia, a verificação passa a ",
+          "não vigiar nada, e o silêncio dela não pode ser lido como aprovação."
+        )
+      } else {
+        paste0(
+          "A verificação vigia hoje ", nrow(livres),
+          if (nrow(livres) == 1) " par" else " pares",
+          " sem mecanismo declarado, então o silêncio dela cobre pouco e não ",
+          "pode ser lido como aprovação do gerador inteiro."
+        )
+      }
     ),
     "depende do gerador",
 

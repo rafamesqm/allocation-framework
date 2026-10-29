@@ -1,0 +1,11 @@
+Discordância,Projeto,Consultor recomendado,Consultor realizado,Ramo,Filtro,Posição na lista,Classe,Disponibilidade do recomendado no mês,Compatibilidade de setor,Justificativa observável da escolha realizada,Veredito
+d0606,projeto_0757,consultor_0204,consultor_0192,colaborativo,"sem filtro, popularidade na estimação",1,incomparáveis,NA,NA,NA,NA
+d0628,projeto_0709,consultor_0204,consultor_0254,colaborativo,"sem filtro, popularidade na estimação",1,incomparáveis,NA,NA,NA,NA
+d0589,projeto_0909,consultor_0204,consultor_0274,colaborativo,"sem filtro, popularidade na estimação",1,recomendado pior,NA,NA,NA,NA
+d0630,projeto_0712,consultor_0204,consultor_0227,colaborativo,"sem filtro, popularidade na estimação",1,recomendado pior,NA,NA,NA,NA
+d0205,projeto_0485,consultor_0188,consultor_0245,conteúdo,"setor Private Equity, ordem sorteada dentro do filtro",2,incomparáveis,NA,NA,NA,NA
+d0408,projeto_0057,consultor_0281,consultor_0202,conteúdo,"setor Serviços, ordem sorteada dentro do filtro",1,incomparáveis,NA,NA,NA,NA
+d0242,projeto_0133,consultor_0172,consultor_0132,conteúdo,"setor Indústria, ordem sorteada dentro do filtro",1,recomendado melhor,NA,NA,NA,NA
+d0265,projeto_0084,consultor_0226,consultor_0096,conteúdo,"setor Indústria, ordem sorteada dentro do filtro",1,recomendado melhor,NA,NA,NA,NA
+d0195,projeto_0296,consultor_0053,consultor_0233,conteúdo,"setor Varejo, ordem sorteada dentro do filtro",1,recomendado pior,NA,NA,NA,NA
+d0499,projeto_0030,consultor_0008,consultor_0069,conteúdo,"setor Indústria, ordem sorteada dentro do filtro",1,recomendado pior,NA,NA,NA,NA

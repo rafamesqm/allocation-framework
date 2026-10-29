@@ -1,7 +1,7 @@
 #' Executa o bloco II.6 da EDA, poder discriminante do perfil
 #'
 #' **Âncora no projeto, não na literatura.** A pergunta vem do obstáculo de
-#' `skills_requeridas[]` registrado em `docs/predefinicoes.md`: como a Peers
+#' `skills_requeridas[]` registrado em `docs/predefinicoes.md`: como a organização
 #' não formaliza o requisito técnico da demanda, `P` precisa ser estimado, e a
 #' decisão de 2026-07-31 deixou o **mecanismo** de estimação em aberto para a
 #' EDA. Os dois candidatos são o one-hot das categorias do projeto e o perfil
@@ -49,7 +49,9 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
   }) |>
     purrr::list_rbind()
 
-  comparacao <- comparar_mecanismos_de_p(dados)
+  # A comparação corta o histórico pela data mediana, o que é leitura de
+  # calendário e respeita a janela do achado I.4.1.
+  comparacao <- comparar_mecanismos_de_p(com_historico_da_janela(dados))
   ponte <- referencias_ponte_frente_offering()
 
   resultados <- comparacao$resultados

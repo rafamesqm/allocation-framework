@@ -1,4 +1,4 @@
-#' Agregados reais da Peers, em forma legível por máquina
+#' Agregados reais da organização, em forma legível por máquina
 #'
 #' Transcrição das estatísticas agregadas levantadas ao vivo no Unity
 #' Catalog e registradas em `docs/mapeamento_schema.md`. Mesmo papel que
@@ -7,7 +7,7 @@
 #'
 #' **O que uma concordância aqui significa, e o que não significa.** Todos
 #' estes números foram usados para calibrar o gerador. Bater com eles não é
-#' descoberta sobre a Peers, é verificação de que a calibração foi de fato
+#' descoberta sobre a organização, é verificação de que a calibração foi de fato
 #' aplicada e sobreviveu às etapas seguintes do gerador. É um teste de
 #' regressão sobre a fidelidade do sintético, e é assim que o capítulo deve
 #' apresentá-lo. O que seria informativo é uma divergência: ela indicaria
@@ -54,16 +54,16 @@ referencias_reais <- function() {
     # Camada 1: Projetos ---------------------------------------------------
     # Quantis de valor_contrato são dos positivos, e a assimetria também:
     # a fonte real os reporta sob o rótulo "só positivos".
-    # Recalibrados pela segunda consulta comercial, de `silver.pps`, tabela
+    # Recalibrados pela segunda consulta comercial, da base comercial de projetos, tabela
     # completa e mesma fonte da âncora de margem. Os valores anteriores
-    # vinham de `actarnet_alocacao_pessoas` e davam mediana quatro vezes
+    # vinham da fonte de alocação do sistema de gestão de projetos e davam mediana quatro vezes
     # menor; misturar as duas fontes era o que fazia a margem não fechar.
     "projetos", "valor_contrato", "fracao_zero", NA_character_, 0.147, "Segunda consulta",
     "projetos", "valor_contrato", "p25_pos", NA_character_, 190000, "Segunda consulta",
     "projetos", "valor_contrato", "mediana_pos", NA_character_, 457000, "Segunda consulta",
     "projetos", "valor_contrato", "p75_pos", NA_character_, 1100000, "Segunda consulta",
 
-    # Idem: a duração passa a vir de `pps`, em semanas (p10/50/90 de
+    # Idem: a duração passa a vir da base comercial de projetos, em semanas (p10/50/90 de
     # 3,6/11,6/43,6), convertidas em dias. A calibração anterior media outra
     # coisa e deixava o projeto curto demais para acumular as horas que o
     # contrato implica.
@@ -100,7 +100,7 @@ referencias_reais <- function() {
     "alocacoes", "duracao_dias", "assimetria", NA_character_, 3.97, "Sexta",
 
     # Estes cinco ficaram registrados como `esforco_estimado` de projeto até
-    # a wave 2.5, mas a fonte é `vw_bi_tbl_pps_alocacao_pessoas`, uma linha
+    # a wave 2.5, mas a origem é a fonte de alocação de pessoas por projeto, uma linha
     # por pessoa alocada: são horas mensais de consultor, não esforço de
     # projeto. O esforço de projeto não tem âncora real e passou a ser
     # derivado das alocações (ver `acoplar_projetos_ao_esforco()`).
@@ -129,7 +129,7 @@ referencias_reais <- function() {
 #' coluna de tabela sintética: são a distribuição da margem do projeto
 #' inteiro, que o gerador não emite como coluna e o bloco II.5 calcula.
 #'
-#' Vêm de `silver.pps`, tabela **completa** e sem teto de extração, última
+#' Vêm da base comercial de projetos, tabela **completa** e sem teto de extração, última
 #' versão por CRM, 556 projetos. A consulta mediu que tamanho, duração,
 #' margem e desconto são estáveis entre os anos cobertos e não cobertos pelo
 #' truncamento, então esta âncora não sofre do viés que afeta as grandezas
@@ -241,7 +241,7 @@ confrontar_proporcoes <- function(tabela, nome_tabela, nome_variavel,
 #' cobertura parcial as arrastaria junto.
 #'
 #' `idiomas_consultor` fica de fora: a fonte é
-#' `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os 285
+#' a base corporativa de colaboradores, sem nulo entre os 285
 #' ativos, e não o formulário.
 #'
 #' @param incluir_opcionais Se `TRUE`, inclui `certificacoes_consultor`, que

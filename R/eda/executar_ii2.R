@@ -118,7 +118,7 @@ executar_ii2 <- function(dados, estabilidade = NULL,
     ii2_evidencia = figura_evidencia_por_parametro(
       curva_comparacao,
       titulo = "Evidência por parâmetro, contra conjuntos públicos de referência",
-      subtitulo = "Escala real da Peers, medida no Unity Catalog; o sintético coincide com ela em 0,02%. Linha tracejada: um parâmetro livre por observação"
+      subtitulo = "Escala real da organização, medida no Unity Catalog; o sintético coincide com ela em 0,02%. Linha tracejada: um parâmetro livre por observação"
     ),
     ii2_subdeterminacao = figura_subdeterminacao(
       identificabilidade,

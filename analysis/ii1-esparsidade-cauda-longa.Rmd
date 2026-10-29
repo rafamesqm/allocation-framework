@@ -57,7 +57,7 @@ número foi calculado só sobre a tabela de alocação, 4.598 pares distintos
 entre 511 colaboradores e 1.833 códigos, sem join com a tabela de entidades.
 A ressalva que ele carrega é de denominador, e não de chave: são
 colaboradores históricos contra códigos de alocação, e um projeto pode ter
-mais de um código (achado II.5.10).
+mais de um código (achado II.5.6).
 
 Vale registrar que a densidade é uma das grandezas **estáveis** entre
 realizações, segundo o bloco I.0, o que não era garantido a priori.

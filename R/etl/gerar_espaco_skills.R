@@ -1,7 +1,7 @@
 #' Gera o espaço de skills sintético (objeto `S`, taxonomia)
 #'
 #' Reproduz a estrutura de categorias observada na aba De-para de
-#' `CLTV_BD_Digital_Skills.xlsx` (ver docs/mapeamento_schema.md): skills
+#' planilha do formulário de skills de Digital (ver docs/mapeamento_schema.md): skills
 #' agrupadas em categorias, sem as 4 categorias que eram metadado (não skill)
 #' na planilha real. Nomes de skill são placeholders (`categoria_n`), não
 #' réplica dos nomes reais de ferramenta, porque o que importa para a EDA é a

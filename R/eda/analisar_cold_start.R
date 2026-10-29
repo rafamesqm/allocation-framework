@@ -84,7 +84,7 @@ medir_cobertura_de_sinais <- function(dados) {
 #' Reporta também o esperado sob independência entre as duas ausências, para
 #' o excesso observado poder ser lido contra ele. O gerador sorteia a ausência
 #' de histórico independentemente da ausência de resposta, então excesso aqui
-#' é ruído amostral, não estrutura. Que essa independência valha na Peers é
+#' é ruído amostral, não estrutura. Que essa independência valha na organização é
 #' suposição não verificada, e das que importam: se quem está alocado responde
 #' menos formulário, ou mais, a zona morta real não é a medida aqui. O acesso
 #' que permitiria checar está encerrado, então fica como limitação declarada.

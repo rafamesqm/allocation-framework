@@ -7,7 +7,7 @@ da EDA: descreve o que cada componente exige e as formulações candidatas, sem 
 algoritmo.
 
 ## Convenções
-* Chaves: `consultor_id`, `projeto_id`, `skill_id`, `cliente_id`, `avaliador_id`.
+* Chaves: `consultor_id`, `projeto_id`, `skill_id`, `cliente_id`.
 * Disponibilidade: disponível (existe na base), parcial/derivável (incompleto ou
   calculável), aspiracional (exige nova coleta).
 * Todo campo abaixo existe no gerador sintético com o mesmo tipo e granularidade.
@@ -57,7 +57,7 @@ Alimenta content-based e cold start. Define quem são as pessoas e as demandas a
 | `idiomas[]` | lista categórica | consultor | restrição dura | disponível |
 | `experiencia_setorial[]` | vetor (setor → intensidade) | consultor | fit de domínio | disponível |
 | `expertise_funcional` | categórico / vetor | consultor | fit complementar | disponível |
-| `soft_skills[]` | vetor (das avaliações) | consultor | fit qualitativo | derivável |
+| `soft_skills[]` | vetor (do formulário de skills) | consultor | fit qualitativo | derivável |
 | `recencia_skill[]` | vetor (skill → data) | consultor | decaimento de competência | parcial |
 
 Montagem de `C`: one-hot dos categóricos, proficiências e intensidades como numéricos
@@ -80,14 +80,14 @@ Montagem de `P`: as colunas de skill de `P` ocupam o mesmo subespaço das de `C`
 match viver num espaço comum. `skills_requeridas` traz o mínimo (restrição) e o peso
 (coeficiente no fit).
 
-**Achado de processo, não de coleta:** a Peers não formaliza `skills_requeridas[]`
+**Achado de processo, não de coleta:** a organização não formaliza `skills_requeridas[]`
 no momento da venda ou alocação (confirmado com o usuário, não é lacuna de busca).
 `P` não pode ser construído a partir de captura real. Decisão de projeto:
 `P` será estimado a partir de `setor`/`tipo_projeto`/
 Offering/Linha de Serviço/Segmento do projeto, como proxy, nunca como requisito
-real capturado (`Indústria` de `vw_gtac_com_clientes`, cotada inicialmente,
+real capturado (`Indústria` da base de clientes, cotada inicialmente,
 foi descartada por estar quase inteiramente nula; `Segmento`, de
-`vw_crm_oportunidades_latest`, é o substituto validado). A monografia deve
+base de oportunidades do CRM, é o substituto validado). A monografia deve
 registrar essa ausência como achado de
 pesquisa, não maquiar como se fosse dado observado.
 
@@ -112,7 +112,7 @@ sofre.
 ---
 
 ## Camada 2 · Interações
-Alimenta o colaborativo e constrói os rótulos. É o coração do sinal.
+Alimenta o colaborativo e constrói o sinal de interação. É o coração do sinal.
 
 ### Entidade: Alocação → células de `R`
 | Campo | Tipo | Granularidade | Papel no modelo | Disponibilidade |
@@ -120,107 +120,42 @@ Alimenta o colaborativo e constrói os rótulos. É o coração do sinal.
 | `(consultor_id, projeto_id)` | chave de relação | alocação | célula de `R` | disponível |
 | `papel` · `pct_alocacao` · `horas` | categórico + numérico | alocação | peso da interação | disponível |
 | `data_inicio` · `data_fim` · `duracao_dias` | data / numérico | alocação | janela de vigência da interação, base de `k` e do decaimento temporal | disponível |
-| `avaliacao_desempenho` | ordinal (3 níveis, por competência) | alocação · competência · etapa | rótulo explícito | disponível |
-| `avaliador_id` | categórico: identidade do gestor, mais o papel (individual, gestor às cegas, gestor final) | alocação · etapa | debiasing de rater | confirmado |
 | `margem_atribuida` | numérico (R$ / %) | frente · mês (não alocação) | ponderação econômica | parcial |
 | `flag_restaffing` · `solicitacao_nominal` | booleano | alocação | feedback implícito | aspiracional |
 
-### Construção do rótulo (decidida na EDA, achado II.5.5)
+### Construção do sinal de interação (decidida na EDA, achados II.5.1 e II.5.7)
 
-**Decisão:** a célula de `R` é o desempenho pelo candidato (a), padronizado
-dentro de cada avaliador e com a etapa declarada (II.5.1, II.5.7). A margem sai
-de `R` e entra como objetivo separado do otimizador pelo candidato (d),
-calculada de custo carregado por horas contra valor de contrato, como direção
-e não como magnitude, porque as âncoras econômicas se sobredeterminam
-(II.5.10). O candidato (b) caiu porque a margem não é atribuível a uma
-alocação (II.5.3); o (c), porque não existe custo mensal, e a fonte que
-parecia tê-lo é receita (II.5.4). O texto abaixo é o registro de antes da EDA.
+A fonte de avaliação de desempenho não foi disponibilizada pela organização, e
+o modelo não a considera.
 
-O valor de cada célula de `R` combina desempenho e margem, que são sinais distintos.
-Candidatos, a decidir pela EDA (distribuição, correlação, cobertura): (a) só desempenho
-normalizado por avaliador; (b) média ponderada ou produto desempenho × margem; (c) margem
-como sinal separado, virando um segundo objetivo em `f`, não parte de `R`; (d) margem
-calculada estruturalmente em `f` a partir de `custo_carregado` × horas versus
-`valor_contrato`, em vez de herdada do agregado de frente/mês. Não decidir agora.
+**Decisão:** a célula de `R` é a ocorrência binária da alocação, `r_ij = 1`
+quando houve alocação, como feedback implícito (Hu, Koren e Volinsky, 2008;
+II.5.1).
 
-Achado que pesa sobre essa decisão: o usuário confirmou que a granularidade
-por frente e mês é a única que existe para margem, não uma limitação de busca.
-(Correção posterior, consulta Q5 em `mapeamento_schema.md`: o grão é projeto e
-mês, e "frente" é nome herdado do SharePoint. A conclusão, de que não há
-margem por alocação, não muda.)
-Não há `margem_atribuida` por alocação individual em lugar nenhum da Peers.
-Atribuir margem a um indivíduo dentro de um time exigiria alguma regra de
-rateio (ex.: proporcional a `pct_alocacao`/`horas`), que seria estimativa, não
-captura real, no mesmo espírito da decisão sobre `skills_requeridas[]`. Isso
-pesa a favor dos candidatos (c)/(d): tratar margem como sinal separado,
-calculado no nível em que ela de fato existe (frente/mês, ou estruturalmente
-por custo × contrato), em vez de forçar rateio individual dentro de `R`. Não
-decidido, só registrado como evidência para a EDA.
+**Comparação pré-registrada, fora da contagem de decisões:** a confiança
+`w_ij = 1 + α·log(1 + h_ij)`, com `h_ij` as horas do consultor no projeto.
+`α = 0` (binário puro) contra `α = 1` é decidido na wave 3 pelo mesmo teste
+pareado de McNemar a 5% do protocolo de avaliação; se `α = 1` não superar o
+binário, fica o binário. A confiança depende do gerador, porque as horas
+dependem da duração recalibrada das alocações.
 
-**Acoplamento a nomear:** se margem sai de `R` (candidato c ou d), o rótulo de
-`R` passa a depender inteiramente de `avaliacao_desempenho`, sem nenhum sinal
-de reserva. Hoje isso trava a validação empírica do colaborativo sobre dado
-real (funciona no sintético, porque parte da estrutura; não funciona no real
-sem acesso à base de avaliações).
+O sinal mede a ocorrência da alocação, e por isso a prática atual de
+escolha, com o viés de seleção registrado em "Nota sobre viés de seleção"
+abaixo.
 
-**Resolvido em 2026-09-19, e não a favor: o acesso está negado.** Este
-documento registrava o acesso ao banco de desempenho como a alavanca de maior
-retorno do projeto. A consulta ao dono do dado de RH negou até estatísticas
-agregadas sem dado individual (ver `mapeamento_schema.md`). A alavanca está
-fechada, e o caminho descrito abaixo deixa de ser intermediário: é o único
-que existe para dado real.
+**A margem fica fora de `R`.** Três formas foram confrontadas com o medido:
 
-A mesma consulta, porém, trouxe **estrutura** sobre a avaliação, que é o que
-o gerador podia aproveitar: ela é por projeto, tem gestor identificado, e a
-distribuição de nota tende a variar por senioridade além da rubrica. As três
-coisas foram incorporadas ao gerador.
-
-**Caminho único para o colaborativo sobre dado real, agora que o acesso a
-desempenho está negado:** um colaborativo de *implicit feedback* sobre a
-própria ocorrência da alocação (quem foi alocado a quê, com ou sem peso por
-`pct_alocacao`/`horas`) funciona sem precisar de `avaliacao_desempenho`.
-Ressalva importante: isso não contorna o viés de seleção já registrado em
-"Nota sobre viés de seleção" abaixo, herda esse viés diretamente, porque
-`R` só contém os pares que um gestor já escolheu. Um colaborativo de implicit
-feedback sobre esse sinal está, por construção, modelando o processo de
-escolha subjetivo atual, não a qualidade do match. É caminho legítimo e
-documentado na literatura, mas a validação que ele produz é mais fraca do que
-a de um rótulo com sinal de qualidade (desempenho), e essa diferença deve
-ficar explícita se o caminho for adotado, não tratada como equivalente.
-
-### Estrutura de `avaliacao_desempenho` (schema reconstruído, sem acesso a banco)
-O time não liberou acesso à base nem ao schema de avaliação de desempenho (é o dado
-mais sensível da empresa). A estrutura abaixo foi reconstruída a partir da própria
-plataforma (visualização de tela, sem consulta a banco), registrada em
-`docs/mapeamento_schema.md`. Nenhum dado de terceiro foi lido, só a forma do
-formulário.
-
-Cada ciclo de avaliação roda em três etapas, sobre o mesmo conjunto de campos:
-1. **Individual**: autoavaliação do próprio consultor.
-2. **Avaliação às cegas (gestor)**: o gestor avalia sem ver a autoavaliação.
-3. **Avaliação do gestor (calibração)**: habilitada depois das duas anteriores;
-   o gestor vê individual × às cegas lado a lado e define a nota final.
-
-Para cada competência (9 subcompetências em 5 categorias: Cultura, Desenvolvimento,
-Gestão de Projeto, Entrega do Projeto, Geração de Valor) e cada item de Performance
-(Coletivo: resultado do projeto; Individual: qualidade da entrega, relacionamento
-com cliente, comercial, valor para empresa), cada etapa registra:
-* uma nota ordinal de 3 níveis (`ABAIXO` / `DENTRO` / `ACIMA` do esperado), com
-  rubrica descritiva própria por nível, **calibrada pelo nível de carreira** do
-  avaliado (o texto da rubrica muda conforme N3, N4 etc.);
-* um comentário de texto livre justificando a nota, tamanho bem variável (de
-  poucas palavras a parágrafos).
-
-Isso confirma que `avaliador_id` não é um identificador solto: é um eixo
-estrutural de 3 papéis (individual, gestor às cegas, gestor final) por pessoa
-por ciclo, e a divergência entre autoavaliação e avaliação do gestor às cegas é
-em si um sinal de viés de avaliador a explorar na EDA, não só um problema a
-normalizar.
-
-Ainda não há acesso à base real, então `avaliacao_desempenho` segue sem consulta
-possível: o gerador sintético para esse campo parte inteiramente da forma acima
-(estrutura, escala, rubrica por nível, 3 etapas), não de distribuição real
-observada.
+* **por alocação**: descartada, porque a margem não é atribuível a uma
+  alocação individual (II.5.2). A granularidade em que ela existe é projeto e
+  mês, e atribuí-la a uma pessoa dentro de um time exigiria regra de rateio,
+  que seria estimativa e não captura, no mesmo espírito da decisão sobre
+  `skills_requeridas[]`;
+* **mensal**: descartada, porque não existe custo mensal, e a fonte que
+  parecia tê-lo é receita decomposta por origem (II.5.3);
+* **estrutural**, de `custo_carregado` × horas contra `valor_contrato`: é a
+  que tem mecanismo, e entra como objetivo separado do otimizador, como
+  direção e não como magnitude, porque as âncoras econômicas se
+  sobredeterminam (II.5.6, II.5.7).
 
 ---
 
@@ -248,8 +183,47 @@ caíram. O conteúdo filtra e não ordena (II.6.2), e o colaborativo não é o
 componente principal (II.2.4). O que ordena dentro do filtro, e portanto o
 valor de `ŝ`, **não ficou determinado** (III.4): para quem tem histórico sobra a
 popularidade, e para quem não tem, só o perfil de skills, que não pôde ser
-avaliado. A avaliação de `ŝ` tem dois níveis, aderência à prática e relação
-com o desempenho (II.7.8).
+avaliado. A avaliação de `ŝ` tem dois níveis, aderência ao processo e
+plausibilidade das discordâncias entre recomendado e realizado (II.7.8).
+
+**Definido na wave 3** (achados W3.2 a W3.4). Nenhum dos dois testes rejeitou:
+o mapeamento de atributos não superou o filtro com acaso (W3.2.7) e a
+fatoração não superou a popularidade (W3.3.2). O híbrido ordena então pela
+popularidade para quem tem histórico e ao acaso dentro do filtro para quem só
+tem formulário, e `ŝ` é definido sobre a lista que ele monta:
+
+| Campo | Tipo | Definição |
+|-------|------|-----------|
+| `projeto_id`, `consultor_id` | chave | um par por candidato e projeto, mais os pares da zona morta |
+| `quadrante` | categórico | histórico e formulário, só histórico, só formulário ou zona morta, diante daquele projeto |
+| `ramo` | categórico | `colaborativo` para quem tem histórico, `conteúdo` para quem só tem formulário; ausente na zona morta |
+| `passa_filtro` | lógico | `TRUE` para quem declarou o setor do projeto; ausente para quem não declarou setor, a quem o filtro não se aplica |
+| `posicao`, `n_candidatos` | inteiro | posição na lista do projeto e tamanho dela |
+| `s_hat` | numérico em [0, 1] | percentil na lista, `1 - (posicao - 1) / (n_candidatos - 1)`; o primeiro vale 1 e o último 0 |
+
+* **A lista** de um projeto tem quem declarou o setor dele e quem tem
+  histórico sem ter declarado setor. Quem tem histórico vem antes, ordenado
+  pela popularidade; depois vem quem só tem formulário, em ordem aleatória.
+  Os empates são desfeitos por uma ordem aleatória por projeto, com a semente
+  de desempate do pré-registro.
+* **A popularidade é contada sem o próprio projeto**, sobre o histórico
+  inteiro da janela de análise. Sem isso, `ŝ` de um projeto histórico
+  carregaria a alocação que a wave 4 vai reproduzir ou contestar. Quem tem
+  alocação só naquele projeto fica, diante dele, sem histórico.
+* **A popularidade conta projetos distintos** por consultor. A leitura dos
+  dados (`carregar_dados()`) para a pipeline se algum par consultor e projeto
+  aparecer duas vezes nas alocações, e essa verificação garante que contar
+  projetos distintos coincida com contar alocações.
+* **Zona morta**: o par existe, com `s_hat` ausente (`NA`). O modelo não a
+  recomenda, e o ausente não é convertido em zero na wave 3; o que fazer com
+  ele é decisão da wave 4.
+* **Fora do filtro**: quem declarou setor diferente do setor do projeto não
+  tem linha para aquele projeto.
+
+`ŝ` vive no alvo `w3_s_hat` da pipeline e não é usado em nenhuma avaliação da
+wave 3. Para quem tem histórico ele é popularidade, e para quem só tem
+formulário, acaso: carrega aderência ao processo atual, e não adequação da
+pessoa ao projeto (W3.4.3).
 
 ---
 
@@ -263,7 +237,7 @@ Alimenta a formação de equipes (Team Formation Problem).
 | `balanco_senioridade` | distribuição | time | `f` / `A` | restrição de pirâmide | derivável |
 
 Montagem de `G`: derivável do histórico de alocação (Camada 2). Peso da aresta = medida de
-coalocação boa entre duas pessoas (ex.: desempenho médio conjunto), a definir na EDA.
+coalocação boa entre duas pessoas, a definir na EDA.
 
 ---
 
@@ -284,7 +258,7 @@ pela regra 7 do `CLAUDE.md`: o campo existe na fonte real e faltava no
 sintético, então o sintético estava incompleto.
 
 * **Janela de datas por alocação.** `alocacoes` não tinha `data_inicio` /
-  `data_fim`, embora `vw_gtac_cltv_alocacao` tenha as duas e a
+  `data_fim`, embora a fonte de alocações tenha as duas e a
   temporalidade já estivesse na lista de expectativas acima. Sem elas o
   vetor `k` não é construível: a soma de `pct_alocacao` por consultor não
   tem denominador, e o histórico inteiro aparenta superalocação.

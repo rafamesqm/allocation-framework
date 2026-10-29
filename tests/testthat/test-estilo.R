@@ -28,6 +28,12 @@
 
 nomes_de_simbolos <- function(expressao) {
   if (is.symbol(expressao)) return(as.character(expressao))
+  # Em `a$b`, só `a` é busca de variável; `b` é nome de campo. O caso 4 acima
+  # é o lado esquerdo, e continua visto. O direito acusaria `pares$x` só por
+  # haver uma coluna `x` antes, sem que nada leia essa coluna.
+  if (is.call(expressao) && identical(expressao[[1]], as.symbol("$"))) {
+    return(nomes_de_simbolos(expressao[[2]]))
+  }
   if (is.call(expressao) || is.pairlist(expressao)) {
     return(unlist(lapply(as.list(expressao), nomes_de_simbolos)))
   }
@@ -109,6 +115,16 @@ test_that("nenhum tibble() referencia coluna criada antes, no codigo de R/", {
       paste(ocorrencias, collapse = " | ")
     )
   )
+})
+
+test_that("o detector olha so o lado esquerdo do cifrao", {
+  # Lado esquerdo e a coluna recem-criada: defeito, o caso 4 do cabecalho.
+  esquerdo <- quote(tibble::tibble(componentes = 3, maior = max(componentes$csize)))
+  expect_length(encontrar_sombreamento_em_tibble(esquerdo, "exemplo.R"), 1)
+
+  # Lado direito e so nome de campo de outro objeto: nada le a coluna.
+  direito <- quote(tibble::tibble(acerto = mean(x), diferenca = mean(pares$acerto) - 1))
+  expect_length(encontrar_sombreamento_em_tibble(direito, "exemplo.R"), 0)
 })
 
 test_that("o detector reconhece o padrao que ele existe para pegar", {

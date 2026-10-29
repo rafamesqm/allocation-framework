@@ -77,7 +77,7 @@ gerar_projetos <- function(n_projetos = 952,
     "Data Analytics & Artificial Intelligence", "Supply Chain",
     "Tech Consulting", "Finance", "Talent & Organization",
     "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Peers.AI", "Educação Pública"
+    "Produtos de IA", "Educação Pública"
   )
   pesos_offering <- c(991, 642, 530, 524, 427, 424, 192, 155, 119, 114, 49, 47)
 
@@ -96,11 +96,11 @@ gerar_projetos <- function(n_projetos = 952,
     projeto_id = sprintf("projeto_%04d", seq_len(n_projetos)),
     setor = sample(segmentos, n_projetos, replace = TRUE, prob = pesos_segmento),
     tipo_projeto = sample(offerings, n_projetos, replace = TRUE, prob = pesos_offering),
-    # Recalibrado pela segunda consulta comercial: `silver.pps`, última
+    # Recalibrado pela segunda consulta comercial: base comercial de projetos, última
     # versão por CRM, 556 projetos, tabela completa e sem teto de extração.
-    # A calibração anterior vinha de `actarnet_alocacao_pessoas` e dava
+    # A calibração anterior vinha da fonte de alocação do sistema de gestão de projetos e dava
     # mediana de 108 mil, quatro vezes menor. As duas medem valor de
-    # contrato, mas só a de `pps` é a mesma fonte da âncora de margem, e
+    # contrato, mas só a da base comercial de projetos é a mesma fonte da âncora de margem, e
     # misturar fontes era o que fazia a margem estrutural não fechar.
     valor_contrato = gerar_variavel_hurdle_lognormal(
       n_projetos,

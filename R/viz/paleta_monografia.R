@@ -42,12 +42,12 @@
 #' matizes não.
 #'
 #' **Divergente, para polaridade.** Dois polos opostos com cinza neutro no
-#' meio, para a nota da avaliação de desempenho, que não é só ordenada, é
-#' bipolar em torno do esperado (`ABAIXO` / `DENTRO` / `ACIMA`).
+#' meio, para escala que não é só ordenada, é bipolar em torno de um centro
+#' (`negativo` / `neutro` / `positivo`).
 #'
 #' @return Lista nomeada com `categorica` (5 matizes em ordem),
 #'   `ordinal_senioridade` (5 passos, nomeados por nível),
-#'   `divergente_nota` (3 passos, nomeados pela nota) e `chrome` (fundo,
+#'   `divergente` (3 passos, nomeados pelo polo) e `chrome` (fundo,
 #'   tintas de texto, grade, subgrade e moldura).
 paleta_monografia <- function() {
   list(
@@ -56,8 +56,8 @@ paleta_monografia <- function() {
       N4 = "#97b2d6", N3 = "#739bcf", N2 = "#5083c5",
       N1 = "#2f6cb8", N0 = "#1a569d"
     ),
-    divergente_nota = c(
-      ABAIXO = "#b94642", DENTRO = "#8a8a86", ACIMA = "#185ba9"
+    divergente = c(
+      negativo = "#b94642", neutro = "#8a8a86", positivo = "#185ba9"
     ),
     chrome = c(
       fundo = "#fcfcfb",

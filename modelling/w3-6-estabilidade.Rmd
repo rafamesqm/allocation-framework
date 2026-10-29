@@ -1,0 +1,53 @@
+---
+title: "Etapa 6. Estabilidade entre realizações"
+subtitle: "Wave 3, scoring híbrido"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("modelling", "_comum.R"))
+
+bloco <- ler_bloco("bloco_w3_estabilidade")
+obj <- bloco$objetos
+```
+
+## Propósito
+
+A realização versionada é um sorteio do gerador, e nenhum número dela vale
+como propriedade fixa do modelo (I.0.1). As grandezas centrais da wave 3 são
+refeitas em `r obj$estabilidade$n_replicas[1]` realizações, e cada uma é
+reportada pela mediana e pelo intervalo de 90%, com a posição da versionada
+nele.
+
+**Como cada etapa é refeita.** O conteúdo e o colaborativo refazem o
+procedimento inteiro em cada realização, inclusive a escolha de
+hiperparâmetros por validação interna. O segundo nível e o híbrido são
+refeitos com férias geradas à parte, com semente derivada da semente da
+realização, e com a adoção fixada na da versionada: medem a variabilidade do
+modelo adotado, e a estabilidade da decisão está nas frequências de rejeição
+das Etapas 2 e 3.
+
+## As grandezas centrais
+
+```{r estabilidade}
+mostrar_tabela(
+  bloco$tabelas$w3_estabilidade,
+  "Tabela W3.14: grandezas centrais da wave 3, com a mediana, o intervalo de 90% entre realizações e a posição da versionada."
+)
+```
+
+A versionada cai fora do intervalo em `r nrow(obj$fora)` das
+`r nrow(obj$situacao)` grandezas. Onde isso acontece, o texto da monografia
+cita o intervalo, e não o ponto, como o valor típico. O caso que importa é o
+acerto do híbrido, em que a versionada é um sorteio favorável.
+
+## Achados
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

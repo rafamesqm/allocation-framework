@@ -17,15 +17,20 @@
 #' @param margem_calibrada Se a escala da margem fecha com a âncora real.
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
-  meses_ativos <- dplyr::n_distinct(dados$ocupacao_consultor$ano_mes)
+  # Meses ativos, meses de projeto e ocupação são leituras de calendário e
+  # respeitam a janela do achado I.4.1. Sem ela o horizonte ia até 2030, 76
+  # meses de que só 24 são histórico, e a wave 4 é exercício retrospectivo
+  # sobre o histórico (II.8.4).
+  dados <- aplicar_janela_de_analise(dados)
+  meses_ativos <- dplyr::n_distinct(dados$ocupacao_janela$ano_mes)
   filtro <- medir_reducao_pelo_filtro(
     dados$consultores, dados$projetos, dados$experiencia_setorial
   )
   porte <- medir_porte_do_problema(
-    dados$consultores, dados$projetos, dados$alocacoes, meses_ativos,
+    dados$consultores, dados$projetos_janela, dados$alocacoes_janela, meses_ativos,
     fracao_candidatos = filtro$fracao_candidatos
   )
-  capacidade <- medir_violacao_de_capacidade(dados$ocupacao_consultor)
+  capacidade <- medir_violacao_de_capacidade(dados$ocupacao_janela)
 
   insumos <- registrar_insumos_do_otimizador(
     margem_calibrada = margem_calibrada,
@@ -165,7 +170,7 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "ressalva de que uma ocupação de ",
       formatar_decimal(capacidade$ocupacao_maxima, 1),
       " vezes é implausível como fato e sugere que a própria medida de ",
-      "capacidade mereça revisão antes de virar restrição."
+      "ocupação mereça revisão antes de virar restrição."
     ),
 
     "II.8.3", "instrumento",
@@ -180,11 +185,12 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "Existir e ter escala utilizável são exigências diferentes, e separá-las ",
       "é o que impede uma contagem otimista. Margem e afinidade prevista são ",
       "calculáveis e não dimensionáveis, cada uma pelo seu motivo já ",
-      "registrado: a margem porque as âncoras se sobredeterminam (II.5.10), a ",
-      "afinidade porque o acesso à base de avaliação está negado (II.5.6). ",
-      "A afinidade é `ŝ`, a predição que a wave 3 produz para cada par ",
-      "candidato, e não o rótulo de `R`, que só existe para pares que ",
-      "aconteceram e serve para treinar e avaliar `ŝ`. ",
+      "registrado: a margem porque as âncoras se sobredeterminam (II.5.6), a ",
+      "afinidade porque `ŝ` só existe depois da wave 3, e o que ordena dentro ",
+      "do filtro não ficou determinado pela EDA (III.4). A afinidade é `ŝ`, a ",
+      "predição que a wave 3 produz para cada par candidato, e não o sinal de ",
+      "interação de `R`, que só existe para pares que aconteceram e serve para ",
+      "treinar e avaliar `ŝ`. ",
       "**A ausência mais grave é a demanda futura**: `pipeline_demandas` traz ",
       "identificador e estágio, sem data, tamanho nem perfil. Sem ela o ",
       "otimizador não aloca para frente, só reavalia o passado."
@@ -196,7 +202,7 @@ executar_ii8 <- function(dados, estabilidade = NULL, margem_calibrada = FALSE) {
       "parcial**, e não como alocador prospectivo. Ela pode rodar sobre os ",
       "projetos históricos, com capacidade e férias como restrições, custo ",
       "como objetivo dimensionado, a afinidade `ŝ` da wave 3 como coeficiente ",
-      "do objetivo de desempenho, e o filtro de setor aplicado a quem o ",
+      "do objetivo de afinidade, e o filtro de setor aplicado a quem o ",
       "declarou."
     ),
     paste0(

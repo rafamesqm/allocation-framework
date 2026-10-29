@@ -29,13 +29,13 @@
 #' @param nome Nome do arquivo, sem extensão.
 #' @param largura_cm,altura_cm Dimensões da figura, em centímetros.
 #' @param dpi Resolução, em pontos por polegada.
-#' @param diretorio Diretório de destino.
+#' @param diretorio Diretório de destino; por padrão, o de `diretorio_de_saida()`.
 #' @return Caminho do arquivo salvo, de forma invisível (para uso com
 #'   `tar_target(..., format = "file")`).
 salvar_figura <- function(figura, nome,
                            largura_cm = 16, altura_cm = 10,
                            dpi = 300,
-                           diretorio = here::here("outputs", "figures")) {
+                           diretorio = diretorio_de_saida("figures")) {
   caminho <- file.path(diretorio, paste0(nome, ".png"))
   garantir_caminho_curto(caminho)
 

@@ -38,12 +38,6 @@ mapa_medida_achado <- function() {
     "cobertura_covariavel_alocacoes", "II.4", "covariável de propensão",
     "pares_sem_positividade", "II.4", "positividade",
     "ess_relativo_ips", "II.4", "custo de reponderar",
-    "cobertura_rotulo_pares", "II.5", "cobertura do rótulo",
-    "concordancia_individual_gestor", "II.5", "divergência entre avaliadores",
-    "correlacao_individual_gestor", "II.5", "divergência entre avaliadores",
-    "alfa_cronbach_itens", "II.5", "dimensionalidade do rótulo",
-    "variancia_primeiro_componente", "II.5", "dimensionalidade do rótulo",
-    "fracao_variancia_entre_consultores", "II.5", "sinal sobre a pessoa",
     "massa_pct_alocacao_em_1", "I.2.3", "defeito corrigido",
     "massa_horas_mes_em_0", "I.2.3", "defeito corrigido",
     "auc_one_hot", "II.6.2, II.6.6", "poder discriminante",
@@ -88,7 +82,7 @@ grandezas_de_diferenca <- function() {
 #'
 #' Declara o status epistêmico dos achados, já que a EDA roda sobre dado cujo
 #' mecanismo gerador é conhecido e foi escrito neste projeto. Sem isso,
-#' achado sobre a Peers e achado sobre o gerador ficam indistinguíveis.
+#' achado sobre a organização e achado sobre o gerador ficam indistinguíveis.
 #'
 #' E quantifica a variabilidade de Monte Carlo. O conjunto versionado é uma
 #' realização, e todo número reportado nos demais blocos vem dela. Este bloco
@@ -101,11 +95,11 @@ grandezas_de_diferenca <- function() {
 #'   classificada como frágil. Convenção de leitura declarada, não teste.
 #' @param limite_invariancia Amplitude relativa abaixo da qual a grandeza é
 #'   tratada como invariante. Exigir desvio exatamente zero é estrito demais
-#'   e deixa passar parâmetro disfarçado de resultado: `cobertura_rotulo_pares`
-#'   é imposta ao gerador em 50%, mas varia na quinta casa decimal por
-#'   arredondamento do número de avaliações, o que bastava para ela ser
-#'   classificada como estável e escapar do aviso do achado I.0.3. Convenção
-#'   de leitura declarada, não teste.
+#'   e deixa passar parâmetro disfarçado de resultado: uma fração imposta ao
+#'   gerador pode variar na quinta casa decimal por arredondamento de uma
+#'   contagem, o que bastaria para ela ser classificada como estável e
+#'   escapar do aviso do achado I.0.3. Convenção de leitura declarada, não
+#'   teste.
 #' @param versionado tibble de uma linha, de `medir_grandezas()` aplicado ao
 #'   conjunto versionado. Opcional; sem ele o achado I.0.5 declara que a
 #'   comparação não foi feita.
@@ -212,7 +206,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     i0_etiquetas = tibble::tibble(
       Etiqueta = etiquetas_achado(),
       `O que autoriza afirmar` = c(
-        "Sobre a Peers, com as ressalvas de cobertura das fontes documentadas",
+        "Sobre a organização, com as ressalvas de cobertura das fontes documentadas",
         "Sobre o gerador, nunca sobre a empresa",
         "Sobre a validade do diagnóstico, aplicável ao dado real"
       )
@@ -232,6 +226,9 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
         Percentil = formatar_pct(.data$percentil, 0),
         `Posição` = .data$posicao
       )
+    tabelas$i0_fora_por_replica <- tabular_fora_por_replica(
+      tipicidade$referencia, tipicidade$n_fora
+    )
   }
 
   figuras <- list(
@@ -351,7 +348,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     paste0(
       "Nenhum número do capítulo deve ser lido como propriedade fixa do ",
       "modelo. O intervalo mede quanto o valor se moveria se a população ",
-      "fosse sorteada de novo, e **não** é incerteza sobre a Peers: essa vem ",
+      "fosse sorteada de novo, e **não** é incerteza sobre a organização: essa vem ",
       "das ressalvas de cobertura das fontes, não daqui."
     ),
 
@@ -398,9 +395,9 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     ),
     paste0(
       "Invariância aqui não é robustez, é parâmetro, e as três famílias da ",
-      "lista têm origens diferentes. Cold start do consultor e cobertura do ",
-      "rótulo são frações impostas ao gerador, e reportá-las como achado ",
-      "devolve a entrada em forma de resultado. As coberturas de conteúdo são ",
+      "lista têm origens diferentes. Cold start do consultor é fração imposta ",
+      "ao gerador, e reportá-la como achado devolve a entrada em forma de ",
+      "resultado. As coberturas de conteúdo são ",
       "o complemento exato da âncora real de 48,4%, sorteada como contagem ",
       "fixa e não como Bernoulli, então não flutuam por construção (ver ",
       "I.0.2). As medidas de massa nos limites são invariantes por terem sido ",
@@ -454,7 +451,7 @@ executar_i0 <- function(replicas, nivel = 0.90, limite_fragilidade = 0.15,
     paste0(
       "Grandeza invariante entre realizações é parâmetro do gerador devolvido ",
       "em forma de resultado, e nenhuma delas sustenta conclusão sobre a ",
-      "Peers."
+      "organização."
     ),
     "depende do gerador",
 

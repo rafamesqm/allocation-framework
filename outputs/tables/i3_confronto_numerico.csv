@@ -10,4 +10,4 @@ tempo_nivel x custo_carregado,induzida,"0,362",n/a,,"indireta pela mesma cadeia,
 nivel_num x tempo_nivel,induzida,"0,343",n/a,,"herdada por tempo_nivel derivar de tempo_casa, que depende do nível"
 valor_contrato x esforco_estimado,induzida,"0,306",n/a,,"o contrato é ordenado pelas horas alocadas, das quais o esforço mensal é um fator"
 pct_alocacao x horas_mes,induzida,"-0,261",n/a,,indireta e de sinal oposto: as duas dependem do nível em direções contrárias
-esforco_estimado x duracao_dias,induzida,"-0,003",n/a,,"projeto mais longo acumula mais alocações, e o esforço soma as horas delas"
+esforco_estimado x duracao_dias,livre,"-0,003",n/a,,"o esforço soma as horas mensais da equipe, e o tamanho da equipe é sorteado sem olhar para a duração"

@@ -21,7 +21,11 @@ executar_i2 <- function(dados, estabilidade = NULL) {
     dados$receita_projeto_mes,
     c("receita_total", "receita_nf", "receita_interns")
   )
-  resumo_ocupacao <- resumir_numericas(dados$ocupacao_consultor, c("pct_ocupacao", "horas_mes"))
+  # Ocupação é leitura de calendário e respeita a janela do achado I.4.1. Sem
+  # ela, os meses projetados além da data de referência, com poucas
+  # alocações vigentes, entravam na mediana e na fração acima da capacidade.
+  dados <- aplicar_janela_de_analise(dados)
+  resumo_ocupacao <- resumir_numericas(dados$ocupacao_janela, c("pct_ocupacao", "horas_mes"))
   resumo_estrutural <- resumir_numericas(
     dados$margem_estrutural, c("custo_total", "margem_estrutural")
   )
@@ -46,7 +50,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
   local <- categoricas_consultores[categoricas_consultores$variavel == "localizacao", ]
   horas <- resumo_alocacoes[resumo_alocacoes$variavel == "horas_mes", ]
   ocupacao <- resumo_ocupacao[resumo_ocupacao$variavel == "pct_ocupacao", ]
-  acima_capacidade <- mean(dados$ocupacao_consultor$pct_ocupacao > 1)
+  acima_capacidade <- mean(dados$ocupacao_janela$pct_ocupacao > 1)
   horas_p25 <- pega(confronto_alocacoes, "horas_mes", "p25")
   duracao_alocacao <- confronto_alocacoes[confronto_alocacoes$variavel == "duracao_dias", ]
 
@@ -81,6 +85,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
     acima_capacidade = acima_capacidade,
     estrutural_negativa = mean(dados$margem_estrutural$margem_estrutural < 0),
     horas_zero = sum(dados$alocacoes$horas_mes == 0),
+    pct_integral = sum(dados$alocacoes$pct_alocacao == 1),
     n_alocacoes = nrow(dados$alocacoes)
   )
 
@@ -202,7 +207,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
       "análise que dependa de média, desvio ou de comportamento de cauda ",
       "extrema não é. **A ausência de âncora para média e assimetria é ",
       "informação, e não lacuna a preencher:** a segunda consulta comercial ",
-      "recalibrou contrato e duração pela tabela `pps`, que dá quantis e não ",
+      "recalibrou contrato e duração pela base comercial de projetos, que dá quantis e não ",
       "momentos. Reportar diferença contra um momento que a fonte nova não ",
       "publica seria confrontar o sintético com a fonte antiga."
     ),
@@ -229,7 +234,7 @@ executar_i2 <- function(dados, estabilidade = NULL) {
       "Com o eixo temporal, pct_ocupacao vira grandeza interpretável: mediana ",
       formatar_decimal(ocupacao$mediana), " de capacidade usada, com ",
       formatar_pct(acima_capacidade), " dos pares consultor-mês acima da ",
-      "capacidade integral",
+      "capacidade integral, dentro da janela de análise",
       if (is.null(estabilidade)) {
         "."
       } else {

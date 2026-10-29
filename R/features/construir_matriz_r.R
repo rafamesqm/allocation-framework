@@ -12,13 +12,10 @@
 #' tem alocação esconderia o problema e ainda deixaria a densidade com o
 #' denominador errado.
 #'
-#' O valor da célula fica em aberto de propósito: a construção do rótulo
-#' (desempenho, margem, ou a ocorrência pura da alocação como feedback
-#' implícito) é decisão de modelagem que a EDA ainda vai informar, e o
-#' dicionário lista quatro candidatos sem escolher. Por isso `valor` é
-#' argumento: o default 1 dá a matriz de ocorrência, e passar
-#' `alocacoes$pct_alocacao` ou um rótulo derivado dá a matriz ponderada, sem
-#' que esta função precise saber qual candidato venceu.
+#' O valor da célula é argumento: o default 1 dá a matriz de ocorrência, que
+#' é a preferência binária do sinal implícito, e passar a confiança de
+#' `construir_sinal_implicito()` dá a matriz ponderada, sem que esta função
+#' precise saber qual das duas o teste do bloco II.5 escolheu.
 #'
 #' @param alocacoes tibble de `gerar_alocacoes()`, com `consultor_id` e
 #'   `projeto_id`.

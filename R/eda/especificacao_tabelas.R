@@ -81,14 +81,6 @@ especificacao_tabelas <- function() {
     "alocacoes", "duracao_dias", "numerico", "atributo", NA_character_,
     "alocacoes", "data_fim", "data", "atributo", NA_character_,
 
-    "avaliacoes_desempenho", "consultor_id", "texto", "chave", "consultores.consultor_id",
-    "avaliacoes_desempenho", "projeto_id", "texto", "chave", "projetos.projeto_id",
-    "avaliacoes_desempenho", "item", "texto", "chave", NA_character_,
-    "avaliacoes_desempenho", "etapa", "texto", "chave", NA_character_,
-    "avaliacoes_desempenho", "categoria_item", "texto", "atributo", NA_character_,
-    "avaliacoes_desempenho", "nota", "texto", "atributo", NA_character_,
-    "avaliacoes_desempenho", "avaliador_id", "texto", "atributo", NA_character_,
-    "avaliacoes_desempenho", "comentario", "texto", "atributo", NA_character_,
 
     # Camada 3: Operação ---------------------------------------------------
     "custo_carregado", "consultor_id", "texto", "chave", "consultores.consultor_id",
@@ -111,7 +103,7 @@ especificacao_tabelas <- function() {
     "receita_projeto_mes", "receita_nf", "numerico", "atributo", NA_character_,
     "receita_projeto_mes", "receita_interns", "numerico", "atributo", NA_character_,
     "receita_projeto_mes", "receita_subcontratados", "numerico", "atributo", NA_character_,
-    "receita_projeto_mes", "receita_actar", "numerico", "atributo", NA_character_,
+    "receita_projeto_mes", "receita_coligada", "numerico", "atributo", NA_character_,
 
     "margem_estrutural", "projeto_id", "texto", "chave", "projetos.projeto_id",
     "margem_estrutural", "valor_contrato", "numerico", "atributo", NA_character_,

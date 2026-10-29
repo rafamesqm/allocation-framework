@@ -17,7 +17,7 @@
 #' **A coluna de proveniência responde a uma pergunta de banca**, e é o único
 #' acréscimo ao que o roadmap especificou: se o modelo que a wave 4 pode
 #' prometer é menor do que a ambição das pré-definições, isso é limitação do
-#' dado real da Peers ou defeito da sintetização feita neste projeto. A
+#' dado real da organização ou defeito da sintetização feita neste projeto. A
 #' resposta não é retórica, é uma contagem.
 #'
 #' @param achados_por_bloco Lista com os `achados` de cada bloco.
@@ -130,7 +130,7 @@ executar_iii <- function(achados_por_bloco) {
     paste0(
       "**O que não funciona foi determinado, não escolhido.** Cada eliminação ",
       "responde a uma restrição medida, e a contagem mostra que a maior parte ",
-      "delas se apoia em agregado da Peers ou em propriedade do problema, não ",
+      "delas se apoia em agregado da organização ou em propriedade do problema, não ",
       "no instrumento. O que ordena dentro do filtro, ao contrário, não foi ",
       "determinado, e o achado III.4 diz por quê. O número que importa é o ",
       "último: as decisões que cairiam se o gerador fosse outro são ",
@@ -146,14 +146,10 @@ executar_iii <- function(achados_por_bloco) {
       paste(resumo$codigos_dependentes, collapse = ", "), "."
     ),
     paste0(
-      "**Ficam declaradas como ressalva e não escondidas.** A mais ",
-      "consequente é a que autoriza o rótulo escalar, porque a ",
-      "unidimensionalidade dos catorze itens é imposta pelo gerador e o acesso ",
-      "à base de avaliação foi negado: se o formulário real não for ",
-      "unidimensional, a média dos itens não é a escala certa. As outras três ",
-      "são de segunda ordem, e cada uma diz o que exige para ser revista. ",
-      "Nenhuma delas é a forma do híbrido, o mecanismo de `P`, o protocolo de ",
-      "avaliação ou o alcance do otimizador."
+      "**Ficam declaradas como ressalva e não escondidas.** Nenhuma é ",
+      "compromisso de modelagem, e cada uma diz o que exige para ser revista. ",
+      "Nenhuma delas é a forma do híbrido, o mecanismo de `P`, o sinal de ",
+      "`R`, o protocolo de avaliação ou o alcance do otimizador."
     ),
 
     "III.3", "instrumento",
@@ -176,7 +172,8 @@ executar_iii <- function(achados_por_bloco) {
     paste0(
       "Juntando os blocos, sobra pouco para ordenar consultores dentro do ",
       "filtro de setor. Para quem tem histórico, a fatoração degenera em ",
-      "popularidade (II.2.4) e o projeto novo nunca foi visto (II.7.1), então ",
+      "popularidade (II.2.4) e o projeto do teste raramente foi visto no ",
+      "treino (II.7.1), então ",
       "o que ordena é a popularidade. Para quem não tem histórico, a ",
       "popularidade é zero (II.7.5), e o único sinal restante é o perfil de ",
       "skills, que o bloco II.6 mostrou não ser avaliável (II.6.6). A zona ",
@@ -199,9 +196,8 @@ executar_iii <- function(achados_por_bloco) {
     "III.2", NA,
     paste0(
       "As ", resumo$depende_do_gerador,
-      " decisões que cairiam se o gerador fosse outro são ressalva, e a de ",
-      "maior consequência é a autorização do rótulo escalar: a consistência ",
-      "interna do formulário real nunca pôde ser medida."
+      " decisões que cairiam se o gerador fosse outro são ressalva: cada uma ",
+      "precisa ser refeita sobre o dado real antes de valer fora do sintético."
     ),
     "depende do gerador",
 

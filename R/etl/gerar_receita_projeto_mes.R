@@ -5,19 +5,19 @@
 #'
 #' Não é margem. A segunda consulta às bases comerciais
 #' (docs/mapeamento_schema.md, 2026-09-20) provou que
-#' `vw_bi_custo_frente_mensal` é a **receita** do projeto distribuída por mês
-#' e por origem, e não custo: a soma de `peers_total`, `subcontratados_total`
-#' e `actar_total` sobre a receita total do projeto dá 1,000 do décimo ao
+#' fonte de receita mensal por projeto é a **receita** do projeto distribuída por mês
+#' e por origem, e não custo: a soma das colunas de receita própria, de
+#' subcontratados e da coligada sobre a receita total do projeto dá 1,000 do décimo ao
 #' nonagésimo percentil em 724 versões. Uma razão cravada em 1,000 por toda a
 #' faixa é identidade contábil. Não há custo nem margem nessa fonte, e a
-#' despesa vem de `pps`.
+#' despesa vem da base comercial de projetos.
 #'
 #' E não é frente. O grão é projeto por mês; o nome "frente" é herdado do
 #' SharePoint e nenhuma coluna da fonte nomeia frente. A simplificação que
 #' colapsava frente em projeto, antes registrada como dívida, está correta.
 #'
-#' **O que a versão anterior calculava.** Ela tratava `peers_total_vlr` como
-#' receita, `peers_custointerns_vlr` como custo interno, e a diferença como
+#' **O que a versão anterior calculava.** Ela tratava a coluna de receita própria
+#' como receita, a coluna de receita de estagiários como custo interno, e a diferença como
 #' margem. Os dois campos são receita, e a diferença é a receita de nota
 #' fiscal. A "margem" que ela emitia não era margem de nada, e o bloco II.5
 #' concluiu sobre ela.
@@ -34,7 +34,7 @@
 #'
 #' @param projetos tibble de `gerar_projetos()`, com `data_inicio` e
 #'   `data_fim`.
-#' @param prob_subcontratados,prob_actar Probabilidade de o mês ter receita
+#' @param prob_subcontratados,prob_coligada Probabilidade de o mês ter receita
 #'   de cada origem.
 #' @param participacao_interns Participação mediana da receita de estagiário
 #'   nos meses em que ela existe.
@@ -43,10 +43,10 @@
 #' @param semente Inteiro para reprodutibilidade.
 #' @return tibble com `projeto_id`, `ano_mes`, `receita_total`,
 #'   `receita_nf`, `receita_interns`, `receita_subcontratados` e
-#'   `receita_actar`, uma linha por projeto e mês ativo.
+#'   `receita_coligada`, uma linha por projeto e mês ativo.
 gerar_receita_projeto_mes <- function(projetos,
                                        prob_subcontratados = 0.065,
-                                       prob_actar = 0.05,
+                                       prob_coligada = 0.05,
                                        participacao_interns = 0.104,
                                        prob_projeto_com_interns = 0.71,
                                        semente = 1) {
@@ -64,30 +64,30 @@ gerar_receita_projeto_mes <- function(projetos,
     p25_positivos = 90000, p75_positivos = 304000
   )
 
-  # Subcontratados e Actar são componentes de receita, não repasse de custo:
+  # Subcontratados e a coligada são componentes de receita, não repasse de custo:
   # os campos de faturamento de cada um igualam o total em 100% das linhas
   # da fonte, o que só faz sentido se forem receita.
   receita_subcontratados <- sortear_componente_de_receita(
     n_linhas, prob_subcontratados,
     mediana = 42000, p10 = 9800, p90 = 204000
   )
-  receita_actar <- sortear_componente_de_receita(
-    n_linhas, prob_actar,
+  receita_coligada <- sortear_componente_de_receita(
+    n_linhas, prob_coligada,
     mediana = 8000, p10 = 2000, p90 = 46000
   )
 
   # Os dois componentes não podem engolir a receita do mês. O teto é
   # suposição declarada: a fonte não documenta limite.
   teto <- 0.8 * receita_total
-  excesso <- pmax(receita_subcontratados + receita_actar - teto, 0)
+  excesso <- pmax(receita_subcontratados + receita_coligada - teto, 0)
   proporcao <- ifelse(
-    receita_subcontratados + receita_actar > 0,
-    excesso / (receita_subcontratados + receita_actar), 0
+    receita_subcontratados + receita_coligada > 0,
+    excesso / (receita_subcontratados + receita_coligada), 0
   )
   receita_subcontratados <- receita_subcontratados * (1 - proporcao)
-  receita_actar <- receita_actar * (1 - proporcao)
+  receita_coligada <- receita_coligada * (1 - proporcao)
 
-  receita_peers <- pmax(receita_total - receita_subcontratados - receita_actar, 0)
+  receita_propria <- pmax(receita_total - receita_subcontratados - receita_coligada, 0)
 
   # A presença de receita de estagiário é propriedade do projeto, não do mês:
   # na fonte, 29% dos projetos nunca têm e 47% têm sempre. Sortear por mês
@@ -101,22 +101,22 @@ gerar_receita_projeto_mes <- function(projetos,
   participacao <- stats::rlnorm(
     n_linhas, meanlog = log(participacao_interns), sdlog = 0.683
   )
-  receita_interns <- ifelse(tem_interns, receita_peers * pmin(participacao, 0.9), 0)
+  receita_interns <- ifelse(tem_interns, receita_propria * pmin(participacao, 0.9), 0)
 
   tibble::tibble(
     projeto_id = projeto_da_linha,
     ano_mes = meses$ano_mes,
-    receita_total = receita_peers,
-    receita_nf = receita_peers - receita_interns,
+    receita_total = receita_propria,
+    receita_nf = receita_propria - receita_interns,
     receita_interns = receita_interns,
     receita_subcontratados = receita_subcontratados,
-    receita_actar = receita_actar
+    receita_coligada = receita_coligada
   )
 }
 
 #' Sorteia um componente de receita com presença esporádica
 #'
-#' Subcontratados e Actar aparecem em poucos meses e, quando aparecem, têm
+#' Subcontratados e a coligada aparecem em poucos meses e, quando aparecem, têm
 #' distribuição muito assimétrica. Separado em função própria porque os dois
 #' seguem a mesma forma e só mudam os parâmetros, e porque o padrão de
 #' Bernoulli seguido de log-normal calibrada por quantis aparece em mais de

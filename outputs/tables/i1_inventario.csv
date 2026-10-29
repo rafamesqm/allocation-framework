@@ -1,5 +1,4 @@
 Tabela,Linhas,Colunas,Chave declarada,Chave única
-avaliacoes_desempenho,50.946,8,"consultor_id, projeto_id, item, etapa",sim
 receita_projeto_mes,5.107,7,"projeto_id, ano_mes",sim
 pipeline_demandas,4.302,2,oportunidade_id,sim
 grafo_coalocacao,4.231,3,"consultor_a, consultor_b",sim

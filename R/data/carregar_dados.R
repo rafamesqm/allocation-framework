@@ -20,9 +20,7 @@
 #' projeto registrada, e chamar com essa fonte para de forma explícita, em
 #' vez de silenciosamente devolver sintético como se fosse real.
 #'
-#' `avaliacoes_desempenho` é a maior tabela de longe (cerca de 70 MB, por
-#' causa do comentário em texto livre). Use `tabelas` para não pagar a
-#' leitura dela quando a análise não precisar.
+#' Use `tabelas` para ler só o que a análise precisa.
 #'
 #' @param fonte `"synthetic"` (padrão) ou `"databricks"`.
 #' @param tabelas Vetor de nomes de tabela, sem extensão. `NULL` (padrão)
@@ -62,8 +60,30 @@ carregar_dados <- function(fonte = c("synthetic", "databricks"),
   }
 
   caminhos <- file.path(diretorio, paste0(tabelas, ".csv"))
-  stats::setNames(
+  dados <- stats::setNames(
     lapply(caminhos, readr::read_csv, show_col_types = FALSE, progress = FALSE),
     tabelas
   )
+  if ("alocacoes" %in% names(dados)) conferir_pares_unicos(dados$alocacoes)
+  dados
+}
+
+#' Para a leitura se algum par consultor e projeto aparecer duas vezes
+#'
+#' A popularidade conta projetos distintos por consultor (ver
+#' docs/dicionario_de_dados.md). Com pares únicos, isso coincide com contar
+#' alocações; esta verificação garante que a coincidência valha na base lida.
+#'
+#' @param alocacoes tibble de alocações, com `consultor_id` e `projeto_id`.
+#' @return `alocacoes`, invisível, se não houver par repetido.
+conferir_pares_unicos <- function(alocacoes) {
+  repetidos <- sum(duplicated(alocacoes[c("consultor_id", "projeto_id")]))
+  if (repetidos > 0) {
+    stop(
+      "Há ", repetidos, " par(es) consultor e projeto repetido(s) nas alocações; ",
+      "a popularidade por projetos distintos deixaria de coincidir com a contagem de alocações.",
+      call. = FALSE
+    )
+  }
+  invisible(alocacoes)
 }

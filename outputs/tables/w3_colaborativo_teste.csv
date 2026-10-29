@@ -1,0 +1,23 @@
+Medida,Realização versionada,Entre realizações
+Pares do teste temporal,692,705 (676 a 736)
+Pares avaliáveis pelo colaborativo,86,87 (59 a 118)
+Fração avaliável,"12,4%","12,6% (8,6% a 16,2%)"
+"Piso de verificação, acerto esperado sob desempate aleatório","19,8%","20,2% (13,8% a 28,1%)"
+"Piso do teste, empates sorteados","19,8%","20,0% (13,3% a 28,8%)"
+Acerto da fatoração binária (alfa = 0),"20,9%","21,4% (14,0% a 29,6%)"
+Acerto da fatoração com confiança (alfa = 1),"20,9%","21,2% (14,3% a 29,4%)"
+H1: binária menos popularidade (pontos),"1,2","1,3 (-7,4 a 10,1)"
+H1: discordantes a favor da fatoração,5,8 (2 a 16)
+H1: discordantes a favor da popularidade,4,7 (2 a 14)
+H1: valor-p do McNemar exato,"1,000","0,656 (0,065 a 1,000)"
+H1: supera a popularidade a 5%,não,2% das realizações
+"H1: ganho mínimo, otimista (pontos)","9,0","8,9 (6,6 a 12,9)"
+"H1: ganho mínimo, conservador (pontos)","20,6","20,6 (16,7 a 25,1)"
+H2: confiança menos binária (pontos),"0,0","0,0 (-7,4 a 7,2)"
+H2: discordantes a favor da confiança,14,8 (3 a 13)
+H2: discordantes a favor do binário,14,8 (2 a 14)
+H2: valor-p do McNemar exato,"1,000","0,569 (0,143 a 1,000)"
+"H2, descritiva: confiança supera o binário a 5%",não,1% das realizações
+"H2: ganho mínimo, conservador (pontos)","20,8","20,8 (17,3 a 25,6)"
+Convergência: pares com o mesmo resultado na fatoração e na popularidade,"89,5%","80,4% (70,0% a 93,4%)"
+Convergência: Spearman do escore da fatoração com a popularidade,"0,482","0,255 (0,061 a 0,661)"

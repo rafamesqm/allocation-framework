@@ -195,7 +195,7 @@ setor_predominante_observado <- function(experiencia_setorial) {
 #' dessas duas coisas não há como distinguir um modelo de ausência correto de
 #' um errado, porque os dois explicam igualmente bem o que foi observado.
 #'
-#' Na Peers não existe nenhuma das duas. A alocação é decidida de forma
+#' Na organização não existe nenhuma das duas. A alocação é decidida de forma
 #' centralizada e subjetiva, sem registro do critério, e nunca houve
 #' aleatorização. Os conjuntos públicos que permitem esse tipo de validação,
 #' como o Yahoo! R3 e o coat, existem justamente porque alguém coletou uma
@@ -214,7 +214,7 @@ verificar_amostra_de_exposicao_aleatoria <- function() {
     "a alocação é decidida de forma centralizada e subjetiva, sem registro do critério aplicado a cada caso, o que é o problema que motiva esta monografia",
 
     "Amostra de exposição aleatória", FALSE,
-    "nunca houve aleatorização de alocação na Peers, e não seria eticamente trivial introduzir uma, porque alocar pessoa a projeto ao acaso tem custo real para as duas partes",
+    "nunca houve aleatorização de alocação na organização, e não seria eticamente trivial introduzir uma, porque alocar pessoa a projeto ao acaso tem custo real para as duas partes",
 
     "Registro de candidatos considerados e preteridos", FALSE,
     "só a alocação efetivada é registrada; quem foi cogitado e descartado não deixa rastro em nenhuma das tabelas do crosswalk"

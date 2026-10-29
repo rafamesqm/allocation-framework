@@ -46,14 +46,12 @@ A coluna que carrega conteúdo analítico não é a contagem de linhas, é a
 de fato tem. Chave declarada que se repete significaria que a tabela não é o
 que o dicionário diz que é.
 
-As três maiores tabelas concentram o volume por razões distintas, e vale
-separá-las. `avaliacoes_desempenho` tem
-`r formatar_inteiro(obj$inventario$linhas[obj$inventario$tabela == "avaliacoes_desempenho"])`
-linhas porque a granularidade real da avaliação é item por etapa, não
-avaliação por alocação: são 14 itens em 3 etapas para cada alocação
-avaliada. `ocupacao_consultor` e `receita_projeto_mes` são grandes porque
+As maiores tabelas concentram o volume por razões distintas, e vale
+separá-las. `receita_projeto_mes` e `ocupacao_consultor` são grandes porque
 expandem entidade por mês de vigência, que é a granularidade que a Camada 3
-exige para sustentar a restrição de capacidade.
+exige para sustentar a restrição de capacidade. `pipeline_demandas` reproduz o
+censo real de oportunidades, e `grafo_coalocacao` cresce com o quadrado do
+tamanho de cada time, porque cada projeto vira uma clique.
 
 ## Conformidade ao contrato
 
@@ -146,7 +144,7 @@ A cobertura de alocação, `r formatar_pct(aloc_consultor$cobertura)` do lado
 do consultor e `r formatar_pct(aloc_projeto$cobertura)` do lado do projeto,
 é consequência direta da fração de cold start parametrizada no gerador,
 calibrada em 17% contra o dado real. A âncora são os 48 dos 285 ativos sem
-nenhuma linha de alocação, e ela não é artefato de chave: a consulta Q4
+nenhuma linha de alocação, e ela não é artefato de chave: a consulta de confirmação da chave
 confirmou que `ID` e `Cód. Colaborador` são a mesma chave
 (`docs/mapeamento_schema.md`). A caracterização propriamente
 dita fica para o bloco II.3.
@@ -160,7 +158,7 @@ apoiada em coberturas integrais que este achado já classificava como
 artefato.
 
 A exceção é `idiomas_consultor`. A fonte é
-`vw_apdata_bi_entidades_globais`, base corporativa que não tem nulo entre os
+a base corporativa de colaboradores, que não tem nulo entre os
 285 ativos, então ali a cobertura integral é âncora real. É o único sinal de
 conteúdo do lado do consultor sobre o qual se pode afirmar cobertura
 universal no dado real, e o bloco II.3 mostra que ele é também o que menos

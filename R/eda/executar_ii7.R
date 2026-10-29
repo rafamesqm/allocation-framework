@@ -27,12 +27,22 @@
 #' @return Lista com `objetos`, `tabelas`, `figuras` e `achados`.
 executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
                           tamanhos = c(5, 10, 20, 50)) {
+  # O protocolo inteiro roda sobre o histórico da janela do achado I.4.1. Uma
+  # versão anterior dividia o conjunto inteiro, e 18% do teste temporal eram
+  # alocações começando depois da data de referência, que são projeção da
+  # cauda do gerador e não histórico. A linha de base otimista, comparada
+  # abaixo com a do protocolo, é refeita sobre o mesmo histórico para as duas
+  # medirem o mesmo universo.
+  dados <- com_historico_da_janela(dados)
   com_atributo <- unique(dados$experiencia_setorial$consultor_id)
   formas <- c("temporal", "aleatoria", "por_consultor", "por_projeto")
 
   divisoes <- purrr::map(formas, function(forma) {
     medir_divisao(
-      dividir_interacoes(dados$alocacoes, forma, fracao_teste = fracao_teste),
+      dividir_interacoes(
+        dados$alocacoes, forma, fracao_teste = fracao_teste,
+        universo = dados$consultores$consultor_id
+      ),
       com_atributo
     )
   }) |>
@@ -66,6 +76,7 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     by = "n_recomendados"
   ) |>
     dplyr::mutate(diferenca = recall_otimista - recall_protocolo)
+  queda_por_lista <- function(n) comparacao_base$diferenca[comparacao_base$n_recomendados == n]
 
   nenhuma_serve_aos_dois <- !any(protocolos$serve_colaborativo & protocolos$serve_conteudo)
 
@@ -100,11 +111,11 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
   poder_conteudo <- poder_de("Conteúdo", "Filtro de setor e acaso")
   acaso_no_conteudo <- poder_de("Conteúdo", "Acaso")
 
-  # O alvo de avaliação, achado II.7.8. O acerto em lista não usa o rótulo de
-  # desempenho que o bloco II.5 pôs na célula de `R`, e estes dois números
-  # dizem quanto da base o segundo nível de avaliação, que usa, alcança.
-  cobertura_do_rotulo <- medir_cobertura_do_rotulo(dados)$cobertura_pares
-  fim_a_fim <- cruzar_conteudo_e_rotulo(dados)$fracao_fim_a_fim
+  # O desenho do segundo nível, achado II.7.8, sai das próprias funções que
+  # o implementam, para o texto não divergir do código.
+  sorteio_padrao <- formals(sortear_casos_para_leitura)
+  casos_por_estrato <- sorteio_padrao$por_estrato
+  semente_da_leitura <- sorteio_padrao$semente
 
   pontos <- \(x) formatar_decimal(100 * x, 1)
   # Cita o intervalo de uma grandeza, ou nada se o bloco rodou sem réplicas.
@@ -133,6 +144,9 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
   ))
 
   objetos <- list(
+    casos_por_estrato = casos_por_estrato,
+    semente_da_leitura = semente_da_leitura,
+    vereditos = listar_vereditos_de_leitura(),
     divisoes = divisoes,
     protocolos = protocolos,
     temporal = temporal,
@@ -188,7 +202,7 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       dplyr::transmute(
         `Tamanho da lista` = n_recomendados,
         `Sob o protocolo` = formatar_pct(recall_protocolo),
-        `Versão do bloco II.1` = formatar_pct(recall_otimista),
+        `Versão do bloco II.1, na janela` = formatar_pct(recall_otimista),
         `Diferença` = formatar_pct(diferenca)
       )
   )
@@ -275,8 +289,10 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       formatar_pct(comparacao_base$recall_otimista[comparacao_base$n_recomendados == 10]),
       " para ",
       formatar_pct(comparacao_base$recall_protocolo[comparacao_base$n_recomendados == 10]),
-      ". Nos extremos a correção não morde: em lista de 5 os dois praticamente ",
-      "coincidem, e em lista de 50 coincidem",
+      ". A queda, em pontos, é de ",
+      formatar_decimal(100 * queda_por_lista(5), 1), " em lista de 5, ",
+      formatar_decimal(100 * queda_por_lista(20), 1), " em lista de 20 e ",
+      formatar_decimal(100 * queda_por_lista(50), 1), " em lista de 50",
       if (is.na(correcao_separa)) {
         "."
       } else if (correcao_separa) {
@@ -342,8 +358,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       "divisão temporal para o colaborativo, acerto em lista como métrica ",
       "com o piso de cada componente reportado ao lado em toda comparação, ",
       "popularidade para o colaborativo e filtro de setor com acaso para o ",
-      "conteúdo, um segundo nível contra o desempenho entre os pares com ",
-      "rótulo (II.7.8), e conclusão enunciada sobre a população observada."
+      "conteúdo, um segundo nível de plausibilidade das discordâncias ",
+      "(II.7.8), e conclusão enunciada sobre a população observada."
     ),
     paste0(
       "Cada peça responde a uma restrição herdada e não a uma preferência. A ",
@@ -360,8 +376,11 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
 
     "II.7.5", "instrumento",
     paste0(
-      "Sob divisão por consultor, o piso de popularidade do componente de ",
-      "conteúdo é de ", formatar_pct(popularidade_no_conteudo$valor_piso),
+      "Sob divisão por consultor, feita como validação cruzada em ",
+      "cinco grupos, com o grupo de cada consultor fixado pelo identificador e ",
+      "pela semente e cada respondente no teste uma vez, o piso de popularidade ",
+      "do componente de conteúdo é de ",
+      formatar_pct(popularidade_no_conteudo$valor_piso),
       " em lista de ", lista, ", sobre ",
       formatar_inteiro(popularidade_no_conteudo$n_avaliavel), " pares: nenhum ",
       "consultor de teste tem alocação no treino, e todos ficam empatados em ",
@@ -392,8 +411,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
       sobre_realizacoes("n_avaliavel_colaborativo", formatar_inteiro),
       ", e contra o piso de popularidade de ",
       formatar_pct(poder_colaborativo$valor_piso),
-      " um ganho só seria distinguível, num teste pareado a 5% com poder de ",
-      "80%, se chegasse a ", pontos(poder_colaborativo$ganho_dominancia),
+      " um ganho só seria distinguível, no McNemar exato bilateral a 5% com ",
+      "poder de 80%, se chegasse a ", pontos(poder_colaborativo$ganho_dominancia),
       " pontos percentuais no cenário otimista e a ",
       pontos(poder_colaborativo$ganho_independencia), " no conservador",
       sobre_realizacoes("ganho_minimo_colaborativo", pontos, " pontos percentuais"),
@@ -432,38 +451,57 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     paste0(
       "**O critério de sucesso fica fixado antes do modelo, e é um teste, não ",
       "um número.** O conteúdo é considerado superior ao piso se o teste ",
-      "pareado de McNemar rejeitar a igualdade a 5%, com os empates do piso ",
+      "pareado de McNemar, na forma exata e bilateral, rejeitar a igualdade a ",
+      "5% na direção do modelo, com os empates do piso ",
       "desfeitos ao acaso sob semente declarada, para cada par ter um acerto ",
       "de zero ou um. O ganho mínimo serve para planejar e não para julgar: ",
-      "ele diz que, no cenário conservador, o teste só enxerga ganhos da ordem ",
-      "de dez pontos, e um ganho menor que não rejeite não autoriza dizer que ",
+      "ele diz que, no cenário conservador, o teste só enxerga ganhos a partir ",
+      "de ", pontos(poder_conteudo$ganho_independencia), " pontos, e um ganho ",
+      "menor que não rejeite não autoriza dizer que ",
       "nada ordena dentro do filtro. O planejamento usa o cenário de ",
       "independência porque ele não depende de o modelo imitar a popularidade."
     ),
 
     "II.7.8", "instrumento",
     paste0(
-      "O acerto em lista mede se o modelo devolve quem de fato foi alocado, e ",
-      "por isso mede aderência à prática atual de alocação, e não qualidade ",
-      "da alocação. Das alocações, ", formatar_pct(cobertura_do_rotulo),
-      " têm rótulo de desempenho, e ", formatar_pct(fim_a_fim),
-      " são avaliáveis de ponta a ponta pelo componente de conteúdo, com ",
-      "conteúdo declarado e rótulo ao mesmo tempo (II.5.11)."
+      "A avaliação tem dois níveis. O primeiro é a **aderência ao processo**: ",
+      "se a alocação realizada está no conjunto recomendado, dentro do filtro ",
+      "de setor e no top-20, contra o piso de cada componente. O segundo é a ",
+      "**plausibilidade das discordâncias**, quando o realizado não está ",
+      "entre os recomendados: o primeiro recomendado que não estava alocado ",
+      "ao projeto no mês e o realizado são comparados em folga de capacidade ",
+      "no mês, já descontadas as férias, custo por hora, ",
+      "compatibilidade de setor e adequação de senioridade, e o par é ",
+      "classificado por dominância. Da classificação sai uma leitura ",
+      "qualitativa de ", casos_por_estrato, " casos por estrato, em seis ",
+      "estratos, sorteados com a semente ", semente_da_leitura, "."
     ),
     paste0(
-      "**Os blocos II.5 e II.7 não conversavam.** O II.5 põe o desempenho na ",
-      "célula de `R`, e o protocolo avaliava só por acerto contra as alocações ",
-      "passadas, que é feedback implícito. Medido só assim, o modelo é ",
-      "premiado por reproduzir a alocação centralizada e enviesada que motiva ",
-      "a monografia (II.4), e o achado II.5.6 já avisava que esse sinal ",
-      "carrega viés não corrigível. A avaliação passa a ter dois níveis, ",
-      "declarados como tais: o acerto em lista, que diz quanto `ŝ` reproduz a ",
-      "prática, e, entre os pares com rótulo, se `ŝ` ordena pelo desempenho ",
-      "padronizado por avaliador (II.5.7), que diz quanto ele aponta para ",
-      "alocações melhores. O critério do achado II.7.7 é de primeiro nível: ",
-      "diz se algo ordena dentro do filtro na direção da prática, não na do ",
-      "desempenho. A medida de ordenação do segundo nível fica para a wave 3; ",
-      "o que fica fixado aqui é o alvo e a população."
+      "O acerto em lista mede aderência à prática atual, e não adequação da ",
+      "alocação: um modelo que só reproduzisse a escolha centralizada seria ",
+      "premiado por ele, e o sinal de interação herda o viés de seleção do ",
+      "bloco II.4. O segundo nível existe para olhar o que o primeiro não ",
+      "vê. A comparação é por dominância, e não por soma ponderada, porque não ",
+      "há base para pesar folga contra custo: recomendado melhor quando não ",
+      "perde em nenhum critério e ganha em ao menos um, pior no inverso, ",
+      "incomparáveis quando cada um ganha em algum. O empate nos quatro é ",
+      "desfeito pelo maior tempo de casa, **o que favorece veteranos**. ",
+      "Setor não declarado pelo consultor, ou ausente no projeto, fica ",
+      "desconhecido, e o par é julgado só sobre os critérios conhecidos para ",
+      "os dois. Recomendar quem já está no time não é alternativa ao ",
+      "realizado, e por isso o comparado é o primeiro recomendado fora dele; ",
+      "quando todos os recomendados já estavam no time, a discordância fica ",
+      "fora da comparação e é contada à parte. ",
+      "Os estratos cruzam o ramo que atuou, conteúdo ou colaborativo, com a ",
+      "classe, excluem a zona morta, e reportam por classe quantos casos ",
+      "vieram do desempate por tempo de casa. A ",
+      "rubrica da leitura é fixa: disponibilidade do recomendado no mês, ",
+      "compatibilidade de setor, algo observável que justifique a escolha ",
+      "realizada, e um veredito entre ",
+      paste(listar_vereditos_de_leitura(), collapse = ", "),
+      ". A explicação de cada recomendação vem da própria arquitetura, pelo ",
+      "ramo, pelo filtro e pela posição na popularidade. O protocolo fica ",
+      "fixado aqui, e a aplicação, com os números, é da wave 3."
     )
   ), tibble::tribble(
     ~codigo, ~decisao, ~limitacao, ~proveniencia,
@@ -513,9 +551,8 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
     paste0(
       "O protocolo fica declarado: divisão por consultor para o conteúdo, ",
       "divisão temporal para o colaborativo, acerto em lista como métrica com o ",
-      "piso de cada componente ao lado, um segundo nível contra o desempenho ",
-      "entre os pares com rótulo, e conclusão enunciada sobre a população ",
-      "observada."
+      "piso de cada componente ao lado, um segundo nível de plausibilidade ",
+      "das discordâncias, e conclusão enunciada sobre a população observada."
     ),
     NA,
     "fato real",
@@ -564,15 +601,15 @@ executar_ii7 <- function(dados, estabilidade = NULL, fracao_teste = 0.3,
 
     "II.7.8",
     paste0(
-      "A avaliação da wave 3 tem dois níveis: acerto em lista contra as ",
-      "alocações, como medida de aderência à prática atual, e, entre os pares ",
-      "com rótulo, a relação de `ŝ` com o desempenho padronizado por ",
-      "avaliador, como medida de qualidade."
+      "A avaliação da wave 3 tem dois níveis: aderência ao processo, pelo ",
+      "acerto em lista dentro do filtro de setor e no top-20 contra o piso de ",
+      "cada componente, e plausibilidade das discordâncias, por dominância em ",
+      "quatro critérios e leitura qualitativa estratificada com rubrica fixa."
     ),
     paste0(
-      "O segundo nível só existe sobre a fração rotulada, e no real a ",
-      "cobertura e a escala do rótulo são desconhecidas, porque o acesso à ",
-      "base de avaliação foi negado (II.5.6)."
+      "A leitura qualitativa tem um avaliador único, o autor, e o desempate ",
+      "por tempo de casa favorece veteranos. As duas coisas ficam declaradas ",
+      "junto de cada resultado do segundo nível."
     ),
     "estrutural"
   )))

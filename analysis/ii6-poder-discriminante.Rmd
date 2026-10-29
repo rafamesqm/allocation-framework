@@ -19,7 +19,7 @@ obj <- bloco$objetos
 ## Propósito do bloco
 
 **Âncora no projeto, e não na literatura.** A pergunta vem do obstáculo de
-`skills_requeridas[]`: como a Peers não formaliza o requisito técnico da
+`skills_requeridas[]`: como a organização não formaliza o requisito técnico da
 demanda, `P` precisa ser estimado, e a decisão de 2026-07-31 deixou o
 **mecanismo** em aberto para a EDA resolver. Os candidatos são o one-hot das
 categorias do projeto e o perfil médio de skills de quem já atuou em projetos

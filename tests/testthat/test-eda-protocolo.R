@@ -5,10 +5,10 @@ test_that("cada forma de divisao separa o que promete separar", {
   por_projeto <- dividir_interacoes(dados$alocacoes, "por_projeto")
   temporal <- dividir_interacoes(dados$alocacoes, "temporal")
 
-  # Nenhum consultor do teste aparece no treino, e vice-versa.
-  expect_length(
-    intersect(por_consultor$teste$consultor_id, por_consultor$treino$consultor_id), 0
-  )
+  # Em cada grupo, nenhum consultor do teste aparece no treino.
+  for (grupo in por_consultor$grupos) {
+    expect_length(intersect(grupo$teste$consultor_id, grupo$treino$consultor_id), 0)
+  }
   expect_length(
     intersect(por_projeto$teste$projeto_id, por_projeto$treino$projeto_id), 0
   )
@@ -19,13 +19,39 @@ test_that("cada forma de divisao separa o que promete separar", {
 test_that("a divisao nao perde nem duplica alocacao", {
   dados <- carregar_dados(tabelas = "alocacoes")
 
-  for (forma in c("temporal", "aleatoria", "por_consultor", "por_projeto")) {
+  for (forma in c("temporal", "aleatoria", "por_projeto")) {
     divisao <- dividir_interacoes(dados$alocacoes, forma)
     expect_equal(
       nrow(divisao$treino) + nrow(divisao$teste), nrow(dados$alocacoes),
       info = forma
     )
   }
+
+  por_consultor <- dividir_interacoes(dados$alocacoes, "por_consultor")
+  for (grupo in por_consultor$grupos) {
+    expect_equal(nrow(grupo$treino) + nrow(grupo$teste), nrow(dados$alocacoes))
+  }
+  # Reunidos, os testes cobrem cada alocação uma vez.
+  expect_equal(sum(vapply(por_consultor$grupos, \(g) nrow(g$teste), integer(1))), nrow(dados$alocacoes))
+  expect_equal(nrow(por_consultor$teste), nrow(dados$alocacoes))
+})
+
+test_that("os grupos por consultor não dependem da ordem das linhas", {
+  # Era o defeito do sorteio único: tirar ou reordenar linhas trocava parte
+  # dos consultores retidos.
+  dados <- carregar_dados(tabelas = c("alocacoes", "consultores"))
+  universo <- dados$consultores$consultor_id
+
+  original <- dividir_por_consultor_em_grupos(dados$alocacoes, universo = universo)
+  embaralhada <- withr::with_seed(3, dados$alocacoes[sample(nrow(dados$alocacoes)), ])
+  reordenada <- dividir_por_consultor_em_grupos(embaralhada, universo = universo)
+  sem_linhas <- dividir_por_consultor_em_grupos(dados$alocacoes[-(1:4), ], universo = universo)
+
+  expect_identical(reordenada$grupo_do_consultor, original$grupo_do_consultor)
+  expect_identical(sem_linhas$grupo_do_consultor, original$grupo_do_consultor)
+  # Grupos balanceados em número de consultores.
+  expect_lte(diff(range(table(original$grupo_do_consultor$grupo))), 1)
+  expect_equal(dplyr::n_distinct(original$grupo_do_consultor$grupo), 5)
 })
 
 test_that("separar por entidade zera o vazamento e a avaliabilidade junto", {
@@ -157,19 +183,46 @@ test_that("o piso de filtro com acaso da a fracao do conjunto filtrado que cabe 
   expect_equal(tres$recall, mean(c(1, 0.5)))
 })
 
-test_that("o ganho minimo resolve a formula de Connor e respeita os dois cenarios", {
+test_that("a regiao critica e a do McNemar exato bilateral", {
+  # Com cinco discordantes nem a unanimidade rejeita: 2 * 0,5^5 = 0,0625.
+  # Com seis, so a unanimidade: 2 * 0,5^6 = 0,03125.
+  expect_equal(calcular_regiao_critica_mcnemar_exato(c(0, 5, 6), 0.05), c(Inf, Inf, 6))
+  # A forma fechada coincide com a varredura de todas as contagens.
+  varredura <- function(d) {
+    if (d == 0) return(Inf)
+    b <- 0:d
+    valor_p <- pmin(1, 2 * stats::pbinom(b - 1, d, 0.5, lower.tail = FALSE))
+    rejeita <- b[valor_p <= 0.05 & b > d / 2]
+    if (length(rejeita) == 0) Inf else min(rejeita)
+  }
+  expect_identical(
+    calcular_regiao_critica_mcnemar_exato(0:1500, 0.05),
+    vapply(0:1500, varredura, numeric(1))
+  )
+  # Coincide com binom.test em toda contagem.
+  for (d in c(10, 25, 60)) {
+    critico <- calcular_regiao_critica_mcnemar_exato(d, 0.05)
+    expect_lte(binom.test(critico, d)$p.value, 0.05)
+    expect_gt(binom.test(critico - 1, d)$p.value, 0.05)
+  }
+})
+
+test_that("o ganho minimo da o poder pedido no teste exato e respeita os dois cenarios", {
   otimista <- calcular_ganho_minimo_detectavel(300, 0.2, "dominancia")
   conservador <- calcular_ganho_minimo_detectavel(300, 0.2, "independencia")
 
   # Dominancia e o minimo de discordancia possivel, entao e o cenario que
   # enxerga o menor ganho.
   expect_lt(otimista, conservador)
+  expect_equal(calcular_poder_mcnemar_exato(300, 0.2, conservador, "independencia"), 0.8, tolerance = 1e-6)
+  expect_equal(calcular_poder_mcnemar_exato(300, 0.2, otimista, "dominancia"), 0.8, tolerance = 1e-6)
 
-  # Substituir o ganho devolvido na formula precisa devolver o proprio n.
-  psi <- (0.2 + conservador) * 0.8 + (1 - 0.2 - conservador) * 0.2
-  n <- (stats::qnorm(0.975) * sqrt(psi) + stats::qnorm(0.8) * sqrt(psi - conservador^2))^2 /
-    conservador^2
-  expect_equal(n, 300, tolerance = 1e-4)
+  # Sob dominancia o poder tem forma fechada: rejeita quando ha seis ou mais
+  # discordantes, todos a favor do modelo.
+  expect_equal(
+    calcular_poder_mcnemar_exato(30, 0.2, 0.1, "dominancia"),
+    stats::pbinom(5, 30, 0.1, lower.tail = FALSE)
+  )
 })
 
 test_that("mais pares deixam enxergar ganhos menores, e pares de menos nada", {

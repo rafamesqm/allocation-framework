@@ -82,7 +82,7 @@ respondentes, não um grupo à parte.
 
 Idiomas cobre `r formatar_pct(obj$cobertura_idiomas)` dos consultores, e essa
 é a única cobertura integral do lado do consultor que **não** é artefato: a
-fonte é `vw_apdata_bi_entidades_globais`, base corporativa sem nulo entre os
+fonte é a base corporativa de colaboradores, sem nulo entre os
 285 ativos. Do lado do projeto, setor e offering cobrem 100% por construção
 do proxy de `P`.
 
@@ -111,7 +111,7 @@ entra numa lista ordenada por ela.
 candidato tem de ser uma regra de exposição declarada fora dele, como rodízio
 ou inclusão explícita, e essa regra é decisão de negócio, não estatística. O
 fenômeno é real: 48 dos 285 ativos não aparecem em nenhuma linha de alocação
-no dado da Peers.
+no dado da organização.
 
 Duas ressalvas sobre este número. A primeira é de realização: o gerador
 sorteia a ausência de histórico independentemente da ausência de resposta, e
@@ -119,10 +119,9 @@ o esperado sob independência é
 `r formatar_decimal(obj$cruzamento_setor$zona_morta_esperada, 1)`, contra
 `r obj$cruzamento_setor$zona_morta` observados. O excesso é ruído amostral, e
 o bloco I.0 acompanha a grandeza. Vale registrar que
-`r formatar_pct(obj$zona_morta_fracao)` é o **extremo superior** do intervalo
-de 90% sobre as realizações, e não o centro dele: o conjunto versionado
-calhou de ser uma realização pessimista nesta grandeza, e a mediana está mais
-perto de 8,8%. A conclusão qualitativa não depende disso, porque o intervalo
+`r formatar_pct(obj$zona_morta_fracao)` fica **no alto** do intervalo de 90%
+sobre as realizações, `r obj$zona_morta_intervalo`, e não no centro dele: o
+conjunto versionado calhou de ser uma realização pessimista nesta grandeza. A conclusão qualitativa não depende disso, porque o intervalo
 inteiro fica longe de zero, mas citar o ponto sem o intervalo exageraria o
 tamanho da zona morta.
 

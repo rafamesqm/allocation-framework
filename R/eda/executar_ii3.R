@@ -96,6 +96,7 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
     interacao_consultor = interacao_consultor,
     interacao_projeto = interacao_projeto,
     zona_morta_fracao = zona_morta_fracao,
+    zona_morta_intervalo = formatar_intervalo(estabilidade, "zona_morta_setor"),
     mesma_zona_morta = mesma_zona_morta,
     so_colaborativo = so_colaborativo,
     combinacoes_setoriais = combinacoes_setoriais,
@@ -273,7 +274,7 @@ executar_ii3 <- function(dados, estabilidade = NULL) {
     paste0(
       "Nenhum componente ordena essas pessoas, nem a popularidade, que é zero ",
       "para quem nunca foi alocado. O fenômeno é real: 48 dos 285 ativos não ",
-      "aparecem em nenhuma linha de alocação no dado da Peers."
+      "aparecem em nenhuma linha de alocação no dado da organização."
     ),
     "fato real",
 

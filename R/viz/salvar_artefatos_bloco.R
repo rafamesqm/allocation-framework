@@ -10,9 +10,9 @@
 #' pipeline regrava os artefatos sem depender de alguém lembrar.
 #'
 #' @param tabelas Lista nomeada de data frames já formatados para leitura.
-#' @param diretorio Diretório de destino.
+#' @param diretorio Diretório de destino; por padrão, o de `diretorio_de_saida()`.
 #' @return Vetor de caminhos dos arquivos gravados.
-salvar_tabelas_bloco <- function(tabelas, diretorio = here::here("outputs", "tables")) {
+salvar_tabelas_bloco <- function(tabelas, diretorio = diretorio_de_saida("tables")) {
   vapply(
     names(tabelas),
     function(nome) salvar_tabela(tabelas[[nome]], nome, diretorio = diretorio),
@@ -31,10 +31,10 @@ salvar_tabelas_bloco <- function(tabelas, diretorio = here::here("outputs", "tab
 #' @param figuras Lista nomeada de objetos ggplot.
 #' @param dimensoes Lista nomeada opcional, cada elemento um vetor
 #'   `c(largura_cm, altura_cm)` para a figura de mesmo nome.
-#' @param diretorio Diretório de destino.
+#' @param diretorio Diretório de destino; por padrão, o de `diretorio_de_saida()`.
 #' @return Vetor de caminhos dos arquivos gravados.
 salvar_figuras_bloco <- function(figuras, dimensoes = list(),
-                                  diretorio = here::here("outputs", "figures")) {
+                                  diretorio = diretorio_de_saida("figures")) {
   vapply(
     names(figuras),
     function(nome) {

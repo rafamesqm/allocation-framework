@@ -1,11 +1,11 @@
 #' Bandas de custo por hora, em salário base, de cada nível de senioridade
 #'
-#' Fonte: `silver.bi_tbl_pps_alocacao_custos`, medianas de 2025 por sigla de
+#' Fonte: tabela de custo por cargo, medianas de 2025 por sigla de
 #' cargo, registradas em docs/mapeamento_schema.md (segunda consulta às bases
 #' comerciais). **O dono do dado confirmou que é por hora e que não inclui
 #' encargos: é salário base.**
 #'
-#' A versão anterior usava `vw_gtac_fin_taxa_hora`, que o bloco II.5
+#' A versão anterior usava a tabela de taxa por hora, que o bloco II.5
 #' identificou e a consulta confirmou ser **rate card**, isto é, tabela de
 #' preço de venda. Usar preço como custo fazia a margem estrutural ficar em
 #' torno de zero por construção, com 32,8% dos projetos em prejuízo contra os
@@ -40,11 +40,11 @@ bandas_de_custo_por_nivel <- function() {
 #' 1,7 a 2,0 no Brasil. As âncoras reais não comportam isso, e a aritmética é
 #' simples de conferir (ver `medir_fator_de_carga_implicito()`): a receita é
 #' cerca de 0,87 vezes horas vezes preço, o custo base é cerca de 0,554 do
-#' preço, e a despesa total do PP é 68% da receita, porque a margem líquida
+#' preço, e a despesa total do projeto é 68% da receita, porque a margem líquida
 #' mediana é 0,320. Isso põe o teto do fator em **1,068**: acima disso o custo
-#' de pessoal sozinho excederia a despesa total declarada no PP.
+#' de pessoal sozinho excederia a despesa total declarada no projeto.
 #'
-#' A leitura mais provável é que a margem que o PP declara seja **bruta sobre
+#' A leitura mais provável é que a margem que o projeto declara seja **bruta sobre
 #' salário direto**, e não líquida de verdade. O gerador não decide isso: usa
 #' fator 1, o que mantém a coerência com a âncora de margem, e expõe o
 #' parâmetro para o dia em que houver número. A consequência para a

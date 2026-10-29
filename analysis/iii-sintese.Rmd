@@ -66,9 +66,10 @@ exposição aleatória, a propensão não é falsificável. **A wave 3 declara o
 viés em vez de corrigi-lo.** O **II.7** herda isso e mais duas restrições, e
 descobre que nenhuma forma de divisão serve aos dois componentes: separar
 pessoas para não vazar atributo é exatamente criar cold start. **Dois
-protocolos, um por componente**, e dois níveis de avaliação: o acerto contra as
-alocações mede aderência à prática, e só a relação com o desempenho, que o
-**II.5** pôs na célula de `R`, mede qualidade.
+protocolos, um por componente**, e dois níveis de avaliação: a aderência ao
+processo, pelo acerto contra as alocações, e a plausibilidade das
+discordâncias, pela comparação entre o recomendado e o realizado. O **II.5**
+fixa o sinal de `R` como feedback implícito, e a margem fora dele.
 
 O **II.8** conta o que sobrou de insumo para o otimizador: dois de oito com
 escala utilizável. **A wave 4 é exercício retrospectivo, não alocador
@@ -80,7 +81,7 @@ eliminar as alternativas.
 
 **O que a cadeia não determina é o que ordena dentro do filtro.** Para quem
 tem histórico, o que resta é a popularidade: a fatoração degenera nela, e o
-projeto novo nunca foi visto. Para quem não tem, a popularidade é zero, e o
+projeto do teste raramente foi visto no treino (II.7.1). Para quem não tem, a popularidade é zero, e o
 único sinal restante é o perfil de skills, que o II.6 mostrou não ser
 avaliável. Por isso `ŝ`, a afinidade que liga a recomendação ao otimizador,
 não está determinado pela EDA. É a pergunta que a wave 3 responde, e um
@@ -101,9 +102,10 @@ mostrar_tabela(
 São `r r$n_decisoes` decisões, vindas de `r obj$blocos_com_decisao` dos
 catorze blocos. **Os oito blocos da Parte II decidem, e dois dos seis da
 Parte I também**, que é a divisão esperada: a parte não direcionada descreve,
-e as duas exceções dela são decisões de preparo, não de modelagem, uma sobre
-quais colunas entram na matriz de atributos e outra sobre a janela temporal
-da análise.
+e as duas exceções dela são decisões de preparo, não de modelagem: a do I.2,
+sobre quais colunas entram na matriz de atributos, e as do I.4, sobre o
+tratamento do tempo, com a janela de análise, a vigência como medida de carga
+e a recência em ondas.
 
 ## As limitações
 
@@ -125,7 +127,7 @@ nos limites das faixas, ambos precondições e não conclusões.
 
 Esta seção existe por uma pergunta concreta: se o modelo que a wave 4 pode
 prometer é menor do que a ambição das pré-definições, **isso é limitação do
-dado real da Peers ou defeito da sintetização feita neste projeto?**
+dado real da organização ou defeito da sintetização feita neste projeto?**
 
 A pergunta é legítima e a resposta não pode ser retórica. Por isso cada
 decisão declara a proveniência do que a apoia, num eixo separado da etiqueta
@@ -144,7 +146,7 @@ mostrar_tabela(
 ```
 
 Das `r r$n_decisoes` decisões, `r r$fato_real` se apoiam em agregado
-documentado da Peers ou em confirmação do dono do dado, `r r$estrutural` em
+documentado da organização ou em confirmação do dono do dado, `r r$estrutural` em
 propriedade matemática ou definicional que vale em qualquer conjunto, e
 `r r$depende_do_gerador` dependem do gerador.
 
@@ -152,12 +154,12 @@ propriedade matemática ou definicional que vale em qualquer conjunto, e
 real**, e é o ponto que a pergunta pedia: sem demanda futura não há alocação
 prospectiva, porque `pipeline_demandas` traz identificador e estágio e nada
 mais; sem margem dimensionada o objetivo econômico entra como direção,
-porque seis agregados reais discordam por 1,45 vezes; sem pirâmide não há
+porque os agregados reais discordam entre si (II.5.6); sem pirâmide não há
 restrição de composição, porque a regra não está em tabela nenhuma; e sem
 skills requeridas a aderência é grossa, porque o dono do dado confirmou que o
-processo não existe na Peers. Nenhuma delas mudaria se o gerador fosse outro.
+processo não existe na organização. Nenhuma delas mudaria se o gerador fosse outro.
 
-### As quatro que dependem do gerador
+### As que dependem do gerador
 
 ```{r dependentes}
 mostrar_tabela(
@@ -167,22 +169,15 @@ mostrar_tabela(
 )
 ```
 
-Ficam declaradas, e não escondidas. **A de maior consequência é a do achado
-II.5.2**, que autoriza o rótulo escalar: a unidimensionalidade dos
-catorze itens é imposta pelo gerador, que os faz compartilhar uma qualidade
-latente, e a consulta ao dono do dado negou o acesso à base de avaliação até
-em forma agregada. Se o formulário real não for unidimensional, a média dos
-itens não é a escala certa, e não há como saber daqui.
-
-As outras três são de segunda ordem. Descartar uma coluna constante da matriz
-de atributos é verificação a repetir, não compromisso de modelagem. A janela
-de análise contém uma cauda que a log-normal estica além do que a fonte
-comporta. E o patamar da linha de base tem forma transferível e valor
+Ficam declaradas, e não escondidas, e nenhuma é compromisso de modelagem.
+Descartar uma coluna constante da matriz de atributos é verificação a repetir.
+A janela de análise contém uma cauda que a log-normal estica além do que a
+fonte comporta. E o patamar da linha de base tem forma transferível e valor
 sintético: no dado real ele precisa ser recomputado sob o mesmo protocolo
 antes de servir de critério.
 
-**Nenhuma das quatro é a forma do híbrido, o mecanismo de `P`, o protocolo de
-avaliação ou o alcance do otimizador.**
+**Nenhuma das `r r$depende_do_gerador` é a forma do híbrido, o mecanismo de
+`P`, o sinal de `R`, o protocolo de avaliação ou o alcance do otimizador.**
 
 ### Por que os dois eixos são separados
 
@@ -207,8 +202,10 @@ qual.
 
 Há uma linha da tabela que merece atenção por não ser degenerada: existe
 achado de etiqueta `âncora real` com proveniência `depende do gerador`. É o
-caso da dependência entre senioridade e tipo de contrato, em que a âncora
-real determina a base da pirâmide e a magnitude acima dela é do código.
+`r paste(obj$consolidados$codigo[obj$consolidados$etiqueta == "âncora real" & obj$consolidados$proveniencia == "depende do gerador"], collapse = ", ")`,
+das correlações calibradas: a âncora real existe, mas reproduzi-la é
+conferência da calibração, e a comparação pontual contra ela só vale onde a
+estabilidade entre realizações é alta, o que é propriedade do gerador.
 
 ## O que a wave 3 herda
 
@@ -221,8 +218,11 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
 * **O que fica em aberto**: o que ordena dentro do filtro, e portanto `ŝ`.
   Para quem tem histórico sobra a popularidade; para quem não tem, só o
   perfil de skills, que não pôde ser avaliado (III.4).
-* **Rótulo**: desempenho pelo candidato (a), padronizado dentro de cada
-  avaliador, com a etapa declarada (II.5.1, II.5.5, II.5.7).
+* **Sinal de interação**: a célula de `R` é a ocorrência binária da alocação
+  (II.5.1). A confiança por horas fica como comparação pré-registrada, fora
+  da contagem de decisões: o binário contra a confiança, pelo mesmo teste
+  pareado do protocolo, decidido na wave 3. A confiança depende do gerador,
+  porque as horas dependem da duração recalibrada das alocações.
 * **Protocolo**: dois, um por componente, com divisão por consultor para o
   conteúdo e temporal para o colaborativo (II.7.2, II.7.4).
 * **Métrica e piso**: acerto em lista, com o piso de cada componente ao lado
@@ -234,10 +234,11 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
   colaborativo passa pelo mesmo teste contra a popularidade no treino, mas só
   enxerga ganhos grandes, e a não rejeição não conta como ausência de efeito
   (II.7.6).
-* **Dois níveis de avaliação**: o acerto contra as alocações mede aderência à
-  prática atual; entre os pares com rótulo, a relação de `ŝ` com o desempenho
-  padronizado por avaliador mede qualidade. O critério acima é de primeiro
-  nível (II.7.8).
+* **Dois níveis de avaliação**: a aderência ao processo, pelo acerto em lista
+  dentro do filtro de setor e no top-20 contra o piso de cada componente; e a
+  plausibilidade das discordâncias, por dominância em folga de capacidade,
+  custo por hora, setor e senioridade, com leitura qualitativa de casos
+  sorteados por estrato. O critério acima é de primeiro nível (II.7.8).
 * **Enunciado**: a conclusão vale sobre a população observada, com o viés
   declarado (II.4.5), e supõe o setor do projeto conhecido no momento da
   alocação, premissa que o esquema real não permite verificar (II.6.7).
@@ -249,10 +250,10 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
   O filtro não torna o problema tratável, e a tratabilidade é a primeira
   pergunta da wave 4.
 * **Objetivos**: custo como magnitude dimensionada, a partir de salário base
-  por cargo com fator de carga declarado (II.5.9); margem como direção e não
-  como magnitude (II.5.10); afinidade `ŝ`, produzida pela wave 3, como
-  coeficiente do objetivo de desempenho, com o rótulo de `R` servindo para
-  treiná-la e avaliá-la (II.5.5, II.8.4).
+  por cargo com fator de carga declarado (II.5.5); margem como direção e não
+  como magnitude (II.5.6, II.5.7); afinidade `ŝ`, produzida pela wave 3, como
+  coeficiente do objetivo de afinidade, com o sinal de interação de `R`
+  servindo para treiná-la e avaliá-la (II.5.1, II.8.4).
 * **Restrições**: férias sem ambiguidade de escala; capacidade **não** como
   limite duro, com a escolha entre penalidade, limite calibrado e
   infactibilidade como diagnóstico ainda aberta (II.8.2).
@@ -264,19 +265,19 @@ real determina a base da pirâmide e a magnitude acima dela é do código.
 Consolidadas, e separadas pela única distinção que muda o que se pode fazer a
 respeito.
 
-**Permanentes, porque são do dado real.** O acesso à base de avaliação de
-desempenho está negado até em forma agregada, então distribuição e cobertura
-do rótulo são suposição (II.5.6). Não existe processo que registre requisito
+**Permanentes, porque são do dado real.** A fonte de avaliação de desempenho
+não foi disponibilizada pela organização, e o modelo não a considera. Não
+existe processo que registre requisito
 de skill de projeto, então a aderência é filtro grosso de categoria (II.6.6,
 II.8.3). `pipeline_demandas` não alimenta o otimizador (II.8.3). As âncoras
 econômicas se sobredeterminam e o acesso que decidiria qual relaxar encerrou
-(II.5.10). Não há amostra de exposição aleatória, então a propensão não é
+(II.5.6). Não há amostra de exposição aleatória, então a propensão não é
 falsificável (II.4.4). O conteúdo alcança 48,4% dos consultores (I.1.3,
 II.3.1). Quem nunca foi alocado não é ordenável por nada (II.3.2). Nada ordena
 dentro do filtro com sinal avaliado (III.4).
 
 **Do instrumento, e removíveis se o acesso voltar.** As `r r$depende_do_gerador`
-decisões da Tabela III.4, com destaque para a unidimensionalidade do rótulo.
+decisões da Tabela III.4.
 As magnitudes de viés, de concentração e de violação de capacidade, que são
 do gerador e não da empresa (II.4.1, II.8.2, I.2.4). A ausência de
 assortatividade por senioridade, que é premissa do código (I.5.3).

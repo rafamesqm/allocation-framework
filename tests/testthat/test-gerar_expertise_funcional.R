@@ -17,7 +17,7 @@ test_that("expertise_funcional fica dentro do catálogo de offerings", {
     "Data Analytics & Artificial Intelligence", "Supply Chain",
     "Tech Consulting", "Finance", "Talent & Organization",
     "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Peers.AI", "Educação Pública"
+    "Produtos de IA", "Educação Pública"
   )
   expect_true(all(expertise$expertise_funcional %in% offerings_esperados))
 })

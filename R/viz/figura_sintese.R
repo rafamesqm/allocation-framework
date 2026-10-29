@@ -22,9 +22,9 @@ figura_proveniencia_das_decisoes <- function(achados, titulo, subtitulo = NULL) 
   paleta <- paleta_monografia()
 
   cores <- c(
-    "depende do gerador" = unname(paleta$divergente_nota[["ABAIXO"]]),
-    "estrutural" = unname(paleta$divergente_nota[["DENTRO"]]),
-    "fato real" = unname(paleta$divergente_nota[["ACIMA"]])
+    "depende do gerador" = unname(paleta$divergente[["negativo"]]),
+    "estrutural" = unname(paleta$divergente[["neutro"]]),
+    "fato real" = unname(paleta$divergente[["positivo"]])
   )
 
   dados_figura <- achados |>

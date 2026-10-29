@@ -20,11 +20,11 @@
 #'
 #' @param tabela Data frame ou tibble, já formatado para leitura.
 #' @param nome Nome do arquivo, sem extensão.
-#' @param diretorio Diretório de destino.
+#' @param diretorio Diretório de destino; por padrão, o de `diretorio_de_saida()`.
 #' @return Caminho do arquivo salvo, de forma invisível (para uso com
 #'   `tar_target(..., format = "file")`).
 salvar_tabela <- function(tabela, nome,
-                           diretorio = here::here("outputs", "tables")) {
+                           diretorio = diretorio_de_saida("tables")) {
   caminho <- file.path(diretorio, paste0(nome, ".csv"))
   garantir_caminho_curto(caminho)
 

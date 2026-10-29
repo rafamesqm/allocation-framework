@@ -4,7 +4,7 @@
 #' `capacidade_periodo`, e o vetor `k` da Camada 3 (capacidade por pessoa e
 #' período) não é construível: a soma de `pct_alocacao` por consultor vira um
 #' total sem denominador, que aparenta superalocação generalizada. A fonte
-#' real tem as duas datas por alocação (`vw_gtac_cltv_alocacao`, campos
+#' real tem as duas datas por alocação (fonte de alocações, campos
 #' `Data de início` e `Data de fim`), então a ausência era lacuna do gerador,
 #' não do dado.
 #'
@@ -25,9 +25,9 @@
 #' durações de projeto atuais, e um teste falha se a duração das alocações
 #' voltar a se afastar das âncoras.
 #'
-#' Fora da calibração, a média (51,1 contra 51,6 reais), o desvio (92,1
-#' contra 86,8) e a assimetria (4,03 contra 3,97) também batem, o que é a
-#' evidência de que a forma, e não só os três pontos, está certa.
+#' Fora da calibração, média, desvio e assimetria ficam próximos dos reais
+#' (51,6, 86,8 e 3,97), com a cauda um pouco mais longa: o desvio é o que
+#' mais se afasta. Os valores de cada realização estão na tabela I.2.6.
 #'
 #' @param data_inicio_projeto Vetor de `Date`, início do projeto de cada
 #'   alocação (uma posição por alocação, já repetido).

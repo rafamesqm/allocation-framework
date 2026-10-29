@@ -40,12 +40,14 @@ mostrar_tabela(
 A primeira leitura é desconfortável e precisa ser dita antes de qualquer
 análise de série. O início dos projetos ocupa exatamente a janela de dois
 anos que o gerador sorteia, de
-`r format(min(obj$janela$inicio))` a `r format(max(obj$inicios_projeto$mes))`.
+`r format(min(obj$janela$inicio))` a
+`r format(obj$janela$fim[obj$janela$tabela == "projetos" & obj$janela$coluna == "data_inicio"])`.
 Mas o **fim** mais distante é `r format(obj$fim_mais_distante)`, isto é,
 `r formatar_decimal(obj$anos_alem, 1)` anos depois da data de referência da
 geração, que é `r format(obj$data_referencia)`. Há até alocação começando em
-`r format(obj$inicio_alocacao_mais_tardio)`, três anos à frente da
-referência.
+`r format(obj$inicio_alocacao_mais_tardio)`,
+`r formatar_decimal(as.numeric(obj$inicio_alocacao_mais_tardio - obj$data_referencia) / 365.25, 1)`
+anos à frente da referência.
 
 Isso é consequência direta do teto de 2.368 dias na duração de projeto,
 decisão fechada na wave 1 e já registrada como limitação no bloco I.2. A
@@ -104,7 +106,7 @@ variação por mês do ano.
 
 Isso era esperado por construção, e é importante dizer por quê. O gerador
 sorteia a data de início uniformemente na janela, então a ausência de
-sazonalidade é premissa do código, não descoberta sobre a Peers. Um resultado
+sazonalidade é premissa do código, não descoberta sobre a organização. Um resultado
 não significativo tampouco permitiria concluir ausência de sazonalidade em
 geral, apenas ausência de evidência nestes dados. O que este bloco entrega
 aqui é o instrumento, pronto para o dado real, onde sazonalidade de venda é

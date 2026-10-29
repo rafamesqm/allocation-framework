@@ -228,3 +228,13 @@ test_that("o valor-p empirico e a fracao de replicas com tantas ou mais fora", {
   )
   expect_equal(julgamento$n_comparaveis, 3L)
 })
+
+test_that("tabular_fora_por_replica conta cada valor e marca o versionado", {
+  tabela <- tabular_fora_por_replica(c(0, 1, 1, 3), n_fora = 2)
+
+  expect_equal(tabela$`Grandezas fora do intervalo`, 0:3)
+  expect_equal(tabela$`Réplicas`, c(1L, 2L, 0L, 1L))
+  expect_equal(tabela$`Conjunto versionado`, c("", "", "sim", ""))
+  # A fração com tantas ou mais, na linha do versionado, é o valor-p empírico.
+  expect_equal(tabela$`Fração com tantas ou mais`[3], formatar_pct(0.25))
+})

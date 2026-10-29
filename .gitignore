@@ -12,7 +12,7 @@ docs/registro_fase1_gerador_sintetico.md
 # =========================================================
 #  DADOS SENSÍVEIS: nunca versionar
 #  Margens, avaliações individuais e histórico de alocação
-#  da Peers não podem entrar no repositório sob hipótese alguma.
+#  da organização não podem entrar no repositório sob hipótese alguma.
 # =========================================================
 data/raw/
 data/interim/
@@ -40,6 +40,12 @@ data/processed/
 # `_raw` de propósito: em .gitignore a última regra que casa é a que vale,
 # então `_raw` continua excluído mesmo estando o CSV reincluído aqui.
 !outputs/tables/*.csv
+# Referências do teste de reprodutibilidade da wave 3: grandezas resumidas das
+# realizações do gerador sintético, sem nenhuma pessoa real.
+!tests/testthat/referencias/*.csv
+# Leitura qualitativa da wave 3: contém só identificadores sintéticos e os
+# vereditos do autor, sem nenhuma pessoa real.
+!modelling/leitura/rubrica_preenchida.csv
 
 outputs/figures/*_raw*
 outputs/tables/*_raw*
@@ -104,3 +110,6 @@ Thumbs.db
 .vscode/
 *.swp
 *~
+
+# Correspondência local entre pseudônimos e nomes reais de fontes.
+docs/pseudonimos_fontes.md
