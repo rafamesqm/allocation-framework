@@ -1,0 +1,129 @@
+---
+title: "Etapa 1. Pré-registro e montagem do problema"
+subtitle: "Wave 4, otimização multiobjetivo"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("modelling", "_comum.R"))
+
+registro <- ler_bloco("pre_registro_otimizacao")
+insumos <- ler_bloco("w4_insumos")
+verificacao <- ler_bloco("w4_verificacao")
+conferencia <- ler_bloco("w4_conferencia")
+metodo <- registro$metodo
+```
+
+## Propósito
+
+A wave 4 é um exercício retrospectivo e multiobjetivo parcial (achado II.8.4):
+redistribui as alocações do período de teste da divisão temporal da wave 3 e
+pergunta se a alocação realizada é dominada. Esta etapa fixa o problema e a
+avaliação em `config/pre_registro_otimizacao.yml`, datado de
+`r registro$data_registro`, e monta a matriz do problema sem resolver nada. O
+commit do pré-registro antecede qualquer solução.
+
+## O que o pré-registro fixa
+
+* **Assentos:** cada uma das `r formatar_inteiro(verificacao$assentos)`
+  alocações iniciadas a partir de `r format(insumos$corte, "%d/%m/%Y")`, em
+  `r formatar_inteiro(verificacao$projetos)` projetos, é um assento com
+  projeto, meses, carga e horas. O otimizador decide só quem o ocupa.
+* **Carga fixa:** as alocações iniciadas antes do corte que ocupam os meses de
+  teste, `r formatar_inteiro(verificacao$alocacoes_fixas_ativas_apos_o_corte)`
+  ativas a partir do corte e
+  `r formatar_inteiro(verificacao$alocacoes_fixas_so_no_mes_do_corte)` que só
+  ocupam o mês do corte, antes dele.
+* **Nível e elegibilidade:** o candidato é do nível do assento e passa pela
+  regra da comutação da wave 3, ou é da zona morta, com `ŝ = 0`, ou é o
+  realizado do assento, sempre elegível.
+* **Objetivos:** maximizar a afinidade, minimizar o custo e minimizar a
+  sobrecarga, na medida percentual. A margem fica de fora: com a receita fixa
+  por projeto, maximizá-la é minimizar o custo.
+* **Método:** `r metodo$nome`, com `r metodo$problemas_da_grade` problemas na
+  grade, tempo-limite de `r metodo$tempo_limite_segundos` segundos e troca para
+  o NSGA-II se menos de
+  `r formatar_pct(metodo$regra_de_troca$fracao_minima_da_grade, 0)` da grade
+  chegar à otimalidade.
+
+## A montagem reproduz
+
+```{r conferencia}
+mostrar_tabela(
+  tabelar_conferencia_da_otimizacao(conferencia),
+  "Tabela W4.1: valores de verificação da montagem, medidos e registrados."
+)
+```
+
+Os `r nrow(conferencia)` valores conferem, e a pipeline para se algum mudar.
+A ocupação da alocação realizada, somada a carga fixa, coincide com a da EDA
+em todo consultor e mês de teste: a maior diferença é de
+`r format(verificacao$maior_diferenca_de_carga_contra_a_eda, digits = 2)`,
+erro de arredondamento. Por isso a sobrecarga da realizada,
+`r formatar_decimal(verificacao$sobrecarga_realizada_percentual, 1)` meses de
+consultor acima da capacidade, é a mesma pelos dois caminhos. Dela,
+`r formatar_decimal(verificacao$sobrecarga_da_carga_fixa, 1)` vem da carga fixa
+sozinha e não depende dos assentos.
+
+## Porte
+
+```{r porte}
+mostrar_tabela(
+  tabelar_porte_da_otimizacao(verificacao),
+  "Tabela W4.2: porte do problema na realização versionada."
+)
+```
+
+Nenhum assento fica só com o realizado: o menor conjunto de candidatos tem
+`r verificacao$menor_numero_de_candidatos` consultores, no nível N0.
+`r formatar_inteiro(verificacao$realizados_fora_da_lista)` realizados estão
+fora da lista do modelo e `r verificacao$realizados_zona_morta` são da zona
+morta; os dois grupos entram com `ŝ = 0` na afinidade da realizada. Toda a
+afinidade da realizada,
+`r formatar_decimal(verificacao$afinidade_realizada_nos_assentos_da_lista, 1)`,
+vem dos `r formatar_inteiro(verificacao$assentos_com_realizado_na_lista)`
+assentos cujo realizado está na lista, e é nesses assentos que ela será
+comparada com a da solução de afinidade máxima.
+
+A zona morta responde por `r formatar_inteiro(verificacao$pares_zona_morta)`
+pares, `r formatar_pct(verificacao$fracao_pares_zona_morta)` das binárias.
+Sem histórico na estimação, ela não tem carga fixa, e por isso tende a ocupar
+assentos nas soluções de custo e de sobrecarga mínimos; a etapa de avaliação
+conta quantos assentos ela ocupa em cada ponto da fronteira.
+
+## Limitações registradas
+
+**Escala de ŝ por assento.** `ŝ` é o do achado W3.4.3, o percentil na lista do
+projeto inteiro, e não é renormalizado por assento. Cada assento pesa na
+afinidade conforme a amplitude de `ŝ` entre os seus candidatos:
+
+```{r amplitude}
+mostrar_tabela(
+  verificacao$amplitude_de_s_hat_por_nivel |>
+    dplyr::transmute(
+      `Nível` = nivel, Assentos = formatar_inteiro(assentos),
+      Mediana = formatar_decimal(mediana, 3), `Mínimo` = formatar_decimal(minimo, 3),
+      `Máximo` = formatar_decimal(maximo, 3)
+    ),
+  "Tabela W4.3: amplitude de ŝ entre os candidatos de cada assento, por nível."
+)
+```
+
+**Admissão.** A data de admissão, o fim da janela menos o tempo de casa, não
+é restrição. O gerador não a respeita:
+`r verificacao$assentos_realizados_antes_da_admissao` assentos realizados e
+`r formatar_inteiro(verificacao$pares_antes_da_admissao)` pares candidatos
+começam antes da admissão do consultor.
+
+**Capacidade zero.** Há `r verificacao$meses_de_consultor_sem_capacidade`
+meses de consultor com férias no mês inteiro, em que qualquer assento gera
+sobrecarga; `r verificacao$assentos_realizados_em_mes_sem_capacidade`
+assentos realizados caem neles.
+
+**Censura.** `r verificacao$assentos_censurados_no_fim_da_janela` assentos
+atravessam o fim da janela; carga e custo contam até o último dia dela.

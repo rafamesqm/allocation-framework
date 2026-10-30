@@ -8,7 +8,7 @@
 
 documentos <- sort(list.files(
   here::here("modelling"),
-  pattern = "^w3-.*[.]Rmd$",
+  pattern = "^w[34]-.*[.]Rmd$",
   full.names = TRUE
 ))
 
