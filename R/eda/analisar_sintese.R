@@ -1,8 +1,8 @@
 #' Partes do registro de achados, na ordem de leitura
 #'
-#' @return Vetor de texto: as três partes da EDA e a da wave 3.
+#' @return Vetor de texto: as três partes da EDA e as das waves 3 e 4.
 partes_de_achado <- function() {
-  c("I", "II", "III", "W3")
+  c("I", "II", "III", "W3", "W4")
 }
 
 #' Ordem de leitura dos códigos de achado

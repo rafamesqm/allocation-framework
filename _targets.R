@@ -651,5 +651,67 @@ list(
     w4_avaliacao_referencias = tabelar_referencias_da_avaliacao(w4_avaliacao, w4_exatos_da_realizada, w4_payoff, w4_realizada),
     w4_avaliacao_pontos = tabelar_pontos_da_fronteira(w4_avaliacao, w4_realizada),
     w4_avaliacao_resumo = tabelar_resumo_da_avaliacao(w4_avaliacao)
-  )), format = "file")
+  )), format = "file"),
+
+  # Emenda 3, exploratória: concentração simultânea nas soluções da emenda 2,
+  # sem resolver nada, e o limite individual calibrado pela maior ocupação
+  # mensal da realizada, que para a pipeline se não conferir com o registrado.
+  tar_target(w4_emenda_limite, localizar_emenda(pre_registro_otimizacao, "emenda 3, limite individual calibrado")),
+  tar_target(w4_concentracao, medir_concentracao_da_avaliacao(
+    w4_nsga2_principal, w4_problema, w4_insumos, w4_payoff, w4_exatos_da_realizada
+  )),
+  tar_target(w4_limite_individual, conferir_limite_individual(
+    calcular_limite_individual(w4_problema, w4_insumos), w4_emenda_limite
+  )),
+  tar_target(w4_limitados, {
+    w4_conferencia
+    resolver_problemas_limitados(limitar_ocupacao(w4_problema, w4_limite_individual), pre_registro_otimizacao_desenho)
+  }),
+  tar_target(w4_sensibilidade_do_limite, {
+    w4_conferencia
+    resolver_afinidade_com_limite(w4_problema, w4_emenda_limite$sensibilidade$L, pre_registro_otimizacao_desenho)
+  }),
+  tar_target(w4_limitados_descricao, descrever_problemas_limitados(
+    w4_limitados, w4_sensibilidade_do_limite, w4_problema, w4_limite_individual, w4_insumos
+  )),
+  tar_target(w4_limite_tabelas, salvar_tabelas_bloco(list(
+    w4_concentracao_simultanea = tabelar_concentracao_simultanea(w4_concentracao),
+    w4_limite_individual = tabelar_problemas_limitados(w4_limitados_descricao)
+  )), format = "file"),
+
+  # Estabilidade (emendas 1 a 3): nas realizações da wave 3, x̄ e as linhas
+  # exatas de afinidade e de custo, sem o limite individual. Uma semente por
+  # ramo, para uma corrida interrompida retomar de onde parou.
+  tar_target(w4_estabilidade_versionada, descrever_estabilidade_da_otimizacao(w4_problema, w4_insumos, w4_payoff)),
+  tar_target(
+    w4_estabilidade_realizacoes,
+    medir_realizacao_da_otimizacao(
+      w3_conteudo_sementes, pre_registro, pre_registro_otimizacao_desenho,
+      dias_ferias = parametros$dias_ferias, ano_ferias = parametros$ano_ferias,
+      n_consultores = parametros$n_consultores, n_projetos = parametros$n_projetos,
+      data_referencia = parametros$data_referencia
+    ),
+    pattern = map(w3_conteudo_sementes)
+  ),
+  tar_target(w4_estabilidade, resumir_estabilidade_da_otimizacao(
+    w4_estabilidade_versionada, w4_estabilidade_realizacoes, pre_registro_otimizacao_desenho$avaliacao$estabilidade$nivel
+  )),
+  tar_target(w4_estabilidade_tabelas, salvar_tabelas_bloco(list(
+    w4_estabilidade = tabelar_estabilidade_da_otimizacao(w4_estabilidade)
+  )), format = "file"),
+
+  # Achados da wave 4, no formato de achados_w3.csv, com o confirmatório e o
+  # exploratório separados no campo natureza. Não recalcula nada.
+  tar_target(w4_achados, registrar_achados_w4(
+    montagem = list(verificacao = w4_verificacao, conferencia = w4_conferencia),
+    exato = list(payoff = w4_payoff, ideal = w4_ideal, realizada = w4_realizada),
+    nsga2 = list(
+      principal = w4_nsga2_resumo_principal, variabilidade = w4_nsga2_variabilidade,
+      trajetoria = w4_nsga2_trajetoria_exploratoria
+    ),
+    avaliacao = list(avaliacao = w4_avaliacao, exatos = w4_exatos_da_realizada, concentracao = w4_concentracao),
+    limite = list(descricao = w4_limitados_descricao, valor = w4_limite_individual),
+    estabilidade = w4_estabilidade
+  )),
+  tar_target(w4_achados_arquivo, salvar_tabela(w4_achados, "achados_w4"), format = "file")
 )
