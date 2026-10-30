@@ -1,0 +1,10 @@
+Linha da tabela,Passo,Objetivo otimizado,Status,Segundos,Lacuna relativa,Nós
+afinidade,1,afinidade,ótimo,"2,1","0,000000",1
+afinidade,2,custo,ótimo,"8,0","0,000000",1
+afinidade,3,sobrecarga,ótimo,"12,5","0,000000",1
+custo,1,custo,ótimo,"0,4","0,000000",1
+custo,2,afinidade,ótimo,"6,3","0,000000",1
+custo,3,sobrecarga,ótimo,"23,1","0,000000",1
+sobrecarga,1,sobrecarga,tempo-limite,"600,3","0,000124",10.018
+sobrecarga,2,afinidade,tempo-limite,"600,2","0,010710",2.271
+sobrecarga,3,custo,tempo-limite,"600,3",sem solução,920

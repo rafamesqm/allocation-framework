@@ -1,0 +1,5 @@
+Solução,Passos lexicográficos com solução,Afinidade,Afinidade nos assentos com realizado na lista,Custo em relação à realizada,Sobrecarga,Sobrecarga atribuível aos assentos,Assentos da zona morta,Assentos com o realizado
+Afinidade máxima,3 de 3,"663,1","506,0","-0,1%","527,0","448,1",0,59
+Custo mínimo,3 de 3,"641,7","488,7","-9,8%","518,6","439,7",0,31
+Sobrecarga mínima,2 de 3,"553,6","423,9","-1,9%","79,4","0,4",14,44
+Alocação realizada,--,"365,2","365,2","0,0%","277,4","198,5",4,692
