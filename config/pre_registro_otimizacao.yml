@@ -1,0 +1,264 @@
+# Pré-registro da otimização multiobjetivo da wave 4.
+#
+# Fixa o problema e a avaliação antes de qualquer solução. O commit deste
+# arquivo é a prova de que o desenho antecede o resultado: nenhum valor aqui
+# muda depois de o primeiro problema ser resolvido, e os testes em
+# tests/testthat/test-pre_registro_otimizacao.R falham se a pipeline usar
+# valor diferente. Mudança posterior entra só como emenda datada, no fim.
+#
+# A janela, a divisão temporal e a semente de desempate são as de
+# config/pre_registro.yml e não são repetidas aqui. Origem das decisões:
+# achados II.8 e III da EDA, achado W3.4.3, e as decisões do autor de
+# 2026-10-29.
+
+versao: 1
+data_registro: "2026-10-29"
+base: config/pre_registro.yml
+
+# Item 1.
+assentos:
+  definicao: >-
+    cada alocação do período de teste da divisão temporal da wave 3 (início a
+    partir da data de corte) é um assento, com o projeto, os meses ativos
+    dentro da janela, a carga mensal e as horas; o otimizador decide quem o
+    ocupa, e a pessoa não muda de um mês para outro do mesmo assento
+  formulacao: >-
+    trios de consultor, projeto e mês, porque a capacidade é verificada por
+    consultor e mês; a decisão é binária por par de assento e candidato, e
+    cada restrição de capacidade soma os assentos ativos no mês
+  meses_de_teste: do mês da data de corte, inteiro, ao último mês da janela
+  censura: >-
+    os assentos que atravessam o fim da janela são censurados no último dia
+    observado, como na wave 3, e só os meses dentro dela contam carga e custo
+  carga_fixa: >-
+    as alocações iniciadas antes do corte que têm algum dia nos meses de teste
+    entram como carga fixa, não redistribuída; inclui as que terminam no mês
+    do corte antes dele, porque a ocupação da EDA as conta nesse mês
+  um_assento_por_projeto: cada consultor ocupa no máximo um assento por projeto
+  # Extensão da regra anterior, decisão do autor de 2026-10-29.
+  carga_fixa_no_projeto: >-
+    quem tem alocação fixa no projeto não é candidato aos assentos dele,
+    exceto o realizado
+  admissao:
+    tratamento: limitação, não restrição
+    data: data de referência da geração (fim da janela) menos o tempo de casa
+    nota: >-
+      o gerador não respeita a admissão, e o problema atinge os pares
+      candidatos, e não só a alocação realizada; os dois são contados
+
+# Item 2.
+nivel:
+  regra: >-
+    cada assento só pode ser ocupado por consultor do mesmo nível de
+    senioridade do realizado, o papel da alocação, que coincide com o nível
+    do consultor; preserva a pirâmide de cada equipe
+  custo_dentro_do_nivel: >-
+    o custo por hora é quase todo determinado pelo nível: o nível explica 91%
+    da variância do custo por hora do quadro; no quadro, o N2 tem um valor, o
+    N0 e o N3 têm dois, o N1 tem três e o N4 tem quatro; o objetivo de custo
+    opera dentro do nível
+
+# Item 3.
+elegibilidade:
+  candidatos: >-
+    consultores do nível do assento que passam pela regra da comutação da
+    wave 3 (filtro de setor para quem declarou setor; quem não declarou entra
+    sem filtro), mais a zona morta (item 5), mais o consultor realizado
+    daquele assento, sempre elegível para o próprio assento mesmo fora do
+    filtro
+  motivo_do_realizado: >-
+    garante que a alocação realizada seja solução viável, sem o que a pergunta
+    sobre a dominância dela não faz sentido
+  medida: fração de assentos cujo realizado está fora do filtro
+  limitacao_do_escore: >-
+    sem renormalização por assento, cada assento pesa no objetivo de afinidade
+    conforme a amplitude de ŝ entre os seus candidatos; a amplitude é
+    reportada por nível, como medida descritiva
+
+# Item 4.
+escore:
+  popularidade: contada só no período de estimação (alocações iniciadas antes do corte, dentro da janela)
+  quadrantes: definidos pelo histórico na estimação
+  montagem: >-
+    a do híbrido da wave 3: quem tem histórico, por popularidade; quem só
+    respondeu aos formulários, ao acaso dentro do filtro pela semente de
+    desempate; ŝ é o percentil na lista do projeto
+  restricao: nada posterior ao corte entra no escore, e um teste automatizado confere
+  interface: >-
+    ŝ é o do achado W3.4.3, o percentil na lista do projeto inteiro, com todos
+    os níveis; é a interface entre o recomendador e o otimizador, e
+    renormalizá-lo por assento criaria outro escore
+
+# Item 5.
+zona_morta:
+  regra: >-
+    a zona morta (sem histórico na estimação e sem setor declarado) é elegível
+    com ŝ = 0, sem filtro, nos assentos do seu nível
+  natureza: regra de exposição adotada para o exercício, decisão do autor e não do modelo
+  medida: quantos assentos a zona morta ocupa em cada ponto da fronteira
+  realizado_fora_da_lista: >-
+    o realizado elegível só pela regra do item 3, fora da lista do modelo,
+    também tem ŝ = 0; registra-se a fração da afinidade da alocação realizada
+    afetada por isso
+  medida_descritiva: >-
+    a afinidade da alocação realizada e a da solução de afinidade máxima só nos
+    assentos cujo realizado está na lista do modelo, para separar o efeito de
+    ŝ = 0 por construção
+
+# Item 6.
+carga:
+  medida: percentual
+  descricao: >-
+    percentual de alocação, a unidade de planejamento e a da ocupação mensal
+    do Capítulo 4, com a mesma expansão por mês que gerou ocupacao_consultor
+    (mês parcial ponderado pelos dias ativos), para que a ocupação da alocação
+    realizada reproduza a da EDA nos meses de teste
+  capacidade: 1 menos a fração do mês em férias
+  capacidade_zero: >-
+    nos meses de consultor com férias no mês inteiro a capacidade é zero, e
+    qualquer assento neles gera sobrecarga, o que é coerente
+  censura: carga e custo contados até o último dia da janela, como na EDA
+  sensibilidade: horas
+  nota_de_horas: >-
+    a expansão mensal dá, por assento, horas com razão mediana de 1,05 em
+    relação à convenção da margem estrutural (duração sobre 30,44 dias); a
+    margem é reportada só como direção, e a diferença não afeta resultado
+  # Mesmas 168 horas da folga do segundo nível da wave 3.
+  horas_do_mes_cheio: 168
+
+# Item 7.
+objetivos:
+  afinidade:
+    sentido: maximizar
+    definicao: soma de ŝ dos assentos ocupados, um termo por assento
+  custo:
+    sentido: minimizar
+    definicao: soma do custo por hora vezes as horas do assento nos meses de teste
+  sobrecarga:
+    sentido: minimizar
+    definicao: >-
+      soma, sobre consultores e meses de teste, de max(0, carga - capacidade),
+      linearizada por variáveis de folga contínuas; a carga inclui a carga fixa
+  margem:
+    entra_como_objetivo: false
+    motivo: >-
+      com os mesmos assentos, a receita de cada projeto é fixa e margem =
+      receita - custo, então maximizar a margem equivale a minimizar o custo;
+      é achado estrutural, verificado numericamente (variação de margem igual
+      a menos a variação de custo em toda solução)
+
+# Item 8.
+capacidade_como_objetivo:
+  limite_rigido: >-
+    épsilon igual a zero na sobrecarga atribuível aos assentos, isto é, a
+    sobrecarga total menos a que a carga fixa sozinha já produz; a
+    inviabilidade é diagnóstico
+  sobrecarga_atribuivel: >-
+    consultor a consultor e mês a mês, max(0, F + S - cap) - max(0, F - cap),
+    com F a carga fixa e S a dos assentos; é sempre não negativa e vale zero
+    exatamente quando nenhum assento acrescenta carga acima da capacidade de
+    ninguém
+  limite_calibrado: épsilon igual à sobrecarga da alocação realizada
+  penalidade: a soma ponderada dos objetivos
+  leitura: os três tratamentos da capacidade da EDA (achado II.8.2) ficam na mesma fronteira
+
+# Item 9.
+metodo:
+  nome: épsilon-restrito aumentado (AUGMECON, Mavrotas, 2009)
+  solver: HiGHS, pelo pacote highs
+  objetivo_principal: afinidade
+  objetivos_restritos: [custo, sobrecarga]
+  tabela_de_payoff: otimização lexicográfica
+  # Decisões do autor de 2026-10-29, antes da primeira chamada ao solver.
+  ordem_lexicografica:
+    afinidade: [afinidade, custo, sobrecarga]
+    custo: [custo, afinidade, sobrecarga]
+    sobrecarga: [sobrecarga, afinidade, custo]
+  fixacao_lexicografica: >-
+    cada objetivo já otimizado fica preso ao ótimo com tolerância relativa:
+    z >= z* - tolerância vezes max(1, |z*|) para quem maximiza, e o espelho
+    para quem minimiza
+  tolerancia_de_fixacao: 1.0e-6
+  # Uma linha de execução, para o caminho do HiGHS não depender da máquina.
+  threads: 1
+  intervalos_por_objetivo_restrito: 10
+  problemas_da_grade: 121
+  delta: 0.001
+  folgas: normalizadas pelas amplitudes da tabela de payoff
+  tempo_limite_segundos: 600
+  mip_rel_gap: 0
+  regra_de_troca:
+    criterio: >-
+      adota-se o método exato se a tabela de payoff for resolvida até a
+      otimalidade e ao menos 95% dos problemas da grade também
+    fracao_minima_da_grade: 0.95
+    alternativa: NSGA-II (Deb et al., 2002)
+    parametros_da_alternativa: >-
+      codificação, população, gerações e semente fixadas por emenda datada
+      antes de rodá-lo
+
+# Item 10. Seção 3.7.4 da monografia: nenhum teste com função decisória,
+# tudo descritivo.
+avaliacao:
+  funcao: descritiva, sem teste e sem função decisória
+  tratabilidade: variáveis binárias e contínuas, restrições, tempo e status de cada problema
+  fronteira: tabela de payoff, número de pontos eficientes distintos e amplitude de cada objetivo
+  posicao_da_realizada:
+    valores: os três objetivos da alocação realizada
+    dominancia: se a alocação realizada é dominada
+    ganho_maximo:
+      - maximizar a afinidade com custo e sobrecarga no máximo os da realizada
+      - minimizar o custo com afinidade e sobrecarga presas nas da realizada
+      - minimizar a sobrecarga com afinidade e custo presos nos da realizada
+  conflito_afinidade_sobrecarga: >-
+    sobrecarga da solução de afinidade máxima contra a realizada, taxa de
+    troca ao longo da fronteira e concentração dos assentos nos consultores
+    mais populares, e quantos assentos a zona morta ocupa em cada ponto
+    da fronteira (ligação com a seção 5.5: o recomendado mais frequente do
+    colaborativo já estava acima de 200% da capacidade)
+  tratamentos_da_capacidade: os três do item 8, inclusive se épsilon igual a zero é viável
+  sensibilidade: a carga em horas, descritiva
+  estabilidade:
+    realizacoes: 100
+    recalculados_em_cada_uma: [ŝ, assentos, carga]
+    grandezas: tabela de payoff, posição da realizada e conflito entre afinidade e sobrecarga
+    nivel: 0.9
+    fronteira_completa: só na realização versionada
+    reducao: se o tempo medido na etapa 2 tornar isso inviável, a redução vem por emenda datada antes da execução
+
+# Item 11.
+achados:
+  arquivo: outputs/tables/achados_w4.csv
+  formato: o de achados_w3.csv (código W4.n.k, etiqueta, procedência, enunciado, implicação, decisão, limitação)
+  redacao:
+    - prosa completa
+    - sem sequências de percentuais extremos; usar nunca, nenhum, todos
+    - sem abreviar o componente de conteúdo nem o colaborativo
+    - pares só quando forem pares de consultor e projeto
+    - valores monetários só como diferenças relativas
+
+# Valores da montagem na realização versionada, medidos antes de qualquer
+# solução. A pipeline para se algum não reproduzir. A sobrecarga está na
+# medida percentual, em fração de mês de consultor, e confere também contra a
+# ocupação da EDA nos mesmos meses.
+verificacao:
+  assentos: 692
+  projetos: 262
+  alocacoes_fixas_ativas_apos_o_corte: 174
+  alocacoes_fixas_so_no_mes_do_corte: 29
+  pares_removidos_por_carga_fixa_no_projeto: 35
+  binarias_por_nivel: {N0: 53, N1: 4584, N2: 8655, N3: 16175, N4: 1954}
+  binarias: 31421
+  fracao_realizados_fora_do_filtro: 0.2327
+  pares_zona_morta: 6194
+  fracao_pares_zona_morta: 0.1971
+  meses_de_consultor_sem_capacidade: 10
+  assentos_realizados_em_mes_sem_capacidade: 2
+  assentos_censurados_no_fim_da_janela: 146
+  assentos_realizados_antes_da_admissao: 16
+  pares_antes_da_admissao: 1109
+  sobrecarga_realizada_percentual: 277.4074
+
+# Emendas. Cada uma é datada, registrada antes da execução a que se refere,
+# e não altera nenhum valor acima.
+emendas: []
