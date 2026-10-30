@@ -495,9 +495,9 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
       ),
       paste0(
         "Quase todo o ganho de afinidade sobrevive quando ninguém pode passar do pico que a realizada ",
-        "já tinha, e o custo mínimo não se move. O ganho não depende do pico de ocupação de um consultor; ",
-        "depende de empilhar muitos assentos de carga pequena nos consultores mais populares, e o limite ",
-        "por consultor e mês não toca nisso. Com ele, o excesso se espalha por mais meses de consultor ",
+        "já tinha, e o custo mínimo não se move. O ganho sobrevive ao limite do pico de ocupação e vem ",
+        "acompanhado da concentração de assentos nos consultores mais populares, que o limite por ",
+        "consultor e mês não desfaz (W4.5.4). Com ele, o excesso se espalha por mais meses de consultor ",
         "em vez de se acumular num só."
       ),
       paste0(

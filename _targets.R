@@ -688,6 +688,10 @@ list(
   tar_target(w4_projetos_simultaneos_tabela, salvar_tabela(
     tabelar_projetos_simultaneos(w4_projetos_simultaneos), "w4_projetos_simultaneos"
   ), format = "file"),
+  tar_target(w4_fronteira_principal_tabela, salvar_tabela(
+    tabelar_fronteira_registrada(w4_avaliacao, w4_concentracao, w4_projetos_simultaneos, w4_realizada),
+    "w4_nsga2_fronteira_principal"
+  ), format = "file"),
 
   # Estabilidade (emendas 1 a 3): nas realizações da wave 3, x̄ e as linhas
   # exatas de afinidade e de custo, sem o limite individual. Uma semente por

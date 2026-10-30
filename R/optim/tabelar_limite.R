@@ -56,6 +56,41 @@ tabelar_concentracao_simultanea <- function(concentracao) {
   dplyr::bind_rows(referencias, fronteira)
 }
 
+#' A fronteira registrada da semente principal, um ponto por linha
+#'
+#' Junta as medidas já calculadas sobre os mesmos pontos, na ordem de
+#' `extrair_fronteira()`, sem resolver nada de novo. O custo sai só em relação
+#' ao da realizada. Os pontos ficam em ordem decrescente de afinidade.
+#'
+#' @param avaliacao Lista de `avaliar_fronteira_registrada()`.
+#' @param concentracao Lista de `medir_concentracao_da_avaliacao()`.
+#' @param projetos Lista de `medir_projetos_simultaneos_da_avaliacao()`.
+#' @param realizada Objetivos da realizada.
+#' @return tibble formatada para `salvar_tabela()`.
+tabelar_fronteira_registrada <- function(avaliacao, concentracao, projetos, realizada) {
+  pontos <- avaliacao$pontos
+  stopifnot(
+    nrow(concentracao$pontos) == nrow(pontos), nrow(projetos$pontos) == nrow(pontos),
+    isTRUE(all.equal(concentracao$pontos$afinidade, pontos$afinidade)),
+    isTRUE(all.equal(concentracao$pontos$custo, pontos$custo))
+  )
+  pontos |>
+    dplyr::mutate(
+      ocupacao_maxima = concentracao$pontos$ocupacao_maxima,
+      projetos_simultaneos = projetos$pontos$maximo
+    ) |>
+    dplyr::arrange(dplyr::desc(afinidade)) |>
+    dplyr::transmute(
+      Afinidade = formatar_decimal(afinidade, 1),
+      `Custo em relação à realizada` = formatar_pct(custo / realizada[["custo"]] - 1),
+      `Sobrecarga atribuível` = formatar_decimal(sobrecarga, 1),
+      `Assentos da zona morta` = formatar_inteiro(assentos_da_zona_morta),
+      `Maior número de assentos de um consultor` = formatar_inteiro(maior_numero_de_assentos),
+      `Ocupação máxima num mês` = formatar_decimal(ocupacao_maxima, 2),
+      `Máximo de projetos simultâneos` = formatar_inteiro(projetos_simultaneos)
+    )
+}
+
 #' Projetos simultâneos nas soluções das emendas 2 e 3
 #'
 #' @param projetos Lista de `medir_projetos_simultaneos_da_avaliacao()`.
