@@ -1,0 +1,13 @@
+Item,Medida,Valor
+Posição da realizada,Pontos da fronteira que dominam a realizada,200 de 200
+Posição da realizada,Maior ganho de afinidade entre eles,"163,3"
+Posição da realizada,Maior redução de custo entre eles,"9,4%"
+Posição da realizada,Maior redução de sobrecarga atribuível entre eles,"172,7"
+Posição da realizada,Dominada pela solução exata de sobrecarga mínima,sim
+Conflito,Sobrecarga por unidade de afinidade entre os extremos exatos,"4,05"
+Conflito,Mediana da mesma taxa no caminho da fronteira,"1,35"
+Capacidade,Limite rígido (épsilon zero na sobrecarga atribuível),"inviável, certificado pelo limite inferior do solver na etapa 2"
+Zona morta,Assentos da zona morta por ponto: mediana,33
+Zona morta,Assentos da zona morta por ponto: mínimo e máximo,13 e 80
+Horas,Pontos que dominam a realizada também com a carga em horas,"100,0%"
+Horas,Correlação de Spearman entre a sobrecarga em percentual e em horas,"0,98"
