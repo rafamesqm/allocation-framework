@@ -553,15 +553,21 @@ list(
   # continuam vindo de pre_registro.
   tar_target(pre_registro_otimizacao_arquivo, here::here("config", "pre_registro_otimizacao.yml"), format = "file"),
   tar_target(pre_registro_otimizacao, ler_pre_registro_otimizacao(pre_registro_otimizacao_arquivo)),
+  # O desenho registrado, sem as emendas, e cada emenda num alvo próprio: uma
+  # emenda nova não refaz a montagem nem a tabela de payoff, que não dependem
+  # dela. Refazer o payoff não é inócuo, porque os problemas que param no
+  # tempo-limite não se reproduzem.
+  tar_target(pre_registro_otimizacao_desenho, separar_desenho_registrado(pre_registro_otimizacao)),
+  tar_target(w4_emenda_nsga2, localizar_emenda(pre_registro_otimizacao, "emenda 1, troca para o NSGA-II")),
 
   # Etapa 1: assentos, carga fixa, capacidade, elegibilidade, ŝ na estimação
   # e a matriz do problema, sem resolver nada. A conferência para a pipeline
   # se a montagem não reproduzir os valores de verificação, e as tabelas só
   # são salvas depois dela.
-  tar_target(w4_insumos, preparar_insumos_da_otimizacao(dados_eda, pre_registro, pre_registro_otimizacao)),
-  tar_target(w4_problema, montar_problema_da_otimizacao(w4_insumos, pre_registro_otimizacao$carga$medida)),
+  tar_target(w4_insumos, preparar_insumos_da_otimizacao(dados_eda, pre_registro, pre_registro_otimizacao_desenho)),
+  tar_target(w4_problema, montar_problema_da_otimizacao(w4_insumos, pre_registro_otimizacao_desenho$carga$medida)),
   tar_target(w4_verificacao, medir_verificacao_da_otimizacao(w4_insumos, w4_problema, dados_eda, pre_registro)),
-  tar_target(w4_conferencia, conferir_montagem_da_otimizacao(w4_verificacao, pre_registro_otimizacao)),
+  tar_target(w4_conferencia, conferir_montagem_da_otimizacao(w4_verificacao, pre_registro_otimizacao_desenho)),
   tar_target(w4_montagem_tabelas, salvar_tabelas_bloco(list(
     w4_conferencia = tabelar_conferencia_da_otimizacao(w4_conferencia),
     w4_porte = tabelar_porte_da_otimizacao(w4_verificacao)
@@ -572,7 +578,7 @@ list(
   # cada um decidem a primeira metade da regra de troca de método.
   tar_target(w4_payoff, {
     w4_conferencia
-    resolver_tabela_de_payoff(w4_problema, pre_registro_otimizacao)
+    resolver_tabela_de_payoff(w4_problema, pre_registro_otimizacao_desenho)
   }),
   tar_target(w4_tratabilidade, avaliar_tratabilidade_do_payoff(w4_payoff)),
   tar_target(w4_payoff_descricao, descrever_solucoes_do_payoff(w4_payoff, w4_problema)),

@@ -25,3 +25,28 @@ ler_pre_registro_otimizacao <- function(caminho = here::here("config", "pre_regi
   }
   registro
 }
+
+#' O desenho registrado, sem as emendas
+#'
+#' A montagem e a tabela de payoff dependem só do desenho. Separá-lo das
+#' emendas evita que uma emenda nova as refaça na pipeline.
+#'
+#' @param registro Lista de `ler_pre_registro_otimizacao()`.
+#' @return `registro` sem o campo `emendas`.
+separar_desenho_registrado <- function(registro) {
+  registro[setdiff(names(registro), "emendas")]
+}
+
+#' Localiza uma emenda pelo nome
+#'
+#' @param registro Lista de `ler_pre_registro_otimizacao()`.
+#' @param nome Valor do campo `nome` da emenda.
+#' @return A emenda. Erro se não houver exatamente uma com esse nome.
+localizar_emenda <- function(registro, nome) {
+  nomes <- vapply(registro$emendas, \(e) e$nome %||% NA_character_, character(1))
+  encontradas <- which(nomes == nome)
+  if (length(encontradas) != 1) {
+    stop("Emenda '", nome, "' não encontrada uma única vez no pré-registro.", call. = FALSE)
+  }
+  registro$emendas[[encontradas]]
+}
