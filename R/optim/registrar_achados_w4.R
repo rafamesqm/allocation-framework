@@ -394,10 +394,17 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
   afinidade_sem_limite <- \(solucao) referencia_w4(avaliacao, solucao, "afinidade")
   certificado <- \(solucao) descrever_certificado(lim(solucao, "status"), lim(solucao, "mip_gap"))
   ganho <- \(solucao) fracao_do_ganho_w4(lim(solucao, "afinidade"), afinidade_sem_limite(solucao), realizada)
+  projetos <- limite$projetos$referencias
+  proj <- function(solucao, coluna, l = NA) {
+    linha <- projetos$solucao == solucao & (if (is.na(l)) is.na(projetos$limite) else projetos$limite %in% l)
+    formatar_inteiro(projetos[[coluna]][linha])
+  }
+  pontos_proj <- limite$projetos$pontos
+  percentis <- c(projetos$percentil_95, pontos_proj$percentil_95)
 
   registrar_achados("W4.5", tibble::tibble(
-    codigo = paste0("W4.5.", 1:3),
-    etiqueta = c("instrumento", "consequência do gerador", "consequência do gerador"),
+    codigo = paste0("W4.5.", 1:4),
+    etiqueta = c("instrumento", "consequência do gerador", "consequência do gerador", "consequência do gerador"),
     enunciado = c(
       paste0(
         "O objetivo de sobrecarga soma os excessos sobre consultores e meses e é indiferente à ",
@@ -455,6 +462,26 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
             formatar_inteiro(sensibilidade$maior_numero_de_assentos), "."
           )
         }
+      ),
+      paste0(
+        "O número de projetos simultâneos de um consultor num mês, somando as alocações fixas e os assentos ",
+        "ativos no mesmo mês, chega no máximo a ", proj("realizada", "maximo"), " na realizada. Sem limite ",
+        "individual, chega a ", proj("payoff, afinidade", "maximo"), " na linha de afinidade máxima da tabela de ",
+        "payoff e a ", proj("item 10.c, afinidade", "maximo"), " no item 10.c de afinidade, que já respeita a ",
+        "sobrecarga total da realizada; com L = ", formatar_decimal(limite$valor, 2), ", a ",
+        proj("payoff, afinidade", "maximo", limite$valor), " e a ", proj("item 10.c, afinidade", "maximo", limite$valor),
+        "; e com L = ", formatar_decimal(sensibilidade$limite, 1), ", a ",
+        proj("item 10.c, afinidade", "maximo", sensibilidade$limite), " no item 10.c. Nos ",
+        formatar_inteiro(nrow(pontos_proj)), " pontos da fronteira registrada, o máximo fica entre ",
+        formatar_inteiro(min(pontos_proj$maximo)), " e ", formatar_inteiro(max(pontos_proj$maximo)), ", com mediana ",
+        formatar_inteiro(stats::median(pontos_proj$maximo)), ". O percentil 95 fica entre ",
+        formatar_decimal(min(percentis), 0), " e ", formatar_decimal(max(percentis), 0), " em todas as soluções. ",
+        "Os consultores e meses com mais de três projetos simultâneos são ", proj("realizada", "acima_de_3"),
+        " na realizada, ", proj("item 10.c, afinidade", "acima_de_3"), " no item 10.c de afinidade sem limite, ",
+        proj("item 10.c, afinidade", "acima_de_3", limite$valor), " com L = ", formatar_decimal(limite$valor, 2), " e ",
+        proj("item 10.c, afinidade", "acima_de_3", sensibilidade$limite), " com L = ",
+        formatar_decimal(sensibilidade$limite, 1), ", e ", proj("payoff, afinidade", "acima_de_3", limite$valor),
+        " na linha de afinidade máxima com L = ", formatar_decimal(limite$valor, 2), "."
       )
     ),
     implicacao = c(
@@ -477,6 +504,18 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
         "Mesmo com um limite que nem a realizada respeita, a maior parte do ganho de afinidade ",
         "sobrevive, e a concentração de assentos cai pela primeira vez. Como o problema parou no ",
         "tempo-limite, a fração do ganho que sobrevive é um limite inferior."
+      ),
+      paste0(
+        "O ganho de afinidade vem acompanhado de fragmentar os consultores mais populares em muitos ",
+        "assentos: no pico, um só consultor passa a tocar dezenas de projetos no mesmo mês. Nem o limite ",
+        "agregado, a sobrecarga total presa na da realizada, nem o limite individual de carga calibrado ",
+        "contêm essa fragmentação, porque nenhum dos dois conta projetos. O limite individual apertado, ",
+        "L = ", formatar_decimal(sensibilidade$limite, 1), ", devolve o pico de projetos simultâneos ao nível ",
+        "da realizada e ainda guarda a maior parte do ganho (W4.5.3), mas não desfaz a fragmentação ao longo ",
+        "do período: o consultor com mais assentos ainda recebe ", formatar_inteiro(sensibilidade$maior_numero_de_assentos),
+        ", contra ", formatar_inteiro(lim("realizada", "maior_numero_de_assentos")), " na realizada, e os ",
+        "consultores e meses com mais de três projetos aumentam. Um limite de projetos simultâneos por ",
+        "consultor, não previsto na formulação, fica como trabalho futuro."
       )
     ),
     limitacao = c(
@@ -493,9 +532,15 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
       paste0(
         "Um só valor de L além do calibrado; a curva da afinidade alcançável entre os dois não foi ",
         "traçada."
+      ),
+      paste0(
+        "Medida descritiva acrescentada depois dos resultados das emendas 2 e 3, fora delas, sem nada ",
+        "resolvido de novo. A contagem não pondera a carga de cada projeto, e o limiar de três projetos ",
+        "é convenção de leitura, não calibrado na EDA. Um limite mensal de projetos simultâneos conteria ",
+        "o pico, mas não necessariamente a fragmentação ao longo do período."
       )
     ),
-    proveniencia = c("estrutural", "depende do gerador", "depende do gerador")
+    proveniencia = c("estrutural", "depende do gerador", "depende do gerador", "depende do gerador")
   ))
 }
 

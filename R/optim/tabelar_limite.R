@@ -56,6 +56,45 @@ tabelar_concentracao_simultanea <- function(concentracao) {
   dplyr::bind_rows(referencias, fronteira)
 }
 
+#' Projetos simultâneos nas soluções das emendas 2 e 3
+#'
+#' @param projetos Lista de `medir_projetos_simultaneos_da_avaliacao()`.
+#' @return tibble formatada para `salvar_tabela()`.
+tabelar_projetos_simultaneos <- function(projetos) {
+  colunas <- function(maximo, percentil_95, acima_de_3) {
+    tibble::tibble(
+      `Máximo num consultor e mês` = maximo,
+      `Percentil 95` = percentil_95,
+      `Consultores e meses com mais de 3` = acima_de_3
+    )
+  }
+  referencias <- projetos$referencias
+  pontos <- projetos$pontos
+  faixa <- function(x, formatar) paste0(formatar(stats::median(x)), " (", formatar(min(x)), " a ", formatar(max(x)), ")")
+  dplyr::bind_rows(
+    dplyr::bind_cols(
+      tibble::tibble(
+        `Solução` = nomear_solucoes_da_otimizacao(referencias$solucao),
+        `Limite individual` = ifelse(is.na(referencias$limite), "sem limite", paste("L =", formatar_decimal(referencias$limite, 2)))
+      ),
+      colunas(
+        formatar_inteiro(referencias$maximo), formatar_decimal(referencias$percentil_95, 1),
+        formatar_inteiro(referencias$acima_de_3)
+      )
+    ),
+    dplyr::bind_cols(
+      tibble::tibble(
+        `Solução` = paste0("Fronteira registrada, ", nrow(pontos), " pontos: mediana (mínimo a máximo)"),
+        `Limite individual` = "sem limite"
+      ),
+      colunas(
+        faixa(pontos$maximo, formatar_inteiro), faixa(pontos$percentil_95, \(x) formatar_decimal(x, 1)),
+        faixa(pontos$acima_de_3, formatar_inteiro)
+      )
+    )
+  )
+}
+
 #' Os problemas da emenda 3 e a sensibilidade
 #'
 #' @param descricao tibble de `descrever_problemas_limitados()`.

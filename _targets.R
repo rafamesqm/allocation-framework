@@ -679,6 +679,16 @@ list(
     w4_limite_individual = tabelar_problemas_limitados(w4_limitados_descricao)
   )), format = "file"),
 
+  # Projetos simultâneos por consultor e mês: medida descritiva acrescentada
+  # depois dos resultados das emendas 2 e 3, sem nada resolvido de novo.
+  tar_target(w4_projetos_simultaneos, medir_projetos_simultaneos_da_avaliacao(
+    w4_nsga2_principal, w4_problema, w4_insumos, w4_payoff, w4_exatos_da_realizada,
+    w4_limitados, w4_sensibilidade_do_limite, w4_limite_individual
+  )),
+  tar_target(w4_projetos_simultaneos_tabela, salvar_tabela(
+    tabelar_projetos_simultaneos(w4_projetos_simultaneos), "w4_projetos_simultaneos"
+  ), format = "file"),
+
   # Estabilidade (emendas 1 a 3): nas realizações da wave 3, x̄ e as linhas
   # exatas de afinidade e de custo, sem o limite individual. Uma semente por
   # ramo, para uma corrida interrompida retomar de onde parou.
@@ -710,7 +720,9 @@ list(
       trajetoria = w4_nsga2_trajetoria_exploratoria
     ),
     avaliacao = list(avaliacao = w4_avaliacao, exatos = w4_exatos_da_realizada, concentracao = w4_concentracao),
-    limite = list(descricao = w4_limitados_descricao, valor = w4_limite_individual),
+    limite = list(
+      descricao = w4_limitados_descricao, valor = w4_limite_individual, projetos = w4_projetos_simultaneos
+    ),
     estabilidade = w4_estabilidade
   )),
   tar_target(w4_achados_arquivo, salvar_tabela(w4_achados, "achados_w4"), format = "file")

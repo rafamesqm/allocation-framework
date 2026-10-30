@@ -58,3 +58,39 @@ test_that("o L medido na realização versionada é o registrado na emenda 3", {
   expect_equal(conferir_limite_individual(limite, emenda), limite)
   expect_error(conferir_limite_individual(limite + 0.01, emenda), "não confere")
 })
+
+# Projetos simultâneos na instância pequena com meses reais e alocações fixas:
+# A tem P0 em janeiro; B tem P9 em fevereiro, em duas alocações do mesmo
+# projeto; C tem P8 só antes do teste. Contas à mão, na ordem A jan, A fev,
+# B jan, B fev, C jan, C fev:
+#
+# * realizada (A, B, C): 2, 0, 1, 2, 0, 1.
+# * (B, A, B): 2, 1, 1, 2, 0, 0.
+instancia_com_alocacoes_fixas <- function() {
+  insumos <- instancia_pequena_otimizacao()
+  meses <- c(M1 = "2026-01", M2 = "2026-02")
+  insumos$meses_dos_assentos$ano_mes <- unname(meses[insumos$meses_dos_assentos$ano_mes])
+  insumos$capacidade$ano_mes <- unname(meses[insumos$capacidade$ano_mes])
+  insumos$carga_fixa$por_mes$ano_mes <- unname(meses[insumos$carga_fixa$por_mes$ano_mes])
+  insumos$carga_fixa$alocacoes <- tibble::tibble(
+    consultor_id = c("A", "B", "B", "C"), projeto_id = c("P0", "P9", "P9", "P8"),
+    pct_alocacao = 0.5, horas_mes = 84,
+    data_inicio = as.Date(c("2026-01-10", "2026-02-01", "2026-02-15", "2025-11-01")),
+    data_fim = as.Date(c("2026-01-20", "2026-02-10", "2026-02-20", "2025-12-31"))
+  )
+  insumos
+}
+
+test_that("os projetos simultâneos conferem com as contas à mão", {
+  insumos <- instancia_com_alocacoes_fixas()
+  problema <- montar_problema_da_otimizacao(insumos, "percentual")
+  colunas <- rbind(c(1, 5, 9), c(2, 4, 8))
+  contagem <- contar_projetos_simultaneos(problema, insumos, colunas)
+  expect_equal(unname(contagem[, 1]), c(2, 0, 1, 2, 0, 1))
+  expect_equal(unname(contagem[, 2]), c(2, 1, 1, 2, 0, 0))
+
+  resumo <- resumir_projetos_simultaneos(problema, insumos, colunas)
+  expect_equal(resumo$maximo, c(2, 2))
+  expect_equal(resumo$percentil_95, c(2, 2))
+  expect_equal(resumo$acima_de_3, c(0, 0))
+})

@@ -1,0 +1,15 @@
+Solução,Limite individual,Máximo num consultor e mês,Percentil 95,Consultores e meses com mais de 3
+Alocação realizada,sem limite,11,"4,0",106
+"Payoff, afinidade máxima",sem limite,52,"4,0",109
+"Payoff, custo mínimo",sem limite,52,"3,0",85
+"Payoff, sobrecarga mínima (2 de 3 passos)",sem limite,13,"3,0",64
+"Item 10.c, afinidade máxima presa na realizada",sem limite,39,"3,0",94
+"Item 10.c, custo mínimo preso na realizada",sem limite,11,"4,0",137
+"Item 10.c, sobrecarga mínima presa na realizada",sem limite,7,"3,0",44
+"Payoff, afinidade máxima","L = 5,79",30,"6,0",140
+"Payoff, custo mínimo","L = 5,79",30,"5,0",130
+"Item 10.c, afinidade máxima presa na realizada","L = 5,79",29,"3,0",98
+"Item 10.c, custo mínimo preso na realizada","L = 5,79",11,"4,0",136
+"Item 10.c, sobrecarga mínima presa na realizada","L = 5,79",7,"3,0",46
+"Item 10.c, afinidade máxima presa na realizada","L = 1,50",12,"4,0",120
+"Fronteira registrada, 200 pontos: mediana (mínimo a máximo)",sem limite,8 (6 a 12),"3,0 (3,0 a 4,0)",69 (41 a 117)

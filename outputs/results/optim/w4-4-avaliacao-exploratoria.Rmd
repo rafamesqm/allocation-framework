@@ -23,6 +23,7 @@ exatos <- ler_bloco("w4_exatos_da_realizada")
 concentracao <- ler_bloco("w4_concentracao")
 limite <- ler_bloco("w4_limite_individual")
 limitados <- ler_bloco("w4_limitados_descricao")
+projetos <- ler_bloco("w4_projetos_simultaneos")
 achados <- ler_bloco("w4_achados")
 ```
 
@@ -130,9 +131,25 @@ terceiro passo lexicográfico. A coluna de passos mostra até onde cada uma
 chegou; a solução e o certificado são os do último passo com solução, e o
 custo e a sobrecarga dessas linhas não são os lexicográficos.
 
+## Projetos simultâneos
+
+Medida descritiva acrescentada depois dos resultados das emendas 2 e 3, sem
+nada resolvido de novo: o número de projetos de um consultor num mês de teste,
+somando as alocações fixas com algum dia no mês e os assentos ativos no mesmo
+mês. O máximo, o percentil 95 e a contagem acima de três projetos valem sobre
+todos os consultores e meses de teste, inclusive os sem projeto.
+
+```{r projetos}
+mostrar_tabela(
+  tabelar_projetos_simultaneos(projetos),
+  "Tabela W4.17: projetos simultâneos por consultor e mês, com e sem o limite individual."
+)
+```
+
 ## Achados
 
-Os achados W4.4 são da emenda 2, e os W4.5 da emenda 3; todos exploratórios.
+Os achados W4.4 são da emenda 2, e os W4.5 da emenda 3 e da medida de
+projetos simultâneos; todos exploratórios.
 
 ```{r achados, results = "asis"}
 cat(mostrar_achados(achados[achados$bloco %in% c("W4.4", "W4.5"), ]))
