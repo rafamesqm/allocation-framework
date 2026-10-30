@@ -35,6 +35,10 @@ parametros <- list(
 # alvos que o usam: trocar W3_REALIZACOES invalida as realizações.
 n_realizacoes_w3 <- realizacoes_w3()
 
+# Corrida da wave 4, completa ou reduzida (W4_CORRIDA, integração contínua no
+# push). Na completa o desenho e as emendas saem intactos e nada refaz.
+corrida_w4 <- parametros_da_corrida_w4()
+
 list(
   # Camada 1: Atributos -------------------------------------------------
   tar_target(espaco_skills, gerar_espaco_skills()),
@@ -557,8 +561,12 @@ list(
   # emenda nova não refaz a montagem nem a tabela de payoff, que não dependem
   # dela. Refazer o payoff não é inócuo, porque os problemas que param no
   # tempo-limite não se reproduzem.
-  tar_target(pre_registro_otimizacao_desenho, separar_desenho_registrado(pre_registro_otimizacao)),
-  tar_target(w4_emenda_nsga2, localizar_emenda(pre_registro_otimizacao, "emenda 1, troca para o NSGA-II")),
+  tar_target(pre_registro_otimizacao_desenho, reduzir_corrida_w4(
+    separar_desenho_registrado(pre_registro_otimizacao), corrida_w4
+  )),
+  tar_target(w4_emenda_nsga2, reduzir_corrida_w4(
+    localizar_emenda(pre_registro_otimizacao, "emenda 1, troca para o NSGA-II"), corrida_w4
+  )),
 
   # Etapa 1: assentos, carga fixa, capacidade, elegibilidade, ŝ na estimação
   # e a matriz do problema, sem resolver nada. A conferência para a pipeline
@@ -609,9 +617,9 @@ list(
   # Emenda 2: hipervolume na caixa entre a realizada e o ideal certificado,
   # as nove sementes confirmatórias, a corrida exploratória e os itens 10.c a
   # 10.f sobre a fronteira registrada da semente principal.
-  tar_target(w4_emenda_exploratoria, localizar_emenda(
+  tar_target(w4_emenda_exploratoria, reduzir_corrida_w4(localizar_emenda(
     pre_registro_otimizacao, "emenda 2, referência do hipervolume e corrida exploratória"
-  )),
+  ), corrida_w4)),
   tar_target(w4_ideal, calcular_ideal_certificado(w4_payoff, w4_problema)),
   tar_target(w4_realizada, objetivos_da_realizada(w4_verificacao)),
   tar_target(w4_nsga2_sementes, w4_emenda_nsga2$sementes$variabilidade),

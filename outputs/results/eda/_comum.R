@@ -47,8 +47,15 @@ knitr::opts_chunk$set(
 # zero, que é justamente o caso de grandeza que sumiu, o knitr escreve texto
 # vazio sem chamar o gancho de saída, e a guarda ficaria cega exatamente onde
 # mais importa.
+#
+# Na corrida reduzida (W3_REALIZACOES abaixo do registrado ou
+# W4_CORRIDA=reduzida), os documentos não são entregáveis e só provam que a
+# renderização funciona. Lá um problema com tempo-limite curto pode terminar
+# sem solução, e a guarda troca o valor por um marcador explícito e avisa,
+# em vez de parar. Na corrida completa ela continua parando.
 local({
   avaliar_padrao <- knitr::knit_hooks$get("evaluate.inline")
+  reduzida <- realizacoes_w3() < realizacoes_registradas_w3() || parametros_da_corrida_w4()$reduzida
   knitr::knit_hooks$set(evaluate.inline = function(code, envir = knitr::knit_global()) {
     resultado <- avaliar_padrao(code, envir)
     texto <- if (length(resultado) == 0) character(0) else as.character(resultado)
@@ -56,6 +63,10 @@ local({
       all(is.na(texto)) ||
       all(!nzchar(trimws(texto))) ||
       all(trimws(texto) %in% c("NA", "n/a", "NaN"))
+    if (vazio && reduzida) {
+      message("Valor inline vazio na corrida reduzida em `r ", code, "`.")
+      return("[sem valor na corrida reduzida]")
+    }
     if (vazio) {
       stop(
         "Valor inline vazio, NA ou n/a em `r ", code, "`. A grandeza citada ",

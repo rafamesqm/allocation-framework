@@ -1,6 +1,20 @@
 # Reconstrói o ambiente do zero a partir do renv.lock, numa máquina limpa, e
 # roda o que o auditor rodaria: testes, pipeline e renderização dos
 # documentos. Tudo sobre os dados sintéticos; nenhum segredo é usado.
+#
+# Dois modos:
+#
+# * push e pull request: corrida reduzida, num job de até 120 minutos. A wave
+#   3 roda 5 realizações em vez de 100 (W3_REALIZACOES), e a wave 4 roda com
+#   W4_CORRIDA=reduzida: 60 segundos por problema do HiGHS em vez de 600, duas
+#   das nove sementes de variabilidade e 2.000 gerações na corrida
+#   exploratória. A estabilidade da wave 4 segue as realizações da wave 3.
+#   Tabelas e figuras vão para uma pasta temporária, e outputs/ fica intocada.
+# * disparo manual (workflow_dispatch): a reconstrução completa, que passa
+#   das 6 horas permitidas a um job. Fica em três jobs encadeados, cada um
+#   com o store do targets do anterior como artefato: a pipeline sem a wave
+#   4, os problemas exatos e o NSGA-II da wave 4, e o resto, com a
+#   estabilidade, os testes, a renderização e a comparação com o versionado.
 name: reproducao
 
 on:
@@ -9,43 +23,24 @@ on:
   pull_request:
   workflow_dispatch:
 
-jobs:
-  reproduzir:
-    runs-on: ubuntu-24.04
-    # As 100 realizações da wave 3 refazem a escolha de hiperparâmetros em
-    # cada uma e levam cerca de quatro horas. No push e no pull request roda
-    # uma corrida reduzida, de 5 realizações; a completa só por disparo manual.
-    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && 360 || 120 }}
-    env:
-      W3_REALIZACOES: ${{ github.event_name == 'workflow_dispatch' && '100' || '5' }}
-      # Na corrida reduzida, a trava de diretorio_de_saida() desvia tabelas e
-      # figuras para cá, e outputs/ fica intocada.
-      W3_SAIDA_REDUZIDA: ${{ github.workspace }}/../saida_reduzida
+# Um push novo cancela a corrida reduzida anterior do mesmo ramo; a completa
+# nunca é cancelada por outra.
+concurrency:
+  group: reproducao-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
+jobs:
+  reduzida:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      W3_REALIZACOES: "5"
+      W4_CORRIDA: reduzida
+      W3_SAIDA_REDUZIDA: ${{ github.workspace }}/../saida_reduzida
     steps:
       - uses: actions/checkout@v4
-
-      - uses: r-lib/actions/setup-pandoc@v2
-
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: "4.5.3"
-          use-public-rspm: true
-
-      # Bibliotecas de sistema para os pacotes que o renv precisar compilar
-      # quando a versão fixada não tiver binário pronto.
-      - name: Dependências de sistema
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libcurl4-openssl-dev libssl-dev libxml2-dev libglpk-dev libgmp3-dev \
-            libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev \
-            libpng-dev libtiff5-dev libjpeg-dev libicu-dev
-
-      - uses: r-lib/actions/setup-renv@v2
-
-      - name: Estado do renv
-        run: Rscript -e 'renv::status()'
+      - uses: ./.github/actions/preparar-r
 
       # A pipeline vem antes dos testes porque parte deles lê o store do
       # targets, que numa máquina limpa só existe depois do tar_make().
@@ -56,28 +51,108 @@ jobs:
         run: Rscript tests/testthat.R
 
       - name: Renderização dos documentos
-        run: Rscript -e 'source("outputs/results/eda/_renderizar.R")'
+        run: |
+          Rscript -e 'source("outputs/results/eda/_renderizar.R")'
+          Rscript -e 'source("outputs/results/scoring/_renderizar.R")'
+          Rscript -e 'source("outputs/results/optim/_renderizar.R")'
 
-      - name: Renderização dos documentos da modelagem
-        run: Rscript -e 'source("outputs/results/scoring/_renderizar.R")'
-
-      - name: Renderização dos documentos da otimização
-        run: Rscript -e 'source("outputs/results/optim/_renderizar.R")'
-
-      # Os dados e tabelas regenerados devem bater com os versionados. Diferença
-      # aqui não derruba o job, porque a última casa decimal de ponto flutuante
-      # pode variar entre sistemas operacionais; o relatório fica no log.
+      # Na corrida reduzida, os dados sintéticos e as tabelas fora das waves 3
+      # e 4 saem iguais aos versionados; as das waves 3 e 4 dependem do número
+      # de realizações e da corrida reduzida. Diferença aqui não derruba o
+      # job, porque a última casa decimal de ponto flutuante pode variar entre
+      # sistemas operacionais; o relatório fica no log.
       - name: Dados regenerados contra os versionados
         continue-on-error: true
         run: |
-          git diff --stat --exit-code -- data/synthetic outputs/tables
-          # Na corrida reduzida, as tabelas fora da wave 3 saem iguais às
-          # versionadas; as da wave 3 dependem do número de realizações.
-          if [ "$W3_REALIZACOES" != "100" ]; then
-            for arquivo in "$W3_SAIDA_REDUZIDA"/tables/*.csv; do
-              nome=$(basename "$arquivo")
-              case "$nome" in w3_*|achados_w3*) continue ;; esac
-              diff -q "$arquivo" "outputs/tables/$nome" || status=1
-            done
-            exit ${status:-0}
-          fi
+          git diff --stat --exit-code -- data/synthetic outputs/tables || status=1
+          for arquivo in "$W3_SAIDA_REDUZIDA"/tables/*.csv; do
+            nome=$(basename "$arquivo")
+            case "$nome" in w3_*|achados_w3*|w4_*|achados_w4*) continue ;; esac
+            diff -q "$arquivo" "outputs/tables/$nome" || status=1
+          done
+          exit ${status:-0}
+
+  completa-sem-wave-4:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/preparar-r
+
+      # Os dados sintéticos, a EDA e a wave 3 com as 100 realizações. Nenhum
+      # alvo fora da wave 4 depende dela.
+      - name: Pipeline sem a wave 4
+        run: Rscript -e 'targets::tar_make(names = !tidyselect::starts_with("w4_"))'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-sem-wave-4
+          path: |
+            _targets
+            data/synthetic
+            outputs/tables
+            outputs/figures
+          retention-days: 3
+
+  completa-exatos-e-nsga2:
+    needs: completa-sem-wave-4
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/preparar-r
+      - uses: actions/download-artifact@v4
+        with:
+          name: store-sem-wave-4
+
+      # Os problemas exatos com tempo-limite de 600 segundos e as execuções do
+      # NSGA-II. Os que param no tempo-limite não se reproduzem exatamente.
+      - name: Problemas exatos e NSGA-II da wave 4
+        run: |
+          Rscript -e 'targets::tar_make(names = c(
+            w4_payoff, w4_exatos_da_realizada, w4_limitados, w4_sensibilidade_do_limite,
+            w4_nsga2_principal, w4_nsga2_variabilidade, w4_nsga2_exploratoria
+          ))'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-exatos-e-nsga2
+          path: |
+            _targets
+            data/synthetic
+            outputs/tables
+            outputs/figures
+          retention-days: 3
+
+  completa-final:
+    needs: completa-exatos-e-nsga2
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/preparar-r
+      - uses: actions/download-artifact@v4
+        with:
+          name: store-exatos-e-nsga2
+
+      # O que falta: a estabilidade da wave 4 nas 100 realizações e as
+      # tabelas, achados e documentos.
+      - name: Pipeline, o restante
+        run: Rscript -e 'targets::tar_make()'
+
+      - name: Testes
+        run: Rscript tests/testthat.R
+
+      - name: Renderização dos documentos
+        run: |
+          Rscript -e 'source("outputs/results/eda/_renderizar.R")'
+          Rscript -e 'source("outputs/results/scoring/_renderizar.R")'
+          Rscript -e 'source("outputs/results/optim/_renderizar.R")'
+
+      # Os dados e tabelas regenerados devem bater com os versionados, menos
+      # os da wave 4 que vêm de problemas parados no tempo-limite. Diferença
+      # aqui não derruba o job; o relatório fica no log.
+      - name: Dados regenerados contra os versionados
+        continue-on-error: true
+        run: git diff --stat --exit-code -- data/synthetic outputs/tables
