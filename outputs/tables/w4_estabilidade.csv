@@ -1,0 +1,20 @@
+Solução,Grandeza,Realização versionada,Mediana,Intervalo de 90%,Versionada no intervalo,Realizações
+Alocação realizada,Afinidade,"365,2","371,3","349,5 a 399,9",sim,100
+Alocação realizada,Sobrecarga atribuível,"198,5","159,0","124,2 a 207,2",sim,100
+Alocação realizada,Ocupação máxima num mês,"5,79","4,15","3,41 a 5,46",não,100
+Linha de afinidade máxima,Afinidade,"663,1","676,9","650,4 a 708,1",sim,100
+Linha de afinidade máxima,Custo em relação à realizada,"-0,1%","-0,9%","-7,2% a 5,0%",sim,100
+Linha de afinidade máxima,Sobrecarga atribuível,"448,1","409,8","350,6 a 477,8",sim,100
+Linha de afinidade máxima,Ocupação máxima num mês,"24,14","21,32","15,40 a 28,58",sim,100
+Linha de afinidade máxima,Ganho de afinidade sobre a realizada,"297,8","303,2","286,3 a 328,5",sim,100
+Linha de afinidade máxima,Acréscimo de sobrecarga atribuível sobre a realizada,"249,6","254,6","215,7 a 291,7",sim,100
+Linha de afinidade máxima,Fração das realizações com a linha ótima,"100,0%","100,0%","100,0% a 100,0%",sim,100
+Linha de afinidade máxima,Segundos somados dos três passos,24,20,14 a 31,sim,100
+Linha de custo mínimo,Afinidade,"641,7","636,9","575,5 a 674,0",sim,100
+Linha de custo mínimo,Custo em relação à realizada,"-9,8%","-11,1%","-13,5% a -8,3%",sim,100
+Linha de custo mínimo,Sobrecarga atribuível,"439,7","407,4","340,8 a 466,3",sim,100
+Linha de custo mínimo,Ocupação máxima num mês,"25,09","21,43","16,06 a 26,84",sim,100
+Linha de custo mínimo,Ganho de afinidade sobre a realizada,"276,5","262,0","217,9 a 298,9",sim,100
+Linha de custo mínimo,Acréscimo de sobrecarga atribuível sobre a realizada,"241,2","239,9","205,3 a 279,0",sim,100
+Linha de custo mínimo,Fração das realizações com a linha ótima,"100,0%","100,0%","100,0% a 100,0%",sim,100
+Linha de custo mínimo,Segundos somados dos três passos,29,65,18 a 213,sim,100

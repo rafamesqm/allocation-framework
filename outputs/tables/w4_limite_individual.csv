@@ -1,0 +1,8 @@
+Solução,Passos com solução,L,Certificado,Segundos,Afinidade,Custo em relação à realizada,Sobrecarga atribuível,Ocupação máxima num mês,Meses de consultor acima de 2,Sobrecarga atribuível no consultor mais sobrecarregado,Maior número de assentos de um consultor,Assentos nos 10 mais populares
+Alocação realizada,--,"5,79",--,--,"365,2","0,0%","198,5","5,79",78,"9,3%",17,"12,7%"
+"Payoff, afinidade máxima",1 de 3,"5,79","lacuna 0,0001",1.200,"659,7","0,5%","418,6","5,78",144,"7,1%",99,"32,8%"
+"Payoff, custo mínimo",2 de 3,"5,79","lacuna 0,0003",1.201,"630,0","-9,8%","401,6","5,78",127,"7,3%",99,"26,2%"
+"Item 10.c, afinidade máxima presa na realizada",--,"5,79","lacuna 0,0008",601,"644,2","-0,1%","198,5","5,78",66,"13,3%",96,"30,8%"
+"Item 10.c, custo mínimo preso na realizada",--,"5,79",ótima,2,"365,3","-9,8%","186,3","5,50",60,"10,7%",22,"5,5%"
+"Item 10.c, sobrecarga mínima presa na realizada",--,"5,79","lacuna 0,0006",601,"365,9","-0,5%","0,5","3,46",13,"64,2%",17,"4,6%"
+"Item 10.c, afinidade máxima presa na realizada",--,"1,50","lacuna 0,0243",617,"602,9","-0,2%","139,9","3,46",13,"2,4%",50,"13,9%"
