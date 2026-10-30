@@ -604,5 +604,52 @@ list(
     w4_nsga2_resumo = tabelar_resumo_do_nsga2(w4_nsga2_principal, w4_nsga2_fronteira, w4_nsga2_comparacao),
     w4_nsga2_extremos = tabelar_extremos_do_nsga2(w4_nsga2_comparacao, w4_payoff, w4_verificacao),
     w4_nsga2_convergencia = tabelar_convergencia_do_nsga2(w4_nsga2_convergencia)
+  )), format = "file"),
+
+  # Emenda 2: hipervolume na caixa entre a realizada e o ideal certificado,
+  # as nove sementes confirmatórias, a corrida exploratória e os itens 10.c a
+  # 10.f sobre a fronteira registrada da semente principal.
+  tar_target(w4_emenda_exploratoria, localizar_emenda(
+    pre_registro_otimizacao, "emenda 2, referência do hipervolume e corrida exploratória"
+  )),
+  tar_target(w4_ideal, calcular_ideal_certificado(w4_payoff, w4_problema)),
+  tar_target(w4_realizada, objetivos_da_realizada(w4_verificacao)),
+  tar_target(w4_nsga2_sementes, w4_emenda_nsga2$sementes$variabilidade),
+  tar_target(
+    w4_nsga2_variabilidade,
+    {
+      w4_conferencia
+      resumir_execucao_do_nsga2(
+        executar_nsga2_registrado(w4_problema, w4_emenda_nsga2, w4_nsga2_sementes),
+        w4_payoff, w4_ideal, w4_realizada, pre_registro_otimizacao_desenho$metodo$ordem_lexicografica
+      )
+    },
+    pattern = map(w4_nsga2_sementes)
+  ),
+  tar_target(w4_nsga2_resumo_principal, resumir_execucao_do_nsga2(
+    w4_nsga2_principal, w4_payoff, w4_ideal, w4_realizada, pre_registro_otimizacao_desenho$metodo$ordem_lexicografica
+  )),
+  tar_target(w4_nsga2_trajetoria_principal, medir_trajetoria(w4_nsga2_principal, w4_ideal, w4_realizada)),
+  tar_target(w4_nsga2_exploratoria, {
+    w4_conferencia
+    executar_nsga2_exploratorio(w4_problema, w4_emenda_nsga2, w4_emenda_exploratoria)
+  }),
+  tar_target(w4_nsga2_trajetoria_exploratoria, medir_trajetoria(w4_nsga2_exploratoria, w4_ideal, w4_realizada)),
+  tar_target(w4_problema_horas, montar_problema_da_otimizacao(w4_insumos, "horas")),
+  tar_target(w4_exatos_da_realizada, {
+    w4_conferencia
+    resolver_problemas_da_realizada(w4_problema, pre_registro_otimizacao_desenho)
+  }),
+  tar_target(w4_avaliacao, avaliar_fronteira_registrada(
+    w4_nsga2_principal, w4_problema, w4_problema_horas, w4_insumos, w4_payoff,
+    w4_exatos_da_realizada, w4_ideal, w4_realizada
+  )),
+  tar_target(w4_avaliacao_tabelas, salvar_tabelas_bloco(list(
+    w4_nsga2_sementes = tabelar_sementes_do_nsga2(w4_nsga2_resumo_principal, w4_nsga2_variabilidade, w4_realizada),
+    w4_nsga2_trajetoria_principal = tabelar_trajetoria(w4_nsga2_trajetoria_principal, w4_realizada),
+    w4_nsga2_trajetoria_exploratoria = tabelar_trajetoria(w4_nsga2_trajetoria_exploratoria, w4_realizada),
+    w4_avaliacao_referencias = tabelar_referencias_da_avaliacao(w4_avaliacao, w4_exatos_da_realizada, w4_payoff, w4_realizada),
+    w4_avaliacao_pontos = tabelar_pontos_da_fronteira(w4_avaliacao, w4_realizada),
+    w4_avaliacao_resumo = tabelar_resumo_da_avaliacao(w4_avaliacao)
   )), format = "file")
 )
