@@ -586,5 +586,23 @@ list(
     w4_payoff = tabelar_payoff(w4_payoff, w4_payoff_descricao, w4_verificacao),
     w4_payoff_amplitudes = tabelar_amplitudes_do_payoff(w4_payoff, w4_verificacao),
     w4_tratabilidade = tabelar_tratabilidade_do_payoff(w4_payoff)
+  )), format = "file"),
+
+  # Etapa 3: o NSGA-II da emenda 1, adotado pela regra de troca. Só a semente
+  # principal nesta etapa; as outras nove e as realizações vêm depois da
+  # revisão do tempo e da qualidade da fronteira.
+  tar_target(w4_nsga2_principal, {
+    w4_conferencia
+    executar_nsga2_registrado(w4_problema, w4_emenda_nsga2, w4_emenda_nsga2$sementes$principal)
+  }),
+  tar_target(w4_nsga2_fronteira, extrair_fronteira(w4_nsga2_principal)),
+  tar_target(w4_nsga2_comparacao, comparar_fronteira_com_exato(
+    w4_nsga2_fronteira$objetivos, w4_payoff, pre_registro_otimizacao_desenho$metodo$ordem_lexicografica
+  )),
+  tar_target(w4_nsga2_convergencia, medir_convergencia(w4_nsga2_principal, w4_payoff)),
+  tar_target(w4_nsga2_tabelas, salvar_tabelas_bloco(list(
+    w4_nsga2_resumo = tabelar_resumo_do_nsga2(w4_nsga2_principal, w4_nsga2_fronteira, w4_nsga2_comparacao),
+    w4_nsga2_extremos = tabelar_extremos_do_nsga2(w4_nsga2_comparacao, w4_payoff, w4_verificacao),
+    w4_nsga2_convergencia = tabelar_convergencia_do_nsga2(w4_nsga2_convergencia)
   )), format = "file")
 )
