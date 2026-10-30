@@ -545,5 +545,25 @@ list(
     bloco_w3_hibrido$achados, bloco_w3_plausibilidade$achados, bloco_w3_estabilidade$achados,
     bloco_w3_revisao$achados
   ))),
-  tar_target(bloco_w3_sintese_tabelas, salvar_tabelas_bloco(bloco_w3_sintese$tabelas), format = "file")
+  tar_target(bloco_w3_sintese_tabelas, salvar_tabelas_bloco(bloco_w3_sintese$tabelas), format = "file"),
+
+  # Wave 4, otimização multiobjetivo ------------------------------------------
+  # O pré-registro da otimização fixa o problema antes de qualquer solução, e
+  # é rastreado como o da wave 3. A janela, a divisão e a semente de desempate
+  # continuam vindo de pre_registro.
+  tar_target(pre_registro_otimizacao_arquivo, here::here("config", "pre_registro_otimizacao.yml"), format = "file"),
+  tar_target(pre_registro_otimizacao, ler_pre_registro_otimizacao(pre_registro_otimizacao_arquivo)),
+
+  # Etapa 1: assentos, carga fixa, capacidade, elegibilidade, ŝ na estimação
+  # e a matriz do problema, sem resolver nada. A conferência para a pipeline
+  # se a montagem não reproduzir os valores de verificação, e as tabelas só
+  # são salvas depois dela.
+  tar_target(w4_insumos, preparar_insumos_da_otimizacao(dados_eda, pre_registro, pre_registro_otimizacao)),
+  tar_target(w4_problema, montar_problema_da_otimizacao(w4_insumos, pre_registro_otimizacao$carga$medida)),
+  tar_target(w4_verificacao, medir_verificacao_da_otimizacao(w4_insumos, w4_problema, dados_eda, pre_registro)),
+  tar_target(w4_conferencia, conferir_montagem_da_otimizacao(w4_verificacao, pre_registro_otimizacao)),
+  tar_target(w4_montagem_tabelas, salvar_tabelas_bloco(list(
+    w4_conferencia = tabelar_conferencia_da_otimizacao(w4_conferencia),
+    w4_porte = tabelar_porte_da_otimizacao(w4_verificacao)
+  )), format = "file")
 )
