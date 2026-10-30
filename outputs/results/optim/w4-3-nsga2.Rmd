@@ -1,0 +1,110 @@
+---
+title: "Etapa 3. A fronteira pelo NSGA-II"
+subtitle: "Wave 4, otimização multiobjetivo"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "optim", "_comum.R"))
+
+emenda <- ler_bloco("w4_emenda_nsga2")
+payoff <- ler_bloco("w4_payoff")
+verificacao <- ler_bloco("w4_verificacao")
+principal <- ler_bloco("w4_nsga2_principal")
+fronteira <- ler_bloco("w4_nsga2_fronteira")
+comparacao <- ler_bloco("w4_nsga2_comparacao")
+convergencia <- ler_bloco("w4_nsga2_convergencia")
+resumo_principal <- ler_bloco("w4_nsga2_resumo_principal")
+variabilidade <- ler_bloco("w4_nsga2_variabilidade")
+trajetoria <- ler_bloco("w4_nsga2_trajetoria_principal")
+realizada <- ler_bloco("w4_realizada")
+achados <- ler_bloco("w4_achados")
+sementes <- dplyr::bind_rows(resumo_principal, variabilidade)
+```
+
+## Propósito
+
+Pela regra de troca registrada, a tabela de payoff não chegou à otimalidade
+(Etapa 2), e a fronteira segue pelo NSGA-II de Deb et al. (2002), com os
+parâmetros da emenda 1, fixados antes de rodá-lo. Tudo aqui é confirmatório:
+a semente principal e as outras nove, todas com as
+`r formatar_inteiro(emenda$orcamento$geracoes)` gerações registradas. A
+comparação com o exato é descritiva.
+
+## Como o NSGA-II foi configurado
+
+Cada indivíduo é um vetor de `r formatar_inteiro(verificacao$assentos)` genes,
+um por assento, com o índice do consultor na lista de candidatos daquele
+assento. Um consultor repetido no mesmo projeto é reparado ao acaso, com o
+gerador da semente. A população tem
+`r formatar_inteiro(emenda$populacao$tamanho)` indivíduos, com a alocação
+realizada entre eles e os demais sorteados nas listas. O cruzamento é uniforme
+por assento, com probabilidade
+`r formatar_decimal(emenda$operadores$probabilidade_de_cruzamento, 1)`, e a
+mutação reatribui cada gene com probabilidade 1/`r verificacao$assentos`. A
+sobrevivência é elitista, pela ordem de dominação e pela distância de
+aglomeração. Os três objetivos são avaliados de forma exata em cada indivíduo.
+
+## A semente principal
+
+```{r resumo}
+mostrar_tabela(
+  tabelar_resumo_do_nsga2(principal, fronteira, comparacao),
+  "Tabela W4.7: execução da semente principal do NSGA-II."
+)
+```
+
+```{r extremos}
+mostrar_tabela(
+  tabelar_extremos_do_nsga2(comparacao, payoff, verificacao),
+  "Tabela W4.8: extremos da fronteira evolutiva contra os extremos exatos da tabela de payoff."
+)
+```
+
+A semente principal levou `r formatar_decimal(resumo_principal$segundos / 60, 1)`
+minutos e entregou `r formatar_inteiro(resumo_principal$pontos)` pontos não
+dominados distintos. Os extremos ficam longe dos exatos, e mais longe ainda na
+sobrecarga, cujo extremo exato fica perto de zero. Nenhum ponto da fronteira
+evolutiva é dominado pelas soluções exatas da tabela de payoff, o que só diz
+que as exatas são poucas e ficam nos extremos: a Etapa 4 mostra pontos exatos
+muito melhores no miolo.
+
+```{r trajetoria}
+mostrar_tabela(
+  tabelar_trajetoria(trajetoria, realizada),
+  "Tabela W4.9: extremos e hipervolume na caixa da realizada a cada 100 gerações, semente principal."
+)
+```
+
+Os três extremos ainda melhoram nas últimas gerações, e o hipervolume sobe até
+a última. A fronteira registrada não convergiu no orçamento registrado.
+
+## As dez sementes
+
+```{r sementes}
+mostrar_tabela(
+  tabelar_sementes_do_nsga2(resumo_principal, variabilidade, realizada),
+  "Tabela W4.10: as dez sementes registradas, cada uma com 2.000 gerações."
+)
+```
+
+O hipervolume na caixa entre a realizada e o ideal certificado é a medida
+corrigida da emenda 2, posterior ao resultado e descritiva; a da emenda 1 vale
+zero em todas as sementes por defeito de especificação (W4.3.3). Entre as
+sementes, o hipervolume varia de
+`r formatar_decimal(min(sementes$hipervolume_da_realizada), 3)` a
+`r formatar_decimal(max(sementes$hipervolume_da_realizada), 3)`, e a semente
+principal tem o
+`r sum(sementes$hipervolume_da_realizada > resumo_principal$hipervolume_da_realizada) + 1`º
+maior entre as `r nrow(sementes)`. O extremo de sobrecarga é o que mais varia.
+
+## Achados
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(achados[achados$bloco == "W4.3", ]))
+```

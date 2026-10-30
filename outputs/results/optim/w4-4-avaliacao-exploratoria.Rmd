@@ -1,0 +1,139 @@
+---
+title: "Etapa 4. Avaliação da fronteira e limite individual"
+subtitle: "Wave 4, otimização multiobjetivo, emendas 2 e 3 (exploratórias)"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "optim", "_comum.R"))
+
+emenda_2 <- ler_bloco("w4_emenda_exploratoria")
+emenda_3 <- ler_bloco("w4_emenda_limite")
+payoff <- ler_bloco("w4_payoff")
+realizada <- ler_bloco("w4_realizada")
+ideal <- ler_bloco("w4_ideal")
+trajetoria <- ler_bloco("w4_nsga2_trajetoria_exploratoria")
+avaliacao <- ler_bloco("w4_avaliacao")
+exatos <- ler_bloco("w4_exatos_da_realizada")
+concentracao <- ler_bloco("w4_concentracao")
+limite <- ler_bloco("w4_limite_individual")
+limitados <- ler_bloco("w4_limitados_descricao")
+achados <- ler_bloco("w4_achados")
+```
+
+## Propósito
+
+Tudo neste documento é exploratório: as emendas 2 e 3 foram escritas depois
+de resultados, e nenhuma decisão depende delas. A emenda 2 corrige a
+referência do hipervolume, mede a convergência numa corrida longa e avalia a
+fronteira registrada da semente principal, com três problemas exatos de
+referência. A emenda 3 mede a concentração simultânea da carga e examina um
+limite individual por consultor e mês.
+
+## Hipervolume e corrida longa (emenda 2)
+
+O hipervolume é medido na caixa entre a alocação realizada (afinidade
+`r formatar_decimal(realizada[["afinidade"]], 1)`, sobrecarga atribuível
+`r formatar_decimal(realizada[["sobrecarga"]], 1)`) e o ideal certificado pela
+tabela exata (afinidade `r formatar_decimal(ideal[["afinidade"]], 1)`, custo
+`r formatar_pct(1 - ideal[["custo"]] / realizada[["custo"]])` abaixo do da
+realizada, sobrecarga atribuível `r formatar_decimal(ideal[["sobrecarga"]], 3)`).
+Ele mede a fração da região que domina a realizada alcançada pela fronteira.
+
+```{r trajetoria}
+mostrar_tabela(
+  tabelar_trajetoria(trajetoria, realizada),
+  "Tabela W4.11: corrida exploratória de 20.000 gerações com a semente principal, a cada 500 gerações."
+)
+```
+
+Os três extremos melhoram o tempo todo, e o hipervolume não: ele sobe até
+perto da metade da corrida e depois oscila e cai. Com a população fixa e a
+sobrevivência por aglomeração, o NSGA-II sem arquivo externo descarta pontos
+do miolo para manter os extremos, e mais gerações não melhoram a fronteira
+entregue.
+
+## Referências exatas e posição da realizada
+
+```{r referencias}
+mostrar_tabela(
+  tabelar_referencias_da_avaliacao(avaliacao, exatos, payoff, realizada),
+  "Tabela W4.12: a realizada e as soluções exatas, com o certificado de cada uma."
+)
+```
+
+```{r pontos}
+mostrar_tabela(
+  tabelar_pontos_da_fronteira(avaliacao, realizada),
+  "Tabela W4.13: pontos selecionados da fronteira registrada da semente principal."
+)
+```
+
+```{r resumo}
+mostrar_tabela(
+  tabelar_resumo_da_avaliacao(avaliacao),
+  "Tabela W4.14: posição da realizada, conflito, capacidade, zona morta e carga em horas."
+)
+```
+
+Os problemas exatos do item 10.c, com os outros dois objetivos presos nos
+valores da realizada, mostram quanto cada objetivo melhora sozinho. O de custo
+chega ao ótimo em segundos, e os de afinidade e de sobrecarga param no
+tempo-limite com lacuna pequena. Os três ficam muito além do que a fronteira
+evolutiva alcança na mesma região.
+
+## Concentração simultânea (emenda 3)
+
+A ocupação é a carga de um consultor num mês de teste, a fixa mais a dos
+assentos, em fração de um mês cheio, como na EDA. A sobrecarga atribuível
+usa a capacidade com férias, como o objetivo.
+
+```{r concentracao}
+mostrar_tabela(
+  tabelar_concentracao_simultanea(concentracao),
+  "Tabela W4.15: concentração simultânea da carga na realizada, nas soluções exatas e na fronteira registrada."
+)
+```
+
+O objetivo de sobrecarga soma os excessos e não vê como eles se distribuem.
+A solução de afinidade máxima do item 10.c tem a mesma sobrecarga total da
+realizada, mas um consultor chega a
+`r formatar_decimal(concentracao$referencias$ocupacao_maxima[concentracao$referencias$solucao == "item 10.c, afinidade"], 1)`
+meses cheios num mês, contra
+`r formatar_decimal(concentracao$referencias$ocupacao_maxima[concentracao$referencias$solucao == "realizada"], 1)`
+na realizada e 5,8 no máximo da EDA. É por isso que o limite calibrado do
+item 8, um épsilon na sobrecarga total, sai degenerado.
+
+## Limite individual calibrado (emenda 3)
+
+O limite é `carga <= max(L, carga fixa)` para cada consultor e mês de teste,
+com L = `r formatar_decimal(limite, 4)` meses cheios, a maior ocupação mensal
+da realizada. O máximo com a carga fixa mantém a realizada viável. Com o
+limite, foram resolvidas as linhas de afinidade e de custo da tabela de payoff
+e os três problemas do item 10.c; o de afinidade foi repetido com
+L = `r formatar_decimal(emenda_3$sensibilidade$L, 1)` como sensibilidade.
+
+```{r limitados}
+mostrar_tabela(
+  tabelar_problemas_limitados(limitados),
+  "Tabela W4.16: problemas exatos com o limite individual, e a sensibilidade com L = 1,5."
+)
+```
+
+Com o limite, as linhas da tabela de payoff param no tempo-limite antes do
+terceiro passo lexicográfico. A coluna de passos mostra até onde cada uma
+chegou; a solução e o certificado são os do último passo com solução, e o
+custo e a sobrecarga dessas linhas não são os lexicográficos.
+
+## Achados
+
+Os achados W4.4 são da emenda 2, e os W4.5 da emenda 3; todos exploratórios.
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(achados[achados$bloco %in% c("W4.4", "W4.5"), ]))
+```

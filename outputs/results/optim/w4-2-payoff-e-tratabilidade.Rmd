@@ -25,9 +25,10 @@ subproblemas <- payoff$subproblemas
 
 Esta etapa cobre os itens 10.a e 10.b do pré-registro da otimização: a tabela
 de payoff por otimização lexicográfica e a tratabilidade de cada problema
-inteiro que ela exige. A grade do AUGMECON, a posição da alocação realizada e
-a estabilidade entre realizações ficam para depois da revisão do tempo por
-problema.
+inteiro que ela exige. A tabela decidiu a troca de método: a grade do AUGMECON
+não foi resolvida, a fronteira segue pelo NSGA-II (Etapa 3), a avaliação dela
+e o limite individual são exploratórios (Etapa 4), e a estabilidade entre
+realizações fecha a wave (Etapa 5).
 
 ## Como a tabela foi resolvida
 
@@ -81,3 +82,13 @@ sobrecarga. O pior valor de cada coluna na tabela de payoff é a estimativa
 usual do ponto nadir no AUGMECON, e pode não coincidir com o nadir verdadeiro;
 a otimização lexicográfica existe para afastar dessa estimativa as soluções
 fracamente eficientes.
+
+## Achados
+
+Os achados W4.1 são da montagem (Etapa 1), e os W4.2 desta etapa; todos
+confirmatórios.
+
+```{r achados, results = "asis"}
+achados <- ler_bloco("w4_achados")
+cat(mostrar_achados(achados[achados$bloco %in% c("W4.1", "W4.2"), ]))
+```
