@@ -565,5 +565,20 @@ list(
   tar_target(w4_montagem_tabelas, salvar_tabelas_bloco(list(
     w4_conferencia = tabelar_conferencia_da_otimizacao(w4_conferencia),
     w4_porte = tabelar_porte_da_otimizacao(w4_verificacao)
+  )), format = "file"),
+
+  # Etapa 2: tabela de payoff por otimização lexicográfica, nove problemas
+  # inteiros pelo HiGHS, só depois de a montagem conferir. Status e tempo de
+  # cada um decidem a primeira metade da regra de troca de método.
+  tar_target(w4_payoff, {
+    w4_conferencia
+    resolver_tabela_de_payoff(w4_problema, pre_registro_otimizacao)
+  }),
+  tar_target(w4_tratabilidade, avaliar_tratabilidade_do_payoff(w4_payoff)),
+  tar_target(w4_payoff_descricao, descrever_solucoes_do_payoff(w4_payoff, w4_problema)),
+  tar_target(w4_payoff_tabelas, salvar_tabelas_bloco(list(
+    w4_payoff = tabelar_payoff(w4_payoff, w4_payoff_descricao, w4_verificacao),
+    w4_payoff_amplitudes = tabelar_amplitudes_do_payoff(w4_payoff, w4_verificacao),
+    w4_tratabilidade = tabelar_tratabilidade_do_payoff(w4_payoff)
   )), format = "file")
 )
