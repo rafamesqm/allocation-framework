@@ -56,10 +56,13 @@ jobs:
         run: Rscript tests/testthat.R
 
       - name: Renderização dos documentos
-        run: Rscript -e 'source("analysis/_renderizar.R")'
+        run: Rscript -e 'source("outputs/results/eda/_renderizar.R")'
 
       - name: Renderização dos documentos da modelagem
-        run: Rscript -e 'source("modelling/_renderizar.R")'
+        run: Rscript -e 'source("outputs/results/scoring/_renderizar.R")'
+
+      - name: Renderização dos documentos da otimização
+        run: Rscript -e 'source("outputs/results/optim/_renderizar.R")'
 
       # Os dados e tabelas regenerados devem bater com os versionados. Diferença
       # aqui não derruba o job, porque a última casa decimal de ponto flutuante

@@ -1,0 +1,154 @@
+---
+title: "Bloco I.4 Estrutura temporal"
+subtitle: "EDA não direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "eda", "_comum.R"))
+
+bloco <- ler_bloco("bloco_i4")
+obj <- bloco$objetos
+```
+
+## Propósito do bloco
+
+Quarto bloco da frente não direcionada. O eixo temporal só passou a existir
+neste projeto quando as alocações ganharam data de início e fim, correção
+feita na abertura da wave 2. Antes disso não havia como falar de carga ao
+longo do tempo, nem de capacidade por período, nem de decaimento de
+competência.
+
+Este bloco caracteriza o que esse eixo permite ler e, principalmente, onde
+ele não tem lastro.
+
+## Janela coberta
+
+```{r janela}
+mostrar_tabela(
+  bloco$tabelas$i4_janela_temporal,
+  "Tabela I.4.1: amplitude de cada campo de data.",
+  c("l", "l", "l", "l", "r", "r")
+)
+```
+
+A primeira leitura é desconfortável e precisa ser dita antes de qualquer
+análise de série. O início dos projetos ocupa exatamente a janela de dois
+anos que o gerador sorteia, de
+`r format(min(obj$janela$inicio))` a
+`r format(obj$janela$fim[obj$janela$tabela == "projetos" & obj$janela$coluna == "data_inicio"])`.
+Mas o **fim** mais distante é `r format(obj$fim_mais_distante)`, isto é,
+`r formatar_decimal(obj$anos_alem, 1)` anos depois da data de referência da
+geração, que é `r format(obj$data_referencia)`. Há até alocação começando em
+`r format(obj$inicio_alocacao_mais_tardio)`,
+`r formatar_decimal(as.numeric(obj$inicio_alocacao_mais_tardio - obj$data_referencia) / 365.25, 1)`
+anos à frente da referência.
+
+Isso é consequência direta do teto de 2.368 dias na duração de projeto,
+decisão fechada na wave 1 e já registrada como limitação no bloco I.2. A
+consequência para este bloco é prática: a cauda da janela existe no arquivo
+mas não tem lastro em nada observado, e qualquer recorte temporal precisa
+declarar explicitamente o intervalo que usa.
+
+## Eventos e vigências
+
+```{r serie, fig.width = 8, fig.height = 4.5}
+bloco$figuras$i4_serie_mensal
+```
+
+A figura separa duas leituras que costumam ser confundidas. O início de um
+projeto é evento pontual, contado uma vez no mês em que ocorre. Uma alocação
+de quatro meses, porém, está vigente em quatro meses distintos, e é a
+vigência que descreve carga de trabalho.
+
+A série de vigências cobre `r nrow(obj$vigencias)` meses, com mediana de
+`r formatar_inteiro(stats::median(obj$vigencias$n_vigentes))` alocações
+simultâneas e pico de
+`r formatar_inteiro(max(obj$vigencias$n_vigentes))`. O decaimento longo à
+direita é a mesma cauda de duração discutida acima, não um padrão de
+negócio.
+
+```{r ocupacao, fig.width = 8, fig.height = 4}
+bloco$figuras$i4_ocupacao_mensal
+```
+
+## Sazonalidade
+
+```{r sazonalidade-figura, fig.width = 7.5, fig.height = 4}
+bloco$figuras$i4_sazonalidade
+```
+
+```{r sazonalidade-tabela}
+mostrar_tabela(
+  bloco$tabelas$i4_sazonalidade,
+  "Tabela I.4.2: início de projeto por mês do ano, observado contra esperado.",
+  c("r", "r", "r", "r")
+)
+```
+
+Uma sutileza do teste vale explicitar, porque errá-la produziria sazonalidade
+onde só há calendário. **O esperado não é contagem igual entre os doze
+meses.** Meses têm comprimentos diferentes, e a janela observada raramente
+cobre um número inteiro de anos, então alguns meses do ano aparecem mais
+vezes dentro dela. O esperado usado aqui é proporcional ao número de dias de
+cada mês do ano efetivamente presentes na janela.
+
+O resultado é qui-quadrado
+`r formatar_decimal(obj$sazonalidade$qui_quadrado, 2)` com
+`r obj$sazonalidade$gl` graus de liberdade e p =
+`r formatar_decimal(obj$sazonalidade$valor_p, 3)`: nenhuma evidência de
+variação por mês do ano.
+
+Isso era esperado por construção, e é importante dizer por quê. O gerador
+sorteia a data de início uniformemente na janela, então a ausência de
+sazonalidade é premissa do código, não descoberta sobre a organização. Um resultado
+não significativo tampouco permitiria concluir ausência de sazonalidade em
+geral, apenas ausência de evidência nestes dados. O que este bloco entrega
+aqui é o instrumento, pronto para o dado real, onde sazonalidade de venda é
+inteiramente plausível.
+
+## Recência de competência
+
+```{r recencia}
+recencia <- obj$recencia
+```
+
+Este é o segundo ponto em que a medição deste capítulo motivou correção no
+gerador.
+
+Na primeira versão, a recência se distribuía de forma praticamente uniforme
+entre 1 e 730 dias, e era sorteada **de forma independente para cada skill**,
+inclusive dentro do mesmo consultor. As duas coisas contrariam a fonte real.
+Segundo o mapeamento de schema, a recência deriva da hora de conclusão dos
+formulários de skills: as skills de uma pessoa vêm de uma resposta só, logo
+compartilham a mesma data, e são três instrumentos aplicados em campanha, o
+que concentra as datas em poucos grupos com grandes vazios entre eles.
+
+Hoje a recência é constante dentro de cada consultor, e os
+`r formatar_inteiro(recencia$n)` registros assumem apenas
+`r dplyr::n_distinct(obj$recencia_valores)` valores distintos, entre
+`r formatar_inteiro(recencia$minimo)` e
+`r formatar_inteiro(recencia$maximo)` dias.
+
+Uma declaração necessária sobre o alcance da correção. **As datas das ondas
+são suposição, não calibração**: as planilhas saíram da máquina antes de
+qualquer data ser agregada, e não há mais como recuperá-las. O que o gerador
+reproduz é a forma, poucos grupos apertados em vez de um contínuo, e é só
+isso que a monografia pode afirmar.
+
+A forma, porém, é o que importa aqui. Com a recência agrupada, um peso de
+decaimento se comporta de modo descontínuo: consultores da mesma onda são
+indistinguíveis entre si e há saltos entre ondas. Sobre a versão uniforme
+anterior, o mesmo peso pareceria variar de forma suave, e a wave 3 poderia
+calibrá-lo sobre uma suavidade que a fonte real não tem.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

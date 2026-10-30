@@ -140,7 +140,7 @@ executar_w3_plausibilidade <- function(plausibilidade, dados, vereditos, registr
         Vazio = ifelse(vazio, "sim", "não")
       ),
     # A planilha da leitura sai em branco, como modelo: o avaliador é o autor.
-    # A cópia preenchida vive em modelling/leitura/rubrica_preenchida.csv,
+    # A cópia preenchida vive em outputs/results/scoring/leitura/rubrica_preenchida.csv,
     # que a pipeline nunca escreve; preencher este arquivo seria perder os
     # vereditos no próximo tar_make().
     w3_rubrica_leitura_modelo = plausibilidade$rubrica |>

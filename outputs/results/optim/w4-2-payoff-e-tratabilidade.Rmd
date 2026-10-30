@@ -1,0 +1,83 @@
+---
+title: "Etapa 2. Tabela de payoff e tratabilidade"
+subtitle: "Wave 4, otimização multiobjetivo"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "optim", "_comum.R"))
+
+registro <- ler_bloco("pre_registro_otimizacao")
+verificacao <- ler_bloco("w4_verificacao")
+payoff <- ler_bloco("w4_payoff")
+tratabilidade <- ler_bloco("w4_tratabilidade")
+descricao <- ler_bloco("w4_payoff_descricao")
+metodo <- registro$metodo
+subproblemas <- payoff$subproblemas
+```
+
+## Propósito
+
+Esta etapa cobre os itens 10.a e 10.b do pré-registro da otimização: a tabela
+de payoff por otimização lexicográfica e a tratabilidade de cada problema
+inteiro que ela exige. A grade do AUGMECON, a posição da alocação realizada e
+a estabilidade entre realizações ficam para depois da revisão do tempo por
+problema.
+
+## Como a tabela foi resolvida
+
+Para cada objetivo, o HiGHS resolve três problemas em sequência, na ordem
+lexicográfica registrada: o objetivo da linha, depois o segundo com o primeiro
+preso ao ótimo, depois o terceiro com os dois presos. A fixação usa tolerância
+relativa de `r format(metodo$tolerancia_de_fixacao, scientific = TRUE)`. Cada
+problema tem tempo-limite de `r metodo$tempo_limite_segundos` segundos, lacuna
+relativa zero e uma linha de execução.
+
+```{r tratabilidade}
+mostrar_tabela(
+  tabelar_tratabilidade_do_payoff(payoff),
+  "Tabela W4.4: status, tempo, lacuna e nós de cada problema da tabela de payoff."
+)
+```
+
+Dos `r nrow(subproblemas)` problemas,
+`r tratabilidade$subproblemas_otimos` chegaram à otimalidade, em
+`r formatar_decimal(sum(subproblemas$segundos) / 60, 1)` minutos ao todo; o
+mais demorado levou `r formatar_decimal(max(subproblemas$segundos), 1)`
+segundos. `r if (tratabilidade$payoff_otima) "A tabela de payoff foi resolvida até a otimalidade, e a primeira metade da regra de troca está cumprida: a decisão entre o método exato e o NSGA-II depende agora só da fração da grade que chegar à otimalidade." else "A tabela de payoff não foi resolvida até a otimalidade, e pela regra de troca registrada o método exato está descartado: a otimização segue pelo NSGA-II, com os parâmetros fixados por emenda datada antes de rodá-lo."`
+
+**Os problemas que param no tempo-limite não reproduzem exatamente.** A
+melhor solução encontrada em `r metodo$tempo_limite_segundos` segundos depende
+da velocidade e da carga da máquina, e uma segunda corrida pode trazer outra
+solução e outra lacuna. Só os problemas resolvidos até a otimalidade têm valor
+reproduzível.
+
+## Tabela de payoff
+
+```{r payoff}
+mostrar_tabela(
+  tabelar_payoff(payoff, descricao, verificacao),
+  "Tabela W4.5: tabela de payoff lexicográfica e a alocação realizada; custo em relação ao da realizada."
+)
+```
+
+`r if (all(payoff$payoff$completa)) "As três linhas completaram os três passos lexicográficos." else paste0("Linha incompleta: ", paste(payoff$payoff$linha[!payoff$payoff$completa], collapse = ", "), ". Algum passo terminou sem solução viável, e os valores da linha são os da solução do último passo que teve uma; ela não é a solução lexicográfica registrada.")`
+
+```{r amplitudes}
+mostrar_tabela(
+  tabelar_amplitudes_do_payoff(payoff, verificacao),
+  "Tabela W4.6: mínimo, máximo e amplitude de cada objetivo na tabela de payoff."
+)
+```
+
+As amplitudes normalizam as folgas do termo de aumento e definem os
+`r metodo$intervalos_por_objetivo_restrito` intervalos da grade em custo e em
+sobrecarga. O pior valor de cada coluna na tabela de payoff é a estimativa
+usual do ponto nadir no AUGMECON, e pode não coincidir com o nadir verdadeiro;
+a otimização lexicográfica existe para afastar dessa estimativa as soluções
+fracamente eficientes.

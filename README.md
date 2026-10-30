@@ -14,8 +14,9 @@ reconstruir tudo do dado sintético ao resultado, com R 4.5.3:
 renv::restore()
 targets::tar_make()
 source("tests/testthat.R")
-source("analysis/_renderizar.R")
-source("modelling/_renderizar.R")
+source("outputs/results/eda/_renderizar.R")
+source("outputs/results/scoring/_renderizar.R")
+source("outputs/results/optim/_renderizar.R")
 ```
 
 A pipeline vem antes dos testes porque parte deles lê o store do `targets`.
@@ -48,11 +49,8 @@ Catalog e nunca é persistido em disco.
 │   ├── etl/                   # constrói as camadas
 │   ├── features/               # C, P, S, R
 │   ├── scoring/               # wave 3: fatoração, mapeamento, híbrido, s chapéu
-│   ├── optim/                    # wave 4, não iniciado
+│   ├── optim/                 # wave 4: montagem, payoff, NSGA-II, avaliação
 │   └── viz/
-├── analysis/                     # documentos Quarto/Rmd, EDA como capítulo
-├── modelling/                    # documentos Rmd da modelagem (wave 3), um por etapa
-│   └── leitura/                  # leitura qualitativa do autor, nunca escrita pela pipeline
 ├── config/
 │   └── pre_registro.yml          # protocolo da wave 3, commitado antes de qualquer modelo
 ├── data/
@@ -61,7 +59,12 @@ Catalog e nunca é persistido em disco.
 │   └── testthat/                 # testes sobre dados sintéticos
 ├── outputs/
 │   ├── figures/                  # figuras em pt-BR
-│   └── tables/
+│   ├── tables/
+│   └── results/                  # documentos Rmd, um por etapa, que leem os alvos e narram
+│       ├── eda/                  # EDA como capítulo
+│       ├── scoring/              # wave 3, scoring híbrido
+│       │   └── leitura/          # leitura qualitativa do autor, nunca escrita pela pipeline
+│       └── optim/                # wave 4, conclusões da otimização
 └── docs/
     └── dicionario_de_dados.md    # esquema dos dados e especificação de modelagem
 ```

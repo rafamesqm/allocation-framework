@@ -1,6 +1,8 @@
 test_that("estrutura de pastas do projeto existe", {
   expect_true(dir.exists(here::here("R")))
-  expect_true(dir.exists(here::here("analysis")))
+  expect_true(dir.exists(here::here("outputs", "results", "eda")))
+  expect_true(dir.exists(here::here("outputs", "results", "scoring")))
+  expect_true(dir.exists(here::here("outputs", "results", "optim")))
   expect_true(dir.exists(here::here("data", "synthetic")))
   expect_true(dir.exists(here::here("outputs", "figures")))
   expect_true(dir.exists(here::here("outputs", "tables")))
