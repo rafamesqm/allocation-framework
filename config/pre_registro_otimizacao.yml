@@ -365,3 +365,84 @@ emendas:
     ordem_de_execucao: >-
       a semente principal primeiro, com parada para revisão do tempo e da
       qualidade da fronteira antes das outras nove sementes e das realizações
+  - data: "2026-10-30"
+    nome: emenda 2, referência do hipervolume e corrida exploratória
+    anterior_a_execucao: true
+    posterior_ao_resultado_da_semente_principal: true
+    contexto: >-
+      escrita depois da revisão da semente principal do NSGA-II e antes das
+      outras nove sementes, da corrida exploratória e da avaliação
+    hipervolume:
+      defeito_da_emenda_1: >-
+        a referência da emenda 1, o pior valor de cada objetivo na tabela de
+        payoff, tinha um defeito de especificação: na afinidade, esse valor é o
+        da solução de sobrecarga mínima (552,6), e a referência excluía por
+        construção todo ponto com afinidade menor
+      referencia: >-
+        a alocação realizada (afinidade 365,2, custo 0% em relação a ela,
+        sobrecarga atribuível 198,5)
+      normalizacao: >-
+        pelo volume da caixa entre a alocação realizada e o ponto ideal da
+        tabela exata: afinidade 663,1, custo 9,8% abaixo do da realizada e
+        sobrecarga atribuível 0,433, o limite inferior certificado pelo solver;
+        o hipervolume mede a fração da região que domina a alocação realizada
+        alcançada pela fronteira
+      ressalvas: >-
+        a correção é posterior ao resultado e nenhuma decisão depende dessa
+        medida; o zero da referência registrada na emenda 1 também é reportado
+      calculado_para:
+        - o conjunto das soluções exatas da etapa 2
+        - a fronteira de cada semente
+        - a semente principal a cada 100 gerações
+    orcamento: >-
+      as nove sementes restantes rodam com as 2.000 gerações registradas, sem
+      mudança; são os resultados confirmatórios
+    corrida_exploratoria:
+      funcao: declarada posterior ao resultado e sem função decisória
+      semente: 20261029
+      geracoes: 20000
+      registro: os três extremos e o hipervolume a cada 500 gerações
+      registrar_a_cada: 500
+      objetivo: medir a velocidade de convergência, não substituir a fronteira registrada
+    avaliacao:
+      fronteira: a registrada da semente principal (2.000 gerações)
+      itens: [posição da alocação realizada, conflito, tratamentos da capacidade, zona morta, sensibilidade em horas]
+      referencias_exatas: os três problemas do item 10.c, com a lacuna declarada
+      conflito: >-
+        reportado primeiro pelos extremos exatos, que têm certificado; a
+        fronteira entra como ilustração do caminho entre eles
+      realizada: >-
+        a alocação realizada estava na população inicial, e a dominação dela é
+        confirmada de forma independente pela solução exata de sobrecarga mínima
+    achado_de_metodo: >-
+      ao lado do item 10 da emenda 1: no orçamento registrado, o NSGA-II puro de
+      Deb et al. (2002), com cruzamento uniforme e mutação de 1/692, não
+      convergiu em 692 genes, e os seus extremos ficaram longe dos exatos, que
+      o método exato resolve em segundos para a afinidade e o custo; operadores
+      com busca local ou população semeada por soluções exatas ficam como
+      trabalho futuro e não são usados aqui
+    estabilidade: como na emenda 1, nas 100 realizações só a alocação realizada e as linhas exatas de afinidade máxima e de custo mínimo
+    # Detalhes que os itens acima não fixam, propostos na escrita da emenda e
+    # anteriores à execução. Todos descritivos.
+    detalhes_de_implementacao:
+      problemas_do_item_10c: >-
+        três problemas de um objetivo pelo HiGHS, com o controle do método
+        (tempo-limite, lacuna e linhas de execução registrados), cada um com os
+        outros dois objetivos presos no valor da alocação realizada
+      taxa_de_troca: >-
+        na projeção da fronteira em afinidade e sobrecarga atribuível, os pontos
+        não dominados nesse plano, ordenados por afinidade; a taxa é o
+        acréscimo de sobrecarga por unidade de afinidade entre pontos
+        consecutivos, reportada pela mediana, e entre os extremos exatos
+      concentracao: >-
+        fração dos assentos ocupados pelos 10 consultores mais populares na
+        estimação, e o maior número de assentos de um mesmo consultor
+      penalidade: >-
+        o ponto da fronteira que minimiza a soma, com pesos iguais, dos três
+        objetivos normalizados na caixa do hipervolume
+      limite_calibrado: >-
+        o ponto da fronteira de maior afinidade com sobrecarga atribuível no
+        máximo a da alocação realizada
+      sensibilidade_em_horas: >-
+        as mesmas soluções reavaliadas com a carga em horas, sem otimizar de
+        novo

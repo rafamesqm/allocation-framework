@@ -45,7 +45,7 @@ test_that("os valores registrados são os combinados antes de qualquer solução
   expect_equal(avaliacao$estabilidade$nivel, 0.9)
   expect_length(avaliacao$posicao_da_realizada$ganho_maximo, 3)
   expect_equal(registro_otimizacao$achados$arquivo, "outputs/tables/achados_w4.csv")
-  expect_length(registro_otimizacao$emendas, 1)
+  expect_length(registro_otimizacao$emendas, 2)
 })
 
 test_that("a emenda 1 fixa o NSGA-II antes de rodá-lo", {
@@ -128,4 +128,17 @@ test_that("o alvo da pipeline lê o mesmo pré-registro do arquivo", {
     targets::tar_read(pre_registro_otimizacao, store = here::here("_targets")),
     registro_otimizacao
   )
+})
+
+test_that("a emenda 2 corrige a referência do hipervolume e declara a corrida exploratória", {
+  emenda <- localizar_emenda(registro_otimizacao, "emenda 2, referência do hipervolume e corrida exploratória")
+  expect_true(emenda$anterior_a_execucao)
+  expect_true(emenda$posterior_ao_resultado_da_semente_principal)
+  expect_match(emenda$hipervolume$referencia, "alocação realizada")
+  expect_match(emenda$hipervolume$normalizacao, "0,433")
+  expect_equal(emenda$corrida_exploratoria$semente, registro_otimizacao$emendas[[1]]$sementes$principal)
+  expect_equal(emenda$corrida_exploratoria$geracoes, 20000)
+  expect_equal(emenda$corrida_exploratoria$registrar_a_cada, 500)
+  expect_match(emenda$corrida_exploratoria$funcao, "sem função decisória")
+  expect_match(emenda$orcamento, "2.000 gerações registradas")
 })
