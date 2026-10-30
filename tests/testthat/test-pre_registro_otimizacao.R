@@ -45,7 +45,31 @@ test_that("os valores registrados são os combinados antes de qualquer solução
   expect_equal(avaliacao$estabilidade$nivel, 0.9)
   expect_length(avaliacao$posicao_da_realizada$ganho_maximo, 3)
   expect_equal(registro_otimizacao$achados$arquivo, "outputs/tables/achados_w4.csv")
-  expect_length(registro_otimizacao$emendas, 0)
+  expect_length(registro_otimizacao$emendas, 1)
+})
+
+test_that("a emenda 1 fixa o NSGA-II antes de rodá-lo", {
+  emenda <- registro_otimizacao$emendas[[1]]
+  expect_equal(emenda$data, "2026-10-30")
+  expect_true(emenda$anterior_a_execucao)
+  expect_match(emenda$metodo, "Deb et al., 2002")
+  expect_equal(emenda$operadores$probabilidade_de_cruzamento, 0.9)
+  expect_equal(emenda$operadores$probabilidade_de_mutacao_por_gene, "1/692")
+  expect_equal(emenda$operadores$threads, 1)
+  expect_equal(emenda$populacao$tamanho, 200)
+  expect_false(emenda$populacao$extremos_exatos_na_populacao)
+  expect_equal(emenda$orcamento$geracoes, 2000)
+  expect_equal(emenda$sementes$principal, 20261029)
+  expect_equal(emenda$sementes$variabilidade, 20261030:20261038)
+  expect_equal(
+    emenda$objetivos$lista,
+    c("afinidade", "custo", "sobrecarga atribuível aos assentos")
+  )
+  # Os 692 genes são os 692 assentos registrados.
+  expect_equal(
+    as.integer(sub("1/", "", emenda$operadores$probabilidade_de_mutacao_por_gene)),
+    registro_otimizacao$verificacao$assentos
+  )
 })
 
 test_that("a otimização herda da wave 3 o que não registra de novo", {
