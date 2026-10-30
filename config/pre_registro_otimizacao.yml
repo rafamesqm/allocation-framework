@@ -446,3 +446,99 @@ emendas:
       sensibilidade_em_horas: >-
         as mesmas soluções reavaliadas com a carga em horas, sem otimizar de
         novo
+  - data: "2026-10-30"
+    nome: emenda 3, limite individual calibrado
+    anterior_a_execucao: true
+    posterior_ao_resultado: true
+    funcao: exploratória, declarada posterior ao resultado e sem função decisória
+    contexto: >-
+      escrita depois da avaliação da emenda 2 e antes de qualquer problema com
+      o limite individual; as medidas simultâneas de concentração valem também
+      para as soluções da emenda 2, sem resolver nada de novo
+    achado_que_a_motiva: >-
+      o objetivo de sobrecarga, como soma dos excessos sobre consultores e
+      meses, é indiferente à distribuição: no problema de afinidade máxima do
+      item 10.c, a sobrecarga total fica presa na da alocação realizada, mas
+      108 assentos vão para um único consultor e a maior ocupação mensal chega
+      a 13,8 meses cheios, contra 5,8 na realizada; medido na escrita desta
+      emenda, sem resolver nada, o consultor mais sobrecarregado fica com 26%
+      da sobrecarga atribuível, contra 9% na realizada, de modo que a
+      concentração é forte no pico, e não na soma; por isso o limite calibrado
+      do item 8, épsilon na sobrecarga total da realizada, não restringe
+      ninguém individualmente e
+      sai degenerado na avaliação da emenda 2
+    correcao_do_item_8: >-
+      a seção 4.3.7 da monografia descreve o limite calibrado como um limite
+      por consultor e mês acima de 100%, calibrado pelo histórico; a
+      correspondência do item 8 com um épsilon na sobrecarga total estava
+      errada nesse ponto; o item 8 fica como foi registrado e executado, e o
+      limite individual entra aqui como exploratório
+    ocupacao:
+      medida: >-
+        a carga de um consultor num mês de teste, carga fixa mais a dos
+        assentos, em fração de um mês cheio, sem descontar férias; é a medida
+        da EDA (achado II.8.2, máximo de 5,8 vezes a capacidade), escolhida
+        pelo autor em 2026-10-30; as férias continuam valendo só no objetivo de
+        sobrecarga
+      motivo: >-
+        dividida pela capacidade com férias, a ocupação de x̄ chega a 97,7 num
+        mês com 3,3% de capacidade, e x̄ teria um assento num consultor-mês de
+        capacidade zero; o limite não restringiria quase nada
+    limite_individual:
+      restricao: >-
+        para cada consultor e mês de teste, carga <= max(L, carga fixa daquele
+        consultor-mês); o max mantém x̄ viável e impede que a carga fixa
+        sozinha torne o problema inviável
+      L: >-
+        a maior ocupação mensal da alocação realizada nos meses de teste, sobre
+        todos os consultores e meses, inclusive os que só têm carga fixa
+      valor_de_L: 5.7859
+      tolerancia_de_L: 1.0e-4
+      implementacao: >-
+        uma linha por consultor e mês em que o consultor é candidato a algum
+        assento: a carga dos assentos no máximo max(L, fixa) menos a fixa; nos
+        demais meses a carga é só a fixa, e o limite vale por construção
+    problemas:
+      solver: o HiGHS, com o controle do método (600 s, lacuna zero, uma linha de execução) e a lacuna declarada
+      lista:
+        - as linhas de afinidade máxima e de custo mínimo da tabela de payoff, pela mesma ordem lexicográfica e tolerância de fixação
+        - os três problemas do item 10.c, cada objetivo com os outros dois presos nos valores de x̄
+      reportado_para_cada: os três objetivos, status, tempo, lacuna e as medidas de concentração
+      pergunta: quanto do ganho de afinidade sobrevive quando ninguém pode passar do pico que a própria alocação realizada já tinha
+    sensibilidade:
+      problema: o de afinidade máxima do item 10.c
+      L: 1.5
+      nota: >-
+        com L = 1,5, x̄ não é viável; os outros dois objetivos continuam presos
+        nos valores dela, e a inviabilidade, se houver, é o resultado
+    concentracao_simultanea:
+      medidas:
+        ocupacao_maxima: a maior ocupação de um consultor num mês de teste, na medida acima
+        meses_acima_de_2: o número de meses de consultor com ocupação acima de 2
+        fracao_no_mais_sobrecarregado: >-
+          a sobrecarga atribuível somada por consultor nos meses de teste; a do
+          consultor de maior soma dividida pela total, indefinida quando a
+          total é zero
+      calculadas_para:
+        - a alocação realizada
+        - as soluções da tabela de payoff
+        - os três problemas do item 10.c
+        - os pontos da fronteira registrada da semente principal
+        - os problemas desta emenda
+      comparacao: >-
+        a ocupação máxima ao lado do máximo da EDA, 5,8 vezes a capacidade,
+        que é sobre a janela inteira, enquanto aqui são só os meses de teste
+      mantidas: a fração no top 10 da estimação e o maior número de assentos de um consultor, da emenda 2
+    estabilidade: >-
+      as 100 realizações seguem as emendas 1 e 2, sem o limite individual: x̄
+      e as linhas exatas de afinidade máxima e de custo mínimo da tabela de
+      payoff, com a ocupação máxima acrescentada a x̄ e às duas linhas
+    detalhes_da_estabilidade:
+      sementes: as das realizações da wave 3, a partir da primeira registrada no pré-registro da wave 3
+      dados: cada realização gera os dados com férias, como no segundo nível da wave 3, e refaz insumos, ŝ, assentos, carga e o problema
+      grandezas: >-
+        os três objetivos de x̄; para cada linha exata, a afinidade, o custo
+        em relação a x̄, a sobrecarga atribuível, a ocupação máxima, o status e
+        o tempo de cada passo
+      resumo: mediana e intervalo de 90% entre realizações, com a posição da realização versionada
+      integracao_continua: cinco realizações no push, como na wave 3

@@ -45,7 +45,7 @@ test_that("os valores registrados são os combinados antes de qualquer solução
   expect_equal(avaliacao$estabilidade$nivel, 0.9)
   expect_length(avaliacao$posicao_da_realizada$ganho_maximo, 3)
   expect_equal(registro_otimizacao$achados$arquivo, "outputs/tables/achados_w4.csv")
-  expect_length(registro_otimizacao$emendas, 2)
+  expect_length(registro_otimizacao$emendas, 3)
 })
 
 test_that("a emenda 1 fixa o NSGA-II antes de rodá-lo", {
@@ -142,3 +142,18 @@ test_that("a emenda 2 corrige a referência do hipervolume e declara a corrida e
   expect_match(emenda$corrida_exploratoria$funcao, "sem função decisória")
   expect_match(emenda$orcamento, "2.000 gerações registradas")
 })
+
+test_that("a emenda 3 registra o limite individual como exploratório", {
+  emenda <- localizar_emenda(registro_otimizacao, "emenda 3, limite individual calibrado")
+  expect_true(emenda$anterior_a_execucao)
+  expect_true(emenda$posterior_ao_resultado)
+  expect_match(emenda$funcao, "sem função decisória")
+  expect_match(emenda$ocupacao$medida, "mês cheio")
+  expect_equal(emenda$limite_individual$valor_de_L, 5.7859)
+  expect_equal(emenda$sensibilidade$L, 1.5)
+  expect_named(
+    emenda$concentracao_simultanea$medidas,
+    c("ocupacao_maxima", "meses_acima_de_2", "fracao_no_mais_sobrecarregado")
+  )
+})
+
