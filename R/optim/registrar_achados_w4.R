@@ -16,7 +16,7 @@
 registrar_achados_w4 <- function(montagem, exato, nsga2, avaliacao, limite, estabilidade) {
   blocos <- list(
     achados_w4_montagem(montagem),
-    achados_w4_payoff(exato),
+    achados_w4_payoff(exato, avaliacao, montagem$verificacao),
     achados_w4_nsga2(nsga2, exato, avaliacao),
     achados_w4_emenda_2(nsga2, exato, avaliacao),
     achados_w4_emenda_3(avaliacao, limite, exato),
@@ -27,7 +27,8 @@ registrar_achados_w4 <- function(montagem, exato, nsga2, avaliacao, limite, esta
     W4.4 = "exploratório", W4.5 = "exploratório", W4.6 = "confirmatório"
   )
   consolidar_achados(blocos) |>
-    dplyr::mutate(natureza = unname(natureza[bloco]), .after = etiqueta)
+    dplyr::mutate(natureza = unname(natureza[bloco]), .after = etiqueta) |>
+    conferir_textos_w4()
 }
 
 # Valor de uma solução de referência da avaliação da emenda 2.
@@ -36,16 +37,43 @@ referencia_w4 <- function(avaliacao, solucao, coluna) {
   referencias[[coluna]][referencias$solucao == solucao]
 }
 
+# Valor de um problema exato, em texto. Os problemas com tempo-limite podem
+# terminar sem solução, e numa máquina mais lenta isso pode acontecer onde a
+# versionada achou uma; o texto declara a situação em vez de imprimir NA.
+citar_w4 <- function(x, formatar = formatar_decimal, ...) {
+  if (length(x) == 0 || all(is.na(x))) {
+    return("sem solução no tempo-limite")
+  }
+  formatar(x, ...)
+}
+
 # Custo de uma solução em relação ao da realizada, em texto.
 custo_relativo_w4 <- function(custo, realizada) {
-  formatar_pct(abs(custo / realizada[["custo"]] - 1))
+  citar_w4(abs(custo / realizada[["custo"]] - 1), formatar_pct)
+}
+
+# Para se algum texto ainda carregar NA: todo valor de problema exato passa
+# por citar_w4(), e um NA que sobre é citação esquecida.
+conferir_textos_w4 <- function(achados) {
+  campos <- c("enunciado", "implicacao", "decisao", "limitacao")
+  com_na <- purrr::map_lgl(seq_len(nrow(achados)), function(i) {
+    any(grepl("\\bNA\\b|NA%|NaN", unlist(achados[i, campos])), na.rm = TRUE)
+  })
+  if (any(com_na)) {
+    stop("Achado da wave 4 com NA no texto: ", paste(achados$codigo[com_na], collapse = ", "), call. = FALSE)
+  }
+  achados
 }
 
 achados_w4_montagem <- function(montagem) {
   v <- montagem$verificacao
+  amplitude <- v$amplitude_de_s_hat_por_nivel
+  amplitudes <- paste0(
+    amplitude$nivel, " ", formatar_decimal(amplitude$mediana, 2), collapse = ", "
+  )
   registrar_achados("W4.1", tibble::tibble(
-    codigo = c("W4.1.1", "W4.1.2"),
-    etiqueta = c("instrumento", "instrumento"),
+    codigo = c("W4.1.1", "W4.1.2", "W4.1.3"),
+    etiqueta = c("instrumento", "instrumento", "instrumento"),
     enunciado = c(
       paste0(
         "Os ", nrow(montagem$conferencia), " valores de verificação do pré-registro da otimização ",
@@ -60,6 +88,22 @@ achados_w4_montagem <- function(montagem) {
         "Com os mesmos assentos, a receita de cada projeto é fixa e a margem é a receita menos o ",
         "custo, de modo que maximizar a margem equivale a minimizar o custo. A otimização tem três ",
         "objetivos: a afinidade, o custo e a sobrecarga atribuível aos assentos."
+      ),
+      paste0(
+        "Limites da montagem. Quatro limites ficam declarados junto do problema registrado. Primeiro, ",
+        "ŝ entra sem renormalização por assento, e cada assento pesa na afinidade conforme a amplitude ",
+        "de ŝ entre os seus candidatos; a amplitude mediana por nível é ", amplitudes, ". Segundo, ",
+        formatar_inteiro(v$realizados_fora_da_lista), " dos ", formatar_inteiro(v$assentos), " assentos têm o ",
+        "realizado fora da lista do modelo, elegível só pela regra que garante a viabilidade da ",
+        "realizada, e entram com ŝ igual a zero; outros ", formatar_inteiro(v$realizados_zona_morta),
+        " são da zona morta, também com ŝ igual a zero. A afinidade da realizada se mede só nos ",
+        formatar_inteiro(v$assentos_com_realizado_na_lista), " assentos em que o realizado está na lista, ",
+        "onde soma ", formatar_decimal(v$afinidade_realizada_nos_assentos_da_lista, 1), ", de ",
+        formatar_decimal(v$afinidade_realizada, 1), " no total. Terceiro, o gerador não respeita a admissão: ", formatar_inteiro(v$assentos_realizados_antes_da_admissao),
+        " assentos têm o realizado alocado antes da data de admissão, e ",
+        formatar_inteiro(v$pares_antes_da_admissao), " pares candidatos ficam na mesma situação. Quarto, ",
+        formatar_inteiro(v$assentos_censurados_no_fim_da_janela), " assentos atravessam o fim da janela ",
+        "e são censurados no último dia observado, com carga e custo contados só até ali."
       )
     ),
     implicacao = c(
@@ -72,14 +116,28 @@ achados_w4_montagem <- function(montagem) {
         "A margem não entra como quarto objetivo, e toda variação de custo entre duas soluções ",
         "é, com o sinal trocado, a variação de margem. Os valores monetários aparecem só como ",
         "diferenças relativas ao custo da realizada."
+      ),
+      paste0(
+        "A afinidade da realizada é baixa em parte por construção: os assentos de realizado fora da ",
+        "lista valem zero no objetivo, qualquer que seja a adequação do consultor, e toda comparação ",
+        "de afinidade com a realizada carrega essa diferença. Os quatro limites valem para todas as ",
+        "soluções da wave, confirmatórias e exploratórias."
       )
     ),
-    decisao = c(NA, "A otimização tem três objetivos, sem a margem, que repete o custo."),
-    proveniencia = c(NA, "estrutural")
+    decisao = c(NA, "A otimização tem três objetivos, sem a margem, que repete o custo.", NA),
+    limitacao = c(
+      NA, NA,
+      paste0(
+        "Sem renormalização, os assentos com amplitude maior de ŝ pesam mais na afinidade. A ",
+        "admissão entra como limitação, e não como restrição, porque o gerador não a respeita. A ",
+        "censura subestima a carga e o custo dos assentos que continuam depois da janela."
+      )
+    ),
+    proveniencia = c(NA, "estrutural", "depende do gerador")
   ))
 }
 
-achados_w4_payoff <- function(exato) {
+achados_w4_payoff <- function(exato, avaliacao, verificacao) {
   payoff <- exato$payoff
   realizada <- exato$realizada
   linha <- \(nome) payoff$payoff[payoff$payoff$linha == nome, ]
@@ -100,13 +158,13 @@ achados_w4_payoff <- function(exato) {
         formatar_decimal(linha("afinidade")$afinidade, 1), ", contra ", formatar_decimal(realizada[["afinidade"]], 1),
         " na realizada; o custo mínimo fica ", custo_relativo_w4(linha("custo")$custo, realizada),
         " abaixo do dela; e a menor sobrecarga atribuível encontrada é ",
-        formatar_decimal(sobrecarga$sobrecarga_atribuivel, 2), ", contra ",
+        citar_w4(sobrecarga$sobrecarga_atribuivel, formatar_decimal, 2), ", contra ",
         formatar_decimal(realizada[["sobrecarga"]], 1), " na realizada."
       ),
       paste0(
         "A regra de troca pedia lacuna zero, e o primeiro passo da linha de sobrecarga parou com ",
-        "lacuna relativa de ", formatar_pct(primeiro_de_sobrecarga$mip_gap, 2), ": a melhor solução tem ",
-        "sobrecarga atribuível de ", formatar_decimal(sobrecarga$sobrecarga_atribuivel, 3),
+        "lacuna relativa de ", citar_w4(primeiro_de_sobrecarga$mip_gap, formatar_pct, 2), ": a melhor solução tem ",
+        "sobrecarga atribuível de ", citar_w4(sobrecarga$sobrecarga_atribuivel, formatar_decimal, 3),
         " e o limite inferior certificado é ", formatar_decimal(exato$ideal[["sobrecarga"]], 3), ". ",
         "As linhas de afinidade e de custo, sobre o mesmo problema, resolvem em menos de um minuto."
       ),
@@ -117,9 +175,9 @@ achados_w4_payoff <- function(exato) {
       ),
       paste0(
         "A alocação realizada é dominada por uma solução exata: a da linha de sobrecarga mínima tem ",
-        "afinidade ", formatar_decimal(sobrecarga$afinidade, 1), ", custo ",
+        "afinidade ", citar_w4(sobrecarga$afinidade, formatar_decimal, 1), ", custo ",
         custo_relativo_w4(sobrecarga$custo, realizada), " menor e sobrecarga atribuível de ",
-        formatar_decimal(sobrecarga$sobrecarga_atribuivel, 1), ", contra ",
+        citar_w4(sobrecarga$sobrecarga_atribuivel, formatar_decimal, 1), ", contra ",
         formatar_decimal(realizada[["afinidade"]], 1), " de afinidade e ",
         formatar_decimal(realizada[["sobrecarga"]], 1), " de sobrecarga na realizada."
       )
@@ -145,8 +203,16 @@ achados_w4_payoff <- function(exato) {
         "diagnóstico de sobrealocação."
       ),
       paste0(
-        "Existe alocação melhor que a realizada nos três objetivos ao mesmo tempo, com folga em ",
-        "todos. No sintético, a realizada é muito dominada, e a magnitude é do gerador."
+        "A dominância vale para os objetivos como medidos, e não para a qualidade da alocação. A ",
+        "afinidade mede aderência à popularidade na estimação, e não adequação, e a realizada tem ŝ ",
+        "igual a zero por construção em ", formatar_inteiro(verificacao$realizados_fora_da_lista),
+        " assentos (W4.1.3), então boa parte da vantagem de afinidade é efeito da medida. A dominância ",
+        "substantiva é a do item 10.c (W4.4.2): com a afinidade presa na da realizada, a sobrecarga ",
+        "atribuível vai de ", formatar_decimal(realizada[["sobrecarga"]], 1), " a ",
+        citar_w4(referencia_w4(avaliacao, "item 10.c, sobrecarga", "sobrecarga"), formatar_decimal, 1), " e o custo cai ",
+        custo_relativo_w4(referencia_w4(avaliacao, "item 10.c, sobrecarga", "custo"), realizada), ". Essa folga ",
+        "mede em boa parte um gerador que aloca sem respeitar a capacidade (II.8.2), e todas as ",
+        "realizações da estabilidade compartilham o mesmo gerador."
       )
     ),
     decisao = c(
@@ -164,8 +230,9 @@ achados_w4_payoff <- function(exato) {
       ),
       NA,
       paste0(
-        "A folga entre a realizada e as soluções exatas mede o gerador. No dado real, a realizada ",
-        "carrega critérios que os três objetivos não veem."
+        "A folga entre a realizada e as soluções exatas mede o gerador, e a estabilidade entre ",
+        "realizações não a valida, porque as realizações vêm do mesmo gerador. No dado real, a ",
+        "realizada carrega critérios que os três objetivos não veem."
       )
     ),
     proveniencia = c("depende do gerador", "estrutural", NA, "depende do gerador")
@@ -194,7 +261,7 @@ achados_w4_nsga2 <- function(nsga2, exato, avaliacao) {
         ", custo mínimo ", custo_relativo_w4(principal$custo_minimo, realizada), " abaixo do da realizada contra ",
         custo_relativo_w4(linha("custo")$custo, realizada), ", e sobrecarga atribuível mínima de ",
         formatar_decimal(principal$sobrecarga_minima, 1), " contra ",
-        formatar_decimal(linha("sobrecarga")$sobrecarga_atribuivel, 2), ". Nenhum ponto é dominado pelas ",
+        citar_w4(linha("sobrecarga")$sobrecarga_atribuivel, formatar_decimal, 2), ". Nenhum ponto é dominado pelas ",
         "soluções exatas da tabela de payoff."
       ),
       paste0(
@@ -209,14 +276,15 @@ achados_w4_nsga2 <- function(nsga2, exato, avaliacao) {
       paste0(
         "O hipervolume registrado na emenda 1, com referência no pior valor de cada objetivo na ",
         "tabela de payoff, vale zero em todas as sementes. Na afinidade, esse pior valor é o da ",
-        "solução de sobrecarga mínima, ", formatar_decimal(linha("sobrecarga")$afinidade, 1),
+        "solução de sobrecarga mínima, ", citar_w4(linha("sobrecarga")$afinidade, formatar_decimal, 1),
         ", e a referência excluía por construção todo ponto com afinidade menor."
       )
     ),
     implicacao = c(
       paste0(
-        "A fronteira evolutiva melhora a realizada em todos os pontos, mas não converge no orçamento ",
-        "registrado. Que nenhum ponto seja dominado pelas soluções exatas não indica que eles estejam ",
+        "Todos os pontos dominam a realizada nos objetivos como medidos, com as ressalvas de W4.2.4: a ",
+        "afinidade mede aderência à popularidade, e não adequação, e a folga sobre a realizada mede em ",
+        "boa parte o gerador. A fronteira não converge no orçamento registrado. Que nenhum ponto seja dominado pelas soluções exatas não indica que eles estejam ",
         "na fronteira verdadeira: as exatas são poucas e ficam nos extremos, e os problemas exatos do ",
         "item 10.c mostram pontos muito melhores na mesma região (W4.4.2)."
       ),
@@ -257,7 +325,7 @@ achados_w4_emenda_2 <- function(nsga2, exato, avaliacao) {
 
   problemas <- avaliacao$exatos$problemas
   problema <- \(objetivo) problemas[problemas$objetivo == objetivo, ]
-  lacuna <- \(objetivo) formatar_pct(problema(objetivo)$mip_gap, 2)
+  lacuna <- \(objetivo) citar_w4(problema(objetivo)$mip_gap, formatar_pct, 2)
   pontos <- avaliacao$avaliacao$pontos
   conflito <- avaliacao$avaliacao$conflito
   capacidade <- avaliacao$avaliacao$capacidade
@@ -274,8 +342,9 @@ achados_w4_emenda_2 <- function(nsga2, exato, avaliacao) {
         "Na corrida exploratória de ", formatar_inteiro(ultima$geracao), " gerações com a semente principal, ",
         "os extremos melhoram o tempo todo: a afinidade máxima vai de ",
         formatar_decimal(na_geracao(2000)$afinidade_maxima, 1), " na geração 2.000 a ",
-        formatar_decimal(ultima$afinidade_maxima, 1), ", o custo mínimo alcança o exato na geração ",
-        formatar_inteiro(alcancou), ", e a sobrecarga atribuível mínima cai de ",
+        formatar_decimal(ultima$afinidade_maxima, 1), ", o custo mínimo ",
+        if (is.na(alcancou)) "não alcança o exato na corrida" else paste("alcança o exato na geração", formatar_inteiro(alcancou)),
+        ", e a sobrecarga atribuível mínima cai de ",
         formatar_decimal(na_geracao(2000)$sobrecarga_minima, 1), " para ", formatar_decimal(ultima$sobrecarga_minima, 1),
         ". O hipervolume na caixa da realizada não acompanha: chega a ", formatar_decimal(pico$hipervolume, 3),
         " na geração ", formatar_inteiro(pico$geracao), " e termina em ", formatar_decimal(ultima$hipervolume, 3),
@@ -283,23 +352,23 @@ achados_w4_emenda_2 <- function(nsga2, exato, avaliacao) {
       ),
       paste0(
         "Com os outros dois objetivos presos nos valores da realizada, o método exato alcança afinidade de ",
-        formatar_decimal(problema("afinidade")$afinidade, 1), ", com lacuna de ", lacuna("afinidade"),
+        citar_w4(problema("afinidade")$afinidade, formatar_decimal, 1), ", com lacuna de ", lacuna("afinidade"),
         " no tempo-limite; custo ", custo_relativo_w4(problema("custo")$custo, realizada),
-        " abaixo do da realizada, ótimo em ", formatar_decimal(problema("custo")$segundos, 1), " segundos; ",
-        "e sobrecarga atribuível de ", formatar_decimal(problema("sobrecarga")$sobrecarga, 1),
+        " abaixo do da realizada, ótimo em ", citar_w4(problema("custo")$segundos, formatar_decimal, 1), " segundos; ",
+        "e sobrecarga atribuível de ", citar_w4(problema("sobrecarga")$sobrecarga, formatar_decimal, 1),
         ", com lacuna de ", lacuna("sobrecarga"), ". Nenhum ponto da fronteira registrada passa de ",
         formatar_decimal(max(pontos$afinidade), 1), " de afinidade."
       ),
       paste0(
         "Entre os extremos exatos de afinidade e de sobrecarga, a sobrecarga atribuível cresce ",
-        formatar_decimal(conflito$taxa_entre_extremos_exatos, 2), " por unidade de afinidade; no caminho ",
+        citar_w4(conflito$taxa_entre_extremos_exatos, formatar_decimal, 2), " por unidade de afinidade; no caminho ",
         "da fronteira registrada, a mediana da mesma taxa é ", formatar_decimal(conflito$taxa_mediana_na_fronteira, 2),
         ". A afinidade máxima concentra os assentos: a solução exata põe ",
-        formatar_pct(ref("payoff, afinidade", "fracao_nos_10_mais_populares")),
+        citar_w4(ref("payoff, afinidade", "fracao_nos_10_mais_populares"), formatar_pct),
         " deles nos 10 consultores mais populares na estimação e ",
-        formatar_inteiro(ref("payoff, afinidade", "maior_numero_de_assentos")), " num só consultor, contra ",
-        formatar_pct(ref("realizada", "fracao_nos_10_mais_populares")), " e ",
-        formatar_inteiro(ref("realizada", "maior_numero_de_assentos")), " na realizada."
+        citar_w4(ref("payoff, afinidade", "maior_numero_de_assentos"), formatar_inteiro), " num só consultor, contra ",
+        citar_w4(ref("realizada", "fracao_nos_10_mais_populares"), formatar_pct), " e ",
+        citar_w4(ref("realizada", "maior_numero_de_assentos"), formatar_inteiro), " na realizada."
       ),
       paste0(
         "Dos três tratamentos da capacidade, o limite rígido é inviável (W4.2.3); o limite calibrado do ",
@@ -313,10 +382,10 @@ achados_w4_emenda_2 <- function(nsga2, exato, avaliacao) {
         "A zona morta ocupa de ", formatar_inteiro(min(pontos$assentos_da_zona_morta)), " a ",
         formatar_inteiro(max(pontos$assentos_da_zona_morta)), " assentos por ponto da fronteira registrada, ",
         "com mediana de ", formatar_inteiro(stats::median(pontos$assentos_da_zona_morta)), ", contra ",
-        formatar_inteiro(ref("realizada", "assentos_da_zona_morta")), " na realizada. As soluções exatas de ",
+        citar_w4(ref("realizada", "assentos_da_zona_morta"), formatar_inteiro), " na realizada. As soluções exatas de ",
         "afinidade máxima e de custo mínimo da tabela de payoff não usam nenhum; as do item 10.c de custo e ",
-        "de sobrecarga usam ", formatar_inteiro(ref("item 10.c, custo", "assentos_da_zona_morta")), " e ",
-        formatar_inteiro(ref("item 10.c, sobrecarga", "assentos_da_zona_morta")), "."
+        "de sobrecarga usam ", citar_w4(ref("item 10.c, custo", "assentos_da_zona_morta"), formatar_inteiro), " e ",
+        citar_w4(ref("item 10.c, sobrecarga", "assentos_da_zona_morta"), formatar_inteiro), "."
       ),
       paste0(
         "Reavaliados com a carga em horas, sem otimizar de novo, ",
@@ -397,7 +466,7 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
   projetos <- limite$projetos$referencias
   proj <- function(solucao, coluna, l = NA) {
     linha <- projetos$solucao == solucao & (if (is.na(l)) is.na(projetos$limite) else projetos$limite %in% l)
-    formatar_inteiro(projetos[[coluna]][linha])
+    citar_w4(projetos[[coluna]][linha], formatar_inteiro)
   }
   pontos_proj <- limite$projetos$pontos
   percentis <- c(projetos$percentil_95, pontos_proj$percentil_95)
@@ -410,14 +479,14 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
         "O objetivo de sobrecarga soma os excessos sobre consultores e meses e é indiferente à ",
         "distribuição. No problema de afinidade máxima do item 10.c, com a sobrecarga total presa na da ",
         "realizada, a maior ocupação de um consultor num mês chega a ",
-        formatar_decimal(conc("item 10.c, afinidade", "ocupacao_maxima"), 1), " meses cheios, contra ",
-        formatar_decimal(conc("realizada", "ocupacao_maxima"), 1), " na realizada, e ",
-        formatar_inteiro(conc("item 10.c, afinidade", "maior_numero_de_assentos")), " assentos vão para um só ",
+        citar_w4(conc("item 10.c, afinidade", "ocupacao_maxima"), formatar_decimal, 1), " meses cheios, contra ",
+        citar_w4(conc("realizada", "ocupacao_maxima"), formatar_decimal, 1), " na realizada, e ",
+        citar_w4(conc("item 10.c, afinidade", "maior_numero_de_assentos"), formatar_inteiro), " assentos vão para um só ",
         "consultor; o consultor mais sobrecarregado fica com ",
-        formatar_pct(conc("item 10.c, afinidade", "fracao_no_mais_sobrecarregado"), 0), " da sobrecarga atribuível, ",
-        "contra ", formatar_pct(conc("realizada", "fracao_no_mais_sobrecarregado"), 0), " na realizada. Na solução ",
+        citar_w4(conc("item 10.c, afinidade", "fracao_no_mais_sobrecarregado"), formatar_pct, 0), " da sobrecarga atribuível, ",
+        "contra ", citar_w4(conc("realizada", "fracao_no_mais_sobrecarregado"), formatar_pct, 0), " na realizada. Na solução ",
         "de afinidade máxima da tabela de payoff, a ocupação máxima chega a ",
-        formatar_decimal(conc("payoff, afinidade", "ocupacao_maxima"), 1), ", contra o máximo de 5,8 da EDA. ",
+        citar_w4(conc("payoff, afinidade", "ocupacao_maxima"), formatar_decimal, 1), ", contra o máximo de 5,8 da EDA. ",
         "Nos pontos da fronteira registrada, ela fica entre ", formatar_decimal(min(pontos$ocupacao_maxima), 1),
         " e ", formatar_decimal(max(pontos$ocupacao_maxima), 1), "."
       ),
@@ -425,41 +494,41 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
         "Com o limite individual em L = ", formatar_decimal(limite$valor, 2), " meses cheios, a maior ",
         "ocupação mensal da realizada, nenhuma das duas linhas da tabela de payoff completa os três passos ",
         "lexicográficos no tempo-limite: a de afinidade máxima para no passo ",
-        formatar_inteiro(lim("payoff, afinidade", "passos_com_solucao")), " e a de custo mínimo no passo ",
-        formatar_inteiro(lim("payoff, custo", "passos_com_solucao")), ". A afinidade máxima cai de ",
+        citar_w4(lim("payoff, afinidade", "passos_com_solucao"), formatar_inteiro), " e a de custo mínimo no passo ",
+        citar_w4(lim("payoff, custo", "passos_com_solucao"), formatar_inteiro), ". A afinidade máxima cai de ",
         formatar_decimal(afinidade_sem_limite("payoff, afinidade"), 1), " para ",
-        formatar_decimal(lim("payoff, afinidade", "afinidade"), 1), " (", certificado("payoff, afinidade"), "), e a do ",
+        citar_w4(lim("payoff, afinidade", "afinidade"), formatar_decimal, 1), " (", certificado("payoff, afinidade"), "), e a do ",
         "item 10.c, com custo e sobrecarga presos nos da realizada, de ",
         formatar_decimal(afinidade_sem_limite("item 10.c, afinidade"), 1), " para ",
-        formatar_decimal(lim("item 10.c, afinidade", "afinidade"), 1), " (", certificado("item 10.c, afinidade"), "). ",
-        "Sobrevivem ", formatar_pct(ganho("payoff, afinidade"), 0), " e ", formatar_pct(ganho("item 10.c, afinidade"), 0),
+        citar_w4(lim("item 10.c, afinidade", "afinidade"), formatar_decimal, 1), " (", certificado("item 10.c, afinidade"), "). ",
+        "Sobrevivem ", citar_w4(ganho("payoff, afinidade"), formatar_pct, 0), " e ", citar_w4(ganho("item 10.c, afinidade"), formatar_pct, 0),
         " do ganho de afinidade sobre a realizada. O custo mínimo fica ",
         custo_relativo_w4(lim("payoff, custo", "custo"), realizada), " abaixo do da realizada, o mesmo valor sem ",
         "limite, e a sobrecarga mínima do item 10.c fica em ",
-        formatar_decimal(lim("item 10.c, sobrecarga", "sobrecarga"), 1), " (", certificado("item 10.c, sobrecarga"), "). ",
+        citar_w4(lim("item 10.c, sobrecarga", "sobrecarga"), formatar_decimal, 1), " (", certificado("item 10.c, sobrecarga"), "). ",
         "O limite leva a ocupação máxima a L, mas não desfaz a concentração de assentos: um só consultor ",
-        "ainda recebe ", formatar_inteiro(lim("payoff, afinidade", "maior_numero_de_assentos")), " assentos na linha de ",
-        "afinidade máxima e ", formatar_inteiro(lim("item 10.c, afinidade", "maior_numero_de_assentos")),
-        " no item 10.c, contra ", formatar_inteiro(lim("realizada", "maior_numero_de_assentos")), " na realizada, e os ",
+        "ainda recebe ", citar_w4(lim("payoff, afinidade", "maior_numero_de_assentos"), formatar_inteiro), " assentos na linha de ",
+        "afinidade máxima e ", citar_w4(lim("item 10.c, afinidade", "maior_numero_de_assentos"), formatar_inteiro),
+        " no item 10.c, contra ", citar_w4(lim("realizada", "maior_numero_de_assentos"), formatar_inteiro), " na realizada, e os ",
         "meses de consultor acima de 2 na linha de afinidade máxima passam de ",
-        formatar_inteiro(conc("payoff, afinidade", "meses_acima_de_2")), " sem limite para ",
-        formatar_inteiro(lim("payoff, afinidade", "meses_acima_de_2")), " com ele."
+        citar_w4(conc("payoff, afinidade", "meses_acima_de_2"), formatar_inteiro), " sem limite para ",
+        citar_w4(lim("payoff, afinidade", "meses_acima_de_2"), formatar_inteiro), " com ele."
       ),
       paste0(
-        "Com L = ", formatar_decimal(sensibilidade$limite, 1), " meses cheios, o problema de afinidade máxima ",
+        "Com L = ", citar_w4(sensibilidade$limite, formatar_decimal, 1), " meses cheios, o problema de afinidade máxima ",
         "do item 10.c ",
         if (is.na(sensibilidade$afinidade)) {
           paste0("termina sem solução (", descrever_certificado(sensibilidade$status, sensibilidade$mip_gap), ").")
         } else {
           paste0(
-            "chega a afinidade ", formatar_decimal(sensibilidade$afinidade, 1), " (",
+            "chega a afinidade ", citar_w4(sensibilidade$afinidade, formatar_decimal, 1), " (",
             descrever_certificado(sensibilidade$status, sensibilidade$mip_gap), "), ",
             formatar_pct(fracao_do_ganho_w4(sensibilidade$afinidade, afinidade_sem_limite("item 10.c, afinidade"), realizada), 0),
-            " do ganho sem limite. A ocupação máxima desce a ", formatar_decimal(sensibilidade$ocupacao_maxima, 2),
+            " do ganho sem limite. A ocupação máxima desce a ", citar_w4(sensibilidade$ocupacao_maxima, formatar_decimal, 2),
             ", o piso dado pela carga fixa, a sobrecarga atribuível fica em ",
-            formatar_decimal(sensibilidade$sobrecarga, 1), ", abaixo dos ", formatar_decimal(lim("realizada", "sobrecarga"), 1),
+            citar_w4(sensibilidade$sobrecarga, formatar_decimal, 1), ", abaixo dos ", citar_w4(lim("realizada", "sobrecarga"), formatar_decimal, 1),
             " da realizada, e o consultor com mais assentos recebe ",
-            formatar_inteiro(sensibilidade$maior_numero_de_assentos), "."
+            citar_w4(sensibilidade$maior_numero_de_assentos, formatar_inteiro), "."
           )
         }
       ),
@@ -470,7 +539,7 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
         "payoff e a ", proj("item 10.c, afinidade", "maximo"), " no item 10.c de afinidade, que já respeita a ",
         "sobrecarga total da realizada; com L = ", formatar_decimal(limite$valor, 2), ", a ",
         proj("payoff, afinidade", "maximo", limite$valor), " e a ", proj("item 10.c, afinidade", "maximo", limite$valor),
-        "; e com L = ", formatar_decimal(sensibilidade$limite, 1), ", a ",
+        "; e com L = ", citar_w4(sensibilidade$limite, formatar_decimal, 1), ", a ",
         proj("item 10.c, afinidade", "maximo", sensibilidade$limite), " no item 10.c. Nos ",
         formatar_inteiro(nrow(pontos_proj)), " pontos da fronteira registrada, o máximo fica entre ",
         formatar_inteiro(min(pontos_proj$maximo)), " e ", formatar_inteiro(max(pontos_proj$maximo)), ", com mediana ",
@@ -480,7 +549,7 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
         " na realizada, ", proj("item 10.c, afinidade", "acima_de_3"), " no item 10.c de afinidade sem limite, ",
         proj("item 10.c, afinidade", "acima_de_3", limite$valor), " com L = ", formatar_decimal(limite$valor, 2), " e ",
         proj("item 10.c, afinidade", "acima_de_3", sensibilidade$limite), " com L = ",
-        formatar_decimal(sensibilidade$limite, 1), ", e ", proj("payoff, afinidade", "acima_de_3", limite$valor),
+        citar_w4(sensibilidade$limite, formatar_decimal, 1), ", e ", proj("payoff, afinidade", "acima_de_3", limite$valor),
         " na linha de afinidade máxima com L = ", formatar_decimal(limite$valor, 2), "."
       )
     ),
@@ -510,10 +579,10 @@ achados_w4_emenda_3 <- function(avaliacao, limite, exato) {
         "assentos: no pico, um só consultor passa a tocar dezenas de projetos no mesmo mês. Nem o limite ",
         "agregado, a sobrecarga total presa na da realizada, nem o limite individual de carga calibrado ",
         "contêm essa fragmentação, porque nenhum dos dois conta projetos. O limite individual apertado, ",
-        "L = ", formatar_decimal(sensibilidade$limite, 1), ", devolve o pico de projetos simultâneos ao nível ",
+        "L = ", citar_w4(sensibilidade$limite, formatar_decimal, 1), ", devolve o pico de projetos simultâneos ao nível ",
         "da realizada e ainda guarda a maior parte do ganho (W4.5.3), mas não desfaz a fragmentação ao longo ",
-        "do período: o consultor com mais assentos ainda recebe ", formatar_inteiro(sensibilidade$maior_numero_de_assentos),
-        ", contra ", formatar_inteiro(lim("realizada", "maior_numero_de_assentos")), " na realizada, e os ",
+        "do período: o consultor com mais assentos ainda recebe ", citar_w4(sensibilidade$maior_numero_de_assentos, formatar_inteiro),
+        ", contra ", citar_w4(lim("realizada", "maior_numero_de_assentos"), formatar_inteiro), " na realizada, e os ",
         "consultores e meses com mais de três projetos aumentam. Um limite de projetos simultâneos por ",
         "consultor, não previsto na formulação, fica como trabalho futuro."
       )

@@ -104,7 +104,7 @@ mostrar_tabela(
 O objetivo de sobrecarga soma os excessos e não vê como eles se distribuem.
 A solução de afinidade máxima do item 10.c tem a mesma sobrecarga total da
 realizada, mas um consultor chega a
-`r formatar_decimal(concentracao$referencias$ocupacao_maxima[concentracao$referencias$solucao == "item 10.c, afinidade"], 1)`
+`r citar_w4(concentracao$referencias$ocupacao_maxima[concentracao$referencias$solucao == "item 10.c, afinidade"], formatar_decimal, 1)`
 meses cheios num mês, contra
 `r formatar_decimal(concentracao$referencias$ocupacao_maxima[concentracao$referencias$solucao == "realizada"], 1)`
 na realizada e 5,8 no máximo da EDA. É por isso que o limite calibrado do
