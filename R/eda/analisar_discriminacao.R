@@ -245,7 +245,10 @@ comparar_mecanismos_de_p <- function(dados, data_corte = NULL,
       "one_hot", "popularidade"
     ),
     function(mecanismo) {
-      escore <- avaliacoes[[mecanismo]]
+      # O mesmo consultor aparece em vários pares, e alguns BLAS devolvem o
+      # mesmo produto escalar com a última casa diferente conforme a posição
+      # da linha. Sem arredondar, empates exatos virariam valores distintos.
+      escore <- round(avaliacoes[[mecanismo]], 10)
       tibble::tibble(
         mecanismo = mecanismo,
         auc = calcular_auc(escore, avaliacoes$alocado),
