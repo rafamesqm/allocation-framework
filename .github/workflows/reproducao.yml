@@ -150,9 +150,20 @@ jobs:
           Rscript -e 'source("outputs/results/scoring/_renderizar.R")'
           Rscript -e 'source("outputs/results/optim/_renderizar.R")'
 
-      # Os dados e tabelas regenerados devem bater com os versionados, menos
-      # os da wave 4 que vêm de problemas parados no tempo-limite. Diferença
-      # aqui não derruba o job; o relatório fica no log.
+      # Os dados sintéticos, as tabelas da EDA e da wave 3, a montagem da
+      # wave 4 e as linhas que chegam ao ótimo devem bater com os versionados,
+      # e diferença nelas derruba o job. Os valores de problemas parados no
+      # tempo-limite, e o que deriva deles, não se reproduzem entre máquinas e
+      # ficam só no relato do log. Ver R/viz/comparar_com_versionado.R.
       - name: Dados regenerados contra os versionados
-        continue-on-error: true
-        run: git diff --stat --exit-code -- data/synthetic outputs/tables
+        run: |
+          Rscript -e '
+            targets::tar_source("R")
+            r <- comparar_com_versionado()
+            print(as.data.frame(r), right = FALSE)
+            falhas <- r[!r$igual & r$regra != "relato", ]
+            if (nrow(falhas) > 0) {
+              message("Diferem dos versionados: ", paste(falhas$arquivo, collapse = ", "))
+              quit(status = 1)
+            }
+          '
