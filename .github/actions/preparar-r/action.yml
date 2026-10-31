@@ -24,6 +24,17 @@ runs:
           libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev \
           libpng-dev libtiff5-dev libjpeg-dev libicu-dev
 
+    # O OpenBLAS do runner escolhe o kernel pela CPU e pode mudar a última casa
+    # de um produto escalar conforme a posição da linha. O BLAS de referência
+    # é o mesmo que o R usa no Windows, onde os versionados foram gerados.
+    - name: BLAS de referência
+      shell: bash
+      run: |
+        sudo apt-get install -y --no-install-recommends libblas3 liblapack3
+        sudo update-alternatives --set libblas.so.3-x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/blas/libblas.so.3
+        sudo update-alternatives --set liblapack.so.3-x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3
+        Rscript -e 'si <- sessionInfo(); cat("BLAS:", si$BLAS, "\nLAPACK:", si$LAPACK, "\n")'
+
     - uses: r-lib/actions/setup-renv@v2
 
     - name: Estado do renv
