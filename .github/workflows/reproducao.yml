@@ -68,7 +68,7 @@ jobs:
           for arquivo in "$W3_SAIDA_REDUZIDA"/tables/*.csv; do
             nome=$(basename "$arquivo")
             case "$nome" in w3_*|achados_w3*|w4_*|achados_w4*) continue ;; esac
-            diff -q "$arquivo" "outputs/tables/$nome" || status=1
+            diff "outputs/tables/$nome" "$arquivo" || status=1
           done
           exit ${status:-0}
 
