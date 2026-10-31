@@ -3,7 +3,9 @@ test_that("a guarda dos documentos barra valor inline vazio, NA ou n/a", {
   # vez, porque citava grandezas que tinham deixado de existir. A guarda em
   # outputs/results/eda/_comum.R faz a renderização parar nesses casos. O de comprimento
   # zero é o que importa: o knitr o imprime vazio sem passar pelo gancho de
-  # saída, e por isso a guarda fica no de avaliação.
+  # saída, e por isso a guarda fica no de avaliação. Na corrida reduzida a
+  # guarda é relaxada; aqui ela é testada como na completa.
+  withr::local_envvar(W3_REALIZACOES = NA, W4_CORRIDA = "completa")
   withr::defer(knitr::knit_hooks$restore())
   source(here::here("outputs", "results", "eda", "_comum.R"), local = new.env())
 
