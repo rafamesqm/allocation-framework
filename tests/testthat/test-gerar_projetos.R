@@ -17,13 +17,7 @@ test_that("setor e tipo_projeto ficam dentro do espaço real de categorias", {
     "Varejo", "Serviços", "Indústria", "Banking", "Educação", "Health",
     "Insurance", "Agronegócio", "Alimentos e Bebidas", "Private Equity"
   )
-  offerings_esperados <- c(
-    "Experience & Efficiency", "Strategy and M&A",
-    "Data Analytics & Artificial Intelligence", "Supply Chain",
-    "Tech Consulting", "Finance", "Talent & Organization",
-    "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Produtos de IA", "Educação Pública"
-  )
+  offerings_esperados <- sprintf("oferta_%02d", 1:12)
   expect_true(all(projetos$setor %in% segmentos_esperados))
   expect_true(all(projetos$tipo_projeto %in% offerings_esperados))
 })

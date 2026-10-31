@@ -9,7 +9,7 @@ Linha de afinidade máxima,Ocupação máxima num mês,"24,14","21,32","15,40 a 
 Linha de afinidade máxima,Ganho de afinidade sobre a realizada,"297,8","303,2","286,3 a 328,5",sim,100
 Linha de afinidade máxima,Acréscimo de sobrecarga atribuível sobre a realizada,"249,6","254,6","215,7 a 291,7",sim,100
 Linha de afinidade máxima,Fração das realizações com a linha ótima,"100,0%","100,0%","100,0% a 100,0%",sim,100
-Linha de afinidade máxima,Segundos somados dos três passos,24,20,14 a 31,sim,100
+Linha de afinidade máxima,Segundos somados dos três passos,24,21,14 a 34,sim,100
 Linha de custo mínimo,Afinidade,"641,7","636,9","575,5 a 674,0",sim,100
 Linha de custo mínimo,Custo em relação à realizada,"-9,8%","-11,1%","-13,5% a -8,3%",sim,100
 Linha de custo mínimo,Sobrecarga atribuível,"439,7","407,4","340,8 a 466,3",sim,100
@@ -17,4 +17,4 @@ Linha de custo mínimo,Ocupação máxima num mês,"25,09","21,43","16,06 a 26,8
 Linha de custo mínimo,Ganho de afinidade sobre a realizada,"276,5","262,0","217,9 a 298,9",sim,100
 Linha de custo mínimo,Acréscimo de sobrecarga atribuível sobre a realizada,"241,2","239,9","205,3 a 279,0",sim,100
 Linha de custo mínimo,Fração das realizações com a linha ótima,"100,0%","100,0%","100,0% a 100,0%",sim,100
-Linha de custo mínimo,Segundos somados dos três passos,29,65,18 a 213,sim,100
+Linha de custo mínimo,Segundos somados dos três passos,29,71,23 a 241,sim,100

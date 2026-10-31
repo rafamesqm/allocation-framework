@@ -12,12 +12,6 @@ test_that("expertise_funcional fica dentro do catálogo de offerings", {
   consultores <- gerar_consultores(n_consultores = 200)
   expertise <- gerar_expertise_funcional(consultores)
 
-  offerings_esperados <- c(
-    "Experience & Efficiency", "Strategy and M&A",
-    "Data Analytics & Artificial Intelligence", "Supply Chain",
-    "Tech Consulting", "Finance", "Talent & Organization",
-    "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Produtos de IA", "Educação Pública"
-  )
+  offerings_esperados <- sprintf("oferta_%02d", 1:12)
   expect_true(all(expertise$expertise_funcional %in% offerings_esperados))
 })

@@ -146,10 +146,10 @@ mostrar_tabela(
 É o único número real que este bloco tem sobre quanto de afinidade existe, e
 vale mais que qualquer medida sobre o sintético.
 
-Os dois lados importam. O **lift alto**, de quase dez para a frente de Data
-Analytics, diz que o mecanismo de afinidade é real e não suposição do
+Os dois lados importam. O **lift alto**, de quase dez para uma das frentes
+(frente_01), diz que o mecanismo de afinidade é real e não suposição do
 gerador, o que sustenta usar categoria como filtro. O **volume baixo**, com
-só `r formatar_pct(obj$ponte$share_horas[obj$ponte$frente == "Data Analytics"])`
+só `r formatar_pct(obj$ponte$share_horas[obj$ponte$frente == "frente_01"])`
 das horas dessa frente caindo na offering correspondente, diz que a maior
 parte das horas de qualquer frente vai para as offerings grandes.
 

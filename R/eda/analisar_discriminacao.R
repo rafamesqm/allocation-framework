@@ -274,22 +274,25 @@ comparar_mecanismos_de_p <- function(dados, data_corte = NULL,
 #' onde a afinidade foi plantada.
 #'
 #' A leitura que eles impõem é dupla, e é o achado: a afinidade **existe**,
-#' com lift de quase dez para a frente de Data Analytics, e ao mesmo tempo é
+#' com lift de quase dez para uma das frentes, e ao mesmo tempo é
 #' **fraca em volume**, porque a maior parte das horas de qualquer frente cai
 #' nas offerings grandes.
 #'
 #' Ressalvas registradas na consulta: só cerca de metade das linhas de
 #' alocação resolvem frente, 42% das horas não têm chave para o RH, e os
-#' grupos das frentes de Digital têm de cinco a nove pessoas.
+#' grupos de algumas frentes têm de cinco a nove pessoas. As frentes e as
+#' ofertas levam códigos neutros; a oferta do lado do projeto recebe o código
+#' da oferta do CRM correspondente, e a que não tem par no catálogo do CRM fica
+#' como "oferta sem par no CRM".
 #'
 #' @return tibble com `frente`, `offering`, `share_horas` e `lift`.
 referencias_ponte_frente_offering <- function() {
   tibble::tribble(
     ~frente, ~offering, ~share_horas, ~lift,
-    "Data Analytics", "Data Analytics & AI", 0.159, 9.94,
-    "Tech Consulting", "Tech Consulting", 0.429, 4.50,
-    "Digital Products & Platforms", "Digital", 0.182, 3.27,
-    "Data Science", "Tech Consulting", 0.166, 1.75
+    "frente_01", "oferta_03", 0.159, 9.94,
+    "frente_02", "oferta_05", 0.429, 4.50,
+    "frente_03", "oferta sem par no CRM", 0.182, 3.27,
+    "frente_04", "oferta_05", 0.166, 1.75
   )
 }
 

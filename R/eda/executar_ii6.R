@@ -225,10 +225,10 @@ executar_ii6 <- function(dados, estabilidade = NULL, minimo_por_classe = 5) {
     "II.6.5", "âncora real",
     paste0(
       "No dado real a afinidade entre atributo da pessoa e categoria do ",
-      "projeto **existe e é fraca em volume**. A frente de Data Analytics tem ",
-      "lift de ", formatar_decimal(ponte$lift[ponte$frente == "Data Analytics"], 1),
+      "projeto **existe e é fraca em volume**. Uma das frentes, frente_01, tem ",
+      "lift de ", formatar_decimal(ponte$lift[ponte$frente == "frente_01"], 1),
       " sobre a base para a offering correspondente, e ainda assim só ",
-      formatar_pct(ponte$share_horas[ponte$frente == "Data Analytics"]),
+      formatar_pct(ponte$share_horas[ponte$frente == "frente_01"]),
       " das horas dela caem lá."
     ),
     paste0(

@@ -16,14 +16,10 @@
 #' @param consultores tibble de `gerar_consultores()` (usa só `consultor_id`).
 #' @return tibble com `consultor_id`, `expertise_funcional`.
 gerar_expertise_funcional <- function(consultores) {
-  offerings <- c(
-    "Experience & Efficiency", "Strategy and M&A",
-    "Data Analytics & Artificial Intelligence", "Supply Chain",
-    "Tech Consulting", "Finance", "Talent & Organization",
-    "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Produtos de IA", "Educação Pública"
-  )
+  # Os nomes reais das ofertas ficam fora do repositório; os códigos seguem a
+  # ordem decrescente dos pesos reais, e o sorteio é o mesmo que com os nomes.
   pesos_offering <- c(991, 642, 530, 524, 427, 424, 192, 155, 119, 114, 49, 47)
+  offerings <- sprintf("oferta_%02d", seq_along(pesos_offering))
 
   tibble::tibble(
     consultor_id = consultores$consultor_id,
