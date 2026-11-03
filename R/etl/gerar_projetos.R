@@ -72,14 +72,10 @@ gerar_projetos <- function(n_projetos = 952,
   )
   pesos_segmento <- c(1097, 773, 510, 384, 348, 315, 240, 182, 165, 72)
 
-  offerings <- c(
-    "Experience & Efficiency", "Strategy and M&A",
-    "Data Analytics & Artificial Intelligence", "Supply Chain",
-    "Tech Consulting", "Finance", "Talent & Organization",
-    "Digital Products & Platforms", "Cyber Security", "Digital Factory",
-    "Produtos de IA", "Educação Pública"
-  )
+  # Os nomes reais das ofertas ficam fora do repositório; os códigos seguem a
+  # ordem decrescente dos pesos reais, e o sorteio é o mesmo que com os nomes.
   pesos_offering <- c(991, 642, 530, 524, 427, 424, 192, 155, 119, 114, 49, 47)
+  offerings <- sprintf("oferta_%02d", seq_along(pesos_offering))
 
   parametros_duracao <- calibrar_lognormal_por_quantis(
     duracao_mediana_dias, duracao_p25_dias, duracao_p75_dias

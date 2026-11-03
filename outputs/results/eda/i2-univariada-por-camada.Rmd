@@ -1,0 +1,288 @@
+---
+title: "Bloco I.2 Univariada por camada"
+subtitle: "EDA não direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "eda", "_comum.R"))
+
+bloco <- ler_bloco("bloco_i2")
+obj <- bloco$objetos
+
+pega_confronto <- function(confronto, v, e) {
+  linha <- confronto[confronto$variavel == v & confronto$estatistica == e, ]
+  list(real = linha$valor_real, sint = linha$valor_sintetico, dif = linha$diferenca_relativa)
+}
+```
+
+## Propósito do bloco
+
+Segundo bloco da frente não direcionada. Caracteriza uma variável por vez,
+camada por camada: onde está a massa, para que lado é a cauda, quanto há de
+acúmulo em zero, e o quanto cada categórica de fato discrimina.
+
+Quantis e assimetria aparecem ao lado de média e desvio de propósito. Quase
+toda contínua deste projeto é fortemente assimétrica à direita, e nessas a
+média e o desvio são dominados pela cauda. Foi por isso que o gerador foi
+calibrado por casamento de quantis, e o resumo precisa falar a mesma língua
+da calibração.
+
+Onde existe agregado real registrado em `docs/mapeamento_schema.md`, o valor
+sintético é confrontado com ele. **Concordância aí não é descoberta sobre a
+organização**, porque foram esses mesmos números que calibraram o gerador: é
+verificação de que a calibração foi aplicada e sobreviveu às etapas
+seguintes. O que informa é a divergência, e é nela que os achados deste
+bloco se concentram.
+
+Uma armadilha que vale explicitar, porque ela já produziu conclusão errada
+na primeira versão desta análise: parte dos agregados reais é de quantis
+**só dos positivos**, não da distribuição inteira. Em variável com massa em
+zero as duas coisas diferem muito. Na receita de estagiários por projeto e
+mês, com
+`r formatar_pct(obj$resumo_operacao$fracao_zero[obj$resumo_operacao$variavel == "receita_interns"])`
+de zeros, o P25 incondicional é exatamente zero, e qualquer quantil dos
+positivos fica acima dele. Comparar um com o outro daria divergência de 100%
+onde não há divergência nenhuma.
+
+# Camada 1, Consultores
+
+```{r consultores-numericas}
+mostrar_tabela(
+  bloco$tabelas$i2_consultores_numericas,
+  "Tabela I.2.1: resumo das numéricas de consultor."
+)
+```
+
+```{r consultores-categoricas}
+mostrar_tabela(
+  bloco$tabelas$i2_consultores_categoricas,
+  paste(
+    "Tabela I.2.2: composição das categóricas de consultor. Equilíbrio é a",
+    "entropia normalizada, 1 para categorias igualmente frequentes e 0 para",
+    "uma só dominante."
+  )
+)
+```
+
+```{r consultores-figura, fig.width = 7.5, fig.height = 4.5}
+bloco$figuras$i2_piramide_senioridade
+```
+
+A figura mostra uma característica real que o nome "pirâmide" esconde: a
+estrutura **não é monotônica da base ao topo**. O nível logo acima da base,
+N3, é o mais numeroso, com mais gente que a própria base N4. Isso está
+registrado na calibração original e é traço do dado real, não artefato da
+geração. Importa para a wave 4, porque restrição de composição de time
+formulada como pirâmide estrita seria infactível contra o quadro que de fato
+existe.
+
+```{r consultores-numeros}
+local <- obj$categoricas_consultores[obj$categoricas_consultores$variavel == "localizacao", ]
+tempo_nivel <- obj$resumo_consultores[obj$resumo_consultores$variavel == "tempo_nivel", ]
+tempo_casa <- obj$resumo_consultores[obj$resumo_consultores$variavel == "tempo_casa", ]
+```
+
+Duas leituras de composição que já condicionam a montagem de `C`.
+
+`fuso` tem uma única categoria e equilíbrio zero: é constante na população
+inteira. Não é defeito do gerador, reproduz a realidade documentada, todos
+os consultores da organização estão em `America/Sao_Paulo`. Mas variável constante
+tem poder discriminante nulo por definição, e ocupar uma coluna de `C` com
+ela só adiciona custo. `localizacao`, de onde `fuso` é derivada, tem
+`r local$n_categorias` categorias com equilíbrio
+`r formatar_decimal(local$equilibrio)`, concentrada em
+`r formatar_pct(local$fracao_moda)` numa só: a cauda de estados raros vai
+precisar de agrupamento antes de virar codificação one-hot, senão produz
+colunas quase vazias.
+
+`tempo_nivel` tem assimetria `r formatar_decimal(tempo_nivel$assimetria)`,
+contra `r formatar_decimal(tempo_casa$assimetria)` de `tempo_casa`. A
+diferença faz sentido de negócio: tempo de casa acumula ao longo da carreira
+inteira, tempo no nível corrente é reiniciado a cada promoção, o que
+concentra a massa perto de zero e alonga a cauda.
+
+# Camada 1, Projetos
+
+```{r projetos-numericas}
+mostrar_tabela(
+  bloco$tabelas$i2_projetos_numericas,
+  "Tabela I.2.3: resumo das numéricas de projeto."
+)
+```
+
+```{r projetos-confronto}
+mostrar_tabela(
+  bloco$tabelas$i2_projetos_confronto_real,
+  "Tabela I.2.4: numéricas de projeto contra o agregado real.",
+  c("l", "l", "r", "r", "r", "l")
+)
+```
+
+```{r projetos-figura, fig.width = 8, fig.height = 3.5}
+bloco$figuras$i2_projetos_distribuicoes
+```
+
+```{r projetos-numeros}
+projeto <- function(variavel, estatistica) {
+  pega_confronto(obj$confronto_projetos, variavel, estatistica)
+}
+```
+
+O confronto separa com nitidez o que a calibração acertou do que ela não
+controlava.
+
+`valor_contrato` reproduz o real nas quatro estatísticas com âncora: a fração
+de zeros sai a `r formatar_diferenca(projeto("valor_contrato", "fracao_zero")$dif)`,
+e a mediana, o P25 e o P75 dos positivos a
+`r formatar_diferenca(projeto("valor_contrato", "mediana_pos")$dif)`,
+`r formatar_diferenca(projeto("valor_contrato", "p25_pos")$dif)` e
+`r formatar_diferenca(projeto("valor_contrato", "p75_pos")$dif)`.
+`duracao_dias` faz o mesmo nos três quantis, com a mediana a
+`r formatar_diferenca(projeto("duracao_dias", "mediana")$dif)`, e o máximo sai
+em `r formatar_inteiro(projeto("duracao_dias", "maximo")$sint)` dias contra
+`r formatar_inteiro(projeto("duracao_dias", "maximo")$real)` reais, porque é o
+teto definido no gerador. A fonte recalibrada dá quantis e não momentos, e
+por isso nada se afirma sobre média, desvio ou assimetria dessas duas
+(achado I.2.2). Uma versão anterior deste parágrafo os comparava contra a
+fonte antiga.
+
+**`esforco_estimado` não tem âncora real e não é sorteado.** Ele é a soma das
+horas mensais das alocações do projeto, a necessidade de capacidade por mês
+que a Camada 3 confronta com a capacidade de cada consultor. Uma versão
+anterior o sorteava contra mediana 120 e desvio 66,9, mas esses números vêm
+de uma tabela com uma linha por pessoa alocada: são horas mensais de
+consultor, e foram realocados para `horas_mes` na tabela I.2.6. Projeto ainda
+sem alocação recebe um esforço sorteado entre os dos alocados, porque é
+justamente o projeto que a wave 4 precisa equipar.
+
+# Camada 2, Alocações
+
+```{r alocacoes-numericas}
+mostrar_tabela(
+  bloco$tabelas$i2_alocacoes_numericas,
+  "Tabela I.2.5: resumo das numéricas de alocação."
+)
+```
+
+```{r alocacoes-confronto}
+mostrar_tabela(
+  bloco$tabelas$i2_alocacoes_confronto_real,
+  "Tabela I.2.6: numéricas de alocação contra o agregado real.",
+  c("l", "l", "r", "r", "r", "l")
+)
+```
+
+```{r alocacoes-numeros}
+horas <- obj$resumo_alocacoes[obj$resumo_alocacoes$variavel == "horas_mes", ]
+alocacao <- function(variavel, estatistica) {
+  pega_confronto(obj$confronto_alocacoes, variavel, estatistica)
+}
+horas_nivel <- function(nivel) {
+  obj$horas_por_nivel$mediana[obj$horas_por_nivel$nivel_senioridade == nivel]
+}
+```
+
+A duração das alocações bate os três quartis reais, com P25, mediana e P75 a
+`r formatar_diferenca(alocacao("duracao_dias", "p25")$dif)`,
+`r formatar_diferenca(alocacao("duracao_dias", "mediana")$dif)` e
+`r formatar_diferenca(alocacao("duracao_dias", "p75")$dif)` do real. Média,
+desvio e assimetria, que não entraram na calibração, saem a
+`r formatar_diferenca(alocacao("duracao_dias", "media")$dif)`,
+`r formatar_diferenca(alocacao("duracao_dias", "desvio")$dif)` e
+`r formatar_diferenca(alocacao("duracao_dias", "assimetria")$dif)`. O corpo da
+distribuição acompanha o real, e a cauda sai um pouco mais longa, o que pesa
+no desvio mais do que em qualquer quantil. Não era assim antes da
+recalibração da duração das alocações: a duração da alocação era uma fração fixa de 75% da duração do projeto, e
+quando a segunda consulta comercial alongou o projeto de 18 para 81 dias
+medianos, a alocação alongou junto, para 56 dias medianos contra 18 reais.
+
+`horas_mes` acerta mediana e desvio, mas não a forma (achado I.2.5). O P25
+sai em `r formatar_decimal(alocacao("horas_mes", "p25")$sint, 1)` horas contra
+`r formatar_decimal(alocacao("horas_mes", "p25")$real, 0)` reais, e o perfil
+por nível é uma reta onde o real tem corcova por cargo. No sintético, a
+mediana vai de `r formatar_decimal(horas_nivel("N0"), 0)` horas em N0 a
+`r formatar_decimal(horas_nivel("N4"), 0)` em N4; no real, estagiários ficam
+perto de 112, cargos de execução entre 141 e 146, e os seniores entre 12 e 60.
+
+Este bloco encontrou aqui um defeito de plausibilidade que não estava
+documentado, e que desde então foi corrigido no gerador. Vale registrar o
+episódio, porque ele mostra o tipo de problema que só aparece quando se olha
+a distribuição inteira e não apenas o resumo.
+
+Na primeira versão, `horas_mes` era exatamente zero em 4,2% das alocações e
+`pct_alocacao` era exatamente 1,00 em 7,2%. Nenhum dos dois descreve algo
+real: ou a pessoa está alocada e dedica algum tempo, ou não está e a linha
+não deveria existir; e dedicação integral exata em uma alocação de cada
+catorze é implausível.
+
+A causa era única para os dois casos. `gerar_variavel_por_nivel()` aplicava
+`pmax` e `pmin` para respeitar os limites, o que **empilha no limite toda a
+massa que cairia fora dele**, criando um pico artificial que a calibração
+nunca pediu. Vale notar que subir o piso de zero para uma hora não
+resolveria: apenas moveria o pico. A correção foi trocar o recorte por
+reamostragem por rejeição, que devolve a normal truncada pretendida sem ponto
+de massa, redesenhando só o ruído para não destruir a correlação calibrada.
+
+Hoje as duas contagens são `r formatar_inteiro(obj$horas_zero)` e
+`r formatar_inteiro(obj$pct_integral)`, e a verificação continua rodando a cada
+execução da pipeline.
+
+# Camada 3, Operação
+
+```{r operacao-numericas}
+mostrar_tabela(
+  bloco$tabelas$i2_operacao_numericas,
+  "Tabela I.2.7: resumo das numéricas da camada de operação."
+)
+```
+
+```{r operacao-confronto}
+mostrar_tabela(
+  bloco$tabelas$i2_margem_confronto_real,
+  "Tabela I.2.8: receita por projeto e mês contra o agregado real.",
+  c("l", "l", "r", "r", "r", "l")
+)
+```
+
+```{r operacao-numeros}
+receita <- function(estatistica) {
+  pega_confronto(obj$confronto_margem, "receita_total", estatistica)
+}
+ocupacao <- obj$resumo_operacao[
+  obj$resumo_operacao$variavel == "pct_ocupacao",
+]
+```
+
+A receita total por projeto e mês reproduz o real nas quatro estatísticas
+com âncora: a fração de zeros (`r formatar_diferenca(receita("fracao_zero")$dif)`),
+a mediana (`r formatar_diferenca(receita("mediana_pos")$dif)`), o P25
+(`r formatar_diferenca(receita("p25_pos")$dif)`) e o P75
+(`r formatar_diferenca(receita("p75_pos")$dif)`) dos positivos. Não há âncora
+de assimetria, e por isso nada se afirma sobre a cauda (achado I.2.2). Uma
+versão anterior deste parágrafo comparava a assimetria contra um valor da
+fonte antiga, que a segunda consulta comercial substituiu por quantis.
+
+`pct_ocupacao` tem mediana `r formatar_decimal(ocupacao$mediana)` e
+ultrapassa a capacidade integral em `r formatar_pct(obj$acima_capacidade)`
+dos pares consultor-mês. Isso é leitura possível apenas depois de a alocação
+ganhar eixo temporal; antes disso o número não tinha denominador. Não há
+âncora real para confrontar, porque a ocupação mensal nunca foi agregada
+enquanto havia acesso.
+
+A margem estrutural é negativa em
+`r formatar_pct(obj$estrutural_negativa)` dos projetos. O número combina
+duas coisas que a EDA direcionada vai precisar separar: projeto com contrato
+de valor zero, que é massa do hurdle, e projeto cujo custo alocado de fato
+supera o contrato.
+
+# Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

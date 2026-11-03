@@ -1,12 +1,12 @@
 #' Lê a rubrica preenchida pelo autor, se ela já existe
 #'
 #' A pipeline gera só o modelo em branco da rubrica. A cópia com os vereditos
-#' vive em `modelling/leitura/`, que nenhum alvo escreve; aqui ela só é lida,
+#' vive em `outputs/results/scoring/leitura/`, que nenhum alvo escreve; aqui ela só é lida,
 #' para a contagem dos vereditos entrar no achado W3.5.4.
 #'
 #' @param caminho Caminho da rubrica preenchida.
 #' @return tibble com a rubrica, ou `NULL` enquanto a leitura não foi feita.
-ler_vereditos <- function(caminho = here::here("modelling", "leitura", "rubrica_preenchida.csv")) {
+ler_vereditos <- function(caminho = here::here("outputs", "results", "scoring", "leitura", "rubrica_preenchida.csv")) {
   if (!file.exists(caminho)) return(NULL)
   readr::read_csv(caminho, show_col_types = FALSE)
 }

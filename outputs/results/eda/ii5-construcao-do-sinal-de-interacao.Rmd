@@ -1,0 +1,248 @@
+---
+title: "Bloco II.5 Construção do sinal de interação"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "eda", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii5")
+obj <- bloco$objetos
+margem <- obj$margem
+```
+
+## Propósito do bloco
+
+**Âncora na literatura.** Hu, Koren e Volinsky (2008) formalizam o
+colaborativo sobre feedback implícito: a ocorrência da interação é uma
+preferência binária, e a intensidade dela, uma confiança.
+
+**Propriedade medida.** A forma do sinal que a célula de `R` carrega, e se a
+margem pode entrar nela ou só no vetor de objetivos `f`.
+
+**Decisão que discrimina.** O que é a célula de `R`, e por qual forma a margem
+entra no otimizador.
+
+A fonte de avaliação de desempenho não foi disponibilizada pela organização, e
+o modelo não a considera.
+
+## O sinal de interação é implícito
+
+```{r sinal-implicito}
+mostrar_tabela(
+  bloco$tabelas$ii5_sinal_implicito,
+  "Tabela II.5.1: horas por par observado e confiança resultante.",
+  c("l", "r")
+)
+```
+
+Cada um dos `r formatar_inteiro(nrow(obj$sinal_binario))` pares observados
+entre consultor e projeto vira uma **preferência binária**, `r_ij = 1`: houve
+alocação. O par não observado não é preferência zero, é ausência de sinal, e é
+assim que `construir_matriz_r()` o representa, como célula vazia.
+
+A intensidade entra como **confiança**, `w_ij = 1 + α·log(1 + h_ij)`, com
+`h_ij` as horas do consultor no projeto, somadas sobre as alocações do par. As
+horas variam de `r formatar_decimal(obj$horas_quantis[1], 0)` no décimo
+percentil a `r formatar_decimal(obj$horas_quantis[3], 0)` no nonagésimo, uma
+diferença de ordem de grandeza, e é por isso que elas entram em logaritmo: sem
+ele, os pares longos dominariam a confiança de todos os outros. Com `α = 1` a
+confiança vai de `r formatar_decimal(obj$confianca_quantis[1], 2)` a
+`r formatar_decimal(obj$confianca_quantis[3], 2)`.
+
+**A decisão da EDA é só a ocorrência binária.** A confiança por horas não é
+decisão: fica como **comparação pré-registrada**, fora da contagem de
+decisões, a decidir na wave 3. `α = 0`, o binário puro, contra `α = 1`, a
+confiança por horas, pelo mesmo teste pareado de McNemar a 5% do protocolo do
+bloco II.7. Se `α = 1` não superar o binário, fica o binário. Registrar a
+regra antes do resultado é o que impede escolher o sinal pelo número que ele
+produz. E a confiança depende do gerador: as horas do par dependem da duração
+das alocações, que foi recalibrada, e com outra calibração a distribuição da
+confiança seria outra.
+
+O sinal mede a ocorrência da alocação, e por isso a prática atual de escolha.
+Ele herda o viés de seleção que o bloco II.4 mostrou não ser corrigível nesta
+base: um colaborativo sobre esse sinal modela o processo de escolha atual. É
+por isso que o bloco II.7 avalia em dois níveis, e não só pelo acerto contra
+as alocações passadas.
+
+## A margem não cabe dentro de `R`
+
+Dois fatos, e cada um descarta uma forma de margem.
+
+**A margem não é atribuível a uma alocação.** A fonte real de receita e custo
+tem grão de projeto e mês, sem `consultor_id`.
+`r formatar_pct(margem$fracao_projetos_com_equipe)` dos projetos alocados têm
+mais de uma pessoa, com mediana de `r margem$mediana_equipe` e máximo de
+`r margem$maior_equipe`. Ratear a margem de um projeto entre os membros do
+time seria estimativa apresentada como captura, no mesmo espírito da decisão
+já registrada sobre `skills_requeridas[]`. A margem por alocação está
+descartada.
+
+**Não existe margem na granularidade mensal.** Uma versão anterior deste bloco
+lia os 44,7% de zeros da receita de estagiários como incompletude de
+apontamento de custo e concluía que a margem mensal era inutilizável. A
+segunda consulta comercial mostrou que aquela fonte é **receita** do projeto
+decomposta por mês e origem, provada por identidade contábil: a soma dos
+componentes sobre a receita total fica cravada em 1,000 do décimo ao
+nonagésimo percentil. O zero é ausência de estagiário no mês.
+
+A margem mensal cai, então, por não haver **custo** naquela granularidade, e
+não por o custo ser ruim. A despesa mensal existe em outra fonte, de cobertura
+parcial e também truncada, que o sintético não reproduz. A identidade é
+preservada aqui com erro máximo de
+`r formatar_decimal(margem$identidade_receita, 6)`.
+
+Em `margem_estrutural`, o custo zero coincide
+`r if (margem$custo_zero_estrutural_sem_alocacao) "exatamente" else "apenas em parte"`
+com projeto sem nenhuma alocação, o que é explicável e inofensivo: projeto sem
+alocação não é célula de `R`.
+
+## Que forma de margem sobrevive
+
+```{r formas}
+mostrar_tabela(
+  bloco$tabelas$ii5_formas_margem,
+  "Tabela II.5.2: as três formas de margem do dicionário contra o medido.",
+  c("l", "l", "l", "c", "c", "l")
+)
+```
+
+Das três formas, `r nrow(obj$formas_viaveis)`
+`r if (nrow(obj$formas_viaveis) == 1) "tem" else "têm"` mecanismo que se sustenta:
+**`r paste(tolower(obj$formas_viaveis$forma), collapse = " e ")`**.
+
+A tabela separa dois eixos de propósito. **Mecanismo** diz se a grandeza é
+construível a partir do que a organização tem. **Escala calibrada** diz se o
+sintético reproduz o nível dela de forma crível. Colapsar os dois num
+veredito só confundiria coisas diferentes, e a margem estrutural é justamente
+o caso que obriga a distinção.
+
+## A margem estrutural: mecanismo certo, escala que não fecha
+
+Conferida a plausibilidade dos **valores**, e não só a estrutura dos zeros,
+a margem estrutural não fecha.
+`r formatar_pct(margem$fracao_margem_estrutural_negativa)` dos projetos com
+contrato positivo saem com margem negativa, e
+`r if (margem$margem_estrutural_relativa_p05 < 0) paste0("no quinto percentil o prejuízo chega a ", formatar_decimal(abs(margem$margem_estrutural_relativa_p05), 1), " vezes o valor do contrato") else paste0("mesmo no quinto percentil a margem é positiva, de ", formatar_pct(margem$margem_estrutural_relativa_p05), " do contrato")`.
+Contra os alvos reais, a fração de prejuízo fica a
+`r formatar_decimal(100 * margem$desvio_do_prejuizo_alvo, 1)` pontos da real,
+de `r formatar_pct(margem$alvo_prejuizo)`, e a mediana,
+`r formatar_pct(margem$margem_estrutural_relativa_mediana)`, fica
+`r formatar_decimal(100 * margem$desvio_da_mediana_alvo, 1)` pontos acima da
+real, de `r formatar_pct(margem$alvo_mediana)`. **O desacordo está no centro
+da distribuição, e não na cauda**, que é o que o achado II.5.6 explica. Uma
+versão anterior deste parágrafo dizia o contrário, o que valia antes das
+correções de escala.
+
+**É o primeiro caso no capítulo de grandezas individualmente calibradas que
+não fecham em conjunto.** `valor_contrato`, `horas_mes` e `custo_carregado`
+têm cada um sua âncora real, e a combinação dos três produz margem
+implausível.
+
+Duas hipóteses foram levantadas aqui, e a consulta às bases comerciais
+fechou as duas.
+
+A **primeira era de granularidade**: `valor_contrato` viria de uma fonte com
+grão de alocação e pessoa, enquanto o dicionário o trata como atributo de
+projeto. Descartada: o valor é por projeto.
+
+A **segunda era que a taxa usada como custo fosse preço**. Confirmada, e com
+prova direta: a receita mensal do projeto é 0,87 vezes horas planejadas vezes
+a taxa, e a própria tabela deriva a taxa do estagiário das tarifas cobradas do
+cliente. A fonte de custo passou a ser a tabela de custo por cargo, e a razão
+entre custo e contrato deixou de centrar em 1, caindo para
+`r formatar_decimal(obj$escala_margem$centro_da_razao, 2)`.
+
+A função que media aquele sintoma continua rodando como **guarda de
+regressão**: se alguém repuser o rate card como custo, a razão volta a
+centrar em 1 e o teste acusa.
+
+### O custo é salário base, e as âncoras não comportam encargos
+
+A confirmação trouxe uma consequência. O custo por cargo é **salário base por
+hora, sem encargos**, então `custo_carregado` passa a ser base vezes um fator
+de carga que não existe em base nenhuma. O fator default é 1, e não por
+conveniência: a aritmética das âncoras põe o teto dele em 1,068, porque acima
+disso o custo de pessoal sozinho excederia a despesa total que o projeto
+declara. Encargos, benefícios, décimo terceiro, férias e FGTS levariam o
+fator para 1,7 ou 2,0.
+
+A leitura mais provável é que a margem que o projeto declara seja **bruta
+sobre salário direto**, e não líquida. Para a wave 4 isso muda o que se pode
+prometer: otimizar essa margem é otimizar medida bruta, não lucro.
+
+### As âncoras estão sobredeterminadas
+
+```{r sobredeterminacao}
+mostrar_tabela(
+  bloco$tabelas$ii5_sobredeterminacao,
+  "Tabela II.5.3: o que cada âncora precisaria valer para o sistema fechar.",
+  c("l", "r", "r", "r", "c")
+)
+```
+
+Seis agregados reais descrevem a mesma economia por caminhos diferentes:
+tamanho de equipe, jornada, duração, preço, o fator de receita e o valor de
+contrato. Cinco bastam para calcular o sexto, e o calculado não bate. O
+contrato implicado é
+`r formatar_inteiro(round(obj$sobredeterminacao$contrato_implicado))` contra
+`r formatar_inteiro(obj$sobredeterminacao$contrato_medido)` medidos, um
+desacordo de
+`r formatar_decimal(obj$sobredeterminacao$desacordo, 2)` vezes.
+
+**O bloco não escolhe qual âncora relaxar**, porque a escolha não é
+estatística: depende de saber o que cada número conta, e o acesso encerrou. O
+que ele faz é reportar o valor que reconciliaria cada uma, e descartar as que
+não podem absorver a diferença:
+`r paste(obj$sobredeterminacao$descartadas, collapse = " e ")`. A jornada
+teria de passar de um mês cheio de trabalho, e o fator de receita teria de
+passar de 1, o que é impossível se o preço é a tarifa cobrada.
+
+Das que sobram, a mais provável é o **tamanho de equipe**: os 2,51 vêm de
+pares distintos entre colaborador e *código* de alocação, e um projeto pode
+ter mais de um código. Se for isso, a equipe real por projeto é maior e
+as seis fecham entre si sem mexer em mais nada. Não fecha o resíduo inteiro,
+pela âncora que vem a seguir.
+
+**A duração da alocação é uma sétima âncora, e ela aumenta o desacordo.** A
+relação acima supõe cada consultor presente pela duração inteira do projeto,
+mas a alocação real dura
+`r formatar_inteiro(obj$horas_da_margem$duracao_alocacao_dias)` dias medianos,
+contra `r formatar_decimal(obj$sobredeterminacao$ancoras$medido[3], 1)`
+semanas de projeto. Com uma alocação por par entre consultor e projeto, que é
+o que o gerador supõe, o desacordo sobe para
+`r formatar_decimal(obj$horas_da_margem$desacordo_com_alocacao, 1)` vezes. Ele
+fecharia se cada pessoa somasse várias alocações curtas no mesmo projeto, e a
+fonte não diz se é assim.
+
+É essa a explicação do resíduo. Depois de corrigir unidade, acoplamento,
+fonte do custo, fonte do contrato, duração do projeto e duração da alocação,
+a fração de prejuízo ficou perto da real e a mediana continua alta, porque o
+projeto sintético acumula
+`r formatar_pct(obj$horas_da_margem$fracao_das_horas_implicadas)` das horas
+que o contrato implica. Antes da recalibração da duração das alocações eram
+cerca de metade, mas porque a alocação sintética durava três vezes a real: a
+concordância anterior vinha de um erro compensando outro.
+
+## A decisão do bloco
+
+**A célula de `R` é o sinal implícito, e a margem vai para `f` pela forma
+estrutural.** A célula de `R` é a ocorrência binária da alocação; a confiança
+por horas é a comparação pré-registrada acima, que a wave 3 decide. A margem
+sai de `R` e entra como
+objetivo separado no otimizador, calculada de custo carregado por horas
+contra valor de contrato, como direção e não como magnitude, porque as
+âncoras econômicas se sobredeterminam.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

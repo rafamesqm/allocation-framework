@@ -1,0 +1,6 @@
+Ponto,Afinidade,Custo em relação à realizada,Sobrecarga atribuível,Sobrecarga atribuível em horas,Assentos da zona morta,Assentos nos 10 mais populares,Maior número de assentos de um consultor
+Extremo de afinidade,"528,5","-7,8%","146,7",38.354,15,"9,5%",21
+Extremo de custo,"388,0","-9,4%","71,8",27.841,80,"5,2%",14
+Extremo de sobrecarga,"459,8","-4,4%","25,7",19.447,37,"6,8%",13
+Tratamento da capacidade: limite calibrado,"528,5","-7,8%","146,7",38.354,15,"9,5%",21
+"Tratamento da capacidade: penalidade, pesos iguais","449,9","-8,6%","73,9",27.311,44,"6,9%",17

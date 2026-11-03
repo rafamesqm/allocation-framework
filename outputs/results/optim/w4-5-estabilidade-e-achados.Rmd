@@ -1,0 +1,64 @@
+---
+title: "Etapa 5. Estabilidade e achados da wave 4"
+subtitle: "Wave 4, otimização multiobjetivo"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "optim", "_comum.R"))
+
+estabilidade <- ler_bloco("w4_estabilidade")
+achados <- ler_bloco("w4_achados")
+continuas <- estabilidade[!estabilidade$grandeza %in% c("otima", "segundos"), ]
+```
+
+## Propósito
+
+A realização versionada é um sorteio do gerador. Como fixado nas emendas 1 a
+3, as `r formatar_inteiro(max(estabilidade$realizacoes))` realizações refazem
+ŝ, assentos, carga e o problema, e em cada uma são resolvidas só as linhas de
+afinidade máxima e de custo mínimo da tabela de payoff, que sem o limite
+individual chegam ao ótimo em segundos ou poucos minutos. A fronteira evolutiva e o limite individual ficam só na
+realização versionada. Cada grandeza tem a mediana e o intervalo de 90% entre
+realizações, e a posição da versionada nele.
+
+## As grandezas
+
+```{r estabilidade}
+mostrar_tabela(
+  tabelar_estabilidade_da_otimizacao(estabilidade),
+  "Tabela W4.18: x̄ e as linhas exatas de afinidade e de custo, com a mediana, o intervalo de 90% entre realizações e a posição da versionada."
+)
+```
+
+A versionada cai fora do intervalo em `r sum(!continuas$dentro)` das
+`r nrow(continuas)` grandezas contínuas. Um sorteio em cada dez cai fora de um
+intervalo de 90% por definição; onde isso acontece, o texto da monografia
+cita o intervalo, e não o ponto, como o valor típico.
+
+## Achados da wave 4
+
+O campo natureza separa o confirmatório, o registro e a emenda 1 com as nove
+sementes que a emenda 2 manteve no orçamento registrado, do exploratório, as
+emendas 2 e 3.
+
+```{r achados-estabilidade, results = "asis"}
+cat(mostrar_achados(achados[achados$bloco == "W4.6", ]))
+```
+
+```{r todos}
+mostrar_tabela(
+  achados |>
+    dplyr::transmute(
+      Achado = codigo, Natureza = natureza, Etiqueta = etiqueta,
+      `Decisão` = dplyr::coalesce(decisao, "--"), `Limitação` = dplyr::coalesce(limitacao, "--"),
+      `Proveniência` = dplyr::coalesce(proveniencia, "--")
+    ),
+  "Tabela W4.19: os achados da wave 4, com a natureza, a decisão e a limitação de cada um."
+)
+```

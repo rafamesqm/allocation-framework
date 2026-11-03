@@ -1,0 +1,544 @@
+# Pré-registro da otimização multiobjetivo da wave 4.
+#
+# Fixa o problema e a avaliação antes de qualquer solução. O commit deste
+# arquivo é a prova de que o desenho antecede o resultado: nenhum valor aqui
+# muda depois de o primeiro problema ser resolvido, e os testes em
+# tests/testthat/test-pre_registro_otimizacao.R falham se a pipeline usar
+# valor diferente. Mudança posterior entra só como emenda datada, no fim.
+#
+# A janela, a divisão temporal e a semente de desempate são as de
+# config/pre_registro.yml e não são repetidas aqui. Origem das decisões:
+# achados II.8 e III da EDA, achado W3.4.3, e as decisões do autor de
+# 2026-10-29.
+
+versao: 1
+data_registro: "2026-10-29"
+base: config/pre_registro.yml
+
+# Item 1.
+assentos:
+  definicao: >-
+    cada alocação do período de teste da divisão temporal da wave 3 (início a
+    partir da data de corte) é um assento, com o projeto, os meses ativos
+    dentro da janela, a carga mensal e as horas; o otimizador decide quem o
+    ocupa, e a pessoa não muda de um mês para outro do mesmo assento
+  formulacao: >-
+    trios de consultor, projeto e mês, porque a capacidade é verificada por
+    consultor e mês; a decisão é binária por par de assento e candidato, e
+    cada restrição de capacidade soma os assentos ativos no mês
+  meses_de_teste: do mês da data de corte, inteiro, ao último mês da janela
+  censura: >-
+    os assentos que atravessam o fim da janela são censurados no último dia
+    observado, como na wave 3, e só os meses dentro dela contam carga e custo
+  carga_fixa: >-
+    as alocações iniciadas antes do corte que têm algum dia nos meses de teste
+    entram como carga fixa, não redistribuída; inclui as que terminam no mês
+    do corte antes dele, porque a ocupação da EDA as conta nesse mês
+  um_assento_por_projeto: cada consultor ocupa no máximo um assento por projeto
+  # Extensão da regra anterior, decisão do autor de 2026-10-29.
+  carga_fixa_no_projeto: >-
+    quem tem alocação fixa no projeto não é candidato aos assentos dele,
+    exceto o realizado
+  admissao:
+    tratamento: limitação, não restrição
+    data: data de referência da geração (fim da janela) menos o tempo de casa
+    nota: >-
+      o gerador não respeita a admissão, e o problema atinge os pares
+      candidatos, e não só a alocação realizada; os dois são contados
+
+# Item 2.
+nivel:
+  regra: >-
+    cada assento só pode ser ocupado por consultor do mesmo nível de
+    senioridade do realizado, o papel da alocação, que coincide com o nível
+    do consultor; preserva a pirâmide de cada equipe
+  custo_dentro_do_nivel: >-
+    o custo por hora é quase todo determinado pelo nível: o nível explica 91%
+    da variância do custo por hora do quadro; no quadro, o N2 tem um valor, o
+    N0 e o N3 têm dois, o N1 tem três e o N4 tem quatro; o objetivo de custo
+    opera dentro do nível
+
+# Item 3.
+elegibilidade:
+  candidatos: >-
+    consultores do nível do assento que passam pela regra da comutação da
+    wave 3 (filtro de setor para quem declarou setor; quem não declarou entra
+    sem filtro), mais a zona morta (item 5), mais o consultor realizado
+    daquele assento, sempre elegível para o próprio assento mesmo fora do
+    filtro
+  motivo_do_realizado: >-
+    garante que a alocação realizada seja solução viável, sem o que a pergunta
+    sobre a dominância dela não faz sentido
+  medida: fração de assentos cujo realizado está fora do filtro
+  limitacao_do_escore: >-
+    sem renormalização por assento, cada assento pesa no objetivo de afinidade
+    conforme a amplitude de ŝ entre os seus candidatos; a amplitude é
+    reportada por nível, como medida descritiva
+
+# Item 4.
+escore:
+  popularidade: contada só no período de estimação (alocações iniciadas antes do corte, dentro da janela)
+  quadrantes: definidos pelo histórico na estimação
+  montagem: >-
+    a do híbrido da wave 3: quem tem histórico, por popularidade; quem só
+    respondeu aos formulários, ao acaso dentro do filtro pela semente de
+    desempate; ŝ é o percentil na lista do projeto
+  restricao: nada posterior ao corte entra no escore, e um teste automatizado confere
+  interface: >-
+    ŝ é o do achado W3.4.3, o percentil na lista do projeto inteiro, com todos
+    os níveis; é a interface entre o recomendador e o otimizador, e
+    renormalizá-lo por assento criaria outro escore
+
+# Item 5.
+zona_morta:
+  regra: >-
+    a zona morta (sem histórico na estimação e sem setor declarado) é elegível
+    com ŝ = 0, sem filtro, nos assentos do seu nível
+  natureza: regra de exposição adotada para o exercício, decisão do autor e não do modelo
+  medida: quantos assentos a zona morta ocupa em cada ponto da fronteira
+  realizado_fora_da_lista: >-
+    o realizado elegível só pela regra do item 3, fora da lista do modelo,
+    também tem ŝ = 0; registra-se a fração da afinidade da alocação realizada
+    afetada por isso
+  medida_descritiva: >-
+    a afinidade da alocação realizada e a da solução de afinidade máxima só nos
+    assentos cujo realizado está na lista do modelo, para separar o efeito de
+    ŝ = 0 por construção
+
+# Item 6.
+carga:
+  medida: percentual
+  descricao: >-
+    percentual de alocação, a unidade de planejamento e a da ocupação mensal
+    do Capítulo 4, com a mesma expansão por mês que gerou ocupacao_consultor
+    (mês parcial ponderado pelos dias ativos), para que a ocupação da alocação
+    realizada reproduza a da EDA nos meses de teste
+  capacidade: 1 menos a fração do mês em férias
+  capacidade_zero: >-
+    nos meses de consultor com férias no mês inteiro a capacidade é zero, e
+    qualquer assento neles gera sobrecarga, o que é coerente
+  censura: carga e custo contados até o último dia da janela, como na EDA
+  sensibilidade: horas
+  nota_de_horas: >-
+    a expansão mensal dá, por assento, horas com razão mediana de 1,05 em
+    relação à convenção da margem estrutural (duração sobre 30,44 dias); a
+    margem é reportada só como direção, e a diferença não afeta resultado
+  # Mesmas 168 horas da folga do segundo nível da wave 3.
+  horas_do_mes_cheio: 168
+
+# Item 7.
+objetivos:
+  afinidade:
+    sentido: maximizar
+    definicao: soma de ŝ dos assentos ocupados, um termo por assento
+  custo:
+    sentido: minimizar
+    definicao: soma do custo por hora vezes as horas do assento nos meses de teste
+  sobrecarga:
+    sentido: minimizar
+    definicao: >-
+      soma, sobre consultores e meses de teste, de max(0, carga - capacidade),
+      linearizada por variáveis de folga contínuas; a carga inclui a carga fixa
+  margem:
+    entra_como_objetivo: false
+    motivo: >-
+      com os mesmos assentos, a receita de cada projeto é fixa e margem =
+      receita - custo, então maximizar a margem equivale a minimizar o custo;
+      é achado estrutural, verificado numericamente (variação de margem igual
+      a menos a variação de custo em toda solução)
+
+# Item 8.
+capacidade_como_objetivo:
+  limite_rigido: >-
+    épsilon igual a zero na sobrecarga atribuível aos assentos, isto é, a
+    sobrecarga total menos a que a carga fixa sozinha já produz; a
+    inviabilidade é diagnóstico
+  sobrecarga_atribuivel: >-
+    consultor a consultor e mês a mês, max(0, F + S - cap) - max(0, F - cap),
+    com F a carga fixa e S a dos assentos; é sempre não negativa e vale zero
+    exatamente quando nenhum assento acrescenta carga acima da capacidade de
+    ninguém
+  limite_calibrado: épsilon igual à sobrecarga da alocação realizada
+  penalidade: a soma ponderada dos objetivos
+  leitura: os três tratamentos da capacidade da EDA (achado II.8.2) ficam na mesma fronteira
+
+# Item 9.
+metodo:
+  nome: épsilon-restrito aumentado (AUGMECON, Mavrotas, 2009)
+  solver: HiGHS, pelo pacote highs
+  objetivo_principal: afinidade
+  objetivos_restritos: [custo, sobrecarga]
+  tabela_de_payoff: otimização lexicográfica
+  # Decisões do autor de 2026-10-29, antes da primeira chamada ao solver.
+  ordem_lexicografica:
+    afinidade: [afinidade, custo, sobrecarga]
+    custo: [custo, afinidade, sobrecarga]
+    sobrecarga: [sobrecarga, afinidade, custo]
+  fixacao_lexicografica: >-
+    cada objetivo já otimizado fica preso ao ótimo com tolerância relativa:
+    z >= z* - tolerância vezes max(1, |z*|) para quem maximiza, e o espelho
+    para quem minimiza
+  tolerancia_de_fixacao: 1.0e-6
+  # Uma linha de execução, para o caminho do HiGHS não depender da máquina.
+  threads: 1
+  intervalos_por_objetivo_restrito: 10
+  problemas_da_grade: 121
+  delta: 0.001
+  folgas: normalizadas pelas amplitudes da tabela de payoff
+  tempo_limite_segundos: 600
+  mip_rel_gap: 0
+  regra_de_troca:
+    criterio: >-
+      adota-se o método exato se a tabela de payoff for resolvida até a
+      otimalidade e ao menos 95% dos problemas da grade também
+    fracao_minima_da_grade: 0.95
+    alternativa: NSGA-II (Deb et al., 2002)
+    parametros_da_alternativa: >-
+      codificação, população, gerações e semente fixadas por emenda datada
+      antes de rodá-lo
+
+# Item 10. Seção 3.7.4 da monografia: nenhum teste com função decisória,
+# tudo descritivo.
+avaliacao:
+  funcao: descritiva, sem teste e sem função decisória
+  tratabilidade: variáveis binárias e contínuas, restrições, tempo e status de cada problema
+  fronteira: tabela de payoff, número de pontos eficientes distintos e amplitude de cada objetivo
+  posicao_da_realizada:
+    valores: os três objetivos da alocação realizada
+    dominancia: se a alocação realizada é dominada
+    ganho_maximo:
+      - maximizar a afinidade com custo e sobrecarga no máximo os da realizada
+      - minimizar o custo com afinidade e sobrecarga presas nas da realizada
+      - minimizar a sobrecarga com afinidade e custo presos nos da realizada
+  conflito_afinidade_sobrecarga: >-
+    sobrecarga da solução de afinidade máxima contra a realizada, taxa de
+    troca ao longo da fronteira e concentração dos assentos nos consultores
+    mais populares, e quantos assentos a zona morta ocupa em cada ponto
+    da fronteira (ligação com a seção 5.5: o recomendado mais frequente do
+    colaborativo já estava acima de 200% da capacidade)
+  tratamentos_da_capacidade: os três do item 8, inclusive se épsilon igual a zero é viável
+  sensibilidade: a carga em horas, descritiva
+  estabilidade:
+    realizacoes: 100
+    recalculados_em_cada_uma: [ŝ, assentos, carga]
+    grandezas: tabela de payoff, posição da realizada e conflito entre afinidade e sobrecarga
+    nivel: 0.9
+    fronteira_completa: só na realização versionada
+    reducao: se o tempo medido na etapa 2 tornar isso inviável, a redução vem por emenda datada antes da execução
+
+# Item 11.
+achados:
+  arquivo: outputs/tables/achados_w4.csv
+  formato: o de achados_w3.csv (código W4.n.k, etiqueta, procedência, enunciado, implicação, decisão, limitação)
+  redacao:
+    - prosa completa
+    - sem sequências de percentuais extremos; usar nunca, nenhum, todos
+    - sem abreviar o componente de conteúdo nem o colaborativo
+    - pares só quando forem pares de consultor e projeto
+    - valores monetários só como diferenças relativas
+
+# Valores da montagem na realização versionada, medidos antes de qualquer
+# solução. A pipeline para se algum não reproduzir. A sobrecarga está na
+# medida percentual, em fração de mês de consultor, e confere também contra a
+# ocupação da EDA nos mesmos meses.
+verificacao:
+  assentos: 692
+  projetos: 262
+  alocacoes_fixas_ativas_apos_o_corte: 174
+  alocacoes_fixas_so_no_mes_do_corte: 29
+  pares_removidos_por_carga_fixa_no_projeto: 35
+  binarias_por_nivel: {N0: 53, N1: 4584, N2: 8655, N3: 16175, N4: 1954}
+  binarias: 31421
+  fracao_realizados_fora_do_filtro: 0.2327
+  pares_zona_morta: 6194
+  fracao_pares_zona_morta: 0.1971
+  meses_de_consultor_sem_capacidade: 10
+  assentos_realizados_em_mes_sem_capacidade: 2
+  assentos_censurados_no_fim_da_janela: 146
+  assentos_realizados_antes_da_admissao: 16
+  pares_antes_da_admissao: 1109
+  sobrecarga_realizada_percentual: 277.4074
+
+# Emendas. Cada uma é datada, registrada antes da execução a que se refere,
+# e não altera nenhum valor acima.
+emendas:
+  - data: "2026-10-30"
+    nome: emenda 1, troca para o NSGA-II
+    anterior_a_execucao: true
+    contexto: >-
+      pela regra de troca de metodo.regra_de_troca, a tabela de payoff não foi
+      resolvida até a otimalidade: os três problemas da linha da sobrecarga
+      pararam no tempo-limite (etapa 2); o método adotado é o NSGA-II (Deb et
+      al., 2002), com os parâmetros abaixo fixados antes de rodá-lo
+    metodo: NSGA-II (Deb et al., 2002)
+    codificacao: >-
+      vetor inteiro de 692 genes; o gene do assento s é o índice do consultor
+      na lista de candidatos daquele assento, na ordem fixa da montagem; nível,
+      elegibilidade e o realizado sempre elegível já vêm da lista
+    um_assento_por_projeto:
+      reparo: >-
+        determinístico, com o gerador da semente: reamostra, entre os
+        candidatos do assento ainda não usados no projeto, o ocupante repetido
+      sem_candidato: >-
+        vale a dominação com restrições de Deb et al. (2002), com a violação
+        contada em número de duplicidades
+    objetivos:
+      avaliacao: exata
+      lista: [afinidade, custo, sobrecarga atribuível aos assentos]
+      nota: a sobrecarga total difere da atribuível só pela constante da carga fixa sozinha, 78,9
+    operadores:
+      selecao: torneio binário pela ordem de dominação e pela distância de aglomeração
+      cruzamento: uniforme por assento, com probabilidade 0,9
+      probabilidade_de_cruzamento: 0.9
+      mutacao: reatribui cada gene com probabilidade 1/692
+      probabilidade_de_mutacao_por_gene: 1/692
+      implementacao: >-
+        fiel a Deb et al. (2002), em R, com ordenação não dominada rápida e
+        distância de aglomeração, coberta por testes numa instância pequena
+        cuja fronteira se conhece por enumeração
+      threads: 1
+    populacao:
+      tamanho: 200
+      inicial: a alocação realizada e 199 indivíduos sorteados uniformemente nas listas de candidatos e reparados
+      extremos_exatos_na_populacao: false
+      motivo: a comparação com o método exato fica independente
+    orcamento:
+      geracoes: 2000
+      motivo: orçamento em gerações, e não em tempo, para a execução se reproduzir
+      tempo: medido e reportado, sem decidir nada
+    sementes:
+      principal: 20261029
+      variabilidade: [20261030, 20261031, 20261032, 20261033, 20261034, 20261035, 20261036, 20261037, 20261038]
+    # Detalhes de implementação que os itens acima e Deb et al. (2002) não
+    # fixam, propostos na escrita da emenda e anteriores à execução.
+    detalhes_de_implementacao:
+      gerador: o gerador padrão do R (Mersenne-Twister), iniciado uma vez pela semente da execução
+      sentido_interno: os três objetivos são minimizados internamente, com a afinidade de sinal trocado
+      sobrevivencia: >-
+        elitista, como em Deb et al. (2002): pais e filhos reunidos, 400
+        indivíduos, ordenados por fronteiras e, na fronteira que não cabe
+        inteira, pela distância de aglomeração
+      pares: >-
+        os 200 pais sorteados por torneio formam 100 pares, na ordem do
+        sorteio; cada par gera dois filhos
+      cruzamento_uniforme: com o cruzamento sorteado para o par, cada gene é trocado entre os pais com probabilidade 0,5
+      mutacao: o novo gene é sorteado uniformemente na lista de candidatos do assento, podendo repetir o atual
+      ordem_do_reparo: >-
+        os assentos são percorridos na ordem da montagem; num par repetido de
+        consultor e projeto, o primeiro assento mantém o ocupante e os
+        seguintes são reamostrados
+      fronteira_final: os indivíduos não dominados e viáveis da população final, distintos no espaço dos objetivos
+    comparacao_com_o_exato:
+      funcao: descritiva
+      referencia: a tabela de payoff exata da etapa 2, com os limites do solver
+      medidas:
+        - distância de cada extremo da fronteira evolutiva ao extremo exato correspondente, na amplitude da tabela de payoff
+        - fração dos pontos da fronteira evolutiva dominados por alguma solução exata
+        - hipervolume normalizado pelas amplitudes da tabela de payoff, com ponto de referência no pior valor de cada objetivo na tabela, por semente
+      ressalva: >-
+        os três problemas da sobrecarga param no tempo-limite e não se
+        reproduzem entre máquinas; os seus valores entram como referência, com
+        a lacuna declarada, e não como resultado reproduzível
+    avaliacao:
+      fronteira: a da semente principal
+      itens:
+        - posição da alocação realizada, se é dominada e o maior ganho em cada objetivo entre os pontos que a dominam
+        - conflito entre afinidade e sobrecarga, com a concentração dos assentos nos consultores mais populares
+        - os três tratamentos da capacidade como pontos da fronteira; o limite rígido já está provado inviável pela etapa 2
+        - assentos ocupados pela zona morta em cada ponto
+        - sensibilidade com a carga em horas
+      referencia_exata: os três problemas exatos do item 10.c entram como referência descritiva, com a lacuna declarada
+    estabilidade:
+      reformulacao: o NSGA-II com dez sementes não cabe em 100 realizações
+      nas_100_realizacoes: >-
+        o que não depende do método evolutivo: os três objetivos da alocação
+        realizada e as linhas exatas de afinidade máxima e de custo mínimo da
+        tabela de payoff, que chegam ao ótimo em menos de um minuto
+      fronteira_evolutiva: só na realização versionada, com as dez sementes
+      integracao_continua: cinco realizações no push, como na wave 3
+    licao_de_metodo: >-
+      registrada como achado: o critério de otimalidade com lacuna zero da
+      regra de troca foi estrito para um objetivo cujo ótimo fica perto de zero
+      (sobrecarga atribuível entre 0,433 e 0,440 na tabela de payoff da
+      pipeline; a melhor solução varia entre corridas, 0,441 na primeira), e a
+      troca se deu por esse critério, e não pelo porte do problema
+    ordem_de_execucao: >-
+      a semente principal primeiro, com parada para revisão do tempo e da
+      qualidade da fronteira antes das outras nove sementes e das realizações
+  - data: "2026-10-30"
+    nome: emenda 2, referência do hipervolume e corrida exploratória
+    anterior_a_execucao: true
+    posterior_ao_resultado_da_semente_principal: true
+    contexto: >-
+      escrita depois da revisão da semente principal do NSGA-II e antes das
+      outras nove sementes, da corrida exploratória e da avaliação
+    hipervolume:
+      defeito_da_emenda_1: >-
+        a referência da emenda 1, o pior valor de cada objetivo na tabela de
+        payoff, tinha um defeito de especificação: na afinidade, esse valor é o
+        da solução de sobrecarga mínima (552,6), e a referência excluía por
+        construção todo ponto com afinidade menor
+      referencia: >-
+        a alocação realizada (afinidade 365,2, custo 0% em relação a ela,
+        sobrecarga atribuível 198,5)
+      normalizacao: >-
+        pelo volume da caixa entre a alocação realizada e o ponto ideal da
+        tabela exata: afinidade 663,1, custo 9,8% abaixo do da realizada e
+        sobrecarga atribuível 0,433, o limite inferior certificado pelo solver;
+        o hipervolume mede a fração da região que domina a alocação realizada
+        alcançada pela fronteira
+      ressalvas: >-
+        a correção é posterior ao resultado e nenhuma decisão depende dessa
+        medida; o zero da referência registrada na emenda 1 também é reportado
+      calculado_para:
+        - o conjunto das soluções exatas da etapa 2
+        - a fronteira de cada semente
+        - a semente principal a cada 100 gerações
+    orcamento: >-
+      as nove sementes restantes rodam com as 2.000 gerações registradas, sem
+      mudança; são os resultados confirmatórios
+    corrida_exploratoria:
+      funcao: declarada posterior ao resultado e sem função decisória
+      semente: 20261029
+      geracoes: 20000
+      registro: os três extremos e o hipervolume a cada 500 gerações
+      registrar_a_cada: 500
+      objetivo: medir a velocidade de convergência, não substituir a fronteira registrada
+    avaliacao:
+      fronteira: a registrada da semente principal (2.000 gerações)
+      itens: [posição da alocação realizada, conflito, tratamentos da capacidade, zona morta, sensibilidade em horas]
+      referencias_exatas: os três problemas do item 10.c, com a lacuna declarada
+      conflito: >-
+        reportado primeiro pelos extremos exatos, que têm certificado; a
+        fronteira entra como ilustração do caminho entre eles
+      realizada: >-
+        a alocação realizada estava na população inicial, e a dominação dela é
+        confirmada de forma independente pela solução exata de sobrecarga mínima
+    achado_de_metodo: >-
+      ao lado do item 10 da emenda 1: no orçamento registrado, o NSGA-II puro de
+      Deb et al. (2002), com cruzamento uniforme e mutação de 1/692, não
+      convergiu em 692 genes, e os seus extremos ficaram longe dos exatos, que
+      o método exato resolve em segundos para a afinidade e o custo; operadores
+      com busca local ou população semeada por soluções exatas ficam como
+      trabalho futuro e não são usados aqui
+    estabilidade: como na emenda 1, nas 100 realizações só a alocação realizada e as linhas exatas de afinidade máxima e de custo mínimo
+    # Detalhes que os itens acima não fixam, propostos na escrita da emenda e
+    # anteriores à execução. Todos descritivos.
+    detalhes_de_implementacao:
+      problemas_do_item_10c: >-
+        três problemas de um objetivo pelo HiGHS, com o controle do método
+        (tempo-limite, lacuna e linhas de execução registrados), cada um com os
+        outros dois objetivos presos no valor da alocação realizada
+      taxa_de_troca: >-
+        na projeção da fronteira em afinidade e sobrecarga atribuível, os pontos
+        não dominados nesse plano, ordenados por afinidade; a taxa é o
+        acréscimo de sobrecarga por unidade de afinidade entre pontos
+        consecutivos, reportada pela mediana, e entre os extremos exatos
+      concentracao: >-
+        fração dos assentos ocupados pelos 10 consultores mais populares na
+        estimação, e o maior número de assentos de um mesmo consultor
+      penalidade: >-
+        o ponto da fronteira que minimiza a soma, com pesos iguais, dos três
+        objetivos normalizados na caixa do hipervolume
+      limite_calibrado: >-
+        o ponto da fronteira de maior afinidade com sobrecarga atribuível no
+        máximo a da alocação realizada
+      sensibilidade_em_horas: >-
+        as mesmas soluções reavaliadas com a carga em horas, sem otimizar de
+        novo
+  - data: "2026-10-30"
+    nome: emenda 3, limite individual calibrado
+    anterior_a_execucao: true
+    posterior_ao_resultado: true
+    funcao: exploratória, declarada posterior ao resultado e sem função decisória
+    contexto: >-
+      escrita depois da avaliação da emenda 2 e antes de qualquer problema com
+      o limite individual; as medidas simultâneas de concentração valem também
+      para as soluções da emenda 2, sem resolver nada de novo
+    achado_que_a_motiva: >-
+      o objetivo de sobrecarga, como soma dos excessos sobre consultores e
+      meses, é indiferente à distribuição: no problema de afinidade máxima do
+      item 10.c, a sobrecarga total fica presa na da alocação realizada, mas
+      108 assentos vão para um único consultor e a maior ocupação mensal chega
+      a 13,8 meses cheios, contra 5,8 na realizada; medido na escrita desta
+      emenda, sem resolver nada, o consultor mais sobrecarregado fica com 26%
+      da sobrecarga atribuível, contra 9% na realizada, de modo que a
+      concentração é forte no pico, e não na soma; por isso o limite calibrado
+      do item 8, épsilon na sobrecarga total da realizada, não restringe
+      ninguém individualmente e
+      sai degenerado na avaliação da emenda 2
+    correcao_do_item_8: >-
+      a seção 4.3.7 da monografia descreve o limite calibrado como um limite
+      por consultor e mês acima de 100%, calibrado pelo histórico; a
+      correspondência do item 8 com um épsilon na sobrecarga total estava
+      errada nesse ponto; o item 8 fica como foi registrado e executado, e o
+      limite individual entra aqui como exploratório
+    ocupacao:
+      medida: >-
+        a carga de um consultor num mês de teste, carga fixa mais a dos
+        assentos, em fração de um mês cheio, sem descontar férias; é a medida
+        da EDA (achado II.8.2, máximo de 5,8 vezes a capacidade), escolhida
+        pelo autor em 2026-10-30; as férias continuam valendo só no objetivo de
+        sobrecarga
+      motivo: >-
+        dividida pela capacidade com férias, a ocupação de x̄ chega a 97,7 num
+        mês com 3,3% de capacidade, e x̄ teria um assento num consultor-mês de
+        capacidade zero; o limite não restringiria quase nada
+    limite_individual:
+      restricao: >-
+        para cada consultor e mês de teste, carga <= max(L, carga fixa daquele
+        consultor-mês); o max mantém x̄ viável e impede que a carga fixa
+        sozinha torne o problema inviável
+      L: >-
+        a maior ocupação mensal da alocação realizada nos meses de teste, sobre
+        todos os consultores e meses, inclusive os que só têm carga fixa
+      valor_de_L: 5.7859
+      tolerancia_de_L: 1.0e-4
+      implementacao: >-
+        uma linha por consultor e mês em que o consultor é candidato a algum
+        assento: a carga dos assentos no máximo max(L, fixa) menos a fixa; nos
+        demais meses a carga é só a fixa, e o limite vale por construção
+    problemas:
+      solver: o HiGHS, com o controle do método (600 s, lacuna zero, uma linha de execução) e a lacuna declarada
+      lista:
+        - as linhas de afinidade máxima e de custo mínimo da tabela de payoff, pela mesma ordem lexicográfica e tolerância de fixação
+        - os três problemas do item 10.c, cada objetivo com os outros dois presos nos valores de x̄
+      reportado_para_cada: os três objetivos, status, tempo, lacuna e as medidas de concentração
+      pergunta: quanto do ganho de afinidade sobrevive quando ninguém pode passar do pico que a própria alocação realizada já tinha
+    sensibilidade:
+      problema: o de afinidade máxima do item 10.c
+      L: 1.5
+      nota: >-
+        com L = 1,5, x̄ não é viável; os outros dois objetivos continuam presos
+        nos valores dela, e a inviabilidade, se houver, é o resultado
+    concentracao_simultanea:
+      medidas:
+        ocupacao_maxima: a maior ocupação de um consultor num mês de teste, na medida acima
+        meses_acima_de_2: o número de meses de consultor com ocupação acima de 2
+        fracao_no_mais_sobrecarregado: >-
+          a sobrecarga atribuível somada por consultor nos meses de teste; a do
+          consultor de maior soma dividida pela total, indefinida quando a
+          total é zero
+      calculadas_para:
+        - a alocação realizada
+        - as soluções da tabela de payoff
+        - os três problemas do item 10.c
+        - os pontos da fronteira registrada da semente principal
+        - os problemas desta emenda
+      comparacao: >-
+        a ocupação máxima ao lado do máximo da EDA, 5,8 vezes a capacidade,
+        que é sobre a janela inteira, enquanto aqui são só os meses de teste
+      mantidas: a fração no top 10 da estimação e o maior número de assentos de um consultor, da emenda 2
+    estabilidade: >-
+      as 100 realizações seguem as emendas 1 e 2, sem o limite individual: x̄
+      e as linhas exatas de afinidade máxima e de custo mínimo da tabela de
+      payoff, com a ocupação máxima acrescentada a x̄ e às duas linhas
+    detalhes_da_estabilidade:
+      sementes: as das realizações da wave 3, a partir da primeira registrada no pré-registro da wave 3
+      dados: cada realização gera os dados com férias, como no segundo nível da wave 3, e refaz insumos, ŝ, assentos, carga e o problema
+      grandezas: >-
+        os três objetivos de x̄; para cada linha exata, a afinidade, o custo
+        em relação a x̄, a sobrecarga atribuível, a ocupação máxima, o status e
+        o tempo de cada passo
+      resumo: mediana e intervalo de 90% entre realizações, com a posição da realização versionada
+      integracao_continua: cinco realizações no push, como na wave 3

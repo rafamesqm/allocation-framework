@@ -35,6 +35,10 @@ parametros <- list(
 # alvos que o usam: trocar W3_REALIZACOES invalida as realizações.
 n_realizacoes_w3 <- realizacoes_w3()
 
+# Corrida da wave 4, completa ou reduzida (W4_CORRIDA, integração contínua no
+# push). Na completa o desenho e as emendas saem intactos e nada refaz.
+corrida_w4 <- parametros_da_corrida_w4()
+
 list(
   # Camada 1: Atributos -------------------------------------------------
   tar_target(espaco_skills, gerar_espaco_skills()),
@@ -545,5 +549,193 @@ list(
     bloco_w3_hibrido$achados, bloco_w3_plausibilidade$achados, bloco_w3_estabilidade$achados,
     bloco_w3_revisao$achados
   ))),
-  tar_target(bloco_w3_sintese_tabelas, salvar_tabelas_bloco(bloco_w3_sintese$tabelas), format = "file")
+  tar_target(bloco_w3_sintese_tabelas, salvar_tabelas_bloco(bloco_w3_sintese$tabelas), format = "file"),
+
+  # Wave 4, otimização multiobjetivo ------------------------------------------
+  # O pré-registro da otimização fixa o problema antes de qualquer solução, e
+  # é rastreado como o da wave 3. A janela, a divisão e a semente de desempate
+  # continuam vindo de pre_registro.
+  tar_target(pre_registro_otimizacao_arquivo, here::here("config", "pre_registro_otimizacao.yml"), format = "file"),
+  tar_target(pre_registro_otimizacao, ler_pre_registro_otimizacao(pre_registro_otimizacao_arquivo)),
+  # O desenho registrado, sem as emendas, e cada emenda num alvo próprio: uma
+  # emenda nova não refaz a montagem nem a tabela de payoff, que não dependem
+  # dela. Refazer o payoff não é inócuo, porque os problemas que param no
+  # tempo-limite não se reproduzem.
+  tar_target(pre_registro_otimizacao_desenho, reduzir_corrida_w4(
+    separar_desenho_registrado(pre_registro_otimizacao), corrida_w4
+  )),
+  tar_target(w4_emenda_nsga2, reduzir_corrida_w4(
+    localizar_emenda(pre_registro_otimizacao, "emenda 1, troca para o NSGA-II"), corrida_w4
+  )),
+
+  # Etapa 1: assentos, carga fixa, capacidade, elegibilidade, ŝ na estimação
+  # e a matriz do problema, sem resolver nada. A conferência para a pipeline
+  # se a montagem não reproduzir os valores de verificação, e as tabelas só
+  # são salvas depois dela.
+  tar_target(w4_insumos, preparar_insumos_da_otimizacao(dados_eda, pre_registro, pre_registro_otimizacao_desenho)),
+  tar_target(w4_problema, montar_problema_da_otimizacao(w4_insumos, pre_registro_otimizacao_desenho$carga$medida)),
+  tar_target(w4_verificacao, medir_verificacao_da_otimizacao(w4_insumos, w4_problema, dados_eda, pre_registro)),
+  tar_target(w4_conferencia, conferir_montagem_da_otimizacao(w4_verificacao, pre_registro_otimizacao_desenho)),
+  tar_target(w4_montagem_tabelas, salvar_tabelas_bloco(list(
+    w4_conferencia = tabelar_conferencia_da_otimizacao(w4_conferencia),
+    w4_porte = tabelar_porte_da_otimizacao(w4_verificacao)
+  )), format = "file"),
+
+  # Etapa 2: tabela de payoff por otimização lexicográfica, nove problemas
+  # inteiros pelo HiGHS, só depois de a montagem conferir. Status e tempo de
+  # cada um decidem a primeira metade da regra de troca de método.
+  tar_target(w4_payoff, {
+    w4_conferencia
+    resolver_tabela_de_payoff(w4_problema, pre_registro_otimizacao_desenho)
+  }),
+  tar_target(w4_tratabilidade, avaliar_tratabilidade_do_payoff(w4_payoff)),
+  tar_target(w4_payoff_descricao, descrever_solucoes_do_payoff(w4_payoff, w4_problema)),
+  tar_target(w4_payoff_tabelas, salvar_tabelas_bloco(list(
+    w4_payoff = tabelar_payoff(w4_payoff, w4_payoff_descricao, w4_verificacao),
+    w4_payoff_amplitudes = tabelar_amplitudes_do_payoff(w4_payoff, w4_verificacao),
+    w4_tratabilidade = tabelar_tratabilidade_do_payoff(w4_payoff)
+  )), format = "file"),
+
+  # Etapa 3: o NSGA-II da emenda 1, adotado pela regra de troca. Só a semente
+  # principal nesta etapa; as outras nove e as realizações vêm depois da
+  # revisão do tempo e da qualidade da fronteira.
+  tar_target(w4_nsga2_principal, {
+    w4_conferencia
+    executar_nsga2_registrado(w4_problema, w4_emenda_nsga2, w4_emenda_nsga2$sementes$principal)
+  }),
+  tar_target(w4_nsga2_fronteira, extrair_fronteira(w4_nsga2_principal)),
+  tar_target(w4_nsga2_comparacao, comparar_fronteira_com_exato(
+    w4_nsga2_fronteira$objetivos, w4_payoff, pre_registro_otimizacao_desenho$metodo$ordem_lexicografica
+  )),
+  tar_target(w4_nsga2_convergencia, medir_convergencia(w4_nsga2_principal, w4_payoff)),
+  tar_target(w4_nsga2_tabelas, salvar_tabelas_bloco(list(
+    w4_nsga2_resumo = tabelar_resumo_do_nsga2(w4_nsga2_principal, w4_nsga2_fronteira, w4_nsga2_comparacao),
+    w4_nsga2_extremos = tabelar_extremos_do_nsga2(w4_nsga2_comparacao, w4_payoff, w4_verificacao),
+    w4_nsga2_convergencia = tabelar_convergencia_do_nsga2(w4_nsga2_convergencia)
+  )), format = "file"),
+
+  # Emenda 2: hipervolume na caixa entre a realizada e o ideal certificado,
+  # as nove sementes confirmatórias, a corrida exploratória e os itens 10.c a
+  # 10.f sobre a fronteira registrada da semente principal.
+  tar_target(w4_emenda_exploratoria, reduzir_corrida_w4(localizar_emenda(
+    pre_registro_otimizacao, "emenda 2, referência do hipervolume e corrida exploratória"
+  ), corrida_w4)),
+  tar_target(w4_ideal, calcular_ideal_certificado(w4_payoff, w4_problema)),
+  tar_target(w4_realizada, objetivos_da_realizada(w4_verificacao)),
+  tar_target(w4_nsga2_sementes, w4_emenda_nsga2$sementes$variabilidade),
+  tar_target(
+    w4_nsga2_variabilidade,
+    {
+      w4_conferencia
+      resumir_execucao_do_nsga2(
+        executar_nsga2_registrado(w4_problema, w4_emenda_nsga2, w4_nsga2_sementes),
+        w4_payoff, w4_ideal, w4_realizada, pre_registro_otimizacao_desenho$metodo$ordem_lexicografica
+      )
+    },
+    pattern = map(w4_nsga2_sementes)
+  ),
+  tar_target(w4_nsga2_resumo_principal, resumir_execucao_do_nsga2(
+    w4_nsga2_principal, w4_payoff, w4_ideal, w4_realizada, pre_registro_otimizacao_desenho$metodo$ordem_lexicografica
+  )),
+  tar_target(w4_nsga2_trajetoria_principal, medir_trajetoria(w4_nsga2_principal, w4_ideal, w4_realizada)),
+  tar_target(w4_nsga2_exploratoria, {
+    w4_conferencia
+    executar_nsga2_exploratorio(w4_problema, w4_emenda_nsga2, w4_emenda_exploratoria)
+  }),
+  tar_target(w4_nsga2_trajetoria_exploratoria, medir_trajetoria(w4_nsga2_exploratoria, w4_ideal, w4_realizada)),
+  tar_target(w4_problema_horas, montar_problema_da_otimizacao(w4_insumos, "horas")),
+  tar_target(w4_exatos_da_realizada, {
+    w4_conferencia
+    resolver_problemas_da_realizada(w4_problema, pre_registro_otimizacao_desenho)
+  }),
+  tar_target(w4_avaliacao, avaliar_fronteira_registrada(
+    w4_nsga2_principal, w4_problema, w4_problema_horas, w4_insumos, w4_payoff,
+    w4_exatos_da_realizada, w4_ideal, w4_realizada
+  )),
+  tar_target(w4_avaliacao_tabelas, salvar_tabelas_bloco(list(
+    w4_nsga2_sementes = tabelar_sementes_do_nsga2(w4_nsga2_resumo_principal, w4_nsga2_variabilidade, w4_realizada),
+    w4_nsga2_trajetoria_principal = tabelar_trajetoria(w4_nsga2_trajetoria_principal, w4_realizada),
+    w4_nsga2_trajetoria_exploratoria = tabelar_trajetoria(w4_nsga2_trajetoria_exploratoria, w4_realizada),
+    w4_avaliacao_referencias = tabelar_referencias_da_avaliacao(w4_avaliacao, w4_exatos_da_realizada, w4_payoff, w4_realizada),
+    w4_avaliacao_pontos = tabelar_pontos_da_fronteira(w4_avaliacao, w4_realizada),
+    w4_avaliacao_resumo = tabelar_resumo_da_avaliacao(w4_avaliacao)
+  )), format = "file"),
+
+  # Emenda 3, exploratória: concentração simultânea nas soluções da emenda 2,
+  # sem resolver nada, e o limite individual calibrado pela maior ocupação
+  # mensal da realizada, que para a pipeline se não conferir com o registrado.
+  tar_target(w4_emenda_limite, localizar_emenda(pre_registro_otimizacao, "emenda 3, limite individual calibrado")),
+  tar_target(w4_concentracao, medir_concentracao_da_avaliacao(
+    w4_nsga2_principal, w4_problema, w4_insumos, w4_payoff, w4_exatos_da_realizada
+  )),
+  tar_target(w4_limite_individual, conferir_limite_individual(
+    calcular_limite_individual(w4_problema, w4_insumos), w4_emenda_limite
+  )),
+  tar_target(w4_limitados, {
+    w4_conferencia
+    resolver_problemas_limitados(limitar_ocupacao(w4_problema, w4_limite_individual), pre_registro_otimizacao_desenho)
+  }),
+  tar_target(w4_sensibilidade_do_limite, {
+    w4_conferencia
+    resolver_afinidade_com_limite(w4_problema, w4_emenda_limite$sensibilidade$L, pre_registro_otimizacao_desenho)
+  }),
+  tar_target(w4_limitados_descricao, descrever_problemas_limitados(
+    w4_limitados, w4_sensibilidade_do_limite, w4_problema, w4_limite_individual, w4_insumos
+  )),
+  tar_target(w4_limite_tabelas, salvar_tabelas_bloco(list(
+    w4_concentracao_simultanea = tabelar_concentracao_simultanea(w4_concentracao),
+    w4_limite_individual = tabelar_problemas_limitados(w4_limitados_descricao)
+  )), format = "file"),
+
+  # Projetos simultâneos por consultor e mês: medida descritiva acrescentada
+  # depois dos resultados das emendas 2 e 3, sem nada resolvido de novo.
+  tar_target(w4_projetos_simultaneos, medir_projetos_simultaneos_da_avaliacao(
+    w4_nsga2_principal, w4_problema, w4_insumos, w4_payoff, w4_exatos_da_realizada,
+    w4_limitados, w4_sensibilidade_do_limite, w4_limite_individual
+  )),
+  tar_target(w4_projetos_simultaneos_tabela, salvar_tabela(
+    tabelar_projetos_simultaneos(w4_projetos_simultaneos), "w4_projetos_simultaneos"
+  ), format = "file"),
+  tar_target(w4_fronteira_principal_tabela, salvar_tabela(
+    tabelar_fronteira_registrada(w4_avaliacao, w4_concentracao, w4_projetos_simultaneos, w4_realizada),
+    "w4_nsga2_fronteira_principal"
+  ), format = "file"),
+
+  # Estabilidade (emendas 1 a 3): nas realizações da wave 3, x̄ e as linhas
+  # exatas de afinidade e de custo, sem o limite individual. Uma semente por
+  # ramo, para uma corrida interrompida retomar de onde parou.
+  tar_target(w4_estabilidade_versionada, descrever_estabilidade_da_otimizacao(w4_problema, w4_insumos, w4_payoff)),
+  tar_target(
+    w4_estabilidade_realizacoes,
+    medir_realizacao_da_otimizacao(
+      w3_conteudo_sementes, pre_registro, pre_registro_otimizacao_desenho,
+      dias_ferias = parametros$dias_ferias, ano_ferias = parametros$ano_ferias,
+      n_consultores = parametros$n_consultores, n_projetos = parametros$n_projetos,
+      data_referencia = parametros$data_referencia
+    ),
+    pattern = map(w3_conteudo_sementes)
+  ),
+  tar_target(w4_estabilidade, resumir_estabilidade_da_otimizacao(
+    w4_estabilidade_versionada, w4_estabilidade_realizacoes, pre_registro_otimizacao_desenho$avaliacao$estabilidade$nivel
+  )),
+  tar_target(w4_estabilidade_tabelas, salvar_tabelas_bloco(list(
+    w4_estabilidade = tabelar_estabilidade_da_otimizacao(w4_estabilidade)
+  )), format = "file"),
+
+  # Achados da wave 4, no formato de achados_w3.csv, com o confirmatório e o
+  # exploratório separados no campo natureza. Não recalcula nada.
+  tar_target(w4_achados, registrar_achados_w4(
+    montagem = list(verificacao = w4_verificacao, conferencia = w4_conferencia),
+    exato = list(payoff = w4_payoff, ideal = w4_ideal, realizada = w4_realizada),
+    nsga2 = list(
+      principal = w4_nsga2_resumo_principal, variabilidade = w4_nsga2_variabilidade,
+      trajetoria = w4_nsga2_trajetoria_exploratoria
+    ),
+    avaliacao = list(avaliacao = w4_avaliacao, exatos = w4_exatos_da_realizada, concentracao = w4_concentracao),
+    limite = list(
+      descricao = w4_limitados_descricao, valor = w4_limite_individual, projetos = w4_projetos_simultaneos
+    ),
+    estabilidade = w4_estabilidade
+  )),
+  tar_target(w4_achados_arquivo, salvar_tabela(w4_achados, "achados_w4"), format = "file")
 )

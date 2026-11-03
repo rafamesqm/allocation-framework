@@ -1,0 +1,3 @@
+# O R grava CSV com LF; sem esta linha, o Git no Windows os marca como
+# alterados a cada tar_make() só pela quebra de linha.
+*.csv text eol=lf

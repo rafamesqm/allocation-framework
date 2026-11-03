@@ -1,0 +1,21 @@
+Grandeza,Medido,Registrado,Confere
+Assentos,692,692,sim
+Projetos com assento,262,262,sim
+Alocações fixas ativas a partir do corte,174,174,sim
+"Alocações fixas só no mês do corte, antes dele",29,29,sim
+Pares removidos por carga fixa no projeto,35,35,sim
+"Variáveis binárias, nível N0",53,53,sim
+"Variáveis binárias, nível N1",4.584,4.584,sim
+"Variáveis binárias, nível N2",8.655,8.655,sim
+"Variáveis binárias, nível N3",16.175,16.175,sim
+"Variáveis binárias, nível N4",1.954,1.954,sim
+Variáveis binárias,31.421,31.421,sim
+Fração dos realizados fora do filtro,"0,2327","0,2327",sim
+Pares da zona morta,6.194,6.194,sim
+Fração das binárias na zona morta,"0,1971","0,1971",sim
+Meses de consultor sem capacidade,10,10,sim
+Assentos realizados em mês sem capacidade,2,2,sim
+Assentos censurados no fim da janela,146,146,sim
+Assentos realizados antes da admissão,16,16,sim
+Pares candidatos antes da admissão,1.109,1.109,sim
+"Sobrecarga da alocação realizada, em percentual","277,4074","277,4074",sim

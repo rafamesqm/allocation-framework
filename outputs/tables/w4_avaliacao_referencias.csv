@@ -1,0 +1,8 @@
+Solução,Certificado,Afinidade,Custo em relação à realizada,Sobrecarga atribuível,Sobrecarga atribuível em horas,Assentos da zona morta,Assentos nos 10 mais populares,Maior número de assentos de um consultor
+Alocação realizada,--,"365,2","0,0%","198,5",39.480,4,"12,7%",17
+"Payoff, afinidade máxima",ótima,"663,1","-0,1%","448,1",83.275,0,"36,8%",127
+"Payoff, custo mínimo",ótima,"641,7","-9,8%","439,7",82.791,0,"30,6%",127
+"Payoff, sobrecarga mínima (2 de 3 passos)",último passo sem solução,"552,6","-1,8%","0,4",18.808,14,"9,4%",54
+"Item 10.c, afinidade máxima presa na realizada","lacuna 0,0003","645,1","-0,0%","198,5",48.072,0,"32,5%",108
+"Item 10.c, custo mínimo preso na realizada",ótima,"365,4","-9,8%","195,3",42.801,93,"4,6%",23
+"Item 10.c, sobrecarga mínima presa na realizada","lacuna 0,0016","365,2","-2,1%","0,5",15.046,42,"4,0%",18

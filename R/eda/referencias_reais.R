@@ -83,13 +83,12 @@ referencias_reais <- function() {
     "projetos", "setor", "prop", "Alimentos e Bebidas", 165 / 4086, "Terceira",
     "projetos", "setor", "prop", "Private Equity", 72 / 4086, "Terceira",
 
-    "projetos", "tipo_projeto", "prop", "Experience & Efficiency", 991 / 4214, "Terceira",
-    "projetos", "tipo_projeto", "prop", "Strategy and M&A", 642 / 4214, "Terceira",
-    "projetos", "tipo_projeto", "prop",
-    "Data Analytics & Artificial Intelligence", 530 / 4214, "Terceira",
-    "projetos", "tipo_projeto", "prop", "Supply Chain", 524 / 4214, "Terceira",
-    "projetos", "tipo_projeto", "prop", "Tech Consulting", 427 / 4214, "Terceira",
-    "projetos", "tipo_projeto", "prop", "Finance", 424 / 4214, "Terceira",
+    "projetos", "tipo_projeto", "prop", "oferta_01", 991 / 4214, "Terceira",
+    "projetos", "tipo_projeto", "prop", "oferta_02", 642 / 4214, "Terceira",
+    "projetos", "tipo_projeto", "prop", "oferta_03", 530 / 4214, "Terceira",
+    "projetos", "tipo_projeto", "prop", "oferta_04", 524 / 4214, "Terceira",
+    "projetos", "tipo_projeto", "prop", "oferta_05", 427 / 4214, "Terceira",
+    "projetos", "tipo_projeto", "prop", "oferta_06", 424 / 4214, "Terceira",
 
     # Camada 2: Alocações --------------------------------------------------
     "alocacoes", "duracao_dias", "media", NA_character_, 51.6, "Sexta",

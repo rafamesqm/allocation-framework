@@ -1,0 +1,339 @@
+---
+title: "Bloco II.7 Protocolo de avaliação"
+subtitle: "EDA direcionada, capítulo de análise exploratória"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "eda", "_comum.R"))
+
+bloco <- ler_bloco("bloco_ii7")
+obj <- bloco$objetos
+base <- obj$comparacao_base
+```
+
+## Propósito do bloco
+
+**Âncora na literatura.** Cremonesi, Koren e Turrin (2010) mostram que a
+escolha do protocolo muda a ordem entre algoritmos, e Bellogín, Castells e
+Cantador (2011) que a métrica precisa controlar popularidade para não premiar
+quem apenas a redescobre.
+
+**Propriedade medida.** Quanta observação cada forma de divisão deixa para
+cada componente do híbrido, e quanto ela vaza.
+
+**Decisão que discrimina.** A forma da divisão, a métrica e a linha de base.
+
+**Por que este bloco está na wave 2 e não na 3.** Definir o protocolo antes
+de ver qualquer resultado de modelo é o que impede o autoengano. Com o modelo
+em mãos, a decisão fica suscetível de ser ajustada ao resultado, e a diferença
+entre as duas situações não aparece no texto final: aparece só na honestidade
+de quem escreveu.
+
+## Três restrições que o bloco herda
+
+Este bloco quase não tem liberdade, e isso é bom sinal. Cada peça do
+protocolo responde a um achado anterior.
+
+Do **bloco II.4**, que nenhum estimador não enviesado por propensão
+sobreviveu: a conclusão precisa ser enunciada sobre a população observada, sem
+pretender valer para os pares que nunca tiveram chance de aparecer.
+
+```{r auc-ii6}
+ii6 <- ler_bloco("bloco_ii6")$objetos
+```
+
+Do **bloco II.6**, que a divisão temporal separa alocações e não pessoas: o
+perfil médio media AUC de `r formatar_decimal(ii6$sem_popularidade$auc, 2)`
+com vazamento e `r formatar_decimal(ii6$sem_vazamento$auc, 2)` sem, então
+atributo com chave de entidade exige separação por entidade.
+
+Do **bloco II.1**, que a linha de base de popularidade reportada lá era limite
+superior e precisava ser refeita aqui antes de virar critério formal.
+
+## O que cada divisão deixa e o que ela vaza
+
+```{r divisoes, fig.width = 7.5, fig.height = 4}
+bloco$figuras$ii7_avaliabilidade
+```
+
+```{r divisoes-tabela}
+mostrar_tabela(
+  bloco$tabelas$ii7_divisoes,
+  "Tabela II.7.1: observação disponível e vazamento em cada forma de divisão.",
+  c("l", "r", "r", "r", "r", "r")
+)
+```
+
+O número que decide o bloco está na primeira linha. **Sob divisão temporal, o
+colaborativo pontua apenas
+`r formatar_pct(obj$temporal$avaliavel_colaborativo)` dos pares de teste**,
+porque só `r formatar_pct(obj$temporal$vazamento_projeto)` dos projetos do
+teste aparecem no treino.
+
+A divisão aleatória eleva isso para
+`r formatar_pct(obj$aleatoria$avaliavel_colaborativo)`, ou
+`r formatar_decimal(obj$inflacao_aleatoria, 1)` vezes mais. **A diferença
+inteira vem de deixar o mesmo projeto dos dois lados**, o que em produção
+nunca acontece: projeto de consultoria é item efêmero, aparece uma vez e não
+volta.
+
+Avaliar o colaborativo com divisão aleatória reportaria um componente que
+funciona e que não poderia funcionar. Conjugado ao bloco II.2, que mostrou a
+fatoração não ser identificável nesta escala, o colaborativo não é só fraco:
+é **quase inavaliável** sob qualquer protocolo honesto.
+
+## Nenhuma forma serve aos dois componentes
+
+```{r vereditos}
+mostrar_tabela(
+  bloco$tabelas$ii7_vereditos,
+  "Tabela II.7.2: veredito de cada forma por componente.",
+  c("l", "c", "c", "c")
+)
+```
+
+O veredito do colaborativo pede que a forma deixe pontuável ao menos metade
+dos pares de teste. Só a aleatória passa, e passa pelo vazamento de projeto
+que a seção anterior mediu, então o "sim" dela não é avaliação honesta. A
+temporal fica abaixo do limite e mesmo assim é a forma adotada para o
+colaborativo, por ser a única que respeita a ordem do tempo: o "não" registra
+quanto ela deixa de fora, e não que exista alternativa melhor.
+
+A temporal deixa `r formatar_pct(obj$temporal$vazamento_consultor)` dos
+consultores do teste já vistos no treino, o que invalida avaliação de atributo
+de entidade. A divisão por consultor zera esse vazamento e zera junto a
+avaliabilidade do colaborativo.
+
+A oposição não é defeito da medida, é definição: **separar pessoas para não
+vazar atributo é exatamente criar cold start**, e cold start é o regime em que
+o colaborativo não tem o que dizer.
+
+**A decisão habilitada é adotar dois protocolos, um por componente.** Isso
+casa com o híbrido chaveado do bloco II.3: cada componente é avaliado no
+regime em que de fato atua. Um protocolo único obrigaria a mentir sobre um dos
+dois.
+
+## A linha de base, refeita
+
+```{r linha-base}
+mostrar_tabela(
+  bloco$tabelas$ii7_linha_base,
+  "Tabela II.7.3: acerto da popularidade, sob o protocolo e na versão do bloco II.1, as duas sobre o histórico da janela de análise.",
+  c("r", "r", "r", "r")
+)
+```
+
+Eram dois vícios, e o segundo é o menos evidente.
+
+O primeiro era **contar popularidade no mesmo dado em que se avalia**. Aqui a
+contagem vem só do treino.
+
+O segundo era **desempatar a favor do consultor avaliado**. Com contagens
+inteiras os empates são grandes, e contar apenas quem está estritamente acima
+põe o focal na melhor posição possível dentro do bloco de empatados. A medida
+correta é o **acerto esperado** sob desempate aleatório: o focal cai com a
+mesma chance em qualquer posição do seu bloco, então entra na lista com
+probabilidade igual à fração do bloco que cabe nela. Comparar a posição média
+do bloco com o tamanho da lista, como uma versão anterior deste bloco fazia,
+dá zero ou um justamente quando o bloco atravessa o corte.
+
+Nesta realização, em lista de 20, o acerto cai de
+`r formatar_pct(base$recall_otimista[base$n_recomendados == 20])` para
+`r formatar_pct(base$recall_protocolo[base$n_recomendados == 20])`. A queda,
+em pontos, é de
+`r formatar_decimal(100 * (base$recall_otimista - base$recall_protocolo)[base$n_recomendados == 5], 1)`
+em lista de 5,
+`r formatar_decimal(100 * (base$recall_otimista - base$recall_protocolo)[base$n_recomendados == 20], 1)`
+em lista de 20 e
+`r formatar_decimal(100 * (base$recall_otimista - base$recall_protocolo)[base$n_recomendados == 50], 1)`
+em lista de 50. Ela tende a se concentrar no meio da faixa, e a razão é
+estrutural: em lista muito curta o focal tende a ficar fora de qualquer jeito,
+e em lista longa a entrar de qualquer jeito, e é no meio que o bloco de
+empatados decide.
+
+```{r correcao-instavel, results = "asis"}
+if (isFALSE(obj$correcao_separa)) {
+  cat(paste0(
+    "**Mas a queda desta realização não é típica.** Sobre as cem realizações ",
+    "do bloco I.0, a correção em lista de 20 fica em ", obj$correcao_intervalo,
+    ", intervalo que contém o zero. A queda grande daqui vem em boa parte de o ",
+    "piso otimista ter sido um sorteio alto, como o bloco II.1 registra. A ",
+    "correção é adotada por ser o cálculo certo, não por mudar o número de ",
+    "forma material."
+  ))
+}
+```
+
+**Este é o piso ao lado do qual o colaborativo é reportado**, e ele fica
+fixado agora, antes de existir modelo. Fixado como intervalo,
+`r obj$protocolo_intervalo` sobre as realizações, e não como o ponto desta
+realização: é essa largura que a leitura do resultado precisa levar em conta.
+O critério de significância do colaborativo, e o tamanho de ganho que ele
+consegue enxergar, vêm na próxima seção.
+
+## O piso e o poder de cada componente
+
+Fixar o piso não basta. Falta fixar o que conta como superá-lo, e isso depende
+de quantos pares cada protocolo deixa e de contra o quê cada componente é
+comparado.
+
+```{r poder}
+mostrar_tabela(
+  bloco$tabelas$ii7_poder,
+  "Tabela II.7.4: pares avaliáveis, piso e menor ganho distinguível, em pontos percentuais.",
+  c("l", "l", "l", "r", "r", "r", "r")
+)
+```
+
+O ganho mínimo é o menor aumento de acerto em lista de 20 que um teste pareado
+de McNemar, a 5% e com poder de 80%, conseguiria distinguir do piso. A
+comparação é pareada porque modelo e piso são avaliados sobre os mesmos pares,
+e o que decide o poder são os pares em que um acerta e o outro não. Como essa
+fração só se conhece com o modelo pronto, o cálculo vem em dois cenários que
+cercam a verdade: o otimista, em que o modelo acerta tudo o que o piso acerta e
+mais um pouco, e o conservador, em que os acertos dos dois são independentes.
+
+**A popularidade é degenerada para o conteúdo.** Sob divisão por consultor,
+nenhum consultor de teste foi visto no treino, todos empatam em zero, e o piso
+de popularidade vale
+`r formatar_pct(obj$popularidade_no_conteudo$valor_piso)`. Qualquer modelo o
+supera, e a comparação não mediria nada. O piso que mede alguma coisa é o
+filtro de setor com ordem ao acaso dentro dele, que já acerta
+`r formatar_pct(obj$poder_conteudo$valor_piso)` nesta realização. É contra
+ele que se pergunta se alguma coisa ordena dentro do filtro, que é a pergunta
+que o bloco II.6 deixou aberta.
+
+Esse número é do gerador. Aqui
+`r formatar_pct(obj$poder_conteudo$fracao_passa_filtro)` dos pares passam o
+filtro, e no real o bloco II.6 mediu afinidade de volume baixo, então o piso
+real deve ser bem menor.
+
+**O colaborativo só é validável para ganhos grandes.** Com
+`r formatar_inteiro(obj$poder_colaborativo$n_avaliavel)` pares avaliáveis, um
+ganho só seria distinguível se passasse de
+`r formatar_decimal(100 * obj$poder_colaborativo$ganho_dominancia, 1)` a
+`r formatar_decimal(100 * obj$poder_colaborativo$ganho_independencia, 1)`
+pontos percentuais, conforme o cenário. Mais dado no mesmo desenho não
+resolveria, porque os pares são poucos pela natureza do projeto de
+consultoria, que aparece uma vez e não volta. No cenário conservador, ser
+distinguível do piso de
+`r formatar_pct(obj$poder_colaborativo$valor_piso)` exige multiplicar o acerto
+dele por
+`r formatar_decimal((obj$poder_colaborativo$valor_piso + obj$poder_colaborativo$ganho_independencia) / obj$poder_colaborativo$valor_piso, 1)`,
+e mesmo assim **o colaborativo passa pelo mesmo teste que o conteúdo**, o
+pareado de McNemar a 5% contra o piso de popularidade. O que muda é a leitura:
+com tão poucos pares, não rejeitar é o desfecho esperado de qualquer ganho
+moderado e não autoriza dizer que o componente não funciona. O teste responde
+se o colaborativo superou o piso por margem grande, e só isso.
+
+Uma versão anterior deste parágrafo dizia que nenhum modelo plausível passaria
+no teste, e por isso o componente seria reportado só de forma descritiva. Isso
+valia com 44 pares avaliáveis e deixou de valer quando a duração das alocações
+foi recalibrada, o que mais que dobrou esse número.
+
+**O conteúdo tem poder.** Com
+`r formatar_inteiro(obj$poder_conteudo$n_avaliavel)` pares, o teste distingue
+ganhos de
+`r formatar_decimal(100 * obj$poder_conteudo$ganho_dominancia, 1)` a
+`r formatar_decimal(100 * obj$poder_conteudo$ganho_independencia, 1)` pontos
+percentuais sobre o filtro com acaso.
+
+## Dois níveis de avaliação
+
+O acerto em lista pergunta se o modelo devolve quem de fato foi alocado. Por
+isso mede **aderência ao processo**, e não adequação da alocação. Medido só
+assim, o modelo é premiado por reproduzir a alocação centralizada que motiva a
+monografia, e o sinal de interação do bloco II.5, feedback implícito, carrega
+o viés de seleção que o bloco II.4 mostrou não se corrigir.
+
+Por isso a avaliação tem dois níveis, declarados como tais.
+
+**Primeiro nível, aderência ao processo.** A alocação realizada está no
+conjunto recomendado? A pergunta é feita dentro do filtro de setor e no
+top-20, sempre contra o piso de cada componente. É o nível em que valem os
+critérios de sucesso fixados acima.
+
+**Segundo nível, plausibilidade das discordâncias.** Quando o realizado não
+está entre os recomendados, a discordância compara com o realizado o primeiro
+recomendado que não estava alocado ao projeto no mês de início da alocação
+realizada. Recomendar quem já está no time não é alternativa ao realizado.
+Quando todos os recomendados já estavam no time, não há com quem comparar: a
+discordância fica fora da comparação e da leitura qualitativa, e é contada à
+parte. A comparação usa quatro critérios:
+
+* **folga de capacidade no mês**: a capacidade do consultor no mês, já
+  descontadas as férias pelos dias que caem nele, menos as horas das demais
+  alocações dele ativas naquele mês, sem a alocação em análise, para o
+  realizado não pagar em folga a própria alocação julgada. As férias
+  sintéticas cobrem só 2026, e fora desse ano a capacidade fica cheia por falta
+  de registro;
+* **custo por hora**, menor é melhor;
+* **compatibilidade de setor**, em três valores: compatível, incompatível ou
+  desconhecido, quando o consultor não declarou setor ou o projeto não tem
+  setor;
+* **adequação de senioridade**: a distância, em posições da escala de níveis,
+  entre o consultor e a mediana do restante do time alocado ao projeto no
+  mesmo mês. Projeto sem outros membros no mês dá empate no critério.
+
+A classificação é por dominância, e não por soma ponderada, porque não há base
+para pesar folga contra custo. O recomendado é **melhor** quando não perde em
+nenhum critério e ganha em ao menos um, **pior** no inverso, e os dois são
+**incomparáveis** quando cada um ganha em algum. Critério desconhecido para
+qualquer dos dois sai da comparação daquele par, e a contagem de pares com
+critério desconhecido é reportada por critério. O empate nos quatro é desfeito
+pelo maior tempo de casa, e a ressalva fica escrita: **o desempate favorece
+veteranos**.
+
+Da classificação sai uma leitura qualitativa. O universo são as discordâncias
+do teste fora da zona morta, e os estratos cruzam o ramo que atuou, conteúdo ou
+colaborativo, com a classe da comparação, o que dá seis estratos. Cada estrato
+contribui com `r obj$casos_por_estrato` casos, sorteados com a semente
+`r obj$semente_da_leitura`, fixa no código. Estrato vazio é reportado como
+vazio, e cada classe informa quantos dos seus casos vieram do desempate por
+tempo de casa. A rubrica é fixa: disponibilidade do recomendado no mês,
+compatibilidade de setor, algo observável nos dados que justifique a escolha
+realizada, e o veredito, entre `r paste(obj$vereditos, collapse = ", ")`. A
+explicação de cada recomendação vem da própria arquitetura: o ramo, o filtro e
+a posição na popularidade. A leitura tem um avaliador único, o autor, e isso
+fica declarado como limitação.
+
+O protocolo dos dois níveis fica fixado aqui, antes de existir modelo. O
+sorteio e a rubrica estão implementados e testados, e a aplicação, com os
+números, é da wave 3.
+
+## O protocolo declarado
+
+* **Divisão por consultor** para avaliar o componente de conteúdo, porque é a
+  única que não vaza atributo de entidade.
+* **Divisão temporal** para o colaborativo, porque em produção não se prevê o
+  passado, com a ressalva de que ela deixa pouquíssimo par pontuável.
+* **Acerto em lista** como métrica, com o piso de cada componente reportado ao
+  lado em toda comparação: popularidade no treino para o colaborativo, filtro
+  de setor com acaso para o conteúdo.
+* **Critério de sucesso do conteúdo**: o teste pareado de McNemar a 5% contra
+  o filtro com acaso, com os empates do piso desfeitos ao acaso sob semente
+  declarada. É um teste e não um número: o ganho mínimo serve para planejar.
+* **Critério de sucesso do colaborativo**: o mesmo teste pareado de McNemar a
+  5%, contra a popularidade no treino, com o ganho mínimo reportado ao lado e
+  a não rejeição lida como falta de poder, não como ausência de efeito.
+* **Dois níveis de avaliação**: aderência ao processo, pelo acerto em lista
+  dentro do filtro de setor e no top-20 contra o piso de cada componente, e
+  plausibilidade das discordâncias, por dominância em quatro critérios e
+  leitura qualitativa estratificada com rubrica fixa.
+* **Conclusão enunciada sobre a população observada**, sem pretender valer
+  para os pares que nunca tiveram chance de aparecer.
+
+Nenhuma dessas peças é preferência. Cada uma responde a uma restrição medida
+em outro bloco, e é por isso que o protocolo pôde ser fixado antes do modelo.
+
+## Achados do bloco
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

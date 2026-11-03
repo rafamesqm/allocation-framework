@@ -1,11 +1,13 @@
 test_that("a guarda dos documentos barra valor inline vazio, NA ou n/a", {
   # O bloco I.2 publicou "()" e "contra ," no lugar de números, mais de uma
   # vez, porque citava grandezas que tinham deixado de existir. A guarda em
-  # analysis/_comum.R faz a renderização parar nesses casos. O de comprimento
+  # outputs/results/eda/_comum.R faz a renderização parar nesses casos. O de comprimento
   # zero é o que importa: o knitr o imprime vazio sem passar pelo gancho de
-  # saída, e por isso a guarda fica no de avaliação.
+  # saída, e por isso a guarda fica no de avaliação. Na corrida reduzida a
+  # guarda é relaxada; aqui ela é testada como na completa.
+  withr::local_envvar(W3_REALIZACOES = NA, W4_CORRIDA = "completa")
   withr::defer(knitr::knit_hooks$restore())
-  source(here::here("analysis", "_comum.R"), local = new.env())
+  source(here::here("outputs", "results", "eda", "_comum.R"), local = new.env())
 
   renderizar <- function(texto) knitr::knit(text = texto, quiet = TRUE)
 
@@ -20,7 +22,7 @@ test_that("as tabelas dos documentos saem com decimal em virgula", {
   # documentos, contra a regra de pt-BR em todo texto final.
   withr::defer(knitr::knit_hooks$restore())
   ambiente <- new.env()
-  source(here::here("analysis", "_comum.R"), local = ambiente)
+  source(here::here("outputs", "results", "eda", "_comum.R"), local = ambiente)
 
   tabela <- ambiente$mostrar_tabela(tibble::tibble(x = 0.57, n = 1196430), "teste")
   texto <- paste(tabela, collapse = "\n")

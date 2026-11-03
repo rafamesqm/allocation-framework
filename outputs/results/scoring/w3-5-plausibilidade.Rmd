@@ -1,0 +1,95 @@
+---
+title: "Etapa 5. Plausibilidade das discordâncias"
+subtitle: "Wave 3, scoring híbrido"
+lang: pt-BR
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: readable
+---
+
+```{r setup}
+source(here::here("outputs", "results", "scoring", "_comum.R"))
+
+bloco <- ler_bloco("bloco_w3_plausibilidade")
+plausibilidade <- ler_bloco("w3_plausibilidade")
+rubrica <- ler_rubrica_preenchida()
+```
+
+## Propósito
+
+O acerto em lista mede aderência ao processo atual, e não adequação: um
+modelo que só reproduzisse a escolha centralizada seria premiado por ele. O
+segundo nível olha o que o primeiro não vê, as discordâncias, em que o
+consultor realizado ficou fora da lista. Cada uma compara o realizado com o
+primeiro recomendado fora da equipe do projeto no mês, por dominância em
+quatro critérios: folga de capacidade, custo por hora, setor e senioridade
+(achado II.7.8).
+
+As discordâncias vêm do teste de cada componente, com a ordenação adotada. No
+conteúdo, a ordem dentro do filtro ficou ao acaso, então **o primeiro
+recomendado é um sorteio dentro do filtro**. No colaborativo, é o mais popular
+fora da equipe.
+
+## Classes por ramo
+
+```{r classes}
+mostrar_tabela(
+  bloco$tabelas$w3_plausibilidade_classes,
+  "Tabela W3.10: classificação das discordâncias por dominância, por ramo."
+)
+```
+
+## De onde vêm as classes
+
+```{r criterios}
+mostrar_tabela(
+  bloco$tabelas$w3_plausibilidade_criterios,
+  "Tabela W3.11: quem vence cada critério, por ramo."
+)
+```
+
+No colaborativo, a popularidade sem filtro põe o mesmo consultor no topo de
+toda lista, e a comparação é, na prática, contra uma pessoa só, que por ser a
+mais alocada quase nunca tem mais folga que o realizado. Reproduzir a
+popularidade é recomendar quem já está ocupado.
+
+## A leitura qualitativa
+
+```{r estratos}
+mostrar_tabela(
+  bloco$tabelas$w3_plausibilidade_estratos,
+  "Tabela W3.12: casos disponíveis e sorteados por estrato de ramo e classe."
+)
+```
+
+O modelo da rubrica, com os casos sorteados, sai em branco em
+`outputs/tables/w3_rubrica_leitura_modelo.csv`. A leitura é do autor, num
+arquivo que a pipeline nunca escreve (`outputs/results/scoring/leitura/`).
+
+```{r rubrica, results = "asis"}
+if (is.null(rubrica)) {
+  cat(
+    "**A leitura qualitativa ainda não foi registrada.** Quando o arquivo ",
+    "`outputs/results/scoring/leitura/rubrica_preenchida.csv` existir, os vereditos ",
+    "aparecem aqui.", sep = ""
+  )
+} else {
+  print(knitr::kable(
+    dplyr::count(rubrica, Ramo, Veredito),
+    caption = "Tabela W3.13: vereditos da leitura qualitativa, por ramo."
+  ))
+}
+```
+
+Sobre dados sintéticos, a leitura julga a coerência do gerador, e não o
+processo real de alocação: ela demonstra o instrumento sem validar o modelo.
+O avaliador é único, o autor, e o desempate por tempo de casa favorece
+veteranos.
+
+## Achados
+
+```{r achados, results = "asis"}
+cat(mostrar_achados(bloco$achados))
+```

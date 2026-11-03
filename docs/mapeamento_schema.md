@@ -32,7 +32,7 @@ respondentes (verificado por e-mail, sem expor identidade aqui):
 | Arquivo | Respondentes | Foco | Sobreposição com os outros |
 |---|---|---|---|
 | planilha do formulário de skills de Digital | 102 (101 e-mails únicos, 1 duplicata) | Skills técnicas/digitais (~144 ferramentas: frontend, backend, mobile, dados, devops, testes, RPA, agilidade) | 19 em comum com o formulário geral; 20 em comum com o de Tecnologia |
-| planilha do formulário geral de skills | 137 (137 e-mails únicos) | Todas as práticas de consultoria (E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking): ferramentas, soft skills de consultoria, experiência setorial, certificações, preferência/restrição de alocação | 19 em comum com o Digital Skills; 0 em comum com o de Tecnologia |
+| planilha do formulário geral de skills | 137 (137 e-mails únicos) | Todas as práticas de consultoria e os setores: ferramentas, soft skills de consultoria, experiência setorial, certificações, preferência/restrição de alocação | 19 em comum com o Digital Skills; 0 em comum com o de Tecnologia |
 | planilha do formulário de skills de Tecnologia | 29 (29 e-mails únicos) | Especialização em segurança/infra (cloud, rede, identidade, OT/IoT, privacidade, resiliência cibernética) | 20 em comum com o de Digital; 0 em comum com o formulário geral |
 
 União das três: **228 e-mails distintos**. Ainda não cruzado contra o total de
@@ -205,7 +205,7 @@ qualquer mapeamento na camada de acesso.
 | `certificacoes[]` | lista categórica, restrição dura | Confirmado | STRING (texto livre de certificação) | `data/raw/skills/` (todos os três arquivos têm pergunta de certificação) |
 | `idiomas[]` | lista categórica, restrição dura | Confirmado, aproximado | STRING (resposta de formulário: inglês, espanhol, outras línguas) | base corporativa de colaboradores |
 | `experiencia_setorial[]` | vetor setor → intensidade, fit de domínio | Confirmado | STRING (texto livre, "em quais segmentos já executou projeto", por prática) | planilha do formulário geral de skills |
-| `expertise_funcional` | categórico / vetor, fit complementar | Confirmado | STRING (formulário organizado por prática: E&E, Talent, Strategy, Supply, Finance, Digital, Public Services, Health, Insurance, Banking) | planilha do formulário geral de skills; complementa base corporativa de colaboradores (Vertical, Frente) |
+| `expertise_funcional` | categórico / vetor, fit complementar | Confirmado | STRING (formulário organizado por prática e por setor) | planilha do formulário geral de skills; complementa base corporativa de colaboradores (Vertical, Frente) |
 | `soft_skills[]` | vetor do formulário de skills, fit qualitativo | Confirmado | STRING (bloco de habilidades de consultoria: estruturação de problema, storylining, design thinking, gestão da mudança...) | planilha do formulário geral de skills |
 | `recencia_skill[]` | vetor skill → data, decaimento | Parcial | POSIXct (`Hora de conclusão` do formulário) | derivável da data de resposta de cada planilha, não é recência por skill individual |
 
@@ -484,9 +484,10 @@ está. **Substituto encontrado: `Segmento` na base de oportunidades do CRM**,
 | Private Equity | 72 |
 
 E a distribuição de `Offering` (mesma tabela), 12 categorias reais, as duas
-maiores Experience & Efficiency (991) e Strategy and M&A (642), seguidas por
-Data Analytics & AI (530), Supply Chain (524), Tech Consulting (427), Finance
-(424), e mais 6 categorias menores. **Atualizar a decisão de proxy de `P`:
+maiores oferta_01 (991) e oferta_02 (642), seguidas por oferta_03 (530),
+oferta_04 (524), oferta_05 (427), oferta_06 (424), e mais 6 categorias menores.
+Os nomes reais das ofertas ficam fora do repositório; os códigos seguem a
+ordem das contagens e são os mesmos do gerador. **Atualizar a decisão de proxy de `P`:
 usar `Segmento` (não `Indústria` da base de clientes) e `Offering`.**
 
 **Duração de projeto: estimativa de baixa confiança, não usar sem
@@ -791,9 +792,8 @@ São ao menos dois conceitos distintos, e a diferença importa:
 * **frente interna**: iniciativa da casa, muitas vezes desassociada de
   projeto, com participação **voluntária**. Uma pessoa pode ser da frente
   interna de RH enquanto atua em projetos de cliente.
-* **frente ou capability dentro da vertical de Digital**: Data Science,
-  Data Analytics, Tech Strategy, Solutions, Cyber Security, Digital Products
-  & Platforms.
+* **frente ou capability dentro de uma vertical**: seis frentes, referidas
+  por código neutro onde aparecem (frente_01 a frente_04 na ponte abaixo).
 
 Consequências. A simplificação de `gerar_margem_frente_mes()`, que colapsa
 frente em projeto, fica registrada como **provavelmente incorreta** e não só
@@ -931,7 +931,7 @@ dos 772 projetos de 2026 tem valor mensal**.
 **O viés foi medido, e a conclusão é mista.** Nível de projeto não é enviesado:
 receita mediana, semanas, margem líquida e desconto ficam estáveis entre
 coberto e não coberto, em 2024, 2025 e 2026, e a base comercial de projetos é completa com
-2.330 linhas. Mas o **mix de offerings muda**: DATA ANALYTICS & AI passa de
+2.330 linhas. Mas o **mix de offerings muda**: a oferta_03 passa de
 cerca de 3% em 2024 para 10,5% em 2026. Tudo que depende da view mensal, isto
 é, forma da distribuição mensal, participação de estagiários, subcontratados
 e coligada, e meses por projeto, representa projetos de 2023 a meados de 2025 e
@@ -951,9 +951,8 @@ pela chave de CRM.
 ### Ponte entre frente e offering: existe como afinidade, é fraca em volume
 
 **Não há de-para documentado.** Há quatro taxonomias de offering em
-circulação, com grafias divergentes, e a do projeto carrega rótulos legados como
-"DIGITAL" genérico e "IT STRATEGY". O pilar digital das
-tabelas comerciais de Digital é o mais próximo de um de-para informal.
+circulação, com grafias divergentes, e a do projeto carrega rótulos legados genéricos. Um dos pilares
+das tabelas comerciais é o mais próximo de um de-para informal.
 
 **A offering do projeto não é a mesma do CRM.** Em 568 projetos casados, a
 igualdade exata de rótulo é de 24,1%, e sobe a 72,0% depois de normalizar
@@ -963,19 +962,19 @@ seis grafias. O restante são reclassificações reais, não erro de escrita.
 
 | Frente da pessoa | Offering do projeto com maior afinidade | Share das horas | Lift |
 |---|---|---|---|
-| DATA ANALYTICS | DATA ANALYTICS & AI | 15,9% | 9,94 |
-| TECH CONSULTING | TECH CONSULTING | 42,9% | 4,50 |
-| DIGITAL PRODUCTS & PLATFORMS | DIGITAL | 18,2% | 3,27 |
-| DATA SCIENCE | TECH CONSULTING | 16,6% | 1,75 |
+| frente_01 | oferta_03 | 15,9% | 9,94 |
+| frente_02 | oferta_05 | 42,9% | 4,50 |
+| frente_03 | oferta sem par no CRM | 18,2% | 3,27 |
+| frente_04 | oferta_05 | 16,6% | 1,75 |
 
-Nos dois sentidos, para Data Analytics e Data Science juntas: só **11,6%**
-das horas dessas frentes caem em projetos de DATA ANALYTICS & AI, e das horas de
+Nos dois sentidos, para frente_01 e frente_04 juntas: só **11,6%**
+das horas dessas frentes caem em projetos da oferta_03, e das horas de
 projetos dessa offering elas respondem por 21,2% do total.
 
 **Leitura para o bloco II.6.** A tendência que o dono do dado de RH descreveu
-existe, e o lift confirma: quase dez vezes a base para Data Analytics. Mas a
-maior parte das horas de qualquer frente cai nas offerings grandes, E&E e
-Strategy & M&A. O mecanismo é `P(offering | frente)` com massa dispersa, e
+existe, e o lift confirma: quase dez vezes a base para frente_01. Mas a
+maior parte das horas de qualquer frente cai nas offerings grandes, oferta_01
+e oferta_02. O mecanismo é `P(offering | frente)` com massa dispersa, e
 **não** pareamento de um para um. Isso é calibração direta para o viés de
 seleção que o bloco II.4 hoje planta com `prob_vies = 0,7`, que
 provavelmente superestima a concentração.
@@ -1042,7 +1041,7 @@ em 2025, e são provável artefato de projetos sem par na base comercial de proj
 7. `information_schema` defasado para algumas tabelas; usar `DESCRIBE`.
 8. Grafias divergentes de offering entre projeto, CRM e NetSuite.
 9. Frente vazia na vertical Consulting e valor "NENHUMA".
-10. Taxas "Solutions" são cópia das de IT, e há taxas de 2027 que são
+10. As taxas de uma das áreas são cópia das de IT, e há taxas de 2027 que são
     projeção e não série observada.
 
 ### Não verificado nesta rodada

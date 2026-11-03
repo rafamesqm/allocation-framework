@@ -1,0 +1,4 @@
+Extremo,Linha exata,Distância normalizada,"Afinidade, evolutiva","Afinidade, exata","Custo, evolutivo","Custo, exato","Sobrecarga atribuível, evolutiva","Sobrecarga atribuível, exata"
+Afinidade máxima,ótima,"1,599","528,5","663,1","-7,8%","-0,1%","146,7","448,1"
+Custo mínimo,ótima,"2,440","388,0","641,7","-9,4%","-9,8%","71,8","439,7"
+Sobrecarga mínima,incompleta,"0,882","459,8","552,6","-4,4%","-1,8%","25,7","0,4"

@@ -1,14 +1,14 @@
 #' Executa o bloco I.1 da EDA, conformidade e volumetria
 #'
 #' Concentra num só lugar tudo que o bloco calcula, formata, desenha e
-#' conclui. O documento em `analysis/` apenas lê este resultado e narra, e
+#' conclui. O documento em `outputs/results/eda/` apenas lê este resultado e narra, e
 #' por isso não recalcula nada: análise que roda duas vezes, uma na pipeline
 #' e outra no texto, é análise que pode divergir de si mesma.
 #'
 #' É essa concentração que faz a regra de coerência funcionar. Qualquer
 #' mudança no gerador invalida este alvo no `targets`, que reconstrói todos
 #' os artefatos do bloco. Falta só re-renderizar o documento, que é um passo
-#' explícito e único (ver `analysis/_renderizar.R`), deliberadamente fora da
+#' explícito e único (ver `outputs/results/eda/_renderizar.R`), deliberadamente fora da
 #' pipeline para `tar_make()` não exigir Pandoc de quem audita.
 #'
 #' **Os enunciados dos achados embutem os valores calculados**, em vez de
